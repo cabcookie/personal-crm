@@ -1,47 +1,43 @@
-import useProject from "@/api/useProject";
-import useProjectAccounts from "@/api/useProjectAccounts";
 import AccountName from "./account-name";
 import { FC } from "react";
 import styles from "./Tokens.module.css";
+import useAccounts from "@/api/useAccounts";
+
+type Project = {
+  id: string;
+  project: string;
+  accountIds?: string[];
+};
 
 type ProjectNameProps = {
-  projectId: string;
+  project: Project;
   noLinks?: boolean;
 };
 
-const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
-  const { project, loadingProject } = useProject(projectId);
-  const { projectAccountIds } = useProjectAccounts(projectId);
-
-  return !project ? (
-    "Loading project..."
-  ) : (
+const ProjectName: FC<ProjectNameProps> = ({ project, noLinks }) => {
+  const { accounts } = useAccounts();
+  return (
     <div>
       {noLinks ? (
-        <div className={styles.projectName}>
-          {project?.project}
-          <small> {(project.context || "none").toUpperCase()}</small>
-        </div>
+        <div className={styles.projectName}>{project?.project}</div>
       ) : (
-        <a href={`/projects/${projectId}`} className={styles.projectName}>
+        <a href={`/projects/${project.id}`} className={styles.projectName}>
           {project?.project}
-          <small style={{ color: "gray" }}>
-            {" "}
-            {(project.context || "none").toUpperCase()}
-          </small>
         </a>
       )}
       <div>
-        {projectAccountIds?.map(
-          ({ accountId }) =>
-            accountId && (
-              <AccountName
-                noLinks={noLinks}
-                key={accountId}
-                accountId={accountId}
-              />
-            )
-        )}
+        {project.accountIds
+          ?.map((accountId) => accounts?.find(({ id }) => id === accountId))
+          ?.map(
+            (account) =>
+              account && (
+                <AccountName
+                  noLinks={noLinks}
+                  key={account?.id}
+                  account={account}
+                />
+              )
+          )}
       </div>
     </div>
   );

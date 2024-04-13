@@ -7,8 +7,13 @@ import MeetingRecord from "@/components/meetings/meeting";
 
 export default function MeetingsPage() {
   const { context } = useContextContext();
-  const { meetings, loadingMeetings, meetingDates, createMeeting } =
-    useMeetings({ context });
+  const {
+    meetings,
+    loadingMeetings,
+    meetingDates,
+    createMeeting,
+    updateActivityNotes,
+  } = useMeetings({ context });
   const router = useRouter();
 
   const createAndOpenNewMeeting = async () => {
@@ -34,7 +39,11 @@ export default function MeetingsPage() {
                 date.toISOString().split("T")[0]
             )
             .map((meeting: Meeting) => (
-              <MeetingRecord key={meeting.id} meeting={meeting} />
+              <MeetingRecord
+                key={meeting.id}
+                meeting={meeting}
+                updateActivityNotes={updateActivityNotes}
+              />
             ))}
         </div>
       ))}

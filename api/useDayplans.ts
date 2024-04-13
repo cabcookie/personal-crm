@@ -1,38 +1,155 @@
 import { type Schema } from "@/amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import { SelectionSet, generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
 import { sortByDate } from "@/helpers/functional";
+import { Project } from "./useProject";
 const client = generateClient<Schema>();
 
-export type DayPlan = {
+type DayNonProjectTask = {
+  id: string;
+  task: string;
+  done: boolean;
+  createdAt: Date;
+};
+
+type DayProjectTask = {
+  id: string;
+  todo: string;
+  done: boolean;
+  createdAt: Date;
+  projectId?: string;
+  project?: Project;
+};
+
+export type DayPlanTodo = {
+  id: string;
+  todo: string;
+  done: boolean;
+  doneOn?: Date;
+  createdAt: Date;
+  projectId?: string;
+  project?: Project;
+};
+
+type DayPlan = {
   id: string;
   day: string;
   dayGoal: string;
-  done?: boolean;
+  context: Context;
+  done: boolean;
+  todos: DayPlanTodo[];
+  projectTasks: DayProjectTask[];
+  nonprojectTasks: DayNonProjectTask[];
 };
 
-const mapDayPlan: (dayplan: Schema["DayPlan"]) => DayPlan = ({
+const dayplanSelectionSet = [
+  "id",
+  "day",
+  "dayGoal",
+  "context",
+  "done",
+  "projectTasks.id",
+  "projectTasks.task",
+  "projectTasks.done",
+  "projectTasks.createdAt",
+  "projectTasks.projects.id",
+  "projectTasks.projects.project",
+  "projectTasks.projects.done",
+  "projectTasks.projects.accounts.id",
+  "tasks.id",
+  "tasks.task",
+  "tasks.done",
+  "tasks.createdAt",
+  "todos.id",
+  "todos.todo",
+  "todos.done",
+  "todos.doneOn",
+  "todos.createdAt",
+  "todos.project.id",
+  "todos.project.project",
+  "todos.project.done",
+  "todos.project.accounts.id",
+] as const;
+
+type DayPlanData = SelectionSet<Schema["DayPlan"], typeof dayplanSelectionSet>;
+
+const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
   id,
   day,
   dayGoal,
+  context,
   done,
+  tasks,
+  projectTasks,
+  todos,
 }) => ({
   id,
   day,
   dayGoal,
+  context: context || "work",
   done: !!done,
+  todos: todos
+    .map(({ id, todo, done, doneOn, createdAt, project }) => ({
+      id,
+      todo,
+      done: !!done,
+      createdAt: new Date(createdAt),
+      doneOn: doneOn ? new Date(doneOn) : undefined,
+      projectId: project?.id,
+      project: !project
+        ? undefined
+        : {
+            id: project.id,
+            project: project.project,
+            done: !!project.done,
+            accountIds: project.accounts?.map(({ id }) => id),
+          },
+    }))
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+  projectTasks: projectTasks
+    .map(({ id, task, done, createdAt, projects }) => ({
+      id,
+      todo: task,
+      done: !!done,
+      createdAt: new Date(createdAt),
+      projectId: projects.id,
+      project: {
+        id: projects.id,
+        project: projects.project,
+        done: !!projects.done,
+        accountIds: projects.accounts.map(({ id }) => id),
+      },
+    }))
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+  nonprojectTasks: tasks
+    .map(({ id, task, done, createdAt }) => ({
+      id,
+      task,
+      done: !!done,
+      createdAt: new Date(createdAt),
+    }))
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
 });
 
 const fetchDayPlans = (context?: Context) => async () => {
   if (!context) return;
   const { data, errors } = await client.models.DayPlan.list({
     filter: { done: { ne: "true" }, context: { eq: context } },
+    selectionSet: dayplanSelectionSet,
   });
   if (errors) throw errors;
   return data.map(mapDayPlan).sort((a, b) => sortByDate(true)([a.day, b.day]));
 };
+
+export type CreateTodoFn = (props: {
+  todo: string;
+  dayplanId: string;
+  projectId?: string;
+}) => Promise<Schema["DayPlanTodo"] | undefined>;
+
+type SwitchTodoDoneFn = (todoId: string, done: boolean) => Promise<void>;
 
 const useDayPlans = (context?: Context) => {
   const {
@@ -41,6 +158,86 @@ const useDayPlans = (context?: Context) => {
     isLoading: loadingDayPlans,
     mutate,
   } = useSWR(`/api/dayplans/${context}`, fetchDayPlans(context));
+
+  const migrateLegacyTasks = async (dayPlanId: string) => {
+    if (!context) return;
+    const dayplan = dayPlans?.find(({ id }) => id === dayPlanId);
+    if (!dayplan) return;
+    console.log("Start migration...", dayPlanId, dayplan);
+    const { projectTasks, nonprojectTasks } = dayplan;
+    const updated = dayPlans?.map((dp) =>
+      dp.id !== dayPlanId
+        ? dp
+        : {
+            ...dp,
+            projectTasks: [],
+            nonprojectTasks: [],
+            todos: [
+              ...projectTasks.map(
+                ({
+                  todo,
+                  done,
+                  projectId,
+                  project,
+                  createdAt,
+                }): DayPlanTodo => ({
+                  id: crypto.randomUUID(),
+                  todo,
+                  done,
+                  createdAt,
+                  projectId,
+                  project,
+                })
+              ),
+              ...nonprojectTasks.map(
+                ({ task, done, createdAt }): DayPlanTodo => ({
+                  id: crypto.randomUUID(),
+                  todo: task,
+                  done,
+                  createdAt,
+                })
+              ),
+            ],
+          }
+    );
+    mutate(updated, false);
+    for (let i = 0; i < projectTasks.length; i++) {
+      const task = projectTasks[i];
+      const { errors } = await client.models.DayPlanTodo.create({
+        context,
+        todo: task.todo,
+        dayPlanTodosId: dayPlanId,
+        done: task.done,
+        projectsTodosId: task.projectId,
+      });
+      if (errors) console.error("DayPlanTodo.create", errors);
+      if (!errors) {
+        const { errors } = await client.models.DayProjectTask.delete({
+          id: task.id,
+        });
+        if (errors) console.error("DayProjectTask.delete", errors);
+      }
+    }
+
+    for (let i = 0; i < nonprojectTasks.length; i++) {
+      const task = nonprojectTasks[i];
+      const { errors } = await client.models.DayPlanTodo.create({
+        context,
+        todo: task.task,
+        dayPlanTodosId: dayPlanId,
+        done: task.done,
+      });
+      if (errors) console.error("DayPlanTodo.create", errors);
+      if (!errors) {
+        const { errors } = await client.models.NonProjectTask.delete({
+          id: task.id,
+        });
+        if (errors) console.error("NonProjectTask.delete", errors);
+      }
+    }
+    mutate(updated);
+    console.log("Migration finished!");
+  };
 
   const createDayPlan = async (
     day: string,
@@ -53,6 +250,10 @@ const useDayPlans = (context?: Context) => {
       day,
       dayGoal,
       done: false,
+      context,
+      todos: [],
+      nonprojectTasks: [],
+      projectTasks: [],
     };
     const updatedDayPlans = [newDayPlan, ...(dayPlans || [])];
     mutate(updatedDayPlans, false);
@@ -75,12 +276,59 @@ const useDayPlans = (context?: Context) => {
     mutate(updatedDayPlans);
   };
 
+  const createTodo: CreateTodoFn = async ({ todo, dayplanId, projectId }) => {
+    if (!context) return;
+    const newTodo: DayPlanTodo = {
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
+      todo,
+      done: false,
+      projectId,
+    };
+    const updated = dayPlans?.map((dayplan) =>
+      dayplan.id !== dayplanId
+        ? dayplan
+        : { ...dayplan, todos: [...dayplan.todos, newTodo] }
+    );
+    mutate(updated, false);
+    const { data, errors } = await client.models.DayPlanTodo.create({
+      id: newTodo.id,
+      todo,
+      context,
+      dayPlanTodosId: dayplanId,
+      done: false,
+      projectsTodosId: projectId,
+    });
+    if (errors) handleApiErrors(errors, "Error creating todo");
+    mutate(updated);
+    return data;
+  };
+
+  const switchTodoDone: SwitchTodoDoneFn = async (todoId, done) => {
+    const updated = dayPlans?.map(({ todos, ...rest }) => ({
+      ...rest,
+      todos: todos.map((todo) =>
+        todo.id !== todoId ? todo : { ...todo, done: !done }
+      ),
+    }));
+    mutate(updated, false);
+    const { errors } = await client.models.DayPlanTodo.update({
+      id: todoId,
+      done: !done,
+    });
+    if (errors) handleApiErrors(errors, "Error updating todo status");
+    mutate(updated);
+  };
+
   return {
     dayPlans,
     errorDayPlans,
     loadingDayPlans,
     createDayPlan,
     completeDayPlan,
+    createTodo,
+    switchTodoDone,
+    migrateLegacyTasks,
   };
 };
 

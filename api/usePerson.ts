@@ -8,7 +8,10 @@ export type Person = {
   name: string;
 };
 
-export const mapPerson = ({ id, name }: Schema["Person"]): Person => ({
+export const mapPerson: (person: Schema["Person"]) => Person = ({
+  id,
+  name,
+}) => ({
   id,
   name,
 });

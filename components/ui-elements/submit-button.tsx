@@ -15,6 +15,7 @@ type SubmitButtonProps = (OnClickType | BtnType) & {
   children: ReactNode;
   wrapperClassName?: string;
   btnClassName?: string;
+  disabled?: boolean;
 };
 
 const SubmitButton: FC<SubmitButtonProps> = ({
@@ -23,6 +24,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({
   type,
   wrapperClassName,
   btnClassName,
+  disabled,
 }) => {
   return (
     <div className={wrapperClassName}>
@@ -30,6 +32,7 @@ const SubmitButton: FC<SubmitButtonProps> = ({
         className={`${btnClassName} ${styles.button}`}
         type={type}
         onClick={onClick}
+        disabled={disabled}
       >
         {children}
       </button>

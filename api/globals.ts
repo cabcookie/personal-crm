@@ -55,6 +55,7 @@ export const handleApiErrors = (
   errors: GraphQLFormattedError[],
   message?: string
 ) => {
+  console.error(message, errors);
   let errorText = flow(
     map(
       ({ errorType, message }: GraphQLFormattedError) =>

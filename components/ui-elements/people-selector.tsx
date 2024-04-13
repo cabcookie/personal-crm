@@ -3,8 +3,10 @@ import { FC, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
+type Person = { id: string; name: string };
+
 type PeopleSelectorProps = {
-  onChange: (personId: string) => void;
+  onChange: (person: Person) => void;
   clearAfterSelection?: boolean;
   allowNewPerson?: boolean;
 };
@@ -25,15 +27,23 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
 
   const selectPerson = async (selectedOption: any) => {
     if (!(allowNewPerson && selectedOption.__isNew__)) {
-      onChange(selectedOption.value as string);
+      const person = people?.find((p) => p.id === selectedOption.value);
+      if (!person) return;
+      onChange(person);
       if (clearAfterSelection) setSelectedOption(null);
       return;
     }
-    const personId = await createPerson(selectedOption.label);
-    if (!personId) return;
-    onChange(personId);
+    const person = await createPerson(selectedOption.label);
+    if (!person) return;
+    onChange(person);
     if (clearAfterSelection) setSelectedOption(null);
   };
+
+  const filterPeople = (personId: string, input: string) =>
+    !!people
+      ?.find((p) => p.id === personId)
+      ?.name.toLowerCase()
+      .includes(input.toLowerCase());
 
   return (
     <div>
@@ -44,6 +54,9 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
           isClearable
           isSearchable
           placeholder="Add person..."
+          filterOption={(candidate, input) =>
+            filterPeople(candidate.value, input)
+          }
           value={selectedOption}
         />
       ) : (
@@ -54,6 +67,9 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
           isSearchable
           placeholder="Add person..."
           value={selectedOption}
+          filterOption={(candidate, input) =>
+            filterPeople(candidate.value, input)
+          }
           formatCreateLabel={(inputValue) => `Create "${inputValue}"`}
         />
       )}

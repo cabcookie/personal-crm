@@ -3,7 +3,6 @@ import useProjectAccounts from "@/api/useProjectAccounts";
 import useProjectActivities from "@/api/useProjectActivities";
 import ActivityComponent from "@/components/activities/activity";
 import MainLayout from "@/components/layouts/MainLayout";
-import AccountName from "@/components/ui-elements/tokens/account-name";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
@@ -36,11 +35,7 @@ const ProjectDetailPage = () => {
       {project?.doneOn && (
         <div>Done On: {project.doneOn.toLocaleDateString()}</div>
       )}
-      {(projectAccountIds?.length || 0) > 0 && "Accounts: "}
-      {projectAccountIds?.map(
-        ({ accountId }) =>
-          accountId && <AccountName key={accountId} accountId={accountId} />
-      )}
+      {(projectAccountIds?.length || 0) > 0 && "Accounts: WORK IN PROGRESS"}
       {[
         { id: newActivityId },
         ...(projectActivities?.filter((pa) => pa.id !== newActivityId) || []),

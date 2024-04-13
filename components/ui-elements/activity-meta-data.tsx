@@ -1,8 +1,13 @@
-import { Activity } from "@/api/useActivity";
 import { FC } from "react";
 
+type Activity = {
+  id: string;
+  updatedAt: Date;
+  finishedOn: Date;
+};
+
 type ActivityMetaDataProps = {
-  activity?: Activity;
+  activity: Activity;
 };
 
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
@@ -15,17 +20,13 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 const makeLocaleString = (date: Date) =>
   date.toLocaleDateString(undefined, dateTimeOptions);
 
-const getUpdatedAtTime = ({ updatedAt, finishedOn }: Activity) =>
-  `Created: ${makeLocaleString(finishedOn)} ${
-    updatedAt.getTime() - finishedOn.getTime() < 1000 * 60
-      ? ""
-      : ` – Updated on: ${makeLocaleString(updatedAt)}`
-  }`;
-
 const ActivityMetaData: FC<ActivityMetaDataProps> = ({ activity }) => {
   return (
     <div style={{ color: "gray", fontSize: "var(--font-size-small)" }}>
-      {activity?.id && getUpdatedAtTime(activity)}
+      Created: {makeLocaleString(activity.finishedOn)}{" "}
+      {activity.updatedAt.getTime() - activity.finishedOn.getTime() < 1000 * 60
+        ? ""
+        : ` – Updated on: ${makeLocaleString(activity.updatedAt)}`}
     </div>
   );
 };

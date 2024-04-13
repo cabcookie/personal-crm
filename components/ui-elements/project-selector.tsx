@@ -4,11 +4,12 @@ import { FC, ReactNode, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import ProjectName from "./tokens/project-name";
+import { Project } from "@/api/useProject";
 
 type ProjectSelectorProps = {
   allowCreateProjects?: boolean;
   clearAfterSelection?: boolean;
-  onChange: (projectId: string | null) => void;
+  onChange: (project: Project) => void;
 };
 
 type ProjectListOption = {
@@ -32,19 +33,23 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
     setMappedOptions(
       projects?.map((project) => ({
         value: project.id,
-        label: <ProjectName noLinks projectId={project.id} />,
+        label: <ProjectName noLinks project={project} />,
       }))
     );
   }, [projects]);
 
   const selectProject = async (selectedOption: any) => {
     if (!(allowCreateProjects && selectedOption.__isNew__)) {
-      onChange(selectedOption.value);
+      const selectedProject = projects?.find(
+        ({ id }) => id === selectedOption.value
+      );
+      if (!selectedProject) return;
+      onChange(selectedProject);
       if (clearAfterSelection) setSelectedOption(null);
       return;
     }
-    const projectId = await createProject(selectedOption.label);
-    onChange(projectId);
+    const project = await createProject(selectedOption.label);
+    if (project) onChange(project);
     if (clearAfterSelection) setSelectedOption(null);
   };
 

@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { useEffect, useState } from "react";
-import { generateClient } from "aws-amplify/data";
+import { SelectionSet, generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
@@ -8,24 +8,85 @@ import { flow } from "lodash";
 import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
 const client = generateClient<Schema>();
 
+type Person = {
+  id: string;
+  name: string;
+};
+
+type Project = {
+  id: string;
+  project: string;
+  accountIds?: string[];
+};
+
+export type Activity = {
+  id: string;
+  notes: string;
+  projectIds: string[];
+  meetingId?: string;
+  finishedOn: Date;
+  updatedAt: Date;
+};
+
 export type Meeting = {
   id: string;
   topic: string;
   meetingOn: Date;
   context?: Context;
+  participants: Person[];
+  activities: Activity[];
 };
 
-export const mapMeeting: (data: Schema["Meeting"]) => Meeting = ({
+export const meetingSelectionSet = [
+  "id",
+  "topic",
+  "context",
+  "meetingOn",
+  "createdAt",
+  "participants.person.id",
+  "participants.person.name",
+  "activities.id",
+  "activities.notes",
+  "activities.finishedOn",
+  "activities.createdAt",
+  "activities.updatedAt",
+  "activities.forProjects.id",
+] as const;
+
+type MeetingData = SelectionSet<Schema["Meeting"], typeof meetingSelectionSet>;
+
+export const mapMeeting: (data: MeetingData) => Meeting = ({
   id,
   topic,
   meetingOn,
-  createdAt,
   context,
+  createdAt,
+  participants,
+  activities,
 }) => ({
   id,
   topic,
   meetingOn: new Date(meetingOn || createdAt),
   context: context || undefined,
+  participants: participants.map(({ person: { id, name } }) => ({ id, name })),
+  activities: activities
+    .map(
+      ({
+        id,
+        notes,
+        finishedOn,
+        forProjects,
+        createdAt,
+        updatedAt,
+      }): Activity => ({
+        id,
+        notes: notes || "",
+        projectIds: forProjects.map(({ id }) => id),
+        finishedOn: new Date(finishedOn || createdAt),
+        updatedAt: new Date(updatedAt),
+      })
+    )
+    .sort((a, b) => a.finishedOn.getTime() - b.finishedOn.getTime()),
 });
 
 const fetchMeetings = (page: number, context?: Context) => async () => {
@@ -61,6 +122,7 @@ const fetchMeetings = (page: number, context?: Context) => async () => {
         },
       ],
     },
+    selectionSet: meetingSelectionSet,
   });
   if (errors) throw errors;
   return data
@@ -93,6 +155,8 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       id: crypto.randomUUID(),
       topic,
       meetingOn: new Date(),
+      participants: [],
+      activities: [],
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
@@ -103,6 +167,24 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
     mutateMeetings(updatedMeetings);
+    return data.id;
+  };
+
+  const updateActivityNotes = async (notes: string, activityId: string) => {
+    const updated: Meeting[] =
+      meetings?.map((meeting) => ({
+        ...meeting,
+        activities: meeting.activities.map((activity) =>
+          activity.id !== activityId ? activity : { ...activity, notes }
+        ),
+      })) || [];
+    mutateMeetings(updated, false);
+    const { data, errors } = await client.models.Activity.update({
+      id: activityId,
+      notes,
+    });
+    if (errors) handleApiErrors(errors, "Error updating activity notes");
+    mutateMeetings(updated);
     return data.id;
   };
 
@@ -123,6 +205,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     loadingMeetings,
     meetingDates,
     createMeeting,
+    updateActivityNotes,
   };
 };
 

@@ -1,21 +1,18 @@
-import useAccount from "@/api/useAccount";
 import { FC } from "react";
 import styles from "./Tokens.module.css";
+import { Account } from "@/api/useAccounts";
 
 type AccountNameProps = {
-  accountId: string;
+  account: Account;
   noLinks?: boolean;
 };
 
-const AccountName: FC<AccountNameProps> = ({ accountId, noLinks }) => {
-  const { account, loadingAccount } = useAccount(accountId);
-  return loadingAccount ? (
-    "Loading account..."
-  ) : noLinks ? (
-    <span className={styles.accountName}>{account?.name}</span>
+const AccountName: FC<AccountNameProps> = ({ account, noLinks }) => {
+  return noLinks ? (
+    <span className={styles.accountName}>{account.name}</span>
   ) : (
-    <a href={`/accounts/${accountId}`} className={styles.accountName}>
-      {account?.name}
+    <a href={`/accounts/${account.id}`} className={styles.accountName}>
+      {account.name}
     </a>
   );
 };

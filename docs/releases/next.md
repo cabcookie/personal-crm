@@ -2,13 +2,12 @@
 
 ## Zusammenfassung der Änderungen
 
-- Ein neues Datenmodell eingeführt, um später Todos mit und ohne Projekt zusammenzufassen in einem Modell und entsprechend zu migrieren.
+- Ein neues Datenmodell eingeführt, um Todos mit und ohne Projekt zusammenzufassen in einem Modell und entsprechend zu migrieren.
+- Migration der Einträge dem Anwender anbieten.
 - Überflüssige Spalten und damit auch Modelle entfernt, um das Schema etwas schlanker zu machen.
+- Die Oberfläche scheint nun zuverlässiger die erstellten Einträge anzuzeigen.
 
 ## Bekannte Fehler
-
-- [ ] Aktivitäten werden nicht angezeigt
-- [ ] Limit für Personen ist zu klein
 
 ## Geplante neue Funktionen
 
@@ -43,3 +42,4 @@
 #### data
 
 - creating DayPlanTodo to later consolidate todos there [90901dc](https://github.com/cabcookie/personal-crm/commit/90901dcd3d2ba5ad45f8d4e918c08a07b16bee10)
+- removed unneccessary columns from models [967c80f](https://github.com/cabcookie/personal-crm/commit/967c80f02e7dfc678a9c013f06e8febe028f52a9)
