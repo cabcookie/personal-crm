@@ -45,3 +45,4 @@
 
 - creating DayPlanTodo to later consolidate todos there [90901dc](https://github.com/cabcookie/personal-crm/commit/90901dcd3d2ba5ad45f8d4e918c08a07b16bee10)
 - removed unneccessary columns from models [967c80f](https://github.com/cabcookie/personal-crm/commit/967c80f02e7dfc678a9c013f06e8febe028f52a9)
+- handle people, accounts, projects as contexts instead of hooks [860927b](https://github.com/cabcookie/personal-crm/commit/860927b40656aa62ef31b4af46980ac3d708c677)
