@@ -1,43 +1,43 @@
 import AccountName from "./account-name";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import styles from "./Tokens.module.css";
-import useAccounts from "@/api/useAccounts";
-
-type Project = {
-  id: string;
-  project: string;
-  accountIds?: string[];
-};
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 
 type ProjectNameProps = {
-  project: Project;
+  projectId: string;
   noLinks?: boolean;
 };
 
-const ProjectName: FC<ProjectNameProps> = ({ project, noLinks }) => {
-  const { accounts } = useAccounts();
+const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
+  const { getProjectById } = useProjectsContext();
+  const [project, setProject] = useState<Project | undefined>(
+    getProjectById(projectId)
+  );
+
+  useEffect(() => {
+    setProject(getProjectById(projectId));
+  }, [getProjectById, projectId]);
+
   return (
     <div>
       {noLinks ? (
         <div className={styles.projectName}>{project?.project}</div>
       ) : (
-        <a href={`/projects/${project.id}`} className={styles.projectName}>
+        <a href={`/projects/${project?.id}`} className={styles.projectName}>
           {project?.project}
         </a>
       )}
       <div>
-        {project.accountIds
-          ?.map((accountId) => accounts?.find(({ id }) => id === accountId))
-          ?.map(
-            (account) =>
-              account && (
-                <AccountName
-                  noLinks={noLinks}
-                  key={account?.id}
-                  account={account}
-                />
-              )
-          )}
+        {project?.accountIds?.map(
+          (accountId) =>
+            accountId && (
+              <AccountName
+                noLinks={noLinks}
+                key={accountId}
+                accountId={accountId}
+              />
+            )
+        )}
       </div>
     </div>
   );

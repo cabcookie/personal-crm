@@ -13,6 +13,7 @@ import {
   useNavMenuContext,
 } from "@/contexts/NavMenuContext";
 import { addOutsideMenuClickListener } from "@/helpers/mouse-events/navigation";
+import { AccountsContextProvider } from "@/api/ContextAccounts";
 
 type MainLayoutProps = CategoryTitleProps & {
   context?: Context;
@@ -71,10 +72,14 @@ export const MainLayoutInner: FC<MainLayoutProps> = ({
   );
 };
 
-const MainLayout: FC<MainLayoutProps> = (props) => (
-  <NavMenuContextProvider>
-    <MainLayoutInner {...props} />
-  </NavMenuContextProvider>
-);
+const MainLayout: FC<MainLayoutProps> = (props) => {
+  return (
+    <NavMenuContextProvider>
+      <AccountsContextProvider>
+        <MainLayoutInner {...props} />
+      </AccountsContextProvider>
+    </NavMenuContextProvider>
+  );
+};
 
 export default MainLayout;

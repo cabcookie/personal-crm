@@ -6,10 +6,9 @@ import { TransformNotesToMdFunction } from "../ui-elements/notes-writer/notes-wr
 import { Descendant } from "slate";
 import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
 import ActivityMetaData from "../ui-elements/activity-meta-data";
-import { useContextContext } from "@/contexts/ContextContext";
-import useProjects from "@/api/useProjects";
+import { toLocaleDateTimeString } from "@/helpers/functional";
 
-type Activity = {
+export type Activity = {
   id: string;
   notes: string;
   finishedOn: Date;
@@ -35,8 +34,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showProjects,
   createActivity,
 }) => {
-  const { context } = useContextContext();
-  const { projects } = useProjects(context);
   const [notesSaved, setNotesSaved] = useState(true);
 
   const handleNotesUpdate = (
@@ -57,16 +54,14 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
     <div style={{ marginBottom: "2rem" }}>
       {showDates && (
         <h2>
-          {activity?.finishedOn.toLocaleString() || "Create new activity"}
+          {toLocaleDateTimeString(activity?.finishedOn) ||
+            "Create new activity"}
         </h2>
       )}
       {showProjects &&
-        activity.projectIds
-          ?.map((projectId) => projects?.find((p) => p.id === projectId))
-          .map(
-            (project) =>
-              project && <ProjectName key={project.id} project={project} />
-          )}
+        activity.projectIds?.map((projectId) => (
+          <ProjectName key={projectId} projectId={projectId} />
+        ))}
       {showMeeting && activity.meetingId && (
         <MeetingName meetingId={activity.meetingId} />
       )}

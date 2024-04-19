@@ -5,11 +5,6 @@ import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
-type Person = {
-  id: string;
-  name: string;
-};
-
 type MeetingUpdateProps = {
   meetingId: string;
   meetingOn: Date;
@@ -32,7 +27,7 @@ const useMeeting = (meetingId?: string) => {
     error: errorMeeting,
     isLoading: loadingMeeting,
     mutate: mutateMeeting,
-  } = useSWR(`/api/meeting/${meetingId}`, fetchMeeting(meetingId));
+  } = useSWR(`/api/meetings/${meetingId}`, fetchMeeting(meetingId));
 
   const updateMeeting = async ({
     meetingId,
@@ -43,7 +38,7 @@ const useMeeting = (meetingId?: string) => {
       id: meetingId,
       topic: title,
       meetingOn,
-      participants: [],
+      participantIds: [],
       activities: [],
     };
     mutateMeeting(updated, false);
@@ -57,15 +52,16 @@ const useMeeting = (meetingId?: string) => {
     return data.id;
   };
 
-  const createMeetingParticipant = async (person: Person) => {
+  const createMeetingParticipant = async (personId: string) => {
     if (!meeting) return;
+
     const updated: Meeting = {
       ...meeting,
-      participants: [...(meeting?.participants || []), person],
+      participantIds: [...(meeting?.participantIds || []), personId],
     };
     mutateMeeting(updated, false);
     const { data, errors } = await client.models.MeetingParticipant.create({
-      personId: person.id,
+      personId,
       meetingId,
     });
     if (errors) handleApiErrors(errors, "Error creating meeting participant");
@@ -127,7 +123,7 @@ const useMeeting = (meetingId?: string) => {
       activities: meeting.activities.map((a) =>
         a.id !== activityId
           ? a
-          : { ...a, projectIds: [...a.projectIds, projectId] }
+          : { ...a, projectIds: [...(a.projectIds || []), projectId] }
       ),
     };
     mutateMeeting(updated, false);

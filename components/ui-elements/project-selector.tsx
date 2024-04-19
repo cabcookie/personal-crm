@@ -1,15 +1,13 @@
-import useProjects from "@/api/useProjects";
-import { useContextContext } from "@/contexts/ContextContext";
 import { FC, ReactNode, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import ProjectName from "./tokens/project-name";
-import { Project } from "@/api/useProject";
+import { useProjectsContext } from "@/api/ContextProjects";
 
 type ProjectSelectorProps = {
   allowCreateProjects?: boolean;
   clearAfterSelection?: boolean;
-  onChange: (project: Project) => void;
+  onChange: (projectId: string) => void;
 };
 
 type ProjectListOption = {
@@ -22,8 +20,7 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
   onChange,
   clearAfterSelection,
 }) => {
-  const { context } = useContextContext();
-  const { projects, loadingProjects, createProject } = useProjects(context);
+  const { projects, createProject, loadingProjects } = useProjectsContext();
   const [mappedOptions, setMappedOptions] = useState<
     ProjectListOption[] | undefined
   >();
@@ -33,23 +30,21 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
     setMappedOptions(
       projects?.map((project) => ({
         value: project.id,
-        label: <ProjectName noLinks project={project} />,
+        label: <ProjectName noLinks projectId={project.id} />,
       }))
     );
   }, [projects]);
 
   const selectProject = async (selectedOption: any) => {
     if (!(allowCreateProjects && selectedOption.__isNew__)) {
-      const selectedProject = projects?.find(
-        ({ id }) => id === selectedOption.value
-      );
+      const selectedProject = selectedOption.value;
       if (!selectedProject) return;
       onChange(selectedProject);
       if (clearAfterSelection) setSelectedOption(null);
       return;
     }
     const project = await createProject(selectedOption.label);
-    if (project) onChange(project);
+    if (project) onChange(project.id);
     if (clearAfterSelection) setSelectedOption(null);
   };
 

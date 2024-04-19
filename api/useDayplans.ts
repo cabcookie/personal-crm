@@ -4,7 +4,6 @@ import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
 import { sortByDate } from "@/helpers/functional";
-import { Project } from "./useProject";
 const client = generateClient<Schema>();
 
 type DayNonProjectTask = {
@@ -20,7 +19,6 @@ type DayProjectTask = {
   done: boolean;
   createdAt: Date;
   projectId?: string;
-  project?: Project;
 };
 
 export type DayPlanTodo = {
@@ -30,7 +28,6 @@ export type DayPlanTodo = {
   doneOn?: Date;
   createdAt: Date;
   projectId?: string;
-  project?: Project;
 };
 
 type DayPlan = {
@@ -55,9 +52,6 @@ const dayplanSelectionSet = [
   "projectTasks.done",
   "projectTasks.createdAt",
   "projectTasks.projects.id",
-  "projectTasks.projects.project",
-  "projectTasks.projects.done",
-  "projectTasks.projects.accounts.id",
   "tasks.id",
   "tasks.task",
   "tasks.done",
@@ -68,9 +62,6 @@ const dayplanSelectionSet = [
   "todos.doneOn",
   "todos.createdAt",
   "todos.project.id",
-  "todos.project.project",
-  "todos.project.done",
-  "todos.project.accounts.id",
 ] as const;
 
 type DayPlanData = SelectionSet<Schema["DayPlan"], typeof dayplanSelectionSet>;
@@ -98,14 +89,6 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
       createdAt: new Date(createdAt),
       doneOn: doneOn ? new Date(doneOn) : undefined,
       projectId: project?.id,
-      project: !project
-        ? undefined
-        : {
-            id: project.id,
-            project: project.project,
-            done: !!project.done,
-            accountIds: project.accounts?.map(({ id }) => id),
-          },
     }))
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
   projectTasks: projectTasks
@@ -115,12 +98,6 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
       done: !!done,
       createdAt: new Date(createdAt),
       projectId: projects.id,
-      project: {
-        id: projects.id,
-        project: projects.project,
-        done: !!projects.done,
-        accountIds: projects.accounts.map(({ id }) => id),
-      },
     }))
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
   nonprojectTasks: tasks
@@ -174,19 +151,12 @@ const useDayPlans = (context?: Context) => {
             nonprojectTasks: [],
             todos: [
               ...projectTasks.map(
-                ({
-                  todo,
-                  done,
-                  projectId,
-                  project,
-                  createdAt,
-                }): DayPlanTodo => ({
+                ({ todo, done, projectId, createdAt }): DayPlanTodo => ({
                   id: crypto.randomUUID(),
                   todo,
                   done,
                   createdAt,
                   projectId,
-                  project,
                 })
               ),
               ...nonprojectTasks.map(

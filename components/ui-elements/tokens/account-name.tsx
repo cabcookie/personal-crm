@@ -1,18 +1,25 @@
 import { FC } from "react";
 import styles from "./Tokens.module.css";
-import { Account } from "@/api/useAccounts";
+import { useAccountsContext } from "@/api/ContextAccounts";
 
 type AccountNameProps = {
-  account: Account;
+  accountId: string;
   noLinks?: boolean;
 };
 
-const AccountName: FC<AccountNameProps> = ({ account, noLinks }) => {
+const AccountName: FC<AccountNameProps> = ({ accountId, noLinks }) => {
+  const { getAccountById } = useAccountsContext();
+
   return noLinks ? (
-    <span className={styles.accountName}>{account.name}</span>
+    <span className={styles.accountName}>
+      {getAccountById(accountId)?.name}
+    </span>
   ) : (
-    <a href={`/accounts/${account.id}`} className={styles.accountName}>
-      {account.name}
+    <a
+      href={`/accounts/${getAccountById(accountId)?.id}`}
+      className={styles.accountName}
+    >
+      {getAccountById(accountId)?.name}
     </a>
   );
 };

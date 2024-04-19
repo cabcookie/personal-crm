@@ -5,12 +5,15 @@
 - Ein neues Datenmodell eingeführt, um Todos mit und ohne Projekt zusammenzufassen in einem Modell und entsprechend zu migrieren.
 - Migration der Einträge dem Anwender anbieten.
 - Überflüssige Spalten und damit auch Modelle entfernt, um das Schema etwas schlanker zu machen.
-- Die Oberfläche scheint nun zuverlässiger die erstellten Einträge anzuzeigen.
+- Die Oberfläche scheint nun zuverlässiger, die erstellten Einträge anzuzeigen.
+- Für die Datenmodelle, die an vielen Stellen verwendet werden, verwenden wir jetzt Kontexte, so dass sie an mehreren Stellen in der Applikation wiederverwendet werden können. Das gilt für Projekte, Accounts und für Personen.
 
 ## Bekannte Fehler
 
 ## Geplante neue Funktionen
 
+- [ ] Markdown unterstützen
+- [ ] Next Actions aus Projekten anzeigen
 - [ ] Numerierte Listen unterstützen
 - [ ] Tasks müssen in der Liste direkt editierbar sein, ohne dass der Task geöffnet werden muss
 - [ ] Die Suche funktioniert im Moment nicht
@@ -20,7 +23,6 @@
 - [ ] Personenliste und Detailseite
 - [ ] Account-Liste und Detailseite
 - [ ] Projekte sollen abgeschlossen werden können
-- [ ] Kontexte mit Tastaturkombinationen wechseln (^+W, ^+H, ^+P)
 - [ ] Tastaturbefehle anzeigen, wenn die "Control" Taste gedrückt ist
 - [ ] Integration von Bildern in Notizen ermöglichen
 - [ ] Über Pagination nachdenken, damit sich die Ladezeiten optimieren

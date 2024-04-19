@@ -1,11 +1,22 @@
-import usePerson from "@/api/usePerson";
+import { usePeopleContext } from "@/api/ContextPeople";
 import MainLayout from "@/components/layouts/MainLayout";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const PersonDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { person, loadingPerson } = usePerson(Array.isArray(id) ? id[0] : id);
+  const personId = Array.isArray(id) ? id[0] : id;
+  const { getPersonById, loadingPeople } = usePeopleContext();
+  const [person, setPerson] = useState(
+    personId ? getPersonById(personId) : undefined
+  );
+
+  useEffect(() => {
+    if (personId) {
+      setPerson(getPersonById(personId));
+    }
+  }, [getPersonById, personId]);
 
   return (
     <MainLayout
@@ -13,7 +24,7 @@ const PersonDetailPage = () => {
       recordName={person?.name}
       sectionName="People"
     >
-      {loadingPerson && "Loading person..."}
+      {loadingPeople && "Loading person..."}
       {JSON.stringify(person)}
     </MainLayout>
   );

@@ -5,7 +5,6 @@ import { IoCheckboxSharp, IoSquareOutline } from "react-icons/io5";
 import ProjectName from "../ui-elements/tokens/project-name";
 import { DayPlanTodo } from "@/api/useDayplans";
 import ProjectSelector from "../ui-elements/project-selector";
-import { Project } from "@/api/useProject";
 import SubmitButton from "../ui-elements/submit-button";
 
 type TaskProps = {
@@ -19,23 +18,23 @@ type TaskProps = {
 };
 
 const Task: FC<TaskProps> = ({
-  todo: { id, todo, done, project },
+  todo: { id, todo, done, projectId },
   switchTodoDone,
   isNew,
   createTodo,
 }) => {
   const [task, setTask] = useState("");
-  const [taskProject, setTaskProject] = useState<Project | null>(null);
+  const [taskProjectId, setTaskProjectId] = useState<string | null>(null);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    createTodo && createTodo(task, taskProject ? taskProject.id : undefined);
+    createTodo && createTodo(task, taskProjectId || undefined);
     setTask("");
-    setTaskProject(null);
+    setTaskProjectId(null);
   };
 
-  const handleProjectChange = (project: Project) => {
-    setTaskProject(project);
+  const handleProjectChange = (projectId: string) => {
+    setTaskProjectId(projectId);
   };
 
   return (
@@ -51,7 +50,7 @@ const Task: FC<TaskProps> = ({
           <div className={styles.postBody}>
             <div>{todo}</div>
             <div className={styles.description}>
-              {project && <ProjectName project={project} />}
+              {projectId && <ProjectName projectId={projectId} />}
             </div>
           </div>
         ) : (
@@ -65,7 +64,7 @@ const Task: FC<TaskProps> = ({
                 placeholder="Add a todo..."
               />
               <div className={styles.description}>
-                {taskProject && <ProjectName project={taskProject} />}
+                {taskProjectId && <ProjectName projectId={taskProjectId} />}
                 <ProjectSelector
                   allowCreateProjects
                   onChange={handleProjectChange}

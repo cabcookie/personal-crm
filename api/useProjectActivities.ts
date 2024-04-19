@@ -1,13 +1,17 @@
 import { type Schema } from "@/amplify/data/resource";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import useSWR from "swr";
+import { Activity } from "@/components/activities/activity";
 const client = generateClient<Schema>();
 
 const selectionSet = [
   "activity.id",
+  "activity.notes",
   "activity.finishedOn",
   "activity.createdAt",
+  "activity.updatedAt",
+  "activity.forMeeting.id",
 ] as const;
 
 type ProjectActivitiesData = SelectionSet<
@@ -15,16 +19,14 @@ type ProjectActivitiesData = SelectionSet<
   typeof selectionSet
 >;
 
-type ProjectActivity = {
-  id: string;
-  finishedOn: Date;
-};
-
 const mapProjectActivity = ({
-  activity: { id, finishedOn, createdAt },
-}: ProjectActivitiesData): ProjectActivity => ({
+  activity: { id, notes, finishedOn, createdAt, updatedAt, forMeeting },
+}: ProjectActivitiesData): Activity => ({
   id,
+  notes: notes || "",
   finishedOn: new Date(finishedOn || createdAt),
+  updatedAt: new Date(updatedAt),
+  meetingId: forMeeting.id,
 });
 
 const fetchProjectActivities = (projectId?: string) => async () => {
@@ -62,10 +64,12 @@ const useProjectActivities = (projectId?: string) => {
       );
       return;
     }
-    const updated: ProjectActivity[] = [
+    const updated: Activity[] = [
       {
         id: activity.id,
+        notes: "",
         finishedOn: new Date(activity.finishedOn || activity.createdAt),
+        updatedAt: new Date(),
       },
       ...(projectActivities || []),
     ];
@@ -83,11 +87,27 @@ const useProjectActivities = (projectId?: string) => {
     return data.activityId;
   };
 
+  const updateActivityNotes = async (notes: string, activityId: string) => {
+    const updated: Activity[] =
+      projectActivities?.map((activity) =>
+        activity.id !== activityId ? activity : { ...activity, notes }
+      ) || [];
+    if (updated) mutateProjectActivities(updated, false);
+    const { data, errors } = await client.models.Activity.update({
+      id: activityId,
+      notes,
+    });
+    if (errors) handleApiErrors(errors, "Error updating activitiy notes");
+    if (updated) mutateProjectActivities(updated);
+    return data.id;
+  };
+
   return {
     projectActivities,
     errorProjectActivity,
     loadingProjectActivities,
     createProjectActivity,
+    updateActivityNotes,
   };
 };
 

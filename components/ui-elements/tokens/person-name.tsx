@@ -1,17 +1,21 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import styles from "./Tokens.module.css";
+import { usePeopleContext } from "@/api/ContextPeople";
 
 type PersonNameProps = {
-  person: { id: string; name: string };
+  personId: string;
   noLinks?: boolean;
 };
 
-const PersonName: FC<PersonNameProps> = ({ person, noLinks }) => {
+const PersonName: FC<PersonNameProps> = ({ personId, noLinks }) => {
+  const { getPersonById } = usePeopleContext();
+  const [person] = useState(getPersonById(personId));
+
   return noLinks ? (
-    <span className={styles.personName}>{person.name}</span>
+    <span className={styles.personName}>{person?.name}</span>
   ) : (
-    <a href={`/people/${person.id}`} className={styles.personName}>
-      {person.name}
+    <a href={`/people/${personId}`} className={styles.personName}>
+      {person?.name}
     </a>
   );
 };

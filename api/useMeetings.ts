@@ -6,34 +6,15 @@ import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
 import { flow } from "lodash";
 import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
+import { Activity } from "@/components/activities/activity";
 const client = generateClient<Schema>();
-
-type Person = {
-  id: string;
-  name: string;
-};
-
-type Project = {
-  id: string;
-  project: string;
-  accountIds?: string[];
-};
-
-export type Activity = {
-  id: string;
-  notes: string;
-  projectIds: string[];
-  meetingId?: string;
-  finishedOn: Date;
-  updatedAt: Date;
-};
 
 export type Meeting = {
   id: string;
   topic: string;
-  meetingOn: Date;
   context?: Context;
-  participants: Person[];
+  meetingOn: Date;
+  participantIds: string[];
   activities: Activity[];
 };
 
@@ -44,7 +25,6 @@ export const meetingSelectionSet = [
   "meetingOn",
   "createdAt",
   "participants.person.id",
-  "participants.person.name",
   "activities.id",
   "activities.notes",
   "activities.finishedOn",
@@ -68,22 +48,22 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   topic,
   meetingOn: new Date(meetingOn || createdAt),
   context: context || undefined,
-  participants: participants.map(({ person: { id, name } }) => ({ id, name })),
+  participantIds: participants.map(({ person: { id } }) => id),
   activities: activities
     .map(
       ({
         id,
         notes,
         finishedOn,
-        forProjects,
         createdAt,
         updatedAt,
+        forProjects,
       }): Activity => ({
         id,
         notes: notes || "",
-        projectIds: forProjects.map(({ id }) => id),
         finishedOn: new Date(finishedOn || createdAt),
         updatedAt: new Date(updatedAt),
+        projectIds: forProjects.map(({ id }) => id),
       })
     )
     .sort((a, b) => a.finishedOn.getTime() - b.finishedOn.getTime()),
@@ -91,7 +71,11 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
 
 const fetchMeetings = (page: number, context?: Context) => async () => {
   if (!context) return;
-  const compareDate = flow(addDaysToDate(-4 * 7), getDayOfDate)(new Date());
+  const toDate = flow(
+    addDaysToDate(-4 * (page - 1) * 7 + 1),
+    getDayOfDate
+  )(new Date());
+  const fromDate = flow(addDaysToDate(-4 * page * 7), getDayOfDate)(new Date());
   const { data, errors } = await client.models.Meeting.list({
     filter: {
       and: [
@@ -110,12 +94,15 @@ const fetchMeetings = (page: number, context?: Context) => async () => {
         {
           or: [
             {
-              meetingOn: { gt: compareDate },
+              and: [
+                { meetingOn: { gt: fromDate } },
+                { meetingOn: { le: toDate } },
+              ],
             },
             {
               and: [
                 { meetingOn: { attributeExists: false } },
-                { createdAt: { gt: compareDate } },
+                { createdAt: { gt: fromDate } },
               ],
             },
           ],
@@ -155,7 +142,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       id: crypto.randomUUID(),
       topic,
       meetingOn: new Date(),
-      participants: [],
+      participantIds: [],
       activities: [],
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];

@@ -9,9 +9,19 @@ import ProjectNotesForm from "@/components/ui-elements/project-notes-form/projec
 import { useEffect, useMemo, useState } from "react";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
 import { debounce } from "lodash";
-import { Activity } from "@/api/useMeetings";
+import { Activity } from "@/components/activities/activity";
 
-type Person = { id: string; name: string };
+const makeNewActivity: (id: string, meetingId?: string) => Activity = (
+  id,
+  meetingId
+) => ({
+  id,
+  finishedOn: new Date(),
+  notes: "",
+  meetingId,
+  updatedAt: new Date(),
+  projectIds: [],
+});
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -69,9 +79,9 @@ const MeetingDetailPage = () => {
     });
   };
 
-  const addParticipant = async (person: Person) => {
+  const addParticipant = async (personId: string) => {
     setParticipantsSaved(false);
-    const data = await createMeetingParticipant(person);
+    const data = await createMeetingParticipant(personId);
     if (data) setParticipantsSaved(true);
   };
 
@@ -112,9 +122,9 @@ const MeetingDetailPage = () => {
             selectHours
           />
           <h2>Participants:</h2>
-          {meeting.participants.map(
-            (person) => person && <PersonName key={person.id} person={person} />
-          )}
+          {meeting.participantIds.map((id) => (
+            <PersonName key={id} personId={id} />
+          ))}
           <SavedState saved={participantsSaved} />
           <PeopleSelector
             onChange={addParticipant}
@@ -125,14 +135,7 @@ const MeetingDetailPage = () => {
           {[
             ...(meeting.activities.filter((ma) => ma.id !== newActivityId) ||
               []),
-            {
-              id: newActivityId,
-              finishedOn: new Date(),
-              notes: "",
-              meetingId,
-              updatedAt: new Date(),
-              projectIds: [],
-            } as Activity,
+            makeNewActivity(newActivityId, meetingId),
           ].map((activity) => (
             <ProjectNotesForm
               key={activity.id}

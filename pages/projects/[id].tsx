@@ -1,24 +1,43 @@
-import useProject from "@/api/useProject";
-import useProjectAccounts from "@/api/useProjectAccounts";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useProjectActivities from "@/api/useProjectActivities";
-import ActivityComponent from "@/components/activities/activity";
+import ActivityComponent, { Activity } from "@/components/activities/activity";
 import MainLayout from "@/components/layouts/MainLayout";
+import AccountName from "@/components/ui-elements/tokens/account-name";
+import { toLocaleDateString } from "@/helpers/functional";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const ProjectDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const projectId = Array.isArray(id) ? id[0] : id;
-  const { project, loadingProject } = useProject(projectId);
-  const { projectActivities, createProjectActivity } =
+  const { getProjectById, loadingProjects } = useProjectsContext();
+  const [project, setProject] = useState<Project | undefined>(
+    projectId ? getProjectById(projectId) : undefined
+  );
+  const { projectActivities, createProjectActivity, updateActivityNotes } =
     useProjectActivities(projectId);
-  const { projectAccountIds } = useProjectAccounts(projectId);
-  const [newActivityId, setNewActivityId] = useState(crypto.randomUUID());
+  const [newActivity, setNewActivity] = useState<Activity>({
+    id: crypto.randomUUID(),
+    notes: "",
+    finishedOn: new Date(),
+    updatedAt: new Date(),
+  });
+
+  useEffect(() => {
+    if (projectId) {
+      setProject(getProjectById(projectId));
+    }
+  }, [getProjectById, projectId]);
 
   const saveNewActivity = async (notes?: string) => {
-    const data = await createProjectActivity(newActivityId, notes);
-    setNewActivityId(crypto.randomUUID());
+    const data = await createProjectActivity(newActivity.id, notes);
+    setNewActivity({
+      id: crypto.randomUUID(),
+      notes: "",
+      finishedOn: new Date(),
+      updatedAt: new Date(),
+    });
     return data;
   };
 
@@ -28,26 +47,27 @@ const ProjectDetailPage = () => {
       recordName={project?.project}
       sectionName="Projects"
     >
-      {loadingProject && "Loading project..."}
-      {project?.dueOn && (
-        <div>Due On: {project.dueOn.toLocaleDateString()}</div>
-      )}
+      {loadingProjects && "Loading project..."}
+      {project?.dueOn && <div>Due On: {toLocaleDateString(project.dueOn)}</div>}
       {project?.doneOn && (
-        <div>Done On: {project.doneOn.toLocaleDateString()}</div>
+        <div>Done On: {toLocaleDateString(project.doneOn)}</div>
       )}
-      {(projectAccountIds?.length || 0) > 0 && "Accounts: WORK IN PROGRESS"}
+      {project?.accountIds.map((accountId) => (
+        <AccountName key={accountId} accountId={accountId} />
+      ))}
       {[
-        { id: newActivityId },
-        ...(projectActivities?.filter((pa) => pa.id !== newActivityId) || []),
+        newActivity,
+        ...(projectActivities?.filter(({ id }) => id !== newActivity.id) || []),
       ].map((activity) => (
         <ActivityComponent
           key={activity.id}
-          activityId={activity.id}
+          activity={activity}
           showDates
           showMeeting
           createActivity={
-            activity.id === newActivityId ? saveNewActivity : undefined
+            activity.id === newActivity.id ? saveNewActivity : undefined
           }
+          updateActivityNotes={updateActivityNotes}
         />
       ))}
     </MainLayout>

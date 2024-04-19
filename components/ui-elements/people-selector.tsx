@@ -1,12 +1,10 @@
-import usePeople from "@/api/usePeople";
+import { usePeopleContext } from "@/api/ContextPeople";
 import { FC, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 
-type Person = { id: string; name: string };
-
 type PeopleSelectorProps = {
-  onChange: (person: Person) => void;
+  onChange: (personId: string) => void;
   clearAfterSelection?: boolean;
   allowNewPerson?: boolean;
 };
@@ -16,7 +14,7 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
   clearAfterSelection,
   allowNewPerson,
 }) => {
-  const { people, createPerson } = usePeople();
+  const { people, createPerson } = usePeopleContext();
   const [selectedOption, setSelectedOption] = useState<any>(null);
 
   const mapOptions = () =>
@@ -27,15 +25,14 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
 
   const selectPerson = async (selectedOption: any) => {
     if (!(allowNewPerson && selectedOption.__isNew__)) {
-      const person = people?.find((p) => p.id === selectedOption.value);
-      if (!person) return;
-      onChange(person);
+      const personId = selectedOption.value;
+      onChange(personId);
       if (clearAfterSelection) setSelectedOption(null);
       return;
     }
     const person = await createPerson(selectedOption.label);
     if (!person) return;
-    onChange(person);
+    onChange(person.id);
     if (clearAfterSelection) setSelectedOption(null);
   };
 

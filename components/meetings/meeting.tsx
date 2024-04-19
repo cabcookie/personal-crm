@@ -8,6 +8,7 @@ type MeetingRecordProps = {
   meeting: Meeting;
   updateActivityNotes: (notes: string, activityId: string) => Promise<string>;
 };
+
 const MeetingRecord: FC<MeetingRecordProps> = ({
   meeting,
   updateActivityNotes,
@@ -27,10 +28,10 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
       </a>
     </h2>
     <div>
-      {meeting.participants.length > 0 && "Attendees: "}
-      {meeting.participants.map(
-        (person) => person && <PersonName key={person.id} person={person} />
-      )}
+      {meeting.participantIds.length > 0 && "Attendees: "}
+      {meeting.participantIds.map((personId) => (
+        <PersonName key={personId} personId={personId} />
+      ))}
       {meeting.activities.length > 0 && <h3>Meeting notes:</h3>}
       {meeting.activities.map((activity) => (
         <ActivityComponent

@@ -7,20 +7,7 @@ import { Descendant } from "slate";
 import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
 import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
-import useProjects from "@/api/useProjects";
-import { useContextContext } from "@/contexts/ContextContext";
-
-type Project = {
-  id: string;
-};
-
-type Activity = {
-  id: string;
-  notes?: string;
-  projectIds?: string[];
-  finishedOn: Date;
-  updatedAt: Date;
-};
+import { Activity } from "@/components/activities/activity";
 
 type ProjectNotesFormProps = {
   className?: string;
@@ -40,19 +27,17 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   updateActivityNotes,
   addProjectToActivity,
 }) => {
-  const { context } = useContextContext();
-  const { projects } = useProjects(context);
   const [notesSaved, setNotesSaved] = useState(true);
 
-  const handleSelectProject = async (project: Project) => {
-    if (!project) return;
+  const handleSelectProject = async (projectId: string) => {
+    if (!projectId) return;
     if (createActivity) {
       const newId = await createActivity();
       if (!newId) return;
-      await addProjectToActivity(project.id, newId);
+      await addProjectToActivity(projectId, newId);
       return;
     }
-    await addProjectToActivity(project.id, activity.id);
+    await addProjectToActivity(projectId, activity.id);
   };
 
   const handleNotesUpdate = (
@@ -71,12 +56,9 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
-      {activity.projectIds
-        ?.map((projectId) => projects?.find((p) => p.id === projectId))
-        .map(
-          (project) =>
-            project && <ProjectName project={project} key={project.id} />
-        )}
+      {activity.projectIds?.map((projectId) => (
+        <ProjectName projectId={projectId} key={projectId} />
+      ))}
       <ProjectSelector allowCreateProjects onChange={handleSelectProject} />
       <NotesWriter
         notes={activity?.notes || ""}
