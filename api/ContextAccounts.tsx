@@ -53,7 +53,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount: Account = { id: crypto.randomUUID(), name: accountName };
     const updated: Account[] = [...(accounts || []), newAccount];
     mutateAccounts(updated, false);
-    await client.models.Account.create(newAccount);
+    await client.models.Account.create({ name: accountName });
     mutateAccounts(updated);
   };
 

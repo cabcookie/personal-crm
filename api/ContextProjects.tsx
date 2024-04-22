@@ -15,11 +15,6 @@ interface ProjectsContextType {
   ) => Promise<Schema["Projects"] | undefined>;
   getProjectById: (projectId: string) => Project | undefined;
   getProjectsByActivityId: (activityId: string) => Project[] | undefined;
-  // createProjectActivity: (
-  //   activityId: string,
-  //   projectId: string,
-  //   notes?: string
-  // ) => Promise<string | undefined>;
 }
 
 export type Project = {
@@ -103,7 +98,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     error: errorProjects,
     isLoading: loadingProjects,
     mutate,
-  } = useSWR("/api/projects", fetchProjects(context));
+  } = useSWR(`/api/projects/${context}`, fetchProjects(context));
 
   const createProject = async (
     projectName: string
@@ -126,9 +121,9 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     mutate(updatedProjects, false);
 
     const { data, errors } = await client.models.Projects.create({
-      id: newProject.id,
       context,
       project: projectName,
+      done: false,
     });
     if (errors) handleApiErrors(errors, "Error creating project");
     mutate(updatedProjects);
@@ -141,39 +136,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   const getProjectsByActivityId = (activityId: string) =>
     projects?.filter((project) => project.activityIds.includes(activityId));
 
-  // const createProjectActivity = async (
-  //   activityId: string,
-  //   projectId: string,
-  //   notes?: string
-  // ) => {
-  //   const { data: activity, errors: errorsActivity } =
-  //     await client.models.Activity.create({ id: activityId, notes });
-  //   if (errorsActivity) {
-  //     handleApiErrors(
-  //       errorsActivity,
-  //       "Error creating an activity for a project"
-  //     );
-  //     return;
-  //   }
-  //   const updated: Project[] | undefined = projects?.map((project) =>
-  //     project.id !== projectId
-  //       ? project
-  //       : { ...project, activityIds: [...project.activityIds, activityId] }
-  //   );
-  //   if (updated) mutate(updated, false);
-  //   const { data, errors } = await client.models.ProjectActivity.create({
-  //     activityId: activity.id,
-  //     projectsId: projectId,
-  //   });
-  //   if (errors)
-  //     handleApiErrors(
-  //       errors,
-  //       "Error creating link between project and activity"
-  //     );
-  //   if (updated) mutate(updated);
-  //   return data.activityId;
-  // };
-
   return (
     <ProjectsContext.Provider
       value={{
@@ -183,7 +145,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         createProject,
         getProjectById,
         getProjectsByActivityId,
-        // createProjectActivity,
       }}
     >
       {children}

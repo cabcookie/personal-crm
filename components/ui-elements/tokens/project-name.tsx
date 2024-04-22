@@ -1,7 +1,7 @@
 import AccountName from "./account-name";
 import { FC, useEffect, useState } from "react";
 import styles from "./Tokens.module.css";
-import { Project, useProjectsContext } from "@/api/ContextProjects";
+import { useProjectsContext } from "@/api/ContextProjects";
 
 type ProjectNameProps = {
   projectId: string;
@@ -10,9 +10,7 @@ type ProjectNameProps = {
 
 const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
   const { getProjectById } = useProjectsContext();
-  const [project, setProject] = useState<Project | undefined>(
-    getProjectById(projectId)
-  );
+  const [project, setProject] = useState(() => getProjectById(projectId));
 
   useEffect(() => {
     setProject(getProjectById(projectId));
@@ -21,10 +19,12 @@ const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
   return (
     <div>
       {noLinks ? (
-        <div className={styles.projectName}>{project?.project}</div>
+        <div className={styles.projectName}>
+          {!project ? "..." : project.project}
+        </div>
       ) : (
         <a href={`/projects/${project?.id}`} className={styles.projectName}>
-          {project?.project}
+          {!project ? "..." : project.project}
         </a>
       )}
       <div>

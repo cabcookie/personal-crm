@@ -2,6 +2,8 @@
 
 ## Zusammenfassung der Änderungen
 
+Die Veränderungen sind primär interner Natur. Wenn wir Einträge von einer Tabelle abfragen und filtern (zum Beispiel nach unerledigten Aufgaben), werden 100 Zeilen von unserer Datenbank (DynamoDB) abgefragt und dann der Filter angewandt. Nach dem Filtern kann es sein, dass keine Zeile übrig bleibt und somit fehlten Einträge im Ergebnis. Wir erhalten einen Cursor (`nextToken`), den wir verwenden können, um die gleiche Abfrage noch einmal auszuführen und bei dem Cursor zu starten, um die nächsten 100 Zeilen abzurufen. Uns gefällt es nicht, dass wir für eine einzige Abfrage also jeden Eintrag in der Datenbank anfassen. Das lässt sich vermeiden, in dem wir in der Datenbank einen zweiten Index anlegen für das Feld, das wir abfragen wollen (z.B. `erledigt`). Das Problem ist in diesem [Github Issue](https://github.com/aws-amplify/amplify-category-api/issues/2443) diskutiert.
+
 - Ein neues Datenmodell eingeführt, um Todos mit und ohne Projekt zusammenzufassen in einem Modell und entsprechend zu migrieren.
 - Migration der Einträge dem Anwender anbieten.
 - Überflüssige Spalten und damit auch Modelle entfernt, um das Schema etwas schlanker zu machen.

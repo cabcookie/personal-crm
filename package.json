@@ -9,7 +9,8 @@
     "lint": "next lint",
     "prepare": "node .husky/install.mjs",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "sandbox": "npx amplify sandbox --profile impulso"
   },
   "husky": {
     "hooks": {
@@ -36,8 +37,8 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
-    "@aws-amplify/backend": "0.13.0-beta.3",
-    "@aws-amplify/backend-cli": "0.12.0-beta.3",
+    "@aws-amplify/backend": "^0.13.0",
+    "@aws-amplify/backend-cli": "^0.12.0",
     "@commitlint/config-conventional": "^18.6.2",
     "@faker-js/faker": "^8.4.1",
     "@storybook/addon-essentials": "^8.0.2",

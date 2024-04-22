@@ -4,122 +4,178 @@ const schema = a.schema({
   Context: a.enum(["family", "hobby", "work"]),
   CurrentContext: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       context: a.ref("Context").required(),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   DayPlan: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       day: a.date().required(),
       dayGoal: a.string().required(),
       context: a.ref("Context"),
       done: a.boolean(),
-      tasks: a.hasMany("NonProjectTask"),
-      projectTasks: a.hasMany("DayProjectTask"),
-      todos: a.hasMany("DayPlanTodo"),
+      tasks: a.hasMany("NonProjectTask", "dayPlanTasksId"),
+      projectTasks: a.hasMany("DayProjectTask", "dayPlanProjectTasksId"),
+      todos: a.hasMany("DayPlanTodo", "dayPlanTodosId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   DayPlanTodo: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       todo: a.string().required(),
       done: a.boolean(),
       doneOn: a.date(),
-      dayPlan: a.belongsTo("DayPlan"),
-      project: a.belongsTo("Projects"),
-      context: a.ref("Context").required(),
+      dayPlanTodosId: a.id(),
+      dayPlan: a.belongsTo("DayPlan", "dayPlanTodosId"),
+      projectsTodosId: a.id(),
+      project: a.belongsTo("Projects", "projectsTodosId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   DayProjectTask: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       task: a.string().required(),
       done: a.boolean(),
-      dayPlan: a.belongsTo("DayPlan"),
-      projects: a.belongsTo("Projects"),
+      dayPlanProjectTasksId: a.id(),
+      dayPlan: a.belongsTo("DayPlan", "dayPlanProjectTasksId"),
+      projectsDayTasksId: a.id(),
+      projects: a.belongsTo("Projects", "projectsDayTasksId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   NonProjectTask: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
-      dayPlan: a.belongsTo("DayPlan"),
+      dayPlanTasksId: a.id(),
+      dayPlan: a.belongsTo("DayPlan", "dayPlanTasksId"),
       task: a.string().required(),
       context: a.ref("Context"),
       done: a.boolean(),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
+  ProjectActivity: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      activityId: a.id(),
+      activity: a.belongsTo("Activity", "activityId"),
+      projectsId: a.id(),
+      projects: a.belongsTo("Projects", "projectsId"),
+    })
+    .authorization((allow) => [allow.owner()]),
   Activity: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       notes: a.string(),
-      forProjects: a.manyToMany("Projects", {
-        relationName: "ProjectActivity",
-      }),
-      forMeeting: a.belongsTo("Meeting"),
+      forProjects: a.hasMany("ProjectActivity", "activityId"),
+      meetingActivitiesId: a.id(),
+      forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
       finishedOn: a.datetime(),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
+  MeetingParticipant: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      meetingId: a.id(),
+      meeting: a.belongsTo("Meeting", "meetingId"),
+      personId: a.id(),
+      person: a.belongsTo("Person", "personId"),
+    })
+    .authorization((allow) => [allow.owner()]),
   Meeting: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       context: a.ref("Context"),
       topic: a.string().required(),
       meetingOn: a.datetime(),
-      participants: a.manyToMany("Person", {
-        relationName: "MeetingParticipant",
-      }),
-      activities: a.hasMany("Activity"),
+      participants: a.hasMany("MeetingParticipant", "meetingId"),
+      activities: a.hasMany("Activity", "meetingActivitiesId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   Person: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       name: a.string().required(),
       howToSay: a.string(),
       birthday: a.date(),
       dateOfDeath: a.date(),
-      meetings: a.manyToMany("Meeting", { relationName: "MeetingParticipant" }),
-      accountRoles: a.hasMany("PersonAccount"),
+      meetings: a.hasMany("MeetingParticipant", "personId"),
     })
-    .authorization([a.allow.owner()]),
-  PersonAccount: a
+    .authorization((allow) => [allow.owner()]),
+  AccountProjects: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
-      role: a.string(),
-      startDate: a.date(),
-      endDate: a.date(),
-      person: a.belongsTo("Person"),
-      company: a.belongsTo("Account"),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      accountId: a.id(),
+      account: a.belongsTo("Account", "accountId"),
+      projectsId: a.id(),
+      projects: a.belongsTo("Projects", "projectsId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   Account: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       name: a.string().required(),
       introduction: a.string(),
-      subsidiaries: a.hasMany("Account"),
-      projects: a.manyToMany("Projects", { relationName: "AccountProjects" }),
-      controller: a.belongsTo("Account"),
-      employees: a.hasMany("PersonAccount"),
+      subsidiaries: a.hasMany("Account", "accountSubsidiariesId"),
+      projects: a.hasMany("AccountProjects", "accountId"),
+      accountSubsidiariesId: a.id(),
+      controller: a.belongsTo("Account", "accountSubsidiariesId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   SixWeekCycle: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       name: a.string(),
       startDate: a.date(),
-      batches: a.hasMany("SixWeekBatch"),
+      batches: a.hasMany("SixWeekBatch", "sixWeekCycleBatchesId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
+  SixWeekBatchProjects: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      projectsId: a.id(),
+      projects: a.belongsTo("Projects", "projectsId"),
+      sixWeekBatchId: a.id(),
+      sixWeekBatch: a.belongsTo("SixWeekBatch", "sixWeekBatchId"),
+    })
+    .authorization((allow) => [allow.owner()]),
   SixWeekBatch: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       idea: a.string().required(),
       status: a.enum([
@@ -130,7 +186,8 @@ const schema = a.schema({
         "aborted",
         "finished",
       ]),
-      sixWeekCycle: a.belongsTo("SixWeekCycle"),
+      sixWeekCycleBatchesId: a.id(),
+      sixWeekCycle: a.belongsTo("SixWeekCycle", "sixWeekCycleBatchesId"),
       context: a.ref("Context"),
       appetite: a.enum(["big", "small"]),
       hours: a.integer(),
@@ -138,15 +195,15 @@ const schema = a.schema({
       solution: a.string(),
       risks: a.string(),
       noGos: a.string(),
-      projects: a.manyToMany("Projects", {
-        relationName: "SixWeekBatchProjects",
-      }),
+      projects: a.hasMany("SixWeekBatchProjects", "sixWeekBatchId"),
       createdOn: a.datetime(),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
   Projects: a
     .model({
-      owner: a.string().authorization([a.allow.owner().to(["read", "delete"])]),
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       project: a.string().required(),
       done: a.boolean(),
@@ -156,15 +213,13 @@ const schema = a.schema({
       myNextActions: a.string(),
       othersNextActions: a.string(),
       context: a.ref("Context").required(),
-      accounts: a.manyToMany("Account", { relationName: "AccountProjects" }),
-      batches: a.manyToMany("SixWeekBatch", {
-        relationName: "SixWeekBatchProjects",
-      }),
-      activities: a.manyToMany("Activity", { relationName: "ProjectActivity" }),
-      dayTasks: a.hasMany("DayProjectTask"),
-      todos: a.hasMany("DayPlanTodo"),
+      accounts: a.hasMany("AccountProjects", "projectsId"),
+      batches: a.hasMany("SixWeekBatchProjects", "projectsId"),
+      activities: a.hasMany("ProjectActivity", "projectsId"),
+      dayTasks: a.hasMany("DayProjectTask", "projectsDayTasksId"),
+      todos: a.hasMany("DayPlanTodo", "projectsTodosId"),
     })
-    .authorization([a.allow.owner()]),
+    .authorization((allow) => [allow.owner()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;

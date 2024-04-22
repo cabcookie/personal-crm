@@ -225,14 +225,15 @@ const useDayPlans = (context?: Context) => {
       nonprojectTasks: [],
       projectTasks: [],
     };
-    const updatedDayPlans = [newDayPlan, ...(dayPlans || [])];
-    mutate(updatedDayPlans, false);
-    const { errors } = await client.models.DayPlan.create({
-      ...newDayPlan,
+    mutate([newDayPlan, ...(dayPlans || [])], false);
+    const { data, errors } = await client.models.DayPlan.create({
+      day,
+      dayGoal,
+      done: false,
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating day plan");
-    mutate(updatedDayPlans);
+    mutate([{ ...newDayPlan, id: data.id }, ...(dayPlans || [])]);
   };
 
   const completeDayPlan = async (dayPlanId: string) => {
@@ -262,9 +263,7 @@ const useDayPlans = (context?: Context) => {
     );
     mutate(updated, false);
     const { data, errors } = await client.models.DayPlanTodo.create({
-      id: newTodo.id,
       todo,
-      context,
       dayPlanTodosId: dayplanId,
       done: false,
       projectsTodosId: projectId,

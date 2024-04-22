@@ -148,8 +148,8 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
-      ...newMeeting,
-      meetingOn: newMeeting.meetingOn.toISOString(),
+      topic,
+      meetingOn: new Date().toISOString(),
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
