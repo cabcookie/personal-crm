@@ -17,7 +17,7 @@ const schema = a.schema({
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       day: a.date().required(),
       dayGoal: a.string().required(),
-      context: a.ref("Context"),
+      context: a.ref("Context").required(),
       done: a.boolean(),
       tasks: a.hasMany("NonProjectTask", "dayPlanTasksId"),
       projectTasks: a.hasMany("DayProjectTask", "dayPlanProjectTasksId"),
