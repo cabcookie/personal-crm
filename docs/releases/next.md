@@ -41,3 +41,4 @@ Beim Laden der Tagespläne laden wir die Aufgaben gleich mit. Dadurch sparen wir
 #### api
 
 - never force an ID for a new record [35d4256](https://github.com/cabcookie/personal-crm/commit/35d4256eb0379a3f874ddc6f360d826f21046b2f)
+- hooks adjusted to new schema [3d6760a](https://github.com/cabcookie/personal-crm/commit/3d6760a43a0a5de294d38b1c2182fc56c8ba74bb)

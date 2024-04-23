@@ -36,7 +36,8 @@ const useActivityProjects = (activityId?: string) => {
     projectId: string,
     newActivityId?: string
   ) => {
-    if (!activityId && !newActivityId) return;
+    if (!activityId) return;
+    if (!newActivityId) return;
     const updated: ActivityProject[] = [
       ...(activityProjects || []),
       { projectId },
