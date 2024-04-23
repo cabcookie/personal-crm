@@ -174,7 +174,6 @@ const useDayPlans = (context?: Context) => {
     for (let i = 0; i < projectTasks.length; i++) {
       const task = projectTasks[i];
       const { errors } = await client.models.DayPlanTodo.create({
-        context,
         todo: task.todo,
         dayPlanTodosId: dayPlanId,
         done: task.done,
@@ -192,7 +191,6 @@ const useDayPlans = (context?: Context) => {
     for (let i = 0; i < nonprojectTasks.length; i++) {
       const task = nonprojectTasks[i];
       const { errors } = await client.models.DayPlanTodo.create({
-        context,
         todo: task.task,
         dayPlanTodosId: dayPlanId,
         done: task.done,
