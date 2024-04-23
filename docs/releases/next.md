@@ -49,7 +49,3 @@ Die Veränderungen sind primär interner Natur. Wenn wir Einträge von einer Tab
 #### deps
 
 - updated Amplify dependencies and adjusted the code accordingly [85ccfe7](https://github.com/cabcookie/personal-crm/commit/85ccfe74d21b94a908924c45a68b8049ecf5497f)
-
-#### docs
-
-- release documentation [2c6c421](https://github.com/cabcookie/personal-crm/commit/2c6c42113cd58151f02451b5289a17bd2ea2bd31)
