@@ -31,3 +31,9 @@ Wir haben die Amplify Packages auf die neueste Version aktualisiert und mussten 
 #### api
 
 - never force an ID for a new record [35d4256](https://github.com/cabcookie/personal-crm/commit/35d4256eb0379a3f874ddc6f360d826f21046b2f)
+
+### Feature
+
+#### deps
+
+- upgrade backend and schema accordingly [862b6b0](https://github.com/cabcookie/personal-crm/commit/862b6b061161cb00843947ce8830fe629a6ef1e9)
