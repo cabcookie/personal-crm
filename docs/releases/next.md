@@ -30,6 +30,8 @@ Beim Laden der Tagespläne laden wir die Aufgaben gleich mit. Dadurch sparen wir
 
 ### Feature
 
+- query DayPlan with a selectionSet to get todos as well; offer migration of legacy tasks [f28f67f](https://github.com/cabcookie/personal-crm/commit/f28f67f9a146c5e121a8fc8ecb232ad2405222c3)
+
 #### deps
 
 - upgrade backend and schema accordingly [862b6b0](https://github.com/cabcookie/personal-crm/commit/862b6b061161cb00843947ce8830fe629a6ef1e9)
