@@ -1,4 +1,4 @@
-# Fix: Datensätze in der Datenbank dürfen nicht mit einer ID angelegt werden (Version :VERSION)
+# Tagespläne nach neuer Methodik abfragen (Version :VERSION)
 
 ## Neue Funktionen und Änderungen
 
@@ -17,9 +17,24 @@ const { data, errors } = await client.models.DayPlan.create({
 });
 ```
 
-Das führte zu Fehlern.
+Das führte zu Fehlern und haben wir gefixt.
+
+Wir haben die Amplify Packages auf die neueste Version aktualisiert und mussten das Datenschema entsprechend aktualisieren.
+
+- `"@aws-amplify/backend": "^0.13.0"`
+- `"@aws-amplify/backend-cli": "^0.12.0"`
+
+Beim Laden der Tagespläne laden wir die Aufgaben gleich mit. Dadurch sparen wir uns einige der API Aufrufe und die Anwendung wird performanter. Außerdem versuchen wir Aufgaben in der neuen Tabelle `DayPlanTodo` zu konsolidieren. Wir bieten dem Anwender dafür an, bestehende Aufgaben in `DayPlanTodo` zu migrieren.
 
 ## Detaillierte Änderungen
+
+### Feature
+
+- query DayPlan with a selectionSet to get todos as well; offer migration of legacy tasks [f28f67f](https://github.com/cabcookie/personal-crm/commit/f28f67f9a146c5e121a8fc8ecb232ad2405222c3)
+
+#### deps
+
+- upgrade backend and schema accordingly [862b6b0](https://github.com/cabcookie/personal-crm/commit/862b6b061161cb00843947ce8830fe629a6ef1e9)
 
 ### Bug Fixes
 

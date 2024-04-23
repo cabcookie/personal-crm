@@ -7,7 +7,7 @@ type DayPlanFormProps = {
   onSubmit: (goal: string, date: string) => void;
 };
 
-const DayPlanForm: FC<DayPlanFormProps> = ({ onSubmit: onConfirm }) => {
+const DayPlanForm: FC<DayPlanFormProps> = ({ onSubmit }) => {
   const [goal, setGoal] = useState("");
   const [date, setDate] = useState(new Date());
 
@@ -17,7 +17,7 @@ const DayPlanForm: FC<DayPlanFormProps> = ({ onSubmit: onConfirm }) => {
   };
 
   const confirm = () => {
-    onConfirm(goal, date.toISOString().split("T")[0]);
+    onSubmit(goal, date.toISOString().split("T")[0]);
   };
 
   return (
@@ -27,6 +27,7 @@ const DayPlanForm: FC<DayPlanFormProps> = ({ onSubmit: onConfirm }) => {
           <input
             className={styles.fullWidth}
             value={goal}
+            autoFocus
             onChange={(event) => setGoal(event.target.value)}
             placeholder="Give the day a goal"
           />
