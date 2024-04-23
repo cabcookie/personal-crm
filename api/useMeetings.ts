@@ -97,7 +97,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
-      ...newMeeting,
+      topic,
       meetingOn: newMeeting.meetingOn.toISOString(),
       context,
     });

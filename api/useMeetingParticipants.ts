@@ -43,7 +43,7 @@ const useMeetingParticipants = (meetingId?: string) => {
     const updated = [...(meetingParticipants || []), newMp];
     mutateMeetingParticipants(updated, false);
     const { data, errors } = await client.models.MeetingParticipant.create({
-      ...newMp,
+      personId,
       meetingId,
     });
     if (errors) handleApiErrors(errors, "Error creating meeting participant");

@@ -57,7 +57,9 @@ const useDayPlans = (context?: Context) => {
     const updatedDayPlans = [newDayPlan, ...(dayPlans || [])];
     mutate(updatedDayPlans, false);
     const { errors } = await client.models.DayPlan.create({
-      ...newDayPlan,
+      day,
+      dayGoal,
+      done: false,
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating day plan");

@@ -54,7 +54,7 @@ const useProjectActivities = (projectId?: string) => {
   const createProjectActivity = async (activityId: string, notes?: string) => {
     if (!projectId) return;
     const { data: activity, errors: errorsActivity } =
-      await client.models.Activity.create({ id: activityId, notes });
+      await client.models.Activity.create({ notes });
     if (errorsActivity) {
       handleApiErrors(
         errorsActivity,

@@ -27,7 +27,7 @@ const usePeople = () => {
     const updated = [...(people || []), newPerson];
     mutatePeople(updated, false);
 
-    const { data, errors } = await client.models.Person.create(newPerson);
+    const { data, errors } = await client.models.Person.create({ name });
     if (errors) handleApiErrors(errors, "Error creating person");
     mutatePeople(updated);
     return data.id;
