@@ -38,7 +38,6 @@ const useProjects = (context?: Context) => {
     mutate(updatedProjects, false);
 
     const { data, errors } = await client.models.Projects.create({
-      id: newProject.id,
       project: projectName,
       done: false,
       context,

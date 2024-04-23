@@ -55,7 +55,8 @@ const useTasks = (dayPlanId: string) => {
         ];
         mutateNonProjectTasks(updatedTasks, false);
         const { errors } = await client.models.NonProjectTask.create({
-          ...newTask,
+          task,
+          done: false,
           dayPlanTasksId: dayPlanId,
         });
         if (errors) handleApiErrors(errors, "Error creating task in day plan");
@@ -67,7 +68,8 @@ const useTasks = (dayPlanId: string) => {
         ];
         mutateProjectTasks(updatedTasks, false);
         const { data, errors } = await client.models.DayProjectTask.create({
-          ...newTask,
+          task,
+          done: false,
           dayPlanProjectTasksId: dayPlanId,
           projectsDayTasksId: projectId,
         });

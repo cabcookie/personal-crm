@@ -52,7 +52,6 @@ const useMeetingActivities = ({
     const updated = [...(meetingActivities || []), newActivity];
     mutateMeetingActivities(updated, false);
     const { data, errors } = await client.models.Activity.create({
-      id: activityId,
       meetingActivitiesId: meetingId,
       notes,
     });
