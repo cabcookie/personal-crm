@@ -113,7 +113,7 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
 const fetchDayPlans = (context?: Context) => async () => {
   if (!context) return;
   const { data, errors } = await client.models.DayPlan.list({
-    filter: { done: { ne: "true" }, context: { eq: context } },
+    filter: { done: { ne: true }, context: { eq: context } },
     selectionSet: dayplanSelectionSet,
   });
   if (errors) throw errors;

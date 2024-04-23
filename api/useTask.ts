@@ -16,7 +16,7 @@ export const mapProjectTask: (data: Schema["DayProjectTask"]) => Task = ({
   task,
   done,
   projectsDayTasksId,
-}) => ({ id, task, done: !!done, projectId: projectsDayTasksId });
+}) => ({ id, task, done: !!done, projectId: projectsDayTasksId || undefined });
 
 export const mapNonProjectTask: (data: Schema["NonProjectTask"]) => Task = ({
   id,

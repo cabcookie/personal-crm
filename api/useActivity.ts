@@ -22,7 +22,7 @@ export const mapActivity: (activity: Schema["Activity"]) => Activity = ({
 }) => ({
   id,
   notes: notes || "",
-  meetingId: meetingActivitiesId,
+  meetingId: meetingActivitiesId || undefined,
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),
 });

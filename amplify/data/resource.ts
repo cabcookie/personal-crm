@@ -18,7 +18,7 @@ const schema = a.schema({
       day: a.date().required(),
       dayGoal: a.string().required(),
       context: a.ref("Context").required(),
-      done: a.boolean(),
+      done: a.boolean().required(),
       tasks: a.hasMany("NonProjectTask", "dayPlanTasksId"),
       projectTasks: a.hasMany("DayProjectTask", "dayPlanProjectTasksId"),
       todos: a.hasMany("DayPlanTodo", "dayPlanTodosId"),
@@ -30,9 +30,9 @@ const schema = a.schema({
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       todo: a.string().required(),
-      done: a.boolean(),
+      done: a.boolean().required(),
       doneOn: a.date(),
-      dayPlanTodosId: a.id(),
+      dayPlanTodosId: a.id().required(),
       dayPlan: a.belongsTo("DayPlan", "dayPlanTodosId"),
       projectsTodosId: a.id(),
       project: a.belongsTo("Projects", "projectsTodosId"),
@@ -69,9 +69,9 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      activityId: a.id(),
+      activityId: a.id().required(),
       activity: a.belongsTo("Activity", "activityId"),
-      projectsId: a.id(),
+      projectsId: a.id().required(),
       projects: a.belongsTo("Projects", "projectsId"),
     })
     .authorization((allow) => [allow.owner()]),
@@ -93,9 +93,9 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      meetingId: a.id(),
+      meetingId: a.id().required(),
       meeting: a.belongsTo("Meeting", "meetingId"),
-      personId: a.id(),
+      personId: a.id().required(),
       person: a.belongsTo("Person", "personId"),
     })
     .authorization((allow) => [allow.owner()]),
@@ -130,9 +130,9 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      accountId: a.id(),
+      accountId: a.id().required(),
       account: a.belongsTo("Account", "accountId"),
-      projectsId: a.id(),
+      projectsId: a.id().required(),
       projects: a.belongsTo("Projects", "projectsId"),
     })
     .authorization((allow) => [allow.owner()]),
@@ -155,7 +155,7 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      name: a.string(),
+      name: a.string().required(),
       startDate: a.date(),
       batches: a.hasMany("SixWeekBatch", "sixWeekCycleBatchesId"),
     })
@@ -165,9 +165,9 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      projectsId: a.id(),
+      projectsId: a.id().required(),
       projects: a.belongsTo("Projects", "projectsId"),
-      sixWeekBatchId: a.id(),
+      sixWeekBatchId: a.id().required(),
       sixWeekBatch: a.belongsTo("SixWeekBatch", "sixWeekBatchId"),
     })
     .authorization((allow) => [allow.owner()]),
@@ -186,7 +186,7 @@ const schema = a.schema({
         "aborted",
         "finished",
       ]),
-      sixWeekCycleBatchesId: a.id(),
+      sixWeekCycleBatchesId: a.id().required(),
       sixWeekCycle: a.belongsTo("SixWeekCycle", "sixWeekCycleBatchesId"),
       context: a.ref("Context"),
       appetite: a.enum(["big", "small"]),
