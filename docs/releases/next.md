@@ -39,6 +39,13 @@ Die Veränderungen sind primär interner Natur. Wenn wir Einträge von einer Tab
 
 ### Feature
 
+#### api
+
+- make context of DayPlan required [15e95b7](https://github.com/cabcookie/personal-crm/commit/15e95b7d7eac8fd67e92afd22b93e4edc116cbb0)
+- creating DayPlanTodo to later consolidate todos there [90901dc](https://github.com/cabcookie/personal-crm/commit/90901dcd3d2ba5ad45f8d4e918c08a07b16bee10)
+- removed unneccessary columns from models [967c80f](https://github.com/cabcookie/personal-crm/commit/967c80f02e7dfc678a9c013f06e8febe028f52a9)
+- handle people, accounts, projects as contexts instead of hooks [860927b](https://github.com/cabcookie/personal-crm/commit/860927b40656aa62ef31b4af46980ac3d708c677)
+
 #### deps
 
 - updated Amplify dependencies and adjusted the code accordingly [85ccfe7](https://github.com/cabcookie/personal-crm/commit/85ccfe74d21b94a908924c45a68b8049ecf5497f)
@@ -46,9 +53,3 @@ Die Veränderungen sind primär interner Natur. Wenn wir Einträge von einer Tab
 #### docs
 
 - release documentation [2c6c421](https://github.com/cabcookie/personal-crm/commit/2c6c42113cd58151f02451b5289a17bd2ea2bd31)
-
-#### data
-
-- creating DayPlanTodo to later consolidate todos there [90901dc](https://github.com/cabcookie/personal-crm/commit/90901dcd3d2ba5ad45f8d4e918c08a07b16bee10)
-- removed unneccessary columns from models [967c80f](https://github.com/cabcookie/personal-crm/commit/967c80f02e7dfc678a9c013f06e8febe028f52a9)
-- handle people, accounts, projects as contexts instead of hooks [860927b](https://github.com/cabcookie/personal-crm/commit/860927b40656aa62ef31b4af46980ac3d708c677)
