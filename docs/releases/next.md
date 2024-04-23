@@ -1,4 +1,4 @@
-# Fix: Datensätze in der Datenbank dürfen nicht mit einer ID angelegt werden (Version :VERSION)
+# Tagespläne nach neuer Methodik abfragen (Version :VERSION)
 
 ## Neue Funktionen und Änderungen
 
@@ -17,7 +17,12 @@ const { data, errors } = await client.models.DayPlan.create({
 });
 ```
 
-Das führte zu Fehlern.
+Das führte zu Fehlern und haben wir gefixt.
+
+Wir haben die Amplify Packages auf die neueste Version aktualisiert und mussten das Datenschema entsprechend aktualisieren.
+
+- `"@aws-amplify/backend": "^0.13.0"`
+- `"@aws-amplify/backend-cli": "^0.12.0"`
 
 ## Detaillierte Änderungen
 
