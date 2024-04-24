@@ -142,24 +142,6 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     return data.id;
   };
 
-  // const updateActivityNotes = async (notes: string, activityId: string) => {
-  //   const updated: Meeting[] =
-  //     meetings?.map((meeting) => ({
-  //       ...meeting,
-  //       activities: meeting.activities.map((activity) =>
-  //         activity.id !== activityId ? activity : { ...activity, notes }
-  //       ),
-  //     })) || [];
-  //   mutateMeetings(updated, false);
-  //   const { data, errors } = await client.models.Activity.update({
-  //     id: activityId,
-  //     notes,
-  //   });
-  //   if (errors) handleApiErrors(errors, "Error updating activity notes");
-  //   mutateMeetings(updated);
-  //   return data.id;
-  // };
-
   useEffect(() => {
     setMeetingDates(
       meetings
@@ -177,7 +159,6 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     loadingMeetings,
     meetingDates,
     createMeeting,
-    // updateActivityNotes,
   };
 };
 

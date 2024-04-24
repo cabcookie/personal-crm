@@ -18,6 +18,7 @@ type NotesWriterProps = {
   ) => void;
   unsaved?: boolean;
   autoFocus?: boolean;
+  placeholder?: string;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -25,6 +26,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   saveNotes,
   unsaved,
   autoFocus,
+  placeholder,
 }) => {
   const [editor] = useState(() => withReact(withHistory(createEditor())));
 
@@ -53,7 +55,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
           className={`${styles.editorInput} ${unsaved && styles.unsaved}`}
           renderElement={renderElement}
           autoFocus={autoFocus}
-          placeholder="Start taking notes..."
+          placeholder={placeholder || "Start taking notes..."}
         />
       </Slate>
     </div>

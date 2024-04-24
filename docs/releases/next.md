@@ -28,4 +28,4 @@ Beim Laden der Tagespläne laden wir die Aufgaben gleich mit. Dadurch sparen wir
 
 Die Projekte laden wir nun über einen Kontext, der der ganzen Anwendung zur Verfügung steht. Dadurch reduzieren wir API Aufrufe und Ladezeiten.
 
-In der Projektdetailansicht sortieren wir die Aktivitäten nun schon beim Abruf aus der Datenbank nach dem Datum absteigend. Wir können dort nun auch die eigenen nächsten Aktivitäten festhalten als auch die anderer.
+In der Projektdetailansicht sortieren wir die Aktivitäten nun schon beim Abruf aus der Datenbank nach dem Datum absteigend. Wir können dort nun auch die eigenen nächsten Aktivitäten festhalten als auch die anderer. Wenn in einem Meeting ein Projekt selektiert wird, sind sofort auch die zuletzt vereinbarten Aktivitäten sichtbar.
