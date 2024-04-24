@@ -45,7 +45,7 @@ const schema = a.schema({
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       task: a.string().required(),
       done: a.boolean(),
-      dayPlanProjectTasksId: a.id(),
+      dayPlanProjectTasksId: a.id().required(),
       dayPlan: a.belongsTo("DayPlan", "dayPlanProjectTasksId"),
       projectsDayTasksId: a.id(),
       projects: a.belongsTo("Projects", "projectsDayTasksId"),
@@ -57,7 +57,7 @@ const schema = a.schema({
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
-      dayPlanTasksId: a.id(),
+      dayPlanTasksId: a.id().required(),
       dayPlan: a.belongsTo("DayPlan", "dayPlanTasksId"),
       task: a.string().required(),
       context: a.ref("Context"),

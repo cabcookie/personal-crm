@@ -1,5 +1,4 @@
 import useActivity from "@/api/useActivity";
-import useActivityProjects from "@/api/useActivityProjects";
 import { FC, useState } from "react";
 import ProjectName from "../tokens/project-name";
 import ProjectSelector from "../project-selector";
@@ -21,9 +20,8 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   className,
   createActivity,
 }) => {
-  const { activity, updateNotes } = useActivity(activityId);
-  const { activityProjects, loadingActivityProjects, addProjectToActivity } =
-    useActivityProjects(activityId);
+  const { activity, updateNotes, addProjectToActivity } =
+    useActivity(activityId);
   const [notesSaved, setNotesSaved] = useState(true);
 
   const handleSelectProject = async (projectId: string | null) => {
@@ -34,7 +32,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       await addProjectToActivity(projectId, newId);
       return;
     }
-    await addProjectToActivity(projectId, activityId);
+    await addProjectToActivity(projectId);
   };
 
   const handleNotesUpdate = (
@@ -54,11 +52,9 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
-      {loadingActivityProjects && "Loading projects..."}
-      {activityProjects?.map(
-        ({ projectId }) =>
-          projectId && <ProjectName projectId={projectId} key={projectId} />
-      )}
+      {activity?.projectIds.map((id) => (
+        <ProjectName projectId={id} key={id} />
+      ))}
       <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
       <NotesWriter
         notes={activity?.notes || ""}

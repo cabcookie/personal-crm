@@ -1,4 +1,4 @@
-# Tagespläne nach neuer Methodik abfragen (Version :VERSION)
+# Stabilität von Tagesplänen und Projekten erhöhen (Version :VERSION)
 
 ## Neue Funktionen und Änderungen
 
@@ -26,19 +26,6 @@ Wir haben die Amplify Packages auf die neueste Version aktualisiert und mussten 
 
 Beim Laden der Tagespläne laden wir die Aufgaben gleich mit. Dadurch sparen wir uns einige der API Aufrufe und die Anwendung wird performanter. Außerdem versuchen wir Aufgaben in der neuen Tabelle `DayPlanTodo` zu konsolidieren. Wir bieten dem Anwender dafür an, bestehende Aufgaben in `DayPlanTodo` zu migrieren.
 
-## Detaillierte Änderungen
+Die Projekte laden wir nun über einen Kontext, der der ganzen Anwendung zur Verfügung steht. Dadurch reduzieren wir API Aufrufe und Ladezeiten.
 
-### Feature
-
-- query DayPlan with a selectionSet to get todos as well; offer migration of legacy tasks [f28f67f](https://github.com/cabcookie/personal-crm/commit/f28f67f9a146c5e121a8fc8ecb232ad2405222c3)
-
-#### deps
-
-- upgrade backend and schema accordingly [862b6b0](https://github.com/cabcookie/personal-crm/commit/862b6b061161cb00843947ce8830fe629a6ef1e9)
-
-### Bug Fixes
-
-#### api
-
-- never force an ID for a new record [35d4256](https://github.com/cabcookie/personal-crm/commit/35d4256eb0379a3f874ddc6f360d826f21046b2f)
-- hooks adjusted to new schema [3d6760a](https://github.com/cabcookie/personal-crm/commit/3d6760a43a0a5de294d38b1c2182fc56c8ba74bb)
+In der Projektdetailansicht sortieren wir die Aktivitäten nun schon beim Abruf aus der Datenbank nach dem Datum absteigend. Wir können dort nun auch die eigenen nächsten Aktivitäten festhalten als auch die anderer.
