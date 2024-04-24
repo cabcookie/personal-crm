@@ -69,24 +69,6 @@ const useMeeting = (meetingId?: string) => {
     return data.meetingId;
   };
 
-  // const updateActivityNotes = async (notes: string, activityId: string) => {
-  //   if (!meeting) return;
-  //   const updated: Meeting = {
-  //     ...meeting,
-  //     activityIds: meeting.activityIds.map((id) =>
-  //       id !== activityId ? activity : { ...activity, notes }
-  //     ),
-  //   };
-  //   mutateMeeting(updated, false);
-  //   const { data, errors } = await client.models.Activity.update({
-  //     id: activityId,
-  //     notes,
-  //   });
-  //   if (errors) handleApiErrors(errors, "Error updating activity notes");
-  //   mutateMeeting(updated);
-  //   return data.id;
-  // };
-
   const createMeetingActivity = async (activityId: string, notes?: string) => {
     if (!meeting) return;
     const updated: Meeting = {
@@ -103,31 +85,6 @@ const useMeeting = (meetingId?: string) => {
     return data.id;
   };
 
-  // const addProjectToActivity = async (
-  //   projectId: string,
-  //   activityId: string
-  // ) => {
-  //   if (!meeting) return;
-  //   if (!activityId) return;
-
-  //   const updated: Meeting = {
-  //     ...meeting,
-  //     aci: meeting.activities.map((a) =>
-  //       a.id !== activityId
-  //         ? a
-  //         : { ...a, projectIds: [...(a.projectIds || []), projectId] }
-  //     ),
-  //   };
-  //   mutateMeeting(updated, false);
-  //   const { errors } = await client.models.ProjectActivity.create({
-  //     activityId,
-  //     projectsId: projectId,
-  //   });
-  //   if (errors)
-  //     handleApiErrors(errors, "Error adding a project to an activity");
-  //   mutateMeeting(updated);
-  // };
-
   return {
     meeting,
     errorMeeting,
@@ -135,8 +92,6 @@ const useMeeting = (meetingId?: string) => {
     updateMeeting,
     createMeetingParticipant,
     createMeetingActivity,
-    // updateActivityNotes,
-    // addProjectToActivity,
   };
 };
 

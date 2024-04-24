@@ -8,6 +8,7 @@ import { Descendant } from "slate";
 import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
 import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
+import ProjectDetails from "../project-details/project-details";
 
 type ProjectNotesFormProps = {
   className?: string;
@@ -54,7 +55,10 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   return (
     <div className={className}>
       {activity?.projectIds.map((id) => (
-        <ProjectName projectId={id} key={id} />
+        <div key={id}>
+          <ProjectName projectId={id} />
+          <ProjectDetails projectId={id} />
+        </div>
       ))}
       <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
       <NotesWriter
