@@ -168,7 +168,7 @@ const useDayPlans = (context?: Context) => {
         const { errors } = await client.models.DayPlanTodo.create({
           todo: task.task,
           dayPlanTodosId: task.dayPlanProjectTasksId,
-          done: task.done,
+          done: task.done || false,
           projectsTodosId: task.projectsDayTasksId,
         });
         if (errors) console.error("DayPlanTodo.create", errors);
@@ -200,7 +200,7 @@ const useDayPlans = (context?: Context) => {
         const { errors } = await client.models.DayPlanTodo.create({
           todo: task.task,
           dayPlanTodosId: task.dayPlanTasksId,
-          done: task.done,
+          done: task.done || false,
         });
         if (errors) console.error("DayPlanTodo.create", errors);
         if (!errors) {
