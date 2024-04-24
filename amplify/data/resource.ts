@@ -18,7 +18,7 @@ const schema = a.schema({
       day: a.date().required(),
       dayGoal: a.string().required(),
       context: a.ref("Context").required(),
-      done: a.boolean(),
+      done: a.boolean().required(),
       tasks: a.hasMany("NonProjectTask", "dayPlanTasksId"),
       projectTasks: a.hasMany("DayProjectTask", "dayPlanProjectTasksId"),
       todos: a.hasMany("DayPlanTodo", "dayPlanTodosId"),
@@ -30,7 +30,7 @@ const schema = a.schema({
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       todo: a.string().required(),
-      done: a.boolean(),
+      done: a.boolean().required(),
       doneOn: a.date(),
       dayPlanTodosId: a.id().required(),
       dayPlan: a.belongsTo("DayPlan", "dayPlanTodosId"),
@@ -155,7 +155,7 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      name: a.string(),
+      name: a.string().required(),
       startDate: a.date(),
       batches: a.hasMany("SixWeekBatch", "sixWeekCycleBatchesId"),
     })
