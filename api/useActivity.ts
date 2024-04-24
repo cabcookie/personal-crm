@@ -75,18 +75,20 @@ const useActivity = (activityId?: string) => {
 
   const addProjectToActivity = async (
     projectId: string,
-    newActivityId?: string
+    activityId: string
   ) => {
-    if (!activity && !newActivityId) return;
-    if (!activity?.projectIds.includes(projectId)) return;
+    if (!activityId) return;
+    if (activity?.projectIds.includes(projectId)) return;
     const updated: Activity = {
-      ...activity,
-      id: newActivityId || activity.id,
+      id: activityId,
+      notes: "",
+      finishedOn: new Date(),
       projectIds: [...(activity?.projectIds || []), projectId],
+      updatedAt: new Date(),
     };
     mutateActivity(updated, false);
     const { errors } = await client.models.ProjectActivity.create({
-      activityId: newActivityId || activity.id,
+      activityId: activityId,
       projectsId: projectId,
     });
     if (errors)
