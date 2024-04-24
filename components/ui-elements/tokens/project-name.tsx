@@ -1,8 +1,7 @@
-import useProject from "@/api/useProject";
-import useProjectAccounts from "@/api/useProjectAccounts";
 import AccountName from "./account-name";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import styles from "./Tokens.module.css";
+import { useProjectsContext } from "@/api/ContextProjects";
 
 type ProjectNameProps = {
   projectId: string;
@@ -10,30 +9,32 @@ type ProjectNameProps = {
 };
 
 const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
-  const { project, loadingProject } = useProject(projectId);
-  const { projectAccountIds } = useProjectAccounts(projectId);
+  const { getProjectById } = useProjectsContext();
+  const [project, setProject] = useState(() => getProjectById(projectId));
 
-  return !project ? (
-    "Loading project..."
-  ) : (
+  useEffect(() => {
+    setProject(getProjectById(projectId));
+  }, [getProjectById, projectId]);
+
+  return (
     <div>
       {noLinks ? (
         <div className={styles.projectName}>
-          {project?.project}
-          <small> {(project.context || "none").toUpperCase()}</small>
+          {!project ? "..." : project.project}
+          <small> {(project?.context || "none").toUpperCase()}</small>
         </div>
       ) : (
         <a href={`/projects/${projectId}`} className={styles.projectName}>
-          {project?.project}
+          {!project ? "..." : project.project}
           <small style={{ color: "gray" }}>
             {" "}
-            {(project.context || "none").toUpperCase()}
+            {(project?.context || "none").toUpperCase()}
           </small>
         </a>
       )}
       <div>
-        {projectAccountIds?.map(
-          ({ accountId }) =>
+        {project?.accountIds.map(
+          (accountId) =>
             accountId && (
               <AccountName
                 noLinks={noLinks}

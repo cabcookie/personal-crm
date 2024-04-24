@@ -3,7 +3,23 @@ export const getCurrentDate = () => new Date();
 export const makeDate = (str: string) => new Date(str);
 export const addDaysToDate = (days: number) => (date: Date) =>
   new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
-export const toLocaleDateString = (date: Date) => date.toLocaleDateString();
+export const toLocaleDateTimeString = (date?: Date) =>
+  !date
+    ? ""
+    : date.toLocaleDateString(undefined, {
+        day: "2-digit",
+        month: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+export const toLocaleDateString = (date?: Date) =>
+  !date
+    ? ""
+    : date.toLocaleDateString(undefined, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
 export const toISODateString = (date: Date) => {
   var year = date.getFullYear();
   // Months are zero-based, so we add 1 to get the correct month

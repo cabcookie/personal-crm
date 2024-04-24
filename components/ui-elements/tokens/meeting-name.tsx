@@ -1,7 +1,6 @@
 import { FC } from "react";
 import styles from "./Tokens.module.css";
 import useMeeting from "@/api/useMeeting";
-import useMeetingParticipants from "@/api/useMeetingParticipants";
 import PersonName from "./person-name";
 
 type MeetingNameProps = {
@@ -30,7 +29,6 @@ const NameAndDate: FC<{ topic: string; meetingOn: Date }> = ({
 
 const MeetingName: FC<MeetingNameProps> = ({ meetingId, noLinks }) => {
   const { meeting } = useMeeting(meetingId);
-  const { meetingParticipants } = useMeetingParticipants(meetingId);
 
   return (
     meeting && (
@@ -45,16 +43,9 @@ const MeetingName: FC<MeetingNameProps> = ({ meetingId, noLinks }) => {
           </a>
         )}
         <div>
-          {meetingParticipants?.map(
-            ({ personId }) =>
-              personId && (
-                <PersonName
-                  key={personId}
-                  personId={personId}
-                  noLinks={noLinks}
-                />
-              )
-          )}
+          {meeting.participantIds.map((personId) => (
+            <PersonName key={personId} personId={personId} noLinks={noLinks} />
+          ))}
         </div>
       </div>
     )

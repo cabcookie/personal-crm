@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { useEffect, useState } from "react";
-import { generateClient } from "aws-amplify/data";
+import { SelectionSet, generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
@@ -11,26 +11,56 @@ const client = generateClient<Schema>();
 export type Meeting = {
   id: string;
   topic: string;
-  meetingOn: Date;
   context?: Context;
+  meetingOn: Date;
+  participantIds: string[];
+  activityIds: string[];
 };
 
-export const mapMeeting: (data: Schema["Meeting"]) => Meeting = ({
+export const meetingSelectionSet = [
+  "id",
+  "topic",
+  "context",
+  "meetingOn",
+  "createdAt",
+  "participants.person.id",
+  "activities.id",
+  "activities.finishedOn",
+  "activities.createdAt",
+] as const;
+
+type MeetingData = SelectionSet<Schema["Meeting"], typeof meetingSelectionSet>;
+
+export const mapMeeting: (data: MeetingData) => Meeting = ({
   id,
   topic,
   meetingOn,
-  createdAt,
   context,
+  createdAt,
+  participants,
+  activities,
 }) => ({
   id,
   topic,
   meetingOn: new Date(meetingOn || createdAt),
   context: context || undefined,
+  participantIds: participants.map(({ person: { id } }) => id),
+  activityIds: activities
+    .sort(
+      (a, b) =>
+        new Date(b.finishedOn || b.createdAt).getTime() -
+        new Date(a.finishedOn || a.createdAt).getTime()
+    )
+    .map(({ id }) => id),
 });
 
 const fetchMeetings = (page: number, context?: Context) => async () => {
   if (!context) return;
-  const compareDate = flow(addDaysToDate(-4 * 7), getDayOfDate)(new Date());
+  const toDate = flow(
+    addDaysToDate(-4 * (page - 1) * 7 + 1),
+    getDayOfDate
+  )(new Date());
+  const fromDate = flow(addDaysToDate(-4 * page * 7), getDayOfDate)(new Date());
   const { data, errors } = await client.models.Meeting.list({
     filter: {
       and: [
@@ -49,18 +79,22 @@ const fetchMeetings = (page: number, context?: Context) => async () => {
         {
           or: [
             {
-              meetingOn: { gt: compareDate },
+              and: [
+                { meetingOn: { gt: fromDate } },
+                { meetingOn: { le: toDate } },
+              ],
             },
             {
               and: [
                 { meetingOn: { attributeExists: false } },
-                { createdAt: { gt: compareDate } },
+                { createdAt: { gt: fromDate } },
               ],
             },
           ],
         },
       ],
     },
+    selectionSet: meetingSelectionSet,
   });
   if (errors) throw errors;
   return data
@@ -93,18 +127,38 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       id: crypto.randomUUID(),
       topic,
       meetingOn: new Date(),
+      participantIds: [],
+      activityIds: [],
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
       topic,
-      meetingOn: newMeeting.meetingOn.toISOString(),
+      meetingOn: new Date().toISOString(),
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
     mutateMeetings(updatedMeetings);
     return data.id;
   };
+
+  // const updateActivityNotes = async (notes: string, activityId: string) => {
+  //   const updated: Meeting[] =
+  //     meetings?.map((meeting) => ({
+  //       ...meeting,
+  //       activities: meeting.activities.map((activity) =>
+  //         activity.id !== activityId ? activity : { ...activity, notes }
+  //       ),
+  //     })) || [];
+  //   mutateMeetings(updated, false);
+  //   const { data, errors } = await client.models.Activity.update({
+  //     id: activityId,
+  //     notes,
+  //   });
+  //   if (errors) handleApiErrors(errors, "Error updating activity notes");
+  //   mutateMeetings(updated);
+  //   return data.id;
+  // };
 
   useEffect(() => {
     setMeetingDates(
@@ -123,6 +177,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     loadingMeetings,
     meetingDates,
     createMeeting,
+    // updateActivityNotes,
   };
 };
 

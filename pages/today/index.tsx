@@ -19,6 +19,7 @@ const TodayPage = () => {
     createTodo,
     switchTodoDone,
     migrateLegacyTasks,
+    countLegacyTasks,
   } = useDayPlans(context);
   const [showCreateDayPlan, setShowCreateDayPlan] = useState(false);
 
@@ -35,6 +36,19 @@ const TodayPage = () => {
             }
       }
     >
+      {countLegacyTasks > 0 && (
+        <div className={styles.migrationWarning}>
+          You have {countLegacyTasks} legacy data records. Do you want to
+          migrate them to the new format?{" "}
+          <SubmitButton
+            wrapperClassName={styles.warningBtn}
+            onClick={migrateLegacyTasks}
+          >
+            Yes
+          </SubmitButton>
+        </div>
+      )}
+
       {showCreateDayPlan && (
         <DayPlanForm
           onSubmit={(goal, date) => {
@@ -97,18 +111,6 @@ const TodayPage = () => {
               ))}
             </section>
 
-            {(projectTasks.length > 0 || nonprojectTasks.length > 0) && (
-              <div className={styles.migrationWarning}>
-                You have legacy data records. Do you want to migrate them to the
-                new format?{" "}
-                <SubmitButton
-                  wrapperClassName={styles.warningBtn}
-                  onClick={() => migrateLegacyTasks(dayplanId)}
-                >
-                  Yes
-                </SubmitButton>
-              </div>
-            )}
             {projectTasks.length > 0 && (
               <div>
                 <b>Project Tasks:</b>{" "}
