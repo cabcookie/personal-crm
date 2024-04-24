@@ -32,7 +32,8 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       await addProjectToActivity(projectId, newId);
       return;
     }
-    await addProjectToActivity(projectId);
+    if (!activity) return;
+    await addProjectToActivity(projectId, activity.id);
   };
 
   const handleNotesUpdate = (

@@ -117,7 +117,10 @@ const MeetingDetailPage = () => {
             allowNewPerson
           />
           <h2>Notes:</h2>
-          {[...meeting.activityIds, newActivityId].map((id) => (
+          {[
+            ...meeting.activityIds.filter((id) => id !== newActivityId),
+            newActivityId,
+          ].map((id) => (
             <ProjectNotesForm
               key={id}
               activityId={id}

@@ -46,11 +46,11 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   context: context || undefined,
   participantIds: participants.map(({ person: { id } }) => id),
   activityIds: activities
-    .sort(
-      (a, b) =>
-        new Date(b.finishedOn || b.createdAt).getTime() -
-        new Date(a.finishedOn || a.createdAt).getTime()
-    )
+    .map(({ id, finishedOn, createdAt }) => ({
+      id,
+      finishedOn: new Date(finishedOn || createdAt),
+    }))
+    .sort((a, b) => a.finishedOn.getTime() - b.finishedOn.getTime())
     .map(({ id }) => id),
 });
 
