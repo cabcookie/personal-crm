@@ -1,3 +1,4 @@
+import useActivity from "@/api/useActivity";
 import { FC, useState } from "react";
 import ProjectName from "../tokens/project-name";
 import ProjectSelector from "../project-selector";
@@ -10,23 +11,18 @@ import { debouncedUpdateNotes } from "../activity-helper";
 import { Activity } from "@/components/activities/activity";
 
 type ProjectNotesFormProps = {
+  activityId: string;
   className?: string;
-  activity: Activity;
   createActivity?: (notes?: string) => Promise<string | undefined>;
-  updateActivityNotes: (
-    notes: string,
-    activityId: string
-  ) => Promise<string | undefined>;
-  addProjectToActivity: (projectId: string, activityId: string) => void;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
-  activity,
+  activityId,
   className,
   createActivity,
-  updateActivityNotes,
-  addProjectToActivity,
 }) => {
+  const { activity, updateNotes, addProjectToActivity } =
+    useActivity(activityId);
   const [notesSaved, setNotesSaved] = useState(true);
 
   const handleSelectProject = async (projectId: string) => {
@@ -37,6 +33,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       await addProjectToActivity(projectId, newId);
       return;
     }
+    if (!activity) return;
     await addProjectToActivity(projectId, activity.id);
   };
 
@@ -49,17 +46,17 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       notes,
       transformerFn,
       setSaveStatus: setNotesSaved,
-      updateNotes: (notes: string) => updateActivityNotes(notes, activity.id),
+      updateNotes,
       createActivity,
     });
   };
 
   return (
     <div className={className}>
-      {activity.projectIds?.map((projectId) => (
-        <ProjectName projectId={projectId} key={projectId} />
+      {activity?.projectIds.map((id) => (
+        <ProjectName projectId={id} key={id} />
       ))}
-      <ProjectSelector allowCreateProjects onChange={handleSelectProject} />
+      <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
       <NotesWriter
         notes={activity?.notes || ""}
         saveNotes={handleNotesUpdate}

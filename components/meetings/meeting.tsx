@@ -6,13 +6,9 @@ import PersonName from "../ui-elements/tokens/person-name";
 
 type MeetingRecordProps = {
   meeting: Meeting;
-  updateActivityNotes: (notes: string, activityId: string) => Promise<string>;
 };
 
-const MeetingRecord: FC<MeetingRecordProps> = ({
-  meeting,
-  updateActivityNotes,
-}) => (
+const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => (
   <div>
     <h2>
       <a href={`/meetings/${meeting.id}`} className={styles.title}>
@@ -32,12 +28,11 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
       {meeting.participantIds.map((personId) => (
         <PersonName key={personId} personId={personId} />
       ))}
-      {meeting.activities.length > 0 && <h3>Meeting notes:</h3>}
-      {meeting.activities.map((activity) => (
+      {meeting.activityIds.length > 0 && <h3>Meeting notes:</h3>}
+      {meeting.activityIds.map((activityId) => (
         <ActivityComponent
-          key={activity.id}
-          activity={activity}
-          updateActivityNotes={updateActivityNotes}
+          key={activityId}
+          activityId={activityId}
           showProjects
         />
       ))}

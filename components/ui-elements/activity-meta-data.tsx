@@ -8,16 +8,18 @@ type Activity = {
 };
 
 type ActivityMetaDataProps = {
-  activity: Activity;
+  activity?: Activity;
 };
 
 const ActivityMetaData: FC<ActivityMetaDataProps> = ({ activity }) => {
   return (
     <div style={{ color: "gray", fontSize: "var(--font-size-small)" }}>
-      Created: {toLocaleDateTimeString(activity.finishedOn)}{" "}
-      {activity.updatedAt.getTime() - activity.finishedOn.getTime() < 1000 * 60
+      Created: {toLocaleDateTimeString(activity?.finishedOn)}{" "}
+      {(activity?.updatedAt.getTime() || 0) -
+        (activity?.finishedOn.getTime() || 0) <
+      1000 * 60
         ? ""
-        : ` – Updated on: ${toLocaleDateTimeString(activity.updatedAt)}`}
+        : ` – Updated on: ${toLocaleDateTimeString(activity?.updatedAt)}`}
     </div>
   );
 };

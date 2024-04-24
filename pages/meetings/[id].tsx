@@ -9,19 +9,6 @@ import ProjectNotesForm from "@/components/ui-elements/project-notes-form/projec
 import { useEffect, useMemo, useState } from "react";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
 import { debounce } from "lodash";
-import { Activity } from "@/components/activities/activity";
-
-const makeNewActivity: (id: string, meetingId?: string) => Activity = (
-  id,
-  meetingId
-) => ({
-  id,
-  finishedOn: new Date(),
-  notes: "",
-  meetingId,
-  updatedAt: new Date(),
-  projectIds: [],
-});
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -33,8 +20,6 @@ const MeetingDetailPage = () => {
     updateMeeting,
     createMeetingParticipant,
     createMeetingActivity,
-    updateActivityNotes,
-    addProjectToActivity,
   } = useMeeting(meetingId);
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
@@ -133,19 +118,16 @@ const MeetingDetailPage = () => {
           />
           <h2>Notes:</h2>
           {[
-            ...(meeting.activities.filter((ma) => ma.id !== newActivityId) ||
-              []),
-            makeNewActivity(newActivityId, meetingId),
-          ].map((activity) => (
+            ...meeting.activityIds.filter((id) => id !== newActivityId),
+            newActivityId,
+          ].map((id) => (
             <ProjectNotesForm
-              key={activity.id}
-              activity={activity}
+              key={id}
+              activityId={id}
               className={styles.projectNote}
               createActivity={
                 id === newActivityId ? saveNewActivity : undefined
               }
-              updateActivityNotes={updateActivityNotes}
-              addProjectToActivity={addProjectToActivity}
             />
           ))}
         </div>

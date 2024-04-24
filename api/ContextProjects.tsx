@@ -14,7 +14,15 @@ interface ProjectsContextType {
     projectName: string
   ) => Promise<Schema["Projects"] | undefined>;
   getProjectById: (projectId: string) => Project | undefined;
-  getProjectsByActivityId: (activityId: string) => Project[] | undefined;
+  createProjectActivity: (
+    projectId: string,
+    notes?: string
+  ) => Promise<string | undefined>;
+  saveNextActions: (
+    projectId: string,
+    myNextActions: string,
+    othersNextActions: string
+  ) => Promise<string | undefined>;
 }
 
 export type Project = {
@@ -41,8 +49,10 @@ const selectionSet = [
   "myNextActions",
   "othersNextActions",
   "context",
-  "accounts.account.id",
+  "accounts.accountId",
   "activities.activity.id",
+  "activities.activity.finishedOn",
+  "activities.activity.createdAt",
 ] as const;
 
 type ProjectData = SelectionSet<Schema["Projects"], typeof selectionSet>;
@@ -69,8 +79,15 @@ export const mapProject: (project: ProjectData) => Project = ({
   myNextActions: myNextActions || "",
   othersNextActions: othersNextActions || "",
   context,
-  accountIds: accounts?.map(({ account: { id } }) => id) || [],
-  activityIds: activities?.map(({ activity: { id } }) => id) || [],
+  accountIds: accounts.map(({ accountId }) => accountId),
+  activityIds: activities
+    .filter(({ activity }) => !!activity)
+    .map(({ activity: { id, createdAt, finishedOn } }) => ({
+      id,
+      finishedOn: new Date(finishedOn || createdAt),
+    }))
+    .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
+    .map(({ id }) => id),
 });
 
 const fetchProjects = (context?: Context) => async () => {
@@ -133,8 +150,51 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   const getProjectById = (projectId: string) =>
     projects?.find((project) => project.id === projectId);
 
-  const getProjectsByActivityId = (activityId: string) =>
-    projects?.filter((project) => project.activityIds.includes(activityId));
+  const createProjectActivity = async (projectId: string, notes?: string) => {
+    const { data: activity, errors: errorsActivity } =
+      await client.models.Activity.create({ notes });
+    if (errorsActivity) {
+      handleApiErrors(errorsActivity, "Error creating activity");
+      return;
+    }
+    const updated: Project[] =
+      projects?.map((project) =>
+        project.id !== projectId
+          ? project
+          : { ...project, activityIds: [activity.id, ...project.activityIds] }
+      ) || [];
+    mutate(updated, false);
+    const { data, errors } = await client.models.ProjectActivity.create({
+      activityId: activity.id,
+      projectsId: projectId,
+    });
+    if (errors) handleApiErrors(errors, "Error linking activity with project");
+    mutate(updated);
+    return data.activityId;
+  };
+
+  const saveNextActions = async (
+    projectId: string,
+    myNextActions: string,
+    othersNextActions: string
+  ) => {
+    const updated: Project[] =
+      projects?.map((project) =>
+        project.id !== projectId
+          ? project
+          : { ...project, myNextActions, othersNextActions }
+      ) || [];
+
+    mutate(updated, false);
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      myNextActions,
+      othersNextActions,
+    });
+    if (errors) handleApiErrors(errors, "Error saving project's next actions");
+    mutate(updated);
+    return data.id;
+  };
 
   return (
     <ProjectsContext.Provider
@@ -144,7 +204,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         loadingProjects,
         createProject,
         getProjectById,
-        getProjectsByActivityId,
+        createProjectActivity,
+        saveNextActions,
       }}
     >
       {children}

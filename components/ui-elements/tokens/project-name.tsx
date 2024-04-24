@@ -21,14 +21,19 @@ const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
       {noLinks ? (
         <div className={styles.projectName}>
           {!project ? "..." : project.project}
+          <small> {(project?.context || "none").toUpperCase()}</small>
         </div>
       ) : (
-        <a href={`/projects/${project?.id}`} className={styles.projectName}>
+        <a href={`/projects/${projectId}`} className={styles.projectName}>
           {!project ? "..." : project.project}
+          <small style={{ color: "gray" }}>
+            {" "}
+            {(project?.context || "none").toUpperCase()}
+          </small>
         </a>
       )}
       <div>
-        {project?.accountIds?.map(
+        {project?.accountIds.map(
           (accountId) =>
             accountId && (
               <AccountName

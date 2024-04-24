@@ -1,3 +1,4 @@
+import useActivity from "@/api/useActivity";
 import { FC, useState } from "react";
 import ProjectName from "../ui-elements/tokens/project-name";
 import MeetingName from "../ui-elements/tokens/meeting-name";
@@ -18,22 +19,23 @@ export type Activity = {
 };
 
 type ActivityComponentProps = {
-  activity: Activity;
-  updateActivityNotes: (notes: string, activityId: string) => Promise<string>;
+  activityId: string;
   showDates?: boolean;
   showProjects?: boolean;
   showMeeting?: boolean;
+  autoFocus?: boolean;
   createActivity?: (notes?: string) => Promise<string | undefined>;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
-  activity,
-  updateActivityNotes,
+  activityId,
   showDates,
   showMeeting,
   showProjects,
+  autoFocus,
   createActivity,
 }) => {
+  const { activity, updateNotes } = useActivity(activityId);
   const [notesSaved, setNotesSaved] = useState(true);
 
   const handleNotesUpdate = (
@@ -45,36 +47,39 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
       notes,
       transformerFn,
       setSaveStatus: setNotesSaved,
-      updateNotes: (notes: string) => updateActivityNotes(notes, activity.id),
+      updateNotes,
       createActivity,
     });
   };
 
   return (
-    <div style={{ marginBottom: "2rem" }}>
-      {showDates && (
-        <h2>
-          {toLocaleDateTimeString(activity?.finishedOn) ||
-            "Create new activity"}
-        </h2>
-      )}
-      {showProjects &&
-        activity.projectIds?.map((projectId) => (
-          <ProjectName key={projectId} projectId={projectId} />
-        ))}
-      {showMeeting && activity.meetingId && (
-        <MeetingName meetingId={activity.meetingId} />
-      )}
-      <NotesWriter
-        notes={activity?.notes || ""}
-        saveNotes={handleNotesUpdate}
-        unsaved={!notesSaved}
-        key={activity?.id}
-      />
-      <div style={{ padding: "0.3rem 1rem" }}>
-        <ActivityMetaData activity={activity} />
+    activity && (
+      <div style={{ marginBottom: "2rem" }}>
+        {showDates && (
+          <h2>
+            {toLocaleDateTimeString(activity?.finishedOn) ||
+              "Create new activity"}
+          </h2>
+        )}
+        {showProjects &&
+          activity.projectIds.map((projectId) => (
+            <ProjectName key={projectId} projectId={projectId} />
+          ))}
+        {showMeeting && activity.meetingId && (
+          <MeetingName meetingId={activity.meetingId} />
+        )}
+        <NotesWriter
+          notes={activity.notes || ""}
+          saveNotes={handleNotesUpdate}
+          unsaved={!notesSaved}
+          autoFocus={autoFocus}
+          key={activity.id}
+        />
+        <div style={{ padding: "0.3rem 1rem" }}>
+          <ActivityMetaData activity={activity} />
+        </div>
       </div>
-    </div>
+    )
   );
 };
 

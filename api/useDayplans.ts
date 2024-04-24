@@ -4,6 +4,7 @@ import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
 import { sortByDate } from "@/helpers/functional";
+import { useEffect, useState } from "react";
 const client = generateClient<Schema>();
 
 type DayNonProjectTask = {
@@ -128,6 +129,18 @@ export type CreateTodoFn = (props: {
 
 type SwitchTodoDoneFn = (todoId: string, done: boolean) => Promise<void>;
 
+const checkForLegacyTasks = async (setCount: (count: number) => void) => {
+  const { data: projectTasks, errors: projectTasksErrors } =
+    await client.models.DayProjectTask.list({ limit: 40 });
+  const { data: nonprojectTasks, errors: nonProjectTasksErrors } =
+    await client.models.NonProjectTask.list({ limit: 40 });
+
+  if (projectTasksErrors || nonProjectTasksErrors)
+    console.error({ projectTasksErrors, nonProjectTasksErrors });
+
+  setCount(projectTasks.length + nonprojectTasks.length);
+};
+
 const useDayPlans = (context?: Context) => {
   const {
     data: dayPlans,
@@ -135,76 +148,77 @@ const useDayPlans = (context?: Context) => {
     isLoading: loadingDayPlans,
     mutate,
   } = useSWR(`/api/dayplans/${context}`, fetchDayPlans(context));
+  const [countLegacyTasks, setCountLegacyTasks] = useState(0);
 
-  const migrateLegacyTasks = async (dayPlanId: string) => {
-    if (!context) return;
-    const dayplan = dayPlans?.find(({ id }) => id === dayPlanId);
-    if (!dayplan) return;
-    console.log("Start migration...", dayPlanId, dayplan);
-    const { projectTasks, nonprojectTasks } = dayplan;
-    const updated = dayPlans?.map((dp) =>
-      dp.id !== dayPlanId
-        ? dp
-        : {
-            ...dp,
-            projectTasks: [],
-            nonprojectTasks: [],
-            todos: [
-              ...projectTasks.map(
-                ({ todo, done, projectId, createdAt }): DayPlanTodo => ({
-                  id: crypto.randomUUID(),
-                  todo,
-                  done,
-                  createdAt,
-                  projectId,
-                })
-              ),
-              ...nonprojectTasks.map(
-                ({ task, done, createdAt }): DayPlanTodo => ({
-                  id: crypto.randomUUID(),
-                  todo: task,
-                  done,
-                  createdAt,
-                })
-              ),
-            ],
-          }
-    );
-    mutate(updated, false);
-    for (let i = 0; i < projectTasks.length; i++) {
-      const task = projectTasks[i];
-      const { errors } = await client.models.DayPlanTodo.create({
-        todo: task.todo,
-        dayPlanTodosId: dayPlanId,
-        done: task.done,
-        projectsTodosId: task.projectId,
+  useEffect(() => {
+    checkForLegacyTasks(setCountLegacyTasks);
+  }, []);
+
+  const migrateLegacyTasks = async () => {
+    const { data: projectTasks, errors: projectTasksErrors } =
+      await client.models.DayProjectTask.list({ limit: 40 });
+
+    if (projectTasks) {
+      console.log("Start migration of DayProjectTasks...", {
+        projectTasks,
+        projectTasksErrors,
       });
-      if (errors) console.error("DayPlanTodo.create", errors);
-      if (!errors) {
-        const { errors } = await client.models.DayProjectTask.delete({
-          id: task.id,
+      for (let i = 0; i < projectTasks.length; i++) {
+        const task = projectTasks[i];
+        const { errors } = await client.models.DayPlanTodo.create({
+          todo: task.task,
+          dayPlanTodosId: task.dayPlanProjectTasksId,
+          done: task.done || false,
+          projectsTodosId: task.projectsDayTasksId,
         });
-        if (errors) console.error("DayProjectTask.delete", errors);
+        if (errors) console.error("DayPlanTodo.create", errors);
+        if (!errors) {
+          const { errors } = await client.models.DayProjectTask.delete({
+            id: task.id,
+          });
+          if (errors) console.error("DayProjectTask.delete", errors);
+        }
       }
+      console.log("Finished migration of DayProjectTasks");
+    } else {
+      console.warn("No DayProjectTasks to migrate!", {
+        projectTasks,
+        projectTasksErrors,
+      });
     }
 
-    for (let i = 0; i < nonprojectTasks.length; i++) {
-      const task = nonprojectTasks[i];
-      const { errors } = await client.models.DayPlanTodo.create({
-        todo: task.task,
-        dayPlanTodosId: dayPlanId,
-        done: task.done,
+    const { data: nonprojectTasks, errors: nonProjectTasksErrors } =
+      await client.models.NonProjectTask.list({ limit: 40 });
+
+    if (nonprojectTasks) {
+      console.log("Start migration of NonProjectTasks...", {
+        nonprojectTasks,
+        nonProjectTasksErrors,
       });
-      if (errors) console.error("DayPlanTodo.create", errors);
-      if (!errors) {
-        const { errors } = await client.models.NonProjectTask.delete({
-          id: task.id,
+      for (let i = 0; i < nonprojectTasks.length; i++) {
+        const task = nonprojectTasks[i];
+        const { errors } = await client.models.DayPlanTodo.create({
+          todo: task.task,
+          dayPlanTodosId: task.dayPlanTasksId,
+          done: task.done || false,
         });
-        if (errors) console.error("NonProjectTask.delete", errors);
+        if (errors) console.error("DayPlanTodo.create", errors);
+        if (!errors) {
+          const { errors } = await client.models.NonProjectTask.delete({
+            id: task.id,
+          });
+          if (errors) console.error("NonProjectTask.delete", errors);
+        }
       }
+      console.log("Finished migration of NonProjectTasks");
+    } else {
+      console.warn("No DayProjectTasks to migrate!", {
+        projectTasks,
+        projectTasksErrors,
+      });
     }
-    mutate(updated);
-    console.log("Migration finished!");
+    mutate(dayPlans);
+    checkForLegacyTasks(setCountLegacyTasks);
   };
 
   const createDayPlan = async (
@@ -296,6 +310,7 @@ const useDayPlans = (context?: Context) => {
     createTodo,
     switchTodoDone,
     migrateLegacyTasks,
+    countLegacyTasks,
   };
 };
 

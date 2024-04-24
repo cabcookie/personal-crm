@@ -1,4 +1,4 @@
-# Bereinigung vorheriger Änderungen; manche Daten wurden nicht angezeigt (Version :VERSION)
+# Stabilität von Tagesplänen und Projekten erhöhen (Version :VERSION)
 
 ## Zusammenfassung der Änderungen
 

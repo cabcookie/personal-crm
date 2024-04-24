@@ -6,7 +6,6 @@ import { Context } from "@/contexts/ContextContext";
 import useSWR from "swr";
 import { flow } from "lodash";
 import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
-import { Activity } from "@/components/activities/activity";
 const client = generateClient<Schema>();
 
 export type Meeting = {
@@ -15,7 +14,7 @@ export type Meeting = {
   context?: Context;
   meetingOn: Date;
   participantIds: string[];
-  activities: Activity[];
+  activityIds: string[];
 };
 
 export const meetingSelectionSet = [
@@ -26,11 +25,8 @@ export const meetingSelectionSet = [
   "createdAt",
   "participants.person.id",
   "activities.id",
-  "activities.notes",
   "activities.finishedOn",
   "activities.createdAt",
-  "activities.updatedAt",
-  "activities.forProjects.id",
 ] as const;
 
 type MeetingData = SelectionSet<Schema["Meeting"], typeof meetingSelectionSet>;
@@ -49,24 +45,13 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   meetingOn: new Date(meetingOn || createdAt),
   context: context || undefined,
   participantIds: participants.map(({ person: { id } }) => id),
-  activities: activities
-    .map(
-      ({
-        id,
-        notes,
-        finishedOn,
-        createdAt,
-        updatedAt,
-        forProjects,
-      }): Activity => ({
-        id,
-        notes: notes || "",
-        finishedOn: new Date(finishedOn || createdAt),
-        updatedAt: new Date(updatedAt),
-        projectIds: forProjects.map(({ id }) => id),
-      })
-    )
-    .sort((a, b) => a.finishedOn.getTime() - b.finishedOn.getTime()),
+  activityIds: activities
+    .map(({ id, finishedOn, createdAt }) => ({
+      id,
+      finishedOn: new Date(finishedOn || createdAt),
+    }))
+    .sort((a, b) => a.finishedOn.getTime() - b.finishedOn.getTime())
+    .map(({ id }) => id),
 });
 
 const fetchMeetings = (page: number, context?: Context) => async () => {
@@ -143,7 +128,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       topic,
       meetingOn: new Date(),
       participantIds: [],
-      activities: [],
+      activityIds: [],
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
@@ -154,24 +139,6 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
     mutateMeetings(updatedMeetings);
-    return data.id;
-  };
-
-  const updateActivityNotes = async (notes: string, activityId: string) => {
-    const updated: Meeting[] =
-      meetings?.map((meeting) => ({
-        ...meeting,
-        activities: meeting.activities.map((activity) =>
-          activity.id !== activityId ? activity : { ...activity, notes }
-        ),
-      })) || [];
-    mutateMeetings(updated, false);
-    const { data, errors } = await client.models.Activity.update({
-      id: activityId,
-      notes,
-    });
-    if (errors) handleApiErrors(errors, "Error updating activity notes");
-    mutateMeetings(updated);
     return data.id;
   };
 
@@ -192,7 +159,6 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     loadingMeetings,
     meetingDates,
     createMeeting,
-    updateActivityNotes,
   };
 };
 
