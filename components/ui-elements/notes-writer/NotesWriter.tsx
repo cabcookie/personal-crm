@@ -17,9 +17,17 @@ type NotesWriterProps = {
     transformerFn: TransformNotesToMdFunction
   ) => void;
   unsaved?: boolean;
+  autoFocus?: boolean;
+  placeholder?: string;
 };
 
-const NotesWriter: FC<NotesWriterProps> = ({ notes, saveNotes, unsaved }) => {
+const NotesWriter: FC<NotesWriterProps> = ({
+  notes,
+  saveNotes,
+  unsaved,
+  autoFocus,
+  placeholder,
+}) => {
   const [editor] = useState(() => withReact(withHistory(createEditor())));
 
   useEffect(() => {
@@ -46,7 +54,8 @@ const NotesWriter: FC<NotesWriterProps> = ({ notes, saveNotes, unsaved }) => {
         <Editable
           className={`${styles.editorInput} ${unsaved && styles.unsaved}`}
           renderElement={renderElement}
-          placeholder="Start taking notes..."
+          autoFocus={autoFocus}
+          placeholder={placeholder || "Start taking notes..."}
         />
       </Slate>
     </div>

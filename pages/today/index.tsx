@@ -2,10 +2,11 @@ import MainLayout from "@/components/layouts/MainLayout";
 import styles from "./Today.module.css";
 import { useState } from "react";
 import DayPlanForm from "@/components/dayplan/dayplan-form";
-import Tasks from "@/components/dayplan/tasks";
 import SubmitButton from "@/components/ui-elements/submit-button";
 import useDayPlans from "@/api/useDayplans";
 import { useContextContext } from "@/contexts/ContextContext";
+import { isTodayOrFuture } from "@/helpers/functional";
+import Task from "@/components/dayplan/task";
 
 const TodayPage = () => {
   const { context } = useContextContext();
@@ -15,6 +16,10 @@ const TodayPage = () => {
     loadingDayPlans,
     createDayPlan,
     completeDayPlan,
+    createTodo,
+    switchTodoDone,
+    migrateLegacyTasks,
+    countLegacyTasks,
   } = useDayPlans(context);
   const [showCreateDayPlan, setShowCreateDayPlan] = useState(false);
 
@@ -31,6 +36,19 @@ const TodayPage = () => {
             }
       }
     >
+      {countLegacyTasks > 0 && (
+        <div className={styles.migrationWarning}>
+          You have {countLegacyTasks} legacy data records. Do you want to
+          migrate them to the new format?{" "}
+          <SubmitButton
+            wrapperClassName={styles.warningBtn}
+            onClick={migrateLegacyTasks}
+          >
+            Yes
+          </SubmitButton>
+        </div>
+      )}
+
       {showCreateDayPlan && (
         <DayPlanForm
           onSubmit={(goal, date) => {
@@ -41,22 +59,77 @@ const TodayPage = () => {
       )}
 
       {(!context || loadingDayPlans) && "Loading..."}
-      {errorDayPlans && <div>Error: {errorDayPlans}</div>}
+      {errorDayPlans && <div>Error: {JSON.stringify(errorDayPlans)}</div>}
 
-      {dayPlans?.map(({ id, day, dayGoal }) => (
-        <div key={id}>
-          <h2 className={styles.dayGoal}>
-            {dayGoal} – {new Date(day).toLocaleDateString()}
-            <SubmitButton
-              onClick={() => completeDayPlan(id)}
-              wrapperClassName={styles.doneBtn}
-            >
-              Done
-            </SubmitButton>
-          </h2>
-          <Tasks day={day} dayPlanId={id} />
-        </div>
-      ))}
+      {dayPlans?.map(
+        ({
+          id: dayplanId,
+          day,
+          dayGoal,
+          todos,
+          projectTasks,
+          nonprojectTasks,
+        }) => (
+          <div key={dayplanId}>
+            <h2 className={styles.dayGoal}>
+              {dayGoal} – {new Date(day).toLocaleDateString()}
+              <SubmitButton
+                onClick={() => completeDayPlan(dayplanId)}
+                wrapperClassName={styles.doneBtn}
+              >
+                Done
+              </SubmitButton>
+            </h2>
+
+            <section>
+              {[
+                ...todos,
+                ...(isTodayOrFuture(day)
+                  ? [
+                      {
+                        id: "new",
+                        todo: "",
+                        done: false,
+                        project: undefined,
+                        createdAt: new Date(),
+                      },
+                    ]
+                  : []),
+              ].map((todo) => (
+                <Task
+                  key={todo.id}
+                  todo={todo}
+                  switchTodoDone={switchTodoDone}
+                  isNew={todo.id === "new"}
+                  createTodo={
+                    todo.id === "new"
+                      ? (todo, projectId?: string) =>
+                          createTodo({ todo, projectId, dayplanId })
+                      : undefined
+                  }
+                />
+              ))}
+            </section>
+
+            {projectTasks.length > 0 && (
+              <div>
+                <b>Project Tasks:</b>{" "}
+                {projectTasks.map(({ id, todo }) => (
+                  <div key={id}>{todo}</div>
+                ))}
+              </div>
+            )}
+            {nonprojectTasks.length > 0 && (
+              <div>
+                <b>Non Project Tasks:</b>{" "}
+                {nonprojectTasks.map(({ id, task }) => (
+                  <div key={id}>{task}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )
+      )}
     </MainLayout>
   );
 };

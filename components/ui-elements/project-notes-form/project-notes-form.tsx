@@ -1,5 +1,4 @@
 import useActivity from "@/api/useActivity";
-import useActivityProjects from "@/api/useActivityProjects";
 import { FC, useState } from "react";
 import ProjectName from "../tokens/project-name";
 import ProjectSelector from "../project-selector";
@@ -9,6 +8,7 @@ import { Descendant } from "slate";
 import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
 import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
+import ProjectDetails from "../project-details/project-details";
 
 type ProjectNotesFormProps = {
   className?: string;
@@ -21,9 +21,8 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   className,
   createActivity,
 }) => {
-  const { activity, updateNotes } = useActivity(activityId);
-  const { activityProjects, loadingActivityProjects, addProjectToActivity } =
-    useActivityProjects(activityId);
+  const { activity, updateNotes, addProjectToActivity } =
+    useActivity(activityId);
   const [notesSaved, setNotesSaved] = useState(true);
 
   const handleSelectProject = async (projectId: string | null) => {
@@ -34,7 +33,8 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       await addProjectToActivity(projectId, newId);
       return;
     }
-    await addProjectToActivity(projectId, activityId);
+    if (!activity) return;
+    await addProjectToActivity(projectId, activity.id);
   };
 
   const handleNotesUpdate = (
@@ -54,11 +54,12 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
-      {loadingActivityProjects && "Loading projects..."}
-      {activityProjects?.map(
-        ({ projectId }) =>
-          projectId && <ProjectName projectId={projectId} key={projectId} />
-      )}
+      {activity?.projectIds.map((id) => (
+        <div key={id}>
+          <ProjectName projectId={id} />
+          <ProjectDetails projectId={id} />
+        </div>
+      ))}
       <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
       <NotesWriter
         notes={activity?.notes || ""}

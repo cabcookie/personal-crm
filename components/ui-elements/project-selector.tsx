@@ -1,9 +1,8 @@
-import useProjects from "@/api/useProjects";
-import { useContextContext } from "@/contexts/ContextContext";
 import { FC, ReactNode, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import ProjectName from "./tokens/project-name";
+import { useProjectsContext } from "@/api/ContextProjects";
 
 type ProjectSelectorProps = {
   allowCreateProjects?: boolean;
@@ -21,8 +20,7 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
   onChange,
   clearAfterSelection,
 }) => {
-  const { context } = useContextContext();
-  const { projects, loadingProjects, createProject } = useProjects(context);
+  const { projects, createProject, loadingProjects } = useProjectsContext();
   const [mappedOptions, setMappedOptions] = useState<
     ProjectListOption[] | undefined
   >();
@@ -43,8 +41,8 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
       if (clearAfterSelection) setSelectedOption(null);
       return;
     }
-    const projectId = await createProject(selectedOption.label);
-    onChange(projectId);
+    const project = await createProject(selectedOption.label);
+    if (project) onChange(project.id);
     if (clearAfterSelection) setSelectedOption(null);
   };
 
