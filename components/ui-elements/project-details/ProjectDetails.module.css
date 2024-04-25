@@ -7,6 +7,14 @@
   margin-bottom: 1rem;
 }
 
+.accounts {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+}
+
 .wrapper {
   font-size: 1.4rem;
   flex: 1;

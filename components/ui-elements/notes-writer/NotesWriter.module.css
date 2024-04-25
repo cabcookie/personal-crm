@@ -2,6 +2,11 @@
   width: 100%;
 }
 
+.title {
+  margin: 1rem 1rem 0 1rem;
+  padding: 0;
+}
+
 .editorInput {
   padding: 1rem;
   border-radius: 0.4rem;

@@ -6,7 +6,6 @@ import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 type MeetingUpdateProps = {
-  meetingId: string;
   meetingOn: Date;
   title: string;
 };
@@ -29,21 +28,12 @@ const useMeeting = (meetingId?: string) => {
     mutate: mutateMeeting,
   } = useSWR(`/api/meetings/${meetingId}`, fetchMeeting(meetingId));
 
-  const updateMeeting = async ({
-    meetingId,
-    meetingOn,
-    title,
-  }: MeetingUpdateProps) => {
-    const updated: Meeting = {
-      id: meetingId,
-      topic: title,
-      meetingOn,
-      participantIds: [],
-      activityIds: [],
-    };
+  const updateMeeting = async ({ meetingOn, title }: MeetingUpdateProps) => {
+    if (!meeting) return;
+    const updated: Meeting = { ...meeting, topic: title, meetingOn };
     mutateMeeting(updated, false);
     const { data, errors } = await client.models.Meeting.update({
-      id: meetingId,
+      id: meeting.id,
       topic: title,
       meetingOn: meetingOn.toISOString(),
     });

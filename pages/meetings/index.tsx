@@ -12,7 +12,7 @@ export default function MeetingsPage() {
   const router = useRouter();
 
   const createAndOpenNewMeeting = async () => {
-    const id = await createMeeting("New Meeting", context); // ADD CONTEXT
+    const id = await createMeeting("New Meeting", context);
     if (!id) return;
     router.push(`/meetings/${id}`);
   };

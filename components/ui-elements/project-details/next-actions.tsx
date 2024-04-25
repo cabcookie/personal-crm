@@ -2,29 +2,8 @@ import { FC, useState } from "react";
 import NotesWriter from "../notes-writer/NotesWriter";
 import { Descendant } from "slate";
 import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
-import { debounce } from "lodash";
 import styles from "./ProjectDetails.module.css";
-
-type DebouncedUpdateActionsProps = {
-  notes: Descendant[];
-  transformerFn: TransformNotesToMdFunction;
-  setSaveStatus: (status: boolean) => void;
-  updateActions: (actions: string) => Promise<string | undefined>;
-};
-
-const debouncedUpdateActions = debounce(
-  async ({
-    notes,
-    transformerFn,
-    setSaveStatus,
-    updateActions,
-  }: DebouncedUpdateActionsProps) => {
-    const actions = transformerFn(notes);
-    const data = await updateActions(actions);
-    if (data) setSaveStatus(true);
-  },
-  1000
-);
+import { debouncedUpdateActions } from "./project-updates-helpers";
 
 type NextActionsProps = {
   own: string;
@@ -60,12 +39,12 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
 
   return (
     <div className={styles.wrapper}>
-      <h3 className={styles.title}>{title}</h3>
       <NotesWriter
         notes={actions}
         unsaved={!saved}
         saveNotes={handleNextActionsUpdate}
         placeholder="Define next actions..."
+        title={title}
       />
     </div>
   );

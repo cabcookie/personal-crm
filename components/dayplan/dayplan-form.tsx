@@ -33,7 +33,7 @@ const DayPlanForm: FC<DayPlanFormProps> = ({ onSubmit }) => {
           />
         </div>
       </form>
-      <DateSelector date={date} setDate={setDate} className={styles.date} />
+      <DateSelector date={date} setDate={setDate} />
       <SubmitButton onClick={confirm}>Confirm</SubmitButton>
     </div>
   );

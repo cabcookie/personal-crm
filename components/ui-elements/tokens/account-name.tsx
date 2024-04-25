@@ -1,6 +1,6 @@
-import useAccount from "@/api/useAccount";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import styles from "./Tokens.module.css";
+import { useAccountsContext } from "@/api/ContextAccounts";
 
 type AccountNameProps = {
   accountId: string;
@@ -8,15 +8,22 @@ type AccountNameProps = {
 };
 
 const AccountName: FC<AccountNameProps> = ({ accountId, noLinks }) => {
-  const { account, loadingAccount } = useAccount(accountId);
-  return loadingAccount ? (
-    "Loading account..."
-  ) : noLinks ? (
-    <span className={styles.accountName}>{account?.name}</span>
-  ) : (
-    <a href={`/accounts/${accountId}`} className={styles.accountName}>
-      {account?.name}
-    </a>
+  const { getAccountById } = useAccountsContext();
+  const [account, setAccount] = useState(() => getAccountById(accountId));
+
+  useEffect(() => {
+    setAccount(getAccountById(accountId));
+  }, [accountId, getAccountById]);
+
+  return (
+    account &&
+    (noLinks ? (
+      <span className={styles.accountName}>{account?.name}</span>
+    ) : (
+      <a href={`/accounts/${accountId}`} className={styles.accountName}>
+        {account?.name}
+      </a>
+    ))
   );
 };
 

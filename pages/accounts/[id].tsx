@@ -1,15 +1,22 @@
-import useAccount from "@/api/useAccount";
+import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import MainLayout from "@/components/layouts/MainLayout";
 import { useRouter } from "next/router";
-import { FC } from "react";
+import { useEffect, useState } from "react";
 
-type AccountDetailPageProps = {};
-const AccountDetailPage: FC<AccountDetailPageProps> = (props) => {
+const AccountDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { account, loadingAccount } = useAccount(
-    Array.isArray(id) ? id[0] : id
+  const accountId = Array.isArray(id) ? id[0] : id;
+  const { getAccountById } = useAccountsContext();
+  const [account, setAccount] = useState<Account | undefined>(
+    accountId ? getAccountById(accountId) : undefined
   );
+
+  useEffect(() => {
+    if (accountId) {
+      setAccount(getAccountById(accountId));
+    }
+  }, [accountId, getAccountById]);
 
   return (
     <MainLayout
@@ -17,9 +24,9 @@ const AccountDetailPage: FC<AccountDetailPageProps> = (props) => {
       recordName={account?.name}
       sectionName="Accounts"
     >
-      {loadingAccount && "Loading account..."}
-      {JSON.stringify(account)}
+      {!account ? "Loading account..." : JSON.stringify(account)}
     </MainLayout>
   );
 };
+
 export default AccountDetailPage;

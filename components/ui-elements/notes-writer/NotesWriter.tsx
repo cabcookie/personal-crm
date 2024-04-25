@@ -19,6 +19,7 @@ type NotesWriterProps = {
   unsaved?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
+  title?: string;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -27,6 +28,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   unsaved,
   autoFocus,
   placeholder,
+  title = "Notes",
 }) => {
   const [editor] = useState(() => withReact(withHistory(createEditor())));
 
@@ -45,7 +47,8 @@ const NotesWriter: FC<NotesWriterProps> = ({
   };
 
   return (
-    <div className={styles.fullWidth}>
+    <div className={`${styles.fullWidth}`}>
+      <h3 className={styles.title}>{title}</h3>
       <Slate
         editor={editor}
         initialValue={transformMdToNotes(notes)}
