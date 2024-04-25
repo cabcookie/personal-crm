@@ -4,6 +4,7 @@ import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { Context } from "@/contexts/ContextContext";
 import { handleApiErrors } from "./globals";
+import { addDaysToDate } from "@/helpers/functional";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -118,7 +119,17 @@ export const mapProject: (project: ProjectData) => Project = ({
 const fetchProjects = (context?: Context) => async () => {
   if (!context) return;
   const { data, errors } = await client.models.Projects.list({
-    filter: { context: { eq: context }, done: { ne: "true" } },
+    filter: {
+      context: { eq: context },
+      or: [
+        { done: { ne: "true" } },
+        {
+          doneOn: {
+            ge: addDaysToDate(-90)(new Date()).toISOString().split("T")[0],
+          },
+        },
+      ],
+    },
     limit: 500,
     selectionSet,
   });
@@ -202,7 +213,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     id: string;
     project?: string;
     dueOn?: Date;
-    doneOn?: Date;
+    doneOn?: Date | null;
     onHoldTill?: Date;
     myNextActions?: string;
     othersNextActions?: string;
@@ -244,7 +255,12 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       myNextActions,
       othersNextActions,
       dueOn: dueOn ? dueOn.toISOString().split("T")[0] : undefined,
-      doneOn: doneOn ? doneOn.toISOString().split("T")[0] : undefined,
+      doneOn:
+        done === undefined
+          ? undefined
+          : doneOn
+          ? doneOn.toISOString().split("T")[0]
+          : null,
       onHoldTill: onHoldTill
         ? onHoldTill.toISOString().split("T")[0]
         : undefined,
@@ -277,7 +293,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   }) => updateProject({ id: projectId, dueOn, onHoldTill, doneOn });
 
   const updateProjectState = (projectId: string, done: boolean) =>
-    updateProject({ id: projectId, done, doneOn: new Date() });
+    updateProject({ id: projectId, done, doneOn: done ? new Date() : null });
 
   const addAccountToProject = async (projectId: string, accountId: string) => {
     const updated: Project[] =

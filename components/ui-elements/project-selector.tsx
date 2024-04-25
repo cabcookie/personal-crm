@@ -28,10 +28,12 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
 
   useEffect(() => {
     setMappedOptions(
-      projects?.map((project) => ({
-        value: project.id,
-        label: <ProjectName noLinks projectId={project.id} />,
-      }))
+      projects
+        ?.filter((p) => !p.done)
+        .map((project) => ({
+          value: project.id,
+          label: <ProjectName noLinks projectId={project.id} />,
+        }))
     );
   }, [projects]);
 

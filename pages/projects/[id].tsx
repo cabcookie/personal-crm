@@ -11,8 +11,12 @@ const ProjectDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const projectId = Array.isArray(id) ? id[0] : id;
-  const { getProjectById, createProjectActivity, saveProjectName } =
-    useProjectsContext();
+  const {
+    getProjectById,
+    createProjectActivity,
+    saveProjectName,
+    updateProjectState,
+  } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>(
     projectId ? getProjectById(projectId) : undefined
   );
@@ -67,6 +71,10 @@ const ProjectDetailPage = () => {
       onBackBtnClick={handleBackBtnClick}
       onTitleChange={() => setProjectDetailsSaved(false)}
       saveTitle={updateProjectName}
+      addButton={{
+        label: project?.done ? "Set open" : "Set done",
+        onClick: () => project && updateProjectState(project.id, !project.done),
+      }}
     >
       {!project ? (
         "Loading project..."
