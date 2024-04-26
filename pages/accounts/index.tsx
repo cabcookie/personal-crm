@@ -24,6 +24,7 @@ const AccountsListPage = () => {
         : accounts.map((account) => (
             <div key={account.id}>
               <AccountName accountId={account.id} />
+              {JSON.stringify(account)}
             </div>
           ))}
     </MainLayout>

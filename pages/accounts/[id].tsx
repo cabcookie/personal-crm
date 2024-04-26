@@ -1,6 +1,7 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import MainLayout from "@/components/layouts/MainLayout";
 import { debouncedUpdateAccountDetails } from "@/components/ui-elements/account-details/account-updates-helpers";
+import NotesWriter from "@/components/ui-elements/notes-writer/NotesWriter";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -14,6 +15,7 @@ const AccountDetailPage = () => {
     accountId ? getAccountById(accountId) : undefined
   );
   const [accountDetailsSaved, setAccountDetailsSaved] = useState(true);
+  const [introductionSaved, setIntroductionSaved] = useState(true);
 
   useEffect(() => {
     if (accountId) {
@@ -51,7 +53,13 @@ const AccountDetailPage = () => {
       ) : (
         <div>
           <SavedState saved={accountDetailsSaved} />
-          test
+          {JSON.stringify(account)}
+          <NotesWriter
+            title="Introduction"
+            notes={account.introduction}
+            placeholder="Describe the account..."
+            unsaved={!introductionSaved}
+          />
         </div>
       )}
     </MainLayout>

@@ -24,6 +24,8 @@ export type Account = {
   name: string;
   introduction: string;
   controllerId?: string;
+  order: number;
+  responsibilities: { startDate: Date; endDate?: Date }[];
 };
 
 const selectionSet = [
@@ -31,6 +33,9 @@ const selectionSet = [
   "name",
   "accountSubsidiariesId",
   "introduction",
+  "order",
+  "responsibilities.startDate",
+  "responsibilities.endDate",
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"], typeof selectionSet>;
@@ -40,11 +45,20 @@ export const mapAccount: (account: AccountData) => Account = ({
   name,
   accountSubsidiariesId,
   introduction,
+  order,
+  responsibilities,
 }) => ({
   id,
   name,
   introduction: introduction || "",
   controllerId: accountSubsidiariesId || undefined,
+  order: order || 0,
+  responsibilities: responsibilities
+    .map(({ startDate, endDate }) => ({
+      startDate: new Date(startDate),
+      endDate: !endDate ? undefined : new Date(endDate),
+    }))
+    .sort((a, b) => b.startDate.getTime() - a.startDate.getTime()),
 });
 
 const fetchAccounts = async () => {
@@ -53,7 +67,7 @@ const fetchAccounts = async () => {
     selectionSet,
   });
   if (errors) throw errors;
-  return data.map(mapAccount);
+  return data.map(mapAccount).sort((a, b) => a.order - b.order);
 };
 
 interface AccountsContextProviderProps {
@@ -79,6 +93,8 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
       id: crypto.randomUUID(),
       name: accountName,
       introduction: "",
+      order: 0,
+      responsibilities: [],
     };
 
     const updatedAccounts = [...(accounts || []), newAccount];
