@@ -35,10 +35,10 @@ function compareJSON(obj1, obj2, path = "") {
 }
 
 // Example usage
-const config = require("../amplifyconfiguration.json");
-const configNew = require("../amplifyconfiguration_new.json");
+const execution1 = require("./temp/execution1.json");
+const execution2 = require("./temp/execution2.json");
 
-const differences = compareJSON(config, configNew);
+const differences = compareJSON(execution1, execution2);
 
 console.log("# Deleted:");
 differences.deleted.forEach((d) => console.log(`- ${d}`));

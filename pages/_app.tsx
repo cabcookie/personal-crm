@@ -11,6 +11,7 @@ import {
 } from "@/contexts/ContextContext";
 import { contextLocalStorage } from "@/stories/components/navigation-menu/helpers";
 import { ProjectsContextProvider } from "@/api/ContextProjects";
+import { AccountsContextProvider } from "@/api/ContextAccounts";
 
 Amplify.configure(config);
 
@@ -18,7 +19,9 @@ const ProjectsContext = ({ Component, pageProps }: AppProps) => {
   const { context } = useContextContext();
   return (
     <ProjectsContextProvider context={context}>
-      <Component {...pageProps} />
+      <AccountsContextProvider>
+        <Component {...pageProps} />
+      </AccountsContextProvider>
     </ProjectsContextProvider>
   );
 };

@@ -136,6 +136,17 @@ const schema = a.schema({
       projects: a.belongsTo("Projects", "projectsId"),
     })
     .authorization((allow) => [allow.owner()]),
+  AccountResponsibilities: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      accountId: a.id().required(),
+      account: a.belongsTo("Account", "accountId"),
+      startDate: a.date().required(),
+      endDate: a.date(),
+    })
+    .authorization((allow) => [allow.owner()]),
   Account: a
     .model({
       owner: a
@@ -143,11 +154,13 @@ const schema = a.schema({
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       name: a.string().required(),
+      order: a.integer(),
       introduction: a.string(),
       subsidiaries: a.hasMany("Account", "accountSubsidiariesId"),
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
+      responsibilities: a.hasMany("AccountResponsibilities", "accountId"),
     })
     .authorization((allow) => [allow.owner()]),
   SixWeekCycle: a

@@ -40,3 +40,5 @@ next-env.d.ts
 amplifyconfiguration*
 components/import-data/*
 !components/import-data/imports-aws-sdk
+
+scripts/temp

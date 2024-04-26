@@ -24,7 +24,7 @@ const getUpdatedAtTime = ({ updatedAt, finishedOn }: Activity) =>
 
 const ActivityMetaData: FC<ActivityMetaDataProps> = ({ activity }) => {
   return (
-    <div style={{ color: "gray", fontSize: "var(--font-size-small)" }}>
+    <div style={{ color: "gray", fontSize: "var(--font-size-x-small)" }}>
       {activity?.id && getUpdatedAtTime(activity)}
     </div>
   );
