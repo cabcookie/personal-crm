@@ -1,31 +1,30 @@
-# Stabilität von Tagesplänen und Projekten erhöhen (Version :VERSION)
+# Projektdetails anzeigen (Version :VERSION)
 
 ## Neue Funktionen und Änderungen
 
-Datensätze in der Datenbank wurden bisher mit einer ID erzeugt. Hier ein Beispiel:
+### Projektdetails
 
-```typescript
-const newDayPlan: DayPlan = {
-  id: crypto.randomUUID(),
-  day,
-  dayGoal,
-  done: false,
-};
-const { data, errors } = await client.models.DayPlan.create({
-  ...newDayPlan,
-  context,
-});
-```
+Zusätzliche Projektdetails wie das Fälligkeitsdatum und bis wann es stummgeschaltet ist, werden jetzt angezeigt und sind editierbar.
+Ein Projekt kann jetzt auch erledigt werden und ist anschließend nicht mehr auswählbar. Für weitere 90 Tage wird das Projekt noch angezeigt. Taucht der Projektname in Aktivitäten oder Meetings auf, wird angezeigt, wenn das Projekt als erledigt markiert ist.
+Außerdem können Projekten nun Accounts zugeordnet werden.
 
-Das führte zu Fehlern und haben wir gefixt.
+### Listenansichten und Detailansichten
 
-Wir haben die Amplify Packages auf die neueste Version aktualisiert und mussten das Datenschema entsprechend aktualisieren.
+Ist implementiert für Accounts und Projekte.
 
-- `"@aws-amplify/backend": "^0.13.0"`
-- `"@aws-amplify/backend-cli": "^0.12.0"`
+### Verantwortung für Accounts
 
-Beim Laden der Tagespläne laden wir die Aufgaben gleich mit. Dadurch sparen wir uns einige der API Aufrufe und die Anwendung wird performanter. Außerdem versuchen wir Aufgaben in der neuen Tabelle `DayPlanTodo` zu konsolidieren. Wir bieten dem Anwender dafür an, bestehende Aufgaben in `DayPlanTodo` zu migrieren.
+Tabelle angelegt, in der der Zeitraum gespeichert werden kann, wann ich für einen bestimmten Account verantwortlich gewesen bin.
+Die Funktion ist auf der Oberfläche noch nicht implementiert.
 
-Die Projekte laden wir nun über einen Kontext, der der ganzen Anwendung zur Verfügung steht. Dadurch reduzieren wir API Aufrufe und Ladezeiten.
+### Wichtigkeit der Accounts
 
-In der Projektdetailansicht sortieren wir die Aktivitäten nun schon beim Abruf aus der Datenbank nach dem Datum absteigend. Wir können dort nun auch die eigenen nächsten Aktivitäten festhalten als auch die anderer. Wenn in einem Meeting ein Projekt selektiert wird, sind sofort auch die zuletzt vereinbarten Aktivitäten sichtbar.
+In der Tabelle `Account` gibt es ein Feld `Order`. Damit soll die Wichtigkeit eines Accounts definiert werden. Die Funktion ist an der Oberfläche noch nicht implementiert.
+
+### Kleinere Änderungen
+
+Habe eine Umgebungsvariable `NEXT_PUBLIC_ALLOW_FAKE_DATA_CREATION` eingeführt. Außerhalb der Produktionsumgebung soll damit an verschiedenen Stellen ein Button zur Erstellung von Dummy-Daten angeboten werden. Damit sollen potentiell leere Umgebungen schnell mit Daten befüllt werden können, um das Testen zu erleichtern. Im Moment ist die Funktion selbst noch nicht implementiert.
+
+Accounts werden jetzt über einen React Context geladen. Das wirkt sich positiv auf die Stabilität und Performance der Applikation aus.
+
+`ReactDatePicker` wird nun durchgehend für die Auswahl eines Datums und einer Uhrzeit verwendet.

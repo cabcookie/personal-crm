@@ -3,8 +3,7 @@ backend:
   phases:
     build:
       commands:
-        - nvm install 18.17
-        - nvm use 18.17
+        - nvm use 18
         - npm ci
         - npx amplify pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
@@ -14,7 +13,7 @@ frontend:
         - npm ci
     build:
       commands:
-        - echo "ALLOW_FAKE_DATA_CREATION=$ALLOW_FAKE_DATA_CREATION" >> .env
+        - echo "NEXT_PUBLIC_ALLOW_FAKE_DATA_CREATION=$NEXT_PUBLIC_ALLOW_FAKE_DATA_CREATION" >> .env
         - npm run build
   artifacts:
     baseDirectory: .next
