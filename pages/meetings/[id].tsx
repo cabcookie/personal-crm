@@ -44,7 +44,6 @@ const MeetingDetailPage = () => {
         async ({ meetingOn, title }: { meetingOn?: Date; title?: string }) => {
           if (!meeting) return;
           const data = await updateMeeting({
-            meetingId: meeting.id,
             title: title || meeting.topic,
             meetingOn: meetingOn || meeting.meetingOn,
           });
@@ -76,7 +75,7 @@ const MeetingDetailPage = () => {
 
   const saveMeetingTitle = (newTitle: string) => {
     if (!meeting) return;
-    if (newTitle === meeting.topic) return;
+    if (newTitle.trim() === meeting.topic.trim()) return;
     setDateTitleSaved(false);
     debouncedUpdateMeeting({ title: newTitle });
   };
@@ -116,7 +115,6 @@ const MeetingDetailPage = () => {
             clearAfterSelection
             allowNewPerson
           />
-          <h2>Notes:</h2>
           {[
             ...meeting.activityIds.filter((id) => id !== newActivityId),
             newActivityId,

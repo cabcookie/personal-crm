@@ -13,6 +13,7 @@ frontend:
         - npm ci
     build:
       commands:
+        - echo "NEXT_PUBLIC_ALLOW_FAKE_DATA_CREATION=$NEXT_PUBLIC_ALLOW_FAKE_DATA_CREATION" >> .env
         - npm run build
   artifacts:
     baseDirectory: .next

@@ -4,6 +4,7 @@ import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { Context } from "@/contexts/ContextContext";
 import { handleApiErrors } from "./globals";
+import { addDaysToDate } from "@/helpers/functional";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -22,6 +23,24 @@ interface ProjectsContextType {
     projectId: string,
     myNextActions: string,
     othersNextActions: string
+  ) => Promise<string | undefined>;
+  saveProjectName: (
+    projectId: string,
+    projectName: string
+  ) => Promise<string | undefined>;
+  saveProjectDates: (props: {
+    projectId: string;
+    dueDate?: Date;
+    doneOn?: Date;
+    onHoldTill?: Date;
+  }) => Promise<string | undefined>;
+  updateProjectState: (
+    projectId: string,
+    done: boolean
+  ) => Promise<string | undefined>;
+  addAccountToProject: (
+    projectId: string,
+    accountId: string
   ) => Promise<string | undefined>;
 }
 
@@ -50,6 +69,7 @@ const selectionSet = [
   "othersNextActions",
   "context",
   "accounts.accountId",
+  "accounts.createdAt",
   "activities.activity.id",
   "activities.activity.finishedOn",
   "activities.activity.createdAt",
@@ -79,7 +99,13 @@ export const mapProject: (project: ProjectData) => Project = ({
   myNextActions: myNextActions || "",
   othersNextActions: othersNextActions || "",
   context,
-  accountIds: accounts.map(({ accountId }) => accountId),
+  accountIds: accounts
+    .map(({ accountId, createdAt }) => ({
+      accountId,
+      createdAt: new Date(createdAt),
+    }))
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    .map(({ accountId }) => accountId),
   activityIds: activities
     .filter(({ activity }) => !!activity)
     .map(({ activity: { id, createdAt, finishedOn } }) => ({
@@ -93,7 +119,17 @@ export const mapProject: (project: ProjectData) => Project = ({
 const fetchProjects = (context?: Context) => async () => {
   if (!context) return;
   const { data, errors } = await client.models.Projects.list({
-    filter: { context: { eq: context }, done: { ne: "true" } },
+    filter: {
+      context: { eq: context },
+      or: [
+        { done: { ne: "true" } },
+        {
+          doneOn: {
+            ge: addDaysToDate(-90)(new Date()).toISOString().split("T")[0],
+          },
+        },
+      ],
+    },
     limit: 500,
     selectionSet,
   });
@@ -173,27 +209,107 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data.activityId;
   };
 
-  const saveNextActions = async (
+  type UpdateProjectProps = {
+    id: string;
+    project?: string;
+    dueOn?: Date;
+    doneOn?: Date | null;
+    onHoldTill?: Date;
+    myNextActions?: string;
+    othersNextActions?: string;
+    done?: boolean;
+  };
+
+  const updateProject = async ({
+    id,
+    project,
+    done,
+    doneOn,
+    dueOn,
+    onHoldTill,
+    myNextActions,
+    othersNextActions,
+  }: UpdateProjectProps) => {
+    const updated: Project[] =
+      projects?.map((p) =>
+        p.id !== id
+          ? p
+          : {
+              ...p,
+              project: !project ? p.project : project,
+              done: done === undefined ? p.done : done,
+              doneOn: !doneOn ? p.doneOn : doneOn,
+              dueOn: !dueOn ? p.dueOn : dueOn,
+              onHoldTill: !onHoldTill ? p.onHoldTill : onHoldTill,
+              myNextActions: !myNextActions ? p.myNextActions : myNextActions,
+              othersNextActions: !othersNextActions
+                ? p.othersNextActions
+                : othersNextActions,
+            }
+      ) || [];
+    mutate(updated, false);
+    const newProject = {
+      id,
+      project,
+      done,
+      myNextActions,
+      othersNextActions,
+      dueOn: dueOn ? dueOn.toISOString().split("T")[0] : undefined,
+      doneOn:
+        done === undefined
+          ? undefined
+          : doneOn
+          ? doneOn.toISOString().split("T")[0]
+          : null,
+      onHoldTill: onHoldTill
+        ? onHoldTill.toISOString().split("T")[0]
+        : undefined,
+    };
+    const { data, errors } = await client.models.Projects.update(newProject);
+    if (errors) handleApiErrors(errors, "Error updating project");
+    mutate(updated);
+    return data?.id;
+  };
+
+  const saveNextActions = (
     projectId: string,
     myNextActions: string,
     othersNextActions: string
-  ) => {
-    const updated: Project[] =
-      projects?.map((project) =>
-        project.id !== projectId
-          ? project
-          : { ...project, myNextActions, othersNextActions }
-      ) || [];
+  ) => updateProject({ id: projectId, myNextActions, othersNextActions });
 
+  const saveProjectName = (projectId: string, projectName: string) =>
+    updateProject({ id: projectId, project: projectName });
+
+  const saveProjectDates = ({
+    projectId,
+    dueOn,
+    doneOn,
+    onHoldTill,
+  }: {
+    projectId: string;
+    dueOn?: Date;
+    doneOn?: Date;
+    onHoldTill?: Date;
+  }) => updateProject({ id: projectId, dueOn, onHoldTill, doneOn });
+
+  const updateProjectState = (projectId: string, done: boolean) =>
+    updateProject({ id: projectId, done, doneOn: done ? new Date() : null });
+
+  const addAccountToProject = async (projectId: string, accountId: string) => {
+    const updated: Project[] =
+      projects?.map((p) =>
+        p.id !== projectId
+          ? p
+          : { ...p, accountIds: [...p.accountIds, accountId] }
+      ) || [];
     mutate(updated, false);
-    const { data, errors } = await client.models.Projects.update({
-      id: projectId,
-      myNextActions,
-      othersNextActions,
+    const { data, errors } = await client.models.AccountProjects.create({
+      projectsId: projectId,
+      accountId,
     });
-    if (errors) handleApiErrors(errors, "Error saving project's next actions");
+    if (errors) handleApiErrors(errors, "Error adding account to project");
     mutate(updated);
-    return data.id;
+    return data?.id;
   };
 
   return (
@@ -206,6 +322,10 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         getProjectById,
         createProjectActivity,
         saveNextActions,
+        saveProjectName,
+        saveProjectDates,
+        updateProjectState,
+        addAccountToProject,
       }}
     >
       {children}
