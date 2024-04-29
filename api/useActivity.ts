@@ -60,6 +60,24 @@ const useActivity = (activityId?: string) => {
     mutate: mutateActivity,
   } = useSWR(`/api/activities/${activityId}`, fetchActivity(activityId));
 
+  const updateDate = async (date: Date) => {
+    if (!activity) return;
+    const updated: Activity = {
+      ...activity,
+      finishedOn: date,
+      updatedAt: new Date(),
+    };
+    mutateActivity(updated, false);
+    const { data, errors } = await client.models.Activity.update({
+      id: activity.id,
+      finishedOn: date.toISOString(),
+    });
+    if (errors) handleApiErrors(errors, "Error updating date of activity");
+
+    mutateActivity(updated);
+    return data.id;
+  };
+
   const updateNotes = async (notes: string) => {
     if (!activity?.id) return;
     const updated: Activity = { ...activity, notes, updatedAt: new Date() };
@@ -102,6 +120,7 @@ const useActivity = (activityId?: string) => {
     errorActivity,
     updateNotes,
     addProjectToActivity,
+    updateDate,
   };
 };
 

@@ -1,30 +1,8 @@
-# Projektdetails anzeigen (Version :VERSION)
+# Projekte gruppieren (Version :VERSION)
 
 ## Neue Funktionen und Änderungen
 
-### Projektdetails
-
-Zusätzliche Projektdetails wie das Fälligkeitsdatum und bis wann es stummgeschaltet ist, werden jetzt angezeigt und sind editierbar.
-Ein Projekt kann jetzt auch erledigt werden und ist anschließend nicht mehr auswählbar. Für weitere 90 Tage wird das Projekt noch angezeigt. Taucht der Projektname in Aktivitäten oder Meetings auf, wird angezeigt, wenn das Projekt als erledigt markiert ist.
-Außerdem können Projekten nun Accounts zugeordnet werden.
-
-### Listenansichten und Detailansichten
-
-Ist implementiert für Accounts und Projekte.
-
-### Verantwortung für Accounts
-
-Tabelle angelegt, in der der Zeitraum gespeichert werden kann, wann ich für einen bestimmten Account verantwortlich gewesen bin.
-Die Funktion ist auf der Oberfläche noch nicht implementiert.
-
-### Wichtigkeit der Accounts
-
-In der Tabelle `Account` gibt es ein Feld `Order`. Damit soll die Wichtigkeit eines Accounts definiert werden. Die Funktion ist an der Oberfläche noch nicht implementiert.
-
-### Kleinere Änderungen
-
-Habe eine Umgebungsvariable `NEXT_PUBLIC_ALLOW_FAKE_DATA_CREATION` eingeführt. Außerhalb der Produktionsumgebung soll damit an verschiedenen Stellen ein Button zur Erstellung von Dummy-Daten angeboten werden. Damit sollen potentiell leere Umgebungen schnell mit Daten befüllt werden können, um das Testen zu erleichtern. Im Moment ist die Funktion selbst noch nicht implementiert.
-
-Accounts werden jetzt über einen React Context geladen. Das wirkt sich positiv auf die Stabilität und Performance der Applikation aus.
-
-`ReactDatePicker` wird nun durchgehend für die Auswahl eines Datums und einer Uhrzeit verwendet.
+- Die Ansicht in der App ist stabilisiert worden und zoomt nicht mehr in Eingabefelder ([#40](https://github.com/cabcookie/personal-crm/issues/40))
+- Projektlisten lassen sich jetzt filtern nach Work In Progress, On Hold und Done ([#41](https://github.com/cabcookie/personal-crm/issues/41))
+- Bei Aktivitäten kann nun das Datum geändert werden.
+- In der Navigation kann nun auch zu Projekten und Accounts gewechselt werden. Mit ^+p und ^+a kann man auch direkt hinspringen.
