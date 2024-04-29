@@ -53,7 +53,7 @@ export type Project = {
   onHoldTill?: Date;
   myNextActions: string;
   othersNextActions: string;
-  context?: Context;
+  context: Context;
   accountIds: string[];
   activityIds: string[];
 };
