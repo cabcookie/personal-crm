@@ -3,6 +3,7 @@ import ContextSwitcher from "./ContextSwitcher";
 import MainNavigationSection from "./MainNavigationSection";
 import styles from "./NavigationMenu.module.css";
 import { Context } from "@/contexts/ContextContext";
+import OtherNavigationSection from "./OtherNavigationSection";
 
 type NavigationMenuProps = {
   context?: Context;
@@ -17,6 +18,9 @@ const NavigationMenu = forwardRef<HTMLDivElement, NavigationMenuProps>(
         </div>
         <div className={styles.navigationSection}>
           <MainNavigationSection context={context} />
+        </div>
+        <div className={styles.navigationSection}>
+          <OtherNavigationSection context={context} />
         </div>
       </div>
     );
