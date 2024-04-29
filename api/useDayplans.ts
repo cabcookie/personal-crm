@@ -111,14 +111,33 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
     .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
 });
 
-const fetchDayPlans = (context?: Context) => async () => {
-  if (!context) return;
-  const { data, errors } = await client.models.DayPlan.list({
+type FetchDayPlansWithTokenFn = (
+  context: Context,
+  token?: string
+) => Promise<DayPlanData[] | undefined>;
+
+const fetchDayPlansWithToken: FetchDayPlansWithTokenFn = async (
+  context,
+  token
+) => {
+  const { data, errors, nextToken } = await client.models.DayPlan.list({
     filter: { done: { ne: true }, context: { eq: context } },
     selectionSet: dayplanSelectionSet,
+    nextToken: token,
   });
   if (errors) throw errors;
-  return data.map(mapDayPlan).sort((a, b) => sortByDate(true)([a.day, b.day]));
+  if (!nextToken) return data;
+  return [
+    ...data,
+    ...((await fetchDayPlansWithToken(context, nextToken)) || []),
+  ];
+};
+
+const fetchDayPlans = (context?: Context) => async () => {
+  if (!context) return;
+  return (await fetchDayPlansWithToken(context))
+    ?.map(mapDayPlan)
+    .sort((a, b) => sortByDate(true)([a.day, b.day]));
 };
 
 export type CreateTodoFn = (props: {
