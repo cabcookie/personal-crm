@@ -4,6 +4,20 @@
   }
 }
 
+.content {
+  position: sticky;
+  top: 5rem;
+  background-color: var(--color-bg-sheet-transparent);
+  z-index: 20;
+}
+
+@media (max-width: 40em) {
+  .content {
+    top: 4rem;
+    padding-bottom: 1rem;
+  }
+}
+
 .content h1,
 .content textarea {
   font-size: var(--font-size-xx-large);

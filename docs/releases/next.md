@@ -2,5 +2,4 @@
 
 ## Neue Funktionen und Änderungen
 
-#40
-#41
+- Die Ansicht in der App ist stabilisiert worden und zoomt nicht mehr in Eingabefelder ([#40](https://github.com/cabcookie/personal-crm/issues/40))

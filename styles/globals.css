@@ -1,6 +1,7 @@
 :root {
   /* Base colors */
   --color-bg-sheet: #fefefe;
+  --color-bg-sheet-transparent: rgba(254, 254, 254, 0.9);
   --background-color: #e9e9e9;
   --bg-color-transparent: #e9e9e9f2;
   --header-text-color: #333333;
@@ -40,25 +41,6 @@
   --base-space: 1.25em;
   --navigation-menu-width: 40rem;
 }
-
-/* @media (min-width: 40em) {
-  :root {
-    --font-size-base: "10px";
-  }
-} */
-
-/* @media (min-width: 60em) {
-  :root {
-    --font-size-xxx-small: 1.1rem;
-    --font-size-xx-small: 1.2rem;
-    --font-size-x-small: 1.4rem;
-    --font-size-small: 1.6rem;
-    --font-size-medium: 1.8rem;
-    --font-size-large: 2rem;
-    --font-size-x-large: 2.8rem;
-    --font-size-xx-large: 4rem;
-  }
-} */
 
 @font-face {
   font-family: "Inter";
