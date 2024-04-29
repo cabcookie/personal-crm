@@ -54,15 +54,24 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
     .map(({ id }) => id),
 });
 
-const fetchMeetings = (page: number, context?: Context) => async () => {
+type FetchMeetingsWithTokenFunction = (props: {
+  page: number;
+  token?: string;
+  context: Context;
+}) => Promise<MeetingData[] | undefined>;
+
+const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
+  page,
+  token,
+  context,
+}) => {
   if (!context) return;
   const toDate = flow(
     addDaysToDate(-4 * (page - 1) * 7 + 1),
     getDayOfDate
   )(new Date());
   const fromDate = flow(addDaysToDate(-4 * page * 7), getDayOfDate)(new Date());
-  const { data, errors } = await client.models.Meeting.list({
-    filter: {
+  const filter = {
       and: [
         {
           or: [
@@ -93,12 +102,26 @@ const fetchMeetings = (page: number, context?: Context) => async () => {
           ],
         },
       ],
-    },
+  };
+
+  const { data, errors, nextToken } = await client.models.Meeting.list({
+    filter,
     selectionSet: meetingSelectionSet,
+    nextToken: token,
   });
   if (errors) throw errors;
-  return data
-    .map(mapMeeting)
+  if (!nextToken) return data;
+  return [
+    ...data,
+    ...((await fetchMeetingsWithToken({ page, token: nextToken, context })) ||
+      []),
+  ];
+};
+
+const fetchMeetings = (page: number, context?: Context) => async () => {
+  if (!context) return;
+  return (await fetchMeetingsWithToken({ page, context }))
+    ?.map(mapMeeting)
     .sort((a, b) => b.meetingOn.getTime() - a.meetingOn.getTime());
 };
 
