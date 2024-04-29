@@ -1,13 +1,14 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Descendant } from "slate";
 import { TransformNotesToMdFunction } from "../ui-elements/notes-writer/notes-writer-helpers";
 import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
 import useActivity from "@/api/useActivity";
-import { toLocaleDateTimeString } from "@/helpers/functional";
 import ProjectName from "../ui-elements/tokens/project-name";
 import MeetingName from "../ui-elements/tokens/meeting-name";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import ActivityMetaData from "../ui-elements/activity-meta-data";
+import DateSelector from "../ui-elements/date-selector";
+import SavedState from "../ui-elements/project-notes-form/saved-state";
 
 type ActivityComponentProps = {
   activityId: string;
@@ -26,9 +27,14 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   autoFocus,
   createActivity,
 }) => {
-  const { activity, updateNotes } = useActivity(activityId);
+  const { activity, updateNotes, updateDate } = useActivity(activityId);
   const [notesSaved, setNotesSaved] = useState(true);
+  const [dateSaved, setDateSaved] = useState(true);
+  const [date, setDate] = useState(activity?.finishedOn || new Date());
 
+  useEffect(() => {
+    setDate(activity?.finishedOn || new Date());
+  }, [activity]);
   const handleNotesUpdate = (
     notes: Descendant[],
     transformerFn: TransformNotesToMdFunction
@@ -43,12 +49,19 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
     });
   };
 
+  const handleDateUpdate = async (date: Date) => {
+    setDateSaved(false);
+    setDate(date);
+    const data = await updateDate(date);
+    if (data) setDateSaved(true);
+  };
+
   return (
     <div style={{ marginBottom: "2rem" }}>
       {showDates && (
         <h2>
-          {toLocaleDateTimeString(activity?.finishedOn) ||
-            "Create new activity"}
+          <DateSelector date={date} setDate={handleDateUpdate} selectHours />
+          <SavedState saved={dateSaved} />
         </h2>
       )}
       {showProjects &&

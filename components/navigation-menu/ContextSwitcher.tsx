@@ -1,55 +1,20 @@
-import {
-  CSSProperties,
-  FC,
-  MutableRefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FC, useEffect, useState } from "react";
 import styles from "./ContextSwitcher.module.css";
 import contextStyles from "../layouts/ContextColors.module.css";
 import { Context, useContextContext } from "@/contexts/ContextContext";
+import SelectionSlider from "../ui-elements/selection-slider/selection-slider";
 
 export const contexts: Context[] = ["family", "hobby", "work"];
-
-const moveSlider = (
-  setHighlighterStyle: (style: CSSProperties) => void,
-  contextRef: MutableRefObject<HTMLDivElement[]>,
-  context?: Context
-) => {
-  const activeIndex = contexts.findIndex((c) => c === context);
-  const activeElement = contextRef.current[activeIndex];
-
-  if (activeElement) {
-    const { offsetWidth: width, offsetLeft: left } = activeElement;
-    const innerOffset = contextRef.current[0].offsetLeft + 2;
-    setHighlighterStyle({
-      width: `${width + innerOffset * 2}px`,
-      transform: `translateX(${left - innerOffset}px)`,
-      backgroundColor: `var(--${context}-color-main)`,
-    });
-  }
-};
 
 type ContextSwitcherProps = {
   context?: Context;
 };
 
 const ContextSwitcher: FC<ContextSwitcherProps> = ({ context }) => {
-  const [highlighterStyle, setHighlighterStyle] = useState({});
   const { setContext } = useContextContext();
-  const contextRef = useRef<HTMLDivElement[]>([]);
+  const [btnColor, setBtnColor] = useState(`var(--${context}-color-main)`);
 
-  useEffect(
-    () => moveSlider(setHighlighterStyle, contextRef, context),
-    [context]
-  );
-
-  useEffect(() => {
-    const listener = () => moveSlider(setHighlighterStyle, contextRef, context);
-    window.addEventListener("resize", listener);
-    return () => window.removeEventListener("resize", listener);
-  }, [context]);
+  useEffect(() => setBtnColor(`var(--${context}-color-main)`), [context]);
 
   return (
     <div
@@ -58,29 +23,12 @@ const ContextSwitcher: FC<ContextSwitcherProps> = ({ context }) => {
       }`}
     >
       <div className={styles.title}>Switch Context:</div>
-      <button className={styles.switcher}>
-        <div className={styles.highlighter} style={highlighterStyle} />
-        {contexts.map((val, idx) => (
-          <div
-            key={idx}
-            ref={(el) => {
-              if (el) contextRef.current[idx] = el;
-            }}
-            className={`${styles.context} ${
-              val === context ? styles.isActive : ""
-            }`}
-            style={
-              {
-                "--context-color": `var(--${val}-color-text-secondary)`,
-                "--context-color-hover": `var(--${val}-color-btn)`,
-              } as CSSProperties
-            }
-            onClick={() => setContext(val)}
-          >
-            {val}
-          </div>
-        ))}
-      </button>
+      <SelectionSlider
+        valueList={contexts}
+        value={context || "family"}
+        onChange={setContext}
+        btnColor={btnColor}
+      />
     </div>
   );
 };
