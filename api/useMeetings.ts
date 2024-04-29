@@ -65,43 +65,42 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
   token,
   context,
 }) => {
-  if (!context) return;
   const toDate = flow(
     addDaysToDate(-4 * (page - 1) * 7 + 1),
     getDayOfDate
   )(new Date());
   const fromDate = flow(addDaysToDate(-4 * page * 7), getDayOfDate)(new Date());
   const filter = {
-      and: [
-        {
-          or: [
-            { context: { eq: context } },
-            {
-              and: [
-                { context: { ne: "work" } },
-                { context: { ne: "family" } },
-                { context: { ne: "hobby" } },
-              ],
-            },
-          ],
-        },
-        {
-          or: [
-            {
-              and: [
-                { meetingOn: { gt: fromDate } },
-                { meetingOn: { le: toDate } },
-              ],
-            },
-            {
-              and: [
-                { meetingOn: { attributeExists: false } },
-                { createdAt: { gt: fromDate } },
-              ],
-            },
-          ],
-        },
-      ],
+    and: [
+      {
+        or: [
+          { context: { eq: context } },
+          {
+            and: [
+              { context: { ne: "work" } },
+              { context: { ne: "family" } },
+              { context: { ne: "hobby" } },
+            ],
+          },
+        ],
+      },
+      {
+        or: [
+          {
+            and: [
+              { meetingOn: { gt: fromDate } },
+              { meetingOn: { le: toDate } },
+            ],
+          },
+          {
+            and: [
+              { meetingOn: { attributeExists: false } },
+              { createdAt: { gt: fromDate } },
+            ],
+          },
+        ],
+      },
+    ],
   };
 
   const { data, errors, nextToken } = await client.models.Meeting.list({

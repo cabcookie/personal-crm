@@ -1,8 +1,5 @@
-# Projekte gruppieren (Version :VERSION)
+# Tagespläne und Meetings vollständig laden (Version :VERSION)
 
-## Neue Funktionen und Änderungen
+## Fehlerbehebungen
 
-- Die Ansicht in der App ist stabilisiert worden und zoomt nicht mehr in Eingabefelder ([#40](https://github.com/cabcookie/personal-crm/issues/40))
-- Projektlisten lassen sich jetzt filtern nach Work In Progress, On Hold und Done ([#41](https://github.com/cabcookie/personal-crm/issues/41))
-- Bei Aktivitäten kann nun das Datum geändert werden.
-- In der Navigation kann nun auch zu Projekten und Accounts gewechselt werden. Mit ^+p und ^+a kann man auch direkt hinspringen.
+Es wurden nicht alle Tagespläne und Meetings geladen, da wir im Moment einen Table Scan durchführen und nur bis zu 100 Datensätze prüfen und dann einen `nextToken` erhalten. Den verwenden wir jetzt, um weitere Datensätze zu laden, bis kein `nextToken` mehr zurück gegeben wird.
