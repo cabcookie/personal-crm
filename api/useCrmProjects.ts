@@ -108,6 +108,7 @@ const fetchCrmProjectsWithToken: FetchCrmProjectsWithTokenFn = async (
     },
     selectionSet: selectionSetCrmProject,
     nextToken: token,
+    limit: 1000,
   });
   if (errors) throw errors;
   if (!nextToken) return data;

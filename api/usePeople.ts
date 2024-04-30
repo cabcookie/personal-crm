@@ -6,7 +6,7 @@ import { Person, mapPerson } from "./usePerson";
 const client = generateClient<Schema>();
 
 const fetchPeople = async () => {
-  const { data, errors } = await client.models.Person.list({ limit: 800 });
+  const { data, errors } = await client.models.Person.list({ limit: 2000 });
   if (errors) throw errors;
   return data.map(mapPerson);
 };
