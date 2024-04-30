@@ -4,32 +4,45 @@ import ProjectDates from "./project-dates";
 import NextActions from "./next-actions";
 import AccountName from "../tokens/account-name";
 import SavedState from "../project-notes-form/saved-state";
-import styles from "./ProjectDetails.module.css";
 import AccountSelector from "../account-selector";
+import SelectionSlider from "../selection-slider/selection-slider";
+import { Context } from "@/contexts/ContextContext";
+import ContextWarning from "../context-warning/context-warning";
+import RecordDetails from "../record-details/record-details";
+import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import CrmProjectDetails from "../crm-project-details/crm-project-details";
 
 type ProjectDetailsProps = {
   projectId: string;
   includeAccounts?: boolean;
+  showContext?: boolean;
+  showCrmDetails?: boolean;
 };
 
 const ProjectDetails: FC<ProjectDetailsProps> = ({
   projectId,
   includeAccounts,
+  showContext,
+  showCrmDetails,
 }) => {
   const {
     getProjectById,
     saveNextActions,
     saveProjectDates,
     addAccountToProject,
+    updateProjectContext,
   } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>(
     projectId ? getProjectById(projectId) : undefined
   );
+  const [projectContext, setProjectContext] = useState(project?.context);
   const [detailsSaved, setDetailsSaved] = useState(true);
+  const [newCrmProjectId, setNewCrmProjectId] = useState(crypto.randomUUID());
 
   useEffect(() => {
     setProject(getProjectById(projectId));
-  }, [getProjectById, projectId]);
+    setProjectContext(project?.context);
+  }, [getProjectById, project, projectId]);
 
   const handleDateChange = async (props: {
     dueOn?: Date | undefined;
@@ -52,12 +65,45 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     return data;
   };
 
+  const updateContext = async (context: Context) => {
+    if (!project) return;
+    setDetailsSaved(false);
+    setProjectContext(context);
+    const data = await updateProjectContext(project.id, context);
+    if (data) setDetailsSaved(true);
+  };
+
   return (
     project && (
       <div>
+        {showContext && (
+          <RecordDetails title="Context">
+            <SelectionSlider
+              valueList={contexts}
+              value={projectContext}
+              onChange={updateContext}
+            />
+            <ContextWarning recordContext={projectContext} />
+          </RecordDetails>
+        )}
+
+        {(!showCrmDetails
+          ? project.crmProjectIds
+          : [
+              ...project.crmProjectIds.filter((id) => id !== newCrmProjectId),
+              newCrmProjectId,
+            ]
+        ).map((id) => (
+          <CrmProjectDetails
+            key={id}
+            crmProjectId={id}
+            projectId={project.id}
+            crmProjectDetails={showCrmDetails}
+          />
+        ))}
+
         {includeAccounts && (
-          <div className={styles.accounts}>
-            <h3 className={styles.title}>Accounts</h3>
+          <RecordDetails title="Accounts">
             {project.accountIds.map((accountId) => (
               <AccountName key={accountId} accountId={accountId} />
             ))}
@@ -65,14 +111,19 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
               allowCreateAccounts
               onChange={handleSelectAccount}
             />
-          </div>
+          </RecordDetails>
         )}
-        <ProjectDates project={project} updateDatesFn={handleDateChange} />
+
+        <RecordDetails>
+          <ProjectDates project={project} updateDatesFn={handleDateChange} />
+        </RecordDetails>
+
         <NextActions
           own={project.myNextActions}
           others={project.othersNextActions}
           saveFn={(own, others) => saveNextActions(project.id, own, others)}
         />
+
         <SavedState saved={detailsSaved} />
       </div>
     )

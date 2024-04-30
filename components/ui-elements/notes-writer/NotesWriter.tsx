@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, ReactNode, useEffect, useState } from "react";
 import { createEditor, Descendant } from "slate";
 import { withHistory } from "slate-history";
 import { Editable, Slate, withReact } from "slate-react";
@@ -9,6 +9,7 @@ import {
   transformNotesToMd,
 } from "./notes-writer-helpers";
 import styles from "./NotesWriter.module.css";
+import RecordDetails from "../record-details/record-details";
 
 type NotesWriterProps = {
   notes: string;
@@ -19,7 +20,7 @@ type NotesWriterProps = {
   unsaved?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
-  title?: string;
+  title?: ReactNode;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -47,8 +48,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   };
 
   return (
-    <div className={`${styles.fullWidth}`}>
-      <h3 className={styles.title}>{title}</h3>
+    <RecordDetails title={title} className={styles.fullWidth}>
       <Slate
         editor={editor}
         initialValue={transformMdToNotes(notes)}
@@ -61,7 +61,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
           placeholder={placeholder || "Start taking notes..."}
         />
       </Slate>
-    </div>
+    </RecordDetails>
   );
 };
 

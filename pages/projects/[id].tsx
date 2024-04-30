@@ -82,7 +82,12 @@ const ProjectDetailPage = () => {
         <div>
           <SavedState saved={projectDetailsSaved} />
           {projectId && (
-            <ProjectDetails projectId={projectId} includeAccounts />
+            <ProjectDetails
+              projectId={projectId}
+              includeAccounts
+              showContext
+              showCrmDetails
+            />
           )}
           {[newActivityId, ...(project?.activityIds || [])].map((id) => (
             <ActivityComponent

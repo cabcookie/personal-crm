@@ -9,6 +9,7 @@ import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers
 import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
 import ProjectDetails from "../project-details/project-details";
+import RecordDetails from "../record-details/record-details";
 
 type ProjectNotesFormProps = {
   className?: string;
@@ -54,13 +55,16 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
-      {activity?.projectIds.map((id) => (
-        <div key={id}>
-          <ProjectName projectId={id} />
-          <ProjectDetails projectId={id} />
-        </div>
-      ))}
-      <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
+      <RecordDetails title="For projects">
+        {activity?.projectIds.map((id) => (
+          <div key={id}>
+            <ProjectName projectId={id} />
+            <ProjectDetails projectId={id} />
+          </div>
+        ))}
+        <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
+      </RecordDetails>
+
       <NotesWriter
         notes={activity?.notes || ""}
         saveNotes={handleNotesUpdate}
