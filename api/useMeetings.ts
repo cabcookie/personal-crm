@@ -107,6 +107,7 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
     filter,
     selectionSet: meetingSelectionSet,
     nextToken: token,
+    limit: 1000,
   });
   if (errors) throw errors;
   if (!nextToken) return data;
