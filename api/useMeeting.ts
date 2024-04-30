@@ -3,6 +3,7 @@ import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
 import { handleApiErrors } from "./globals";
+import { Context } from "@/contexts/ContextContext";
 const client = generateClient<Schema>();
 
 type MeetingUpdateProps = {
@@ -75,6 +76,19 @@ const useMeeting = (meetingId?: string) => {
     return data.id;
   };
 
+  const updateMeetingContext = async (newContext: Context) => {
+    if (!meeting) return;
+    const { data, errors } = await client.models.Meeting.update({
+      id: meeting.id,
+      context: newContext,
+    });
+    if (errors) {
+      handleApiErrors(errors, "Error updating meeting's context");
+      return;
+    }
+    return data.id;
+  };
+
   return {
     meeting,
     errorMeeting,
@@ -82,6 +96,7 @@ const useMeeting = (meetingId?: string) => {
     updateMeeting,
     createMeetingParticipant,
     createMeetingActivity,
+    updateMeetingContext,
   };
 };
 

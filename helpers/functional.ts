@@ -67,3 +67,9 @@ export const sortByDate =
   };
 export const wait = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
+export const makeRevenueString = (revenue: number) => {
+  const inM = revenue > 800000;
+  const val = Math.round((revenue / (inM ? 1000000 : 1000)) * 100) / 100;
+  const label = inM ? "M" : "k";
+  return `$${val}${label}`;
+};

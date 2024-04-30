@@ -1,7 +1,7 @@
 import { FC, ReactNode, createContext, useContext } from "react";
 import { type Schema } from "@/amplify/data/resource";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import useSWR from "swr";
+import useSWR, { KeyedMutator } from "swr";
 import { Context } from "@/contexts/ContextContext";
 import { handleApiErrors } from "./globals";
 import { addDaysToDate } from "@/helpers/functional";
@@ -42,6 +42,11 @@ interface ProjectsContextType {
     projectId: string,
     accountId: string
   ) => Promise<string | undefined>;
+  updateProjectContext: (
+    projectId: string,
+    context: Context
+  ) => Promise<string | undefined>;
+  mutateProjects: KeyedMutator<Project[] | undefined>;
 }
 
 export type Project = {
@@ -56,6 +61,7 @@ export type Project = {
   context: Context;
   accountIds: string[];
   activityIds: string[];
+  crmProjectIds: string[];
 };
 
 const selectionSet = [
@@ -73,6 +79,7 @@ const selectionSet = [
   "activities.activity.id",
   "activities.activity.finishedOn",
   "activities.activity.createdAt",
+  "crmProjects.crmProject.id",
 ] as const;
 
 type ProjectData = SelectionSet<Schema["Projects"], typeof selectionSet>;
@@ -89,6 +96,7 @@ export const mapProject: (project: ProjectData) => Project = ({
   context,
   accounts,
   activities,
+  crmProjects,
 }) => ({
   id,
   project,
@@ -114,6 +122,7 @@ export const mapProject: (project: ProjectData) => Project = ({
     }))
     .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
     .map(({ id }) => id),
+  crmProjectIds: crmProjects.map(({ crmProject: { id } }) => id),
 });
 
 const fetchProjects = (context?: Context) => async () => {
@@ -130,7 +139,7 @@ const fetchProjects = (context?: Context) => async () => {
         },
       ],
     },
-    limit: 500,
+    limit: 5000,
     selectionSet,
   });
   if (errors) throw errors;
@@ -150,7 +159,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     data: projects,
     error: errorProjects,
     isLoading: loadingProjects,
-    mutate,
+    mutate: mutateProjects,
   } = useSWR(`/api/projects/${context}`, fetchProjects(context));
 
   const createProject = async (
@@ -168,10 +177,11 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       context,
       accountIds: [],
       activityIds: [],
+      crmProjectIds: [],
     };
 
     const updatedProjects = [...(projects || []), newProject];
-    mutate(updatedProjects, false);
+    mutateProjects(updatedProjects, false);
 
     const { data, errors } = await client.models.Projects.create({
       context,
@@ -179,7 +189,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       done: false,
     });
     if (errors) handleApiErrors(errors, "Error creating project");
-    mutate(updatedProjects);
+    mutateProjects(updatedProjects);
     return data;
   };
 
@@ -199,13 +209,13 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
           ? project
           : { ...project, activityIds: [activity.id, ...project.activityIds] }
       ) || [];
-    mutate(updated, false);
+    mutateProjects(updated, false);
     const { data, errors } = await client.models.ProjectActivity.create({
       activityId: activity.id,
       projectsId: projectId,
     });
     if (errors) handleApiErrors(errors, "Error linking activity with project");
-    mutate(updated);
+    mutateProjects(updated);
     return data.activityId;
   };
 
@@ -247,7 +257,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
                 : othersNextActions,
             }
       ) || [];
-    mutate(updated, false);
+    mutateProjects(updated, false);
     const newProject = {
       id,
       project,
@@ -267,7 +277,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     };
     const { data, errors } = await client.models.Projects.update(newProject);
     if (errors) handleApiErrors(errors, "Error updating project");
-    mutate(updated);
+    mutateProjects(updated);
     return data?.id;
   };
 
@@ -302,14 +312,29 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
           ? p
           : { ...p, accountIds: [...p.accountIds, accountId] }
       ) || [];
-    mutate(updated, false);
+    mutateProjects(updated, false);
     const { data, errors } = await client.models.AccountProjects.create({
       projectsId: projectId,
       accountId,
     });
     if (errors) handleApiErrors(errors, "Error adding account to project");
-    mutate(updated);
+    mutateProjects(updated);
     return data?.id;
+  };
+
+  const updateProjectContext = async (
+    projectId: string,
+    newContext: Context
+  ) => {
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      context: newContext,
+    });
+    if (errors) {
+      handleApiErrors(errors, "Error updating project's context");
+      return;
+    }
+    return data.id;
   };
 
   return (
@@ -326,6 +351,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         saveProjectDates,
         updateProjectState,
         addAccountToProject,
+        updateProjectContext,
+        mutateProjects,
       }}
     >
       {children}

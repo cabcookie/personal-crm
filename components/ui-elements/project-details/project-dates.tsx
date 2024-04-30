@@ -26,9 +26,7 @@ const ProjectDatesHelper: FC<ProjectDatesHelperProps> = ({
   return (
     <div className={styles.wrapper}>
       <h3 className={styles.title}>{title}</h3>
-      <div className={styles.text}>
-        <DateSelector date={date} setDate={updateDateFn} />
-      </div>
+      <DateSelector date={date} setDate={updateDateFn} />
     </div>
   );
 };

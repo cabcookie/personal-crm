@@ -2,13 +2,9 @@
   width: 100%;
 }
 
-.title {
-  margin: 1rem 1rem 0 1rem;
-  padding: 0;
-}
-
 .editorInput {
-  padding: 1rem;
+  margin: -0.5rem;
+  padding: 0.5rem;
   border-radius: 0.4rem;
   background-color: inherit;
   transition: background-color 1s ease;

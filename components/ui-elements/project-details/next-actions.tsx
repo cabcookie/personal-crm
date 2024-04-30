@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, ReactNode, useState } from "react";
 import NotesWriter from "../notes-writer/NotesWriter";
 import { Descendant } from "slate";
 import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
@@ -12,7 +12,7 @@ type NextActionsProps = {
 };
 
 type NextActionHelperProps = {
-  title: string;
+  title: ReactNode;
   actions: string;
   saveFn: (actions: string) => Promise<string | undefined>;
 };
