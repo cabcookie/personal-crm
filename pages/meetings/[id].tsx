@@ -9,6 +9,11 @@ import ProjectNotesForm from "@/components/ui-elements/project-notes-form/projec
 import { useEffect, useMemo, useState } from "react";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
 import { debounce } from "lodash";
+import RecordDetails from "@/components/ui-elements/record-details/record-details";
+import SelectionSlider from "@/components/ui-elements/selection-slider/selection-slider";
+import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import { Context } from "@/contexts/ContextContext";
+import ContextWarning from "@/components/ui-elements/context-warning/context-warning";
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -20,22 +25,26 @@ const MeetingDetailPage = () => {
     updateMeeting,
     createMeetingParticipant,
     createMeetingActivity,
+    updateMeetingContext,
   } = useMeeting(meetingId);
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
   );
+  const [meetingContext, setMeetingContext] = useState(meeting?.context);
   const [dateTitleSaved, setDateTitleSaved] = useState(true);
   const [participantsSaved, setParticipantsSaved] = useState(true);
+  const [contextSaved, setContextSaved] = useState(true);
   const [allSaved, setAllSaved] = useState(true);
   const [newActivityId, setNewActivityId] = useState(crypto.randomUUID());
 
   useEffect(() => {
-    setAllSaved(dateTitleSaved && participantsSaved);
-  }, [dateTitleSaved, participantsSaved]);
+    setAllSaved(dateTitleSaved && participantsSaved && contextSaved);
+  }, [dateTitleSaved, participantsSaved, contextSaved]);
 
   useEffect(() => {
     if (!meeting) return;
     setMeetingDate(meeting.meetingOn);
+    setMeetingContext(meeting.context);
   }, [meeting]);
 
   const debouncedUpdateMeeting = useMemo(
@@ -86,6 +95,14 @@ const MeetingDetailPage = () => {
     return data;
   };
 
+  const updateContext = async (context: Context) => {
+    if (!meeting) return;
+    setContextSaved(false);
+    setMeetingContext(context);
+    const data = await updateMeetingContext(context);
+    if (data) setContextSaved(true);
+  };
+
   return (
     <MainLayout
       title={meeting?.topic || "Loading..."}
@@ -99,22 +116,36 @@ const MeetingDetailPage = () => {
       {meeting && (
         <div>
           <SavedState saved={allSaved} />
-          <h2>Meeting on:</h2>
-          <DateSelector
-            date={meetingDate}
-            setDate={handleDateChange}
-            selectHours
-          />
-          <h2>Participants:</h2>
-          {meeting.participantIds.map((id) => (
-            <PersonName key={id} personId={id} />
-          ))}
-          <SavedState saved={participantsSaved} />
-          <PeopleSelector
-            onChange={addParticipant}
-            clearAfterSelection
-            allowNewPerson
-          />
+
+          <RecordDetails title="Context">
+            <SelectionSlider
+              valueList={contexts}
+              value={meetingContext}
+              onChange={updateContext}
+            />
+            <ContextWarning recordContext={meetingContext} />
+          </RecordDetails>
+
+          <RecordDetails title="Meeting on">
+            <DateSelector
+              date={meetingDate}
+              setDate={handleDateChange}
+              selectHours
+            />
+          </RecordDetails>
+
+          <RecordDetails title="Participants">
+            {meeting.participantIds.map((id) => (
+              <PersonName key={id} personId={id} />
+            ))}
+            <SavedState saved={participantsSaved} />
+            <PeopleSelector
+              onChange={addParticipant}
+              clearAfterSelection
+              allowNewPerson
+            />
+          </RecordDetails>
+
           {[
             ...meeting.activityIds.filter((id) => id !== newActivityId),
             newActivityId,

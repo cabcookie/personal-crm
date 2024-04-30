@@ -16,6 +16,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { name: "Projects", link: "/projects" },
   { name: "Accounts", link: "/accounts" },
+  { name: "CRM Projects", link: "/crm-projects" },
   // { name: "People", link: "/people" },
 ];
 

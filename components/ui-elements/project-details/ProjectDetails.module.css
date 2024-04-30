@@ -1,18 +1,10 @@
 .oneRow {
   display: flex;
+  flex-direction: row;
   gap: 1rem;
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 0.4rem;
-  margin-bottom: 1rem;
-}
-
-.accounts {
-  width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 0.4rem;
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
+  padding: 0;
+  margin: 0;
 }
 
 .wrapper {
@@ -24,17 +16,11 @@
 }
 
 .title {
-  margin: 1rem 1rem 0 1rem;
-  padding: 0;
-}
-
-.text {
-  margin: 1rem;
-  padding: 0;
+  margin: 0;
 }
 
 @media (max-width: 640px) {
   .oneRow {
-    display: block;
+    flex-direction: column;
   }
 }

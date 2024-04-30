@@ -212,6 +212,31 @@ const schema = a.schema({
       createdOn: a.datetime(),
     })
     .authorization((allow) => [allow.owner()]),
+  CrmProjectProjects: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      projectId: a.id().required(),
+      crmProjectId: a.id().required(),
+      project: a.belongsTo("Projects", "projectId"),
+      crmProject: a.belongsTo("CrmProject", "crmProjectId"),
+    })
+    .authorization((allow) => [allow.owner()]),
+  CrmProject: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      name: a.string().required(),
+      crmId: a.string(),
+      annualRecurringRevenue: a.integer(),
+      totalContractVolume: a.integer(),
+      closeDate: a.date().required(),
+      projects: a.hasMany("CrmProjectProjects", "crmProjectId"),
+      stage: a.string().required(),
+    })
+    .authorization((allow) => [allow.owner()]),
   Projects: a
     .model({
       owner: a
@@ -231,6 +256,7 @@ const schema = a.schema({
       activities: a.hasMany("ProjectActivity", "projectsId"),
       dayTasks: a.hasMany("DayProjectTask", "projectsDayTasksId"),
       todos: a.hasMany("DayPlanTodo", "projectsTodosId"),
+      crmProjects: a.hasMany("CrmProjectProjects", "projectId"),
     })
     .authorization((allow) => [allow.owner()]),
 });
