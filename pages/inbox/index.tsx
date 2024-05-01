@@ -1,19 +1,28 @@
 import useInbox, { Inbox } from "@/api/useInbox";
 import MainLayout from "@/components/layouts/MainLayout";
-import Input from "@/components/ui-elements/form-fields/input";
 import CheckListItem from "@/components/ui-elements/list-items/checklist-item";
+import NotesWriter from "@/components/ui-elements/notes-writer/NotesWriter";
+import { TransformNotesToMdFunction, transformMdToNotes } from "@/components/ui-elements/notes-writer/notes-writer-helpers";
 import SubmitButton from "@/components/ui-elements/submit-button";
 import { debounce } from "lodash";
-import { FC, FormEvent, useEffect, useState } from "react";
+import { FC, FormEvent, useState } from "react";
+import { Descendant } from "slate";
 
 type ApiResponse = Promise<string | undefined>;
 type UpdateInboxFn = (id: string, note: string) => ApiResponse;
 
-const debouncedOnChange = debounce((
+const debouncedOnChange = debounce(async (
     id: string,
-    note: string,
-    updateNote: UpdateInboxFn
-) => updateNote(id, note), 1500);
+    descendants: Descendant[],
+    transformFn: TransformNotesToMdFunction,
+    updateNote: UpdateInboxFn,
+    setSaved: (status: boolean) => void
+) => {
+    const note = transformFn(descendants);
+    const data = await updateNote(id, note);
+    if (!data) return;
+    setSaved(true);
+}, 1500);
 
 type InputFieldProps = {
     inboxItem: Inbox;
@@ -26,21 +35,19 @@ const InputField: FC<InputFieldProps> = ({
     updateNote,
     finishItem,
 }) => {
-    const [value, setValue] = useState(note);
+    const [saved, setSaved] = useState(true);
 
-    useEffect(() => setValue(note), [note]);
-
-    const handleUpdate = (newValue: string) => {
-        setValue(newValue);
-        debouncedOnChange(id, newValue, updateNote);
+    const handleUpdate = (descendants: Descendant[], transformFn: TransformNotesToMdFunction) => {
+        setSaved(false);
+        debouncedOnChange(id, descendants, transformFn, updateNote, setSaved);
     }
 
     return <CheckListItem
         title={(
-            <Input
-                value={value}
-                onChange={handleUpdate}
-                placeholder="What is on your mind?"
+            <NotesWriter
+                notes={note}
+                unsaved={!saved}
+                saveNotes={handleUpdate}
             />
         )}
         switchCheckbox={finishItem}
@@ -71,9 +78,10 @@ const InboxPage = () => {
             <form onSubmit={handleSubmit}>
                 <CheckListItem
                    title={(
-                    <Input
-                      value={newItem}
-                      onChange={setNewItem}
+                    <NotesWriter
+                      notes={newItem}
+                      saveNotes={(d, t) => setNewItem(t(d))}
+                      unsaved={newItem.length > 3}
                       placeholder="What's on your mind?"
                     />
                    )}
