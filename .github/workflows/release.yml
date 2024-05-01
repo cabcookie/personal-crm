@@ -46,6 +46,6 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add docs/releases/v*.md package.json
+          git add docs/releases/v*.md package*.json
           git commit -m "chore(release): v${VERSION}" || echo "No changes to commit"
           git push
