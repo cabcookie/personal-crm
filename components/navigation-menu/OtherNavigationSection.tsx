@@ -17,6 +17,7 @@ const menuItems: MenuItem[] = [
   { name: "Projects", link: "/projects" },
   { name: "Accounts", link: "/accounts" },
   { name: "CRM Projects", link: "/crm-projects" },
+  { name: "Inbox", link: "/inbox" },
   // { name: "People", link: "/people" },
 ];
 
