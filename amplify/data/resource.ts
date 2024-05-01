@@ -10,6 +10,16 @@ const schema = a.schema({
       context: a.ref("Context").required(),
     })
     .authorization((allow) => [allow.owner()]),
+  Inbox: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      note: a.string().required(),
+      done: a.id().required(),
+    })
+    .secondaryIndexes((inbox) => [inbox("done")])
+    .authorization((allow) => [allow.owner()]),
   DayPlan: a
     .model({
       owner: a

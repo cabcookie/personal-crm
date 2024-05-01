@@ -48,7 +48,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   };
 
   return (
-    <RecordDetails title={title} className={styles.fullWidth}>
+    <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
       <Slate
         editor={editor}
         initialValue={transformMdToNotes(notes)}
