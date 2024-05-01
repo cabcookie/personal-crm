@@ -1,3 +1,3 @@
-# Bei Meetings die Seiten wechseln (Version :VERSION)
+# Inbox führen (Version :VERSION)
 
-Bei den Meetings kann man nun vor- und zurückspringen (in 4-Wochen Schritten).
+In einer Innox können nun Gedanken gesammelt werden, die zwischendurch auftreten können aus verschiedenen Quellen: E-Mails, Anrufe, Gespräche, Gedanken. In der Inbox können solche Snippets festgehalten werden, so dass man sorgenfrei mit der eigentlichen Aufgabe weitermachen kann. 
