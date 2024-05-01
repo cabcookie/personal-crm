@@ -48,6 +48,7 @@ const InputField: FC<InputFieldProps> = ({
                 notes={note}
                 unsaved={!saved}
                 saveNotes={handleUpdate}
+                title=""
             />
         )}
         switchCheckbox={finishItem}
@@ -83,6 +84,7 @@ const InboxPage = () => {
                       saveNotes={(d, t) => setNewItem(t(d))}
                       unsaved={newItem.length > 3}
                       placeholder="What's on your mind?"
+                      title=""
                     />
                    )}
                    switchCheckbox={() => {}}

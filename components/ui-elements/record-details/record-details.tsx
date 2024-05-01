@@ -15,7 +15,7 @@ const RecordDetails: FC<RecordDetailsProps> = ({
   contentClassName,
 }) => {
   return (
-    <div className={`${styles.infoBox} ${className}`}>
+    <div className={`${title !== "" && styles.infoBox} ${className}`}>
       {title && <h3 className={styles.title}>{title}</h3>}
       <div className={contentClassName || styles.contentContainer}>
         {children}
