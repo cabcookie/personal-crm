@@ -1,4 +1,4 @@
-import { FC, FormEvent, ReactNode, useState } from "react";
+import { FC, ReactNode } from "react";
 import styles from "./ListItem.module.css";
 import { IoCheckboxSharp, IoSquareOutline } from "react-icons/io5";
 
@@ -21,7 +21,7 @@ const CheckListItem: FC<CheckListItemProps> = ({
           className={styles.postCheckbox}
           onClick={() => switchCheckbox(!checked)}
         >
-          {checked ? <IoSquareOutline /> : <IoCheckboxSharp />}
+          {!checked ? <IoSquareOutline /> : <IoCheckboxSharp />}
         </a>
         <div className={styles.postBody}>
             <div>{title}</div>
