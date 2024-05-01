@@ -48,6 +48,7 @@ const InputField: FC<InputFieldProps> = ({
         value={value}
         onChange={handleUpdate}
         placeholder="What is on your mind?"
+        autoFocus={isNew}
     />
 };
 
