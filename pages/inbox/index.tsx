@@ -1,25 +1,24 @@
 import useInbox, { Inbox } from "@/api/useInbox";
 import MainLayout from "@/components/layouts/MainLayout";
 import CheckListItem from "@/components/ui-elements/list-items/checklist-item";
-import NotesWriter from "@/components/ui-elements/notes-writer/NotesWriter";
-import { TransformNotesToMdFunction, transformMdToNotes } from "@/components/ui-elements/notes-writer/notes-writer-helpers";
+import NotesWriter from "@/components/ui-elements/notes-writer/NewNotesWriter";
 import SubmitButton from "@/components/ui-elements/submit-button";
 import { debounce } from "lodash";
 import { FC, FormEvent, useState } from "react";
-import { Descendant } from "slate";
 
 type ApiResponse = Promise<string | undefined>;
 type UpdateInboxFn = (id: string, note: string) => ApiResponse;
 
-const debouncedOnChange = debounce(async (
+const debouncedOnChange = debounce((
     id: string,
-    descendants: Descendant[],
-    transformFn: TransformNotesToMdFunction,
-    updateNote: UpdateInboxFn,
+    serializer: () => string,
+    setSavedNote: (note: string) => void,
+    // updateNote: UpdateInboxFn,
     setSaved: (status: boolean) => void
 ) => {
-    const note = transformFn(descendants);
-    const data = await updateNote(id, note);
+    const note = serializer();
+    // const data = await updateNote(id, note);
+    const data = setSavedNote(note);
     if (!data) return;
     setSaved(true);
 }, 1500);
@@ -36,10 +35,11 @@ const InputField: FC<InputFieldProps> = ({
     finishItem,
 }) => {
     const [saved, setSaved] = useState(true);
+    const [savedNotes, setSavedNotes] = useState(note);
 
-    const handleUpdate = (descendants: Descendant[], transformFn: TransformNotesToMdFunction) => {
+    const handleUpdate = (serializer: () => string) => {
         setSaved(false);
-        debouncedOnChange(id, descendants, transformFn, updateNote, setSaved);
+        debouncedOnChange(id, serializer, updateNote, setSaved);
     }
 
     return <CheckListItem
@@ -51,6 +51,7 @@ const InputField: FC<InputFieldProps> = ({
                 title=""
             />
         )}
+        description={savedNotes}
         switchCheckbox={finishItem}
     />
 };
