@@ -4,8 +4,6 @@ import ProjectName from "../tokens/project-name";
 import ProjectSelector from "../project-selector";
 import NotesWriter from "../notes-writer/NotesWriter";
 import SavedState from "./saved-state";
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
 import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
 import ProjectDetails from "../project-details/project-details";
@@ -39,14 +37,12 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   };
 
   const handleNotesUpdate = (
-    notes: Descendant[],
-    transformerFn: TransformNotesToMdFunction
+    serializer: () => string
   ) => {
     if (!updateNotes) return;
     setNotesSaved(false);
     debouncedUpdateNotes({
-      notes,
-      transformerFn,
+      serializer,
       setSaveStatus: setNotesSaved,
       updateNotes,
       createActivity,

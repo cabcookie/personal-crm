@@ -1,7 +1,7 @@
 import useInbox, { Inbox } from "@/api/useInbox";
 import MainLayout from "@/components/layouts/MainLayout";
 import CheckListItem from "@/components/ui-elements/list-items/checklist-item";
-import NotesWriter from "@/components/ui-elements/notes-writer/NewNotesWriter";
+import NotesWriter from "@/components/ui-elements/notes-writer/NotesWriter";
 import SubmitButton from "@/components/ui-elements/submit-button";
 import { debounce } from "lodash";
 import { FC, FormEvent, useState } from "react";
@@ -18,8 +18,8 @@ const debouncedOnChange = debounce((
 ) => {
     const note = serializer();
     // const data = await updateNote(id, note);
-    const data = setSavedNote(note);
-    if (!data) return;
+    setSavedNote(note);
+    // if (!data) return;
     setSaved(true);
 }, 1500);
 
@@ -39,7 +39,7 @@ const InputField: FC<InputFieldProps> = ({
 
     const handleUpdate = (serializer: () => string) => {
         setSaved(false);
-        debouncedOnChange(id, serializer, updateNote, setSaved);
+        debouncedOnChange(id, serializer, setSavedNotes, setSaved);
     }
 
     return <CheckListItem
@@ -82,7 +82,7 @@ const InboxPage = () => {
                    title={(
                     <NotesWriter
                       notes={newItem}
-                      saveNotes={(d, t) => setNewItem(t(d))}
+                      saveNotes={(s) => setNewItem(s())}
                       unsaved={newItem.length > 3}
                       placeholder="What's on your mind?"
                       title=""
