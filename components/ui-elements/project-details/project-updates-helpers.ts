@@ -1,22 +1,18 @@
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
 import { debounce } from "lodash";
 
 type UpdateActionsProps = {
-  notes: Descendant[];
-  transformerFn: TransformNotesToMdFunction;
+  serializer: () => string;
   setSaveStatus: (status: boolean) => void;
   updateActions: (actions: string) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateActions = debounce(
   async ({
-    notes,
-    transformerFn,
+    serializer,
     setSaveStatus,
     updateActions,
   }: UpdateActionsProps) => {
-    const actions = transformerFn(notes);
+    const actions = serializer();
     const data = await updateActions(actions);
     if (data) setSaveStatus(true);
   },

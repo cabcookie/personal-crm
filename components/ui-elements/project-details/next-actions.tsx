@@ -1,7 +1,5 @@
 import { FC, ReactNode, useState } from "react";
 import NotesWriter from "../notes-writer/NotesWriter";
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
 import styles from "./ProjectDetails.module.css";
 import { debouncedUpdateActions } from "./project-updates-helpers";
 
@@ -25,13 +23,11 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
   const [saved, setSaved] = useState(true);
 
   const handleNextActionsUpdate = (
-    notes: Descendant[],
-    transformerFn: TransformNotesToMdFunction
+    serializer: () => string
   ) => {
     setSaved(false);
     debouncedUpdateActions({
-      notes,
-      transformerFn,
+      serializer,
       setSaveStatus: setSaved,
       updateActions: saveFn,
     });

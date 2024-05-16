@@ -2,21 +2,13 @@ import React, { FC, ReactNode, useEffect, useState } from "react";
 import { createEditor, Descendant } from "slate";
 import { withHistory } from "slate-history";
 import { Editable, Slate, withReact } from "slate-react";
-import {
-  TransformNotesToMdFunction,
-  renderElement,
-  transformMdToNotes,
-  transformNotesToMd,
-} from "./notes-writer-helpers";
 import styles from "./NotesWriter.module.css";
 import RecordDetails from "../record-details/record-details";
+import { deserialize, serialize } from "./notes-writer-helpers";
 
 type NotesWriterProps = {
   notes: string;
-  saveNotes?: (
-    notes: Descendant[],
-    transformerFn: TransformNotesToMdFunction
-  ) => void;
+  saveNotes?: (serializer: () => string) => void;
   unsaved?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
@@ -34,7 +26,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   const [editor] = useState(() => withReact(withHistory(createEditor())));
 
   useEffect(() => {
-    editor.children = transformMdToNotes(notes);
+    editor.children = deserialize(notes);
     editor.onChange();
   }, [notes, editor]);
 
@@ -44,19 +36,18 @@ const NotesWriter: FC<NotesWriterProps> = ({
       (op) => "set_selection" !== op.type
     );
     if (!isAstChange) return;
-    saveNotes(val, transformNotesToMd);
+    saveNotes(serialize(val));
   };
 
   return (
     <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
       <Slate
         editor={editor}
-        initialValue={transformMdToNotes(notes)}
+        initialValue={deserialize(notes)}
         onChange={handleEditNote}
       >
         <Editable
           className={`${styles.editorInput} ${unsaved && styles.unsaved}`}
-          renderElement={renderElement}
           autoFocus={autoFocus}
           placeholder={placeholder || "Start taking notes..."}
         />

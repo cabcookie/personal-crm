@@ -1,6 +1,4 @@
 import { FC, useEffect, useState } from "react";
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "../ui-elements/notes-writer/notes-writer-helpers";
 import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
 import useActivity from "@/api/useActivity";
 import ProjectName from "../ui-elements/tokens/project-name";
@@ -35,17 +33,13 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   useEffect(() => {
     setDate(activity?.finishedOn || new Date());
   }, [activity]);
-  const handleNotesUpdate = (
-    notes: Descendant[],
-    transformerFn: TransformNotesToMdFunction
-  ) => {
+  const handleNotesUpdate = (serializer: () => string) => {
     setNotesSaved(false);
     debouncedUpdateNotes({
-      notes,
-      transformerFn,
       setSaveStatus: setNotesSaved,
       updateNotes,
       createActivity,
+      serializer,
     });
   };
 
