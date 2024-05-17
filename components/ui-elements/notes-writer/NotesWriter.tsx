@@ -4,7 +4,7 @@ import { withHistory } from "slate-history";
 import { Editable, Slate, withReact } from "slate-react";
 import styles from "./NotesWriter.module.css";
 import RecordDetails from "../record-details/record-details";
-import { deserialize, serialize } from "./notes-writer-helpers";
+import { deserialize, renderElement, renderLeaf, serialize, withInlines } from "./notes-writer-helpers";
 
 type NotesWriterProps = {
   notes: string;
@@ -25,7 +25,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   title = "Notes",
   submitOnEnter,
 }) => {
-  const [editor] = useState(() => withReact(withHistory(createEditor())));
+  const [editor] = useState(() => withInlines(withReact(withHistory(createEditor()))));
 
   useEffect(() => {
     editor.children = deserialize(notes);
@@ -52,13 +52,8 @@ const NotesWriter: FC<NotesWriterProps> = ({
           className={`${styles.editorInput} ${unsaved && styles.unsaved}`}
           autoFocus={autoFocus}
           placeholder={placeholder || "Start taking notes..."}
-          renderElement={(props) => {
-            props.element.type
-            return <div {...props} />
-          }}
-          renderLeaf={(props) => {
-            return <span {...props} />
-          }}
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
         />
       </Slate>
     </RecordDetails>
