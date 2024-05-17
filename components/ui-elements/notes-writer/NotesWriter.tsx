@@ -13,6 +13,7 @@ type NotesWriterProps = {
   autoFocus?: boolean;
   placeholder?: string;
   title?: ReactNode;
+  submitOnEnter?: boolean;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -22,6 +23,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   autoFocus,
   placeholder,
   title = "Notes",
+  submitOnEnter,
 }) => {
   const [editor] = useState(() => withReact(withHistory(createEditor())));
 
@@ -50,6 +52,13 @@ const NotesWriter: FC<NotesWriterProps> = ({
           className={`${styles.editorInput} ${unsaved && styles.unsaved}`}
           autoFocus={autoFocus}
           placeholder={placeholder || "Start taking notes..."}
+          renderElement={(props) => {
+            props.element.type
+            return <div {...props} />
+          }}
+          renderLeaf={(props) => {
+            return <span {...props} />
+          }}
         />
       </Slate>
     </RecordDetails>
