@@ -43,9 +43,16 @@ const NotesWriter: FC<NotesWriterProps> = ({
   };
   */
 
+  const handleOnChange = () => {
+    if (!saveNotes) return;
+    if (!editor) return;
+    const json = editor.getJSON();
+    saveNotes(() => JSON.stringify(json));
+  };
+
   return (
     <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} onChange={handleOnChange} />
     </RecordDetails>
   );
 };
