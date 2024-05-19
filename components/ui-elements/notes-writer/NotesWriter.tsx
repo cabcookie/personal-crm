@@ -57,7 +57,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   return (
     <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
       <EditorContent editor={editor} onChange={handleOnChange} />
-      <div>{JSON.stringify(json)}</div>
+      <div>{JSON.stringify(editor?.getJSON())}</div>
     </RecordDetails>
   );
 };
