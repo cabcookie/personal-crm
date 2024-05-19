@@ -51,7 +51,7 @@ const InputField: FC<InputFieldProps> = ({
                 title=""
             />
         )}
-        description={savedNotes}
+        description={`v1: ${savedNotes}`}
         switchCheckbox={finishItem}
     />
 };

@@ -1,10 +1,8 @@
 import React, { FC, ReactNode, useEffect, useState } from "react";
-import { createEditor, Descendant } from "slate";
-import { withHistory } from "slate-history";
-import { Editable, Slate, withReact } from "slate-react";
 import styles from "./NotesWriter.module.css";
 import RecordDetails from "../record-details/record-details";
-import { deserialize, serialize } from "./notes-writer-helpers";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 type NotesWriterProps = {
   notes: string;
@@ -25,13 +23,16 @@ const NotesWriter: FC<NotesWriterProps> = ({
   title = "Notes",
   submitOnEnter,
 }) => {
-  const [editor] = useState(() => withReact(withHistory(createEditor())));
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: "<p>Hello World</p>",
+  });
 
   useEffect(() => {
-    editor.children = deserialize(notes);
-    editor.onChange();
+    // todo: load existing content
   }, [notes, editor]);
 
+  /**
   const handleEditNote = (val: Descendant[]) => {
     if (!saveNotes) return;
     const isAstChange = editor.operations.some(
@@ -40,27 +41,18 @@ const NotesWriter: FC<NotesWriterProps> = ({
     if (!isAstChange) return;
     saveNotes(serialize(val));
   };
+  */
+
+  const handleOnChange = () => {
+    if (!saveNotes) return;
+    if (!editor) return;
+    const json = editor.getJSON();
+    saveNotes(() => JSON.stringify(json));
+  };
 
   return (
     <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
-      <Slate
-        editor={editor}
-        initialValue={deserialize(notes)}
-        onChange={handleEditNote}
-      >
-        <Editable
-          className={`${styles.editorInput} ${unsaved && styles.unsaved}`}
-          autoFocus={autoFocus}
-          placeholder={placeholder || "Start taking notes..."}
-          renderElement={(props) => {
-            props.element.type
-            return <div {...props} />
-          }}
-          renderLeaf={(props) => {
-            return <span {...props} />
-          }}
-        />
-      </Slate>
+      <EditorContent editor={editor} onChange={handleOnChange} />
     </RecordDetails>
   );
 };
