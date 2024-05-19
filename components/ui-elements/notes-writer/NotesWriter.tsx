@@ -46,8 +46,10 @@ const NotesWriter: FC<NotesWriterProps> = ({
   const handleOnChange = () => {
     if (!saveNotes) return;
     if (!editor) return;
-    const json = editor.getJSON();
-    saveNotes(() => JSON.stringify(json));
+    saveNotes(() => {
+      const json = editor.getJSON();
+      return JSON.stringify(json)}
+    );
   };
 
   return (
