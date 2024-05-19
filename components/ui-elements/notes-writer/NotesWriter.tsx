@@ -27,6 +27,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
     extensions: [StarterKit],
     content: "<p>Hello World</p>",
   });
+  const [json, setJson] = useState({});
 
   useEffect(() => {
     // todo: load existing content
@@ -46,6 +47,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   const handleOnChange = () => {
     if (!saveNotes) return;
     if (!editor) return;
+    setJson(editor.getJSON());
     saveNotes(() => {
       const json = editor.getJSON();
       return JSON.stringify(json)}
@@ -55,6 +57,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   return (
     <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
       <EditorContent editor={editor} onChange={handleOnChange} />
+      <div>{JSON.stringify(json)}</div>
     </RecordDetails>
   );
 };
