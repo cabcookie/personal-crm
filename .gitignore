@@ -38,6 +38,7 @@ next-env.d.ts
 # amplify
 .amplify
 amplifyconfiguration*
+amplify_outputs.json
 components/import-data/*
 !components/import-data/imports-aws-sdk
 

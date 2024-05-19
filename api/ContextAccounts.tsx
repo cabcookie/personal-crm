@@ -11,7 +11,7 @@ interface AccountsContextType {
   loadingAccounts: boolean;
   createAccount: (
     accountName: string
-  ) => Promise<Schema["Account"] | undefined>;
+  ) => Promise<Schema["Account"]["type"] | undefined>;
   getAccountById: (accountId: string) => Account | undefined;
   saveAccountName: (
     accountId: string,
@@ -38,7 +38,7 @@ const selectionSet = [
   "responsibilities.endDate",
 ] as const;
 
-type AccountData = SelectionSet<Schema["Account"], typeof selectionSet>;
+type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
 
 export const mapAccount: (account: AccountData) => Account = ({
   id,
@@ -86,7 +86,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
 
   const createAccount = async (
     accountName: string
-  ): Promise<Schema["Account"] | undefined> => {
+  ): Promise<Schema["Account"]["type"] | undefined> => {
     if (accountName.length < 3) return;
 
     const newAccount: Account = {
@@ -105,7 +105,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     });
     if (errors) handleApiErrors(errors, "Error creating account");
     mutate(updatedAccounts);
-    return data;
+    return data || undefined;
   };
 
   const getAccountById = (accountId: string) =>

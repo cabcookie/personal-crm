@@ -1,6 +1,6 @@
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import { Amplify } from "aws-amplify";
-import config from "@/amplifyconfiguration.json";
+import config from "@/amplify_outputs.json";
 import "@aws-amplify/ui-react/styles.css";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";

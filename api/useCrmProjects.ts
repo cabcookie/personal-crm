@@ -71,7 +71,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
 });
 
 type CrmProjectData = SelectionSet<
-  Schema["CrmProject"],
+  Schema["CrmProject"]["type"],
   typeof selectionSetCrmProject
 >;
 

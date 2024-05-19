@@ -18,6 +18,7 @@ const fetchMeeting = (meetingId?: string) => async () => {
     { selectionSet: meetingSelectionSet }
   );
   if (errors) throw errors;
+  if (!data) throw new Error("fetchMeeting didn't retrieve data");
   return mapMeeting(data);
 };
 
@@ -40,7 +41,7 @@ const useMeeting = (meetingId?: string) => {
     });
     if (errors) handleApiErrors(errors, "Error updating the meeting");
     mutateMeeting(updated);
-    return data.id;
+    return data?.id;
   };
 
   const createMeetingParticipant = async (personId: string) => {
@@ -57,7 +58,7 @@ const useMeeting = (meetingId?: string) => {
     });
     if (errors) handleApiErrors(errors, "Error creating meeting participant");
     mutateMeeting(updated);
-    return data.meetingId;
+    return data?.meetingId;
   };
 
   const createMeetingActivity = async (activityId: string, notes?: string) => {
@@ -73,7 +74,7 @@ const useMeeting = (meetingId?: string) => {
     });
     if (errors) handleApiErrors(errors, "Error creating activity for meeting");
     mutateMeeting(updated);
-    return data.id;
+    return data?.id;
   };
 
   const updateMeetingContext = async (newContext: Context) => {
@@ -86,7 +87,7 @@ const useMeeting = (meetingId?: string) => {
       handleApiErrors(errors, "Error updating meeting's context");
       return;
     }
-    return data.id;
+    return data?.id;
   };
 
   return {

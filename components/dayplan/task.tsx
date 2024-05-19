@@ -14,7 +14,7 @@ type TaskProps = {
   createTodo?: (
     todo: string,
     projectId?: string
-  ) => Promise<Schema["DayPlanTodo"] | undefined>;
+  ) => Promise<Schema["DayPlanTodo"]["type"] | undefined>;
 };
 
 const Task: FC<TaskProps> = ({

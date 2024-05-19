@@ -13,7 +13,7 @@ interface ProjectsContextType {
   loadingProjects: boolean;
   createProject: (
     projectName: string
-  ) => Promise<Schema["Projects"] | undefined>;
+  ) => Promise<Schema["Projects"]["type"] | undefined>;
   getProjectById: (projectId: string) => Project | undefined;
   createProjectActivity: (
     projectId: string,
@@ -82,7 +82,7 @@ const selectionSet = [
   "crmProjects.crmProject.id",
 ] as const;
 
-type ProjectData = SelectionSet<Schema["Projects"], typeof selectionSet>;
+type ProjectData = SelectionSet<Schema["Projects"]["type"], typeof selectionSet>;
 
 export const mapProject: (project: ProjectData) => Project = ({
   id,
@@ -131,7 +131,7 @@ const fetchProjects = (context?: Context) => async () => {
     filter: {
       context: { eq: context },
       or: [
-        { done: { ne: "true" } },
+        { done: { ne: true }},
         {
           doneOn: {
             ge: addDaysToDate(-90)(new Date()).toISOString().split("T")[0],
@@ -164,7 +164,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
   const createProject = async (
     projectName: string
-  ): Promise<Schema["Projects"] | undefined> => {
+  ): Promise<Schema["Projects"]["type"] | undefined> => {
     if (!context) return;
     if (projectName.length < 3) return;
 
@@ -190,7 +190,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     });
     if (errors) handleApiErrors(errors, "Error creating project");
     mutateProjects(updatedProjects);
-    return data;
+    return data || undefined;
   };
 
   const getProjectById = (projectId: string) =>
@@ -203,6 +203,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       handleApiErrors(errorsActivity, "Error creating activity");
       return;
     }
+    if (!activity) return;
     const updated: Project[] =
       projects?.map((project) =>
         project.id !== projectId
@@ -216,7 +217,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     });
     if (errors) handleApiErrors(errors, "Error linking activity with project");
     mutateProjects(updated);
-    return data.activityId;
+    return data?.activityId;
   };
 
   type UpdateProjectProps = {
@@ -334,7 +335,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       handleApiErrors(errors, "Error updating project's context");
       return;
     }
-    return data.id;
+    return data?.id;
   };
 
   return (

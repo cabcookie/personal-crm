@@ -8,7 +8,7 @@ import {
 } from "./useCrmProjects";
 import { getDayOfDate } from "@/helpers/functional";
 import { handleApiErrors } from "./globals";
-import { Project, useProjectsContext } from "./ContextProjects";
+import { useProjectsContext } from "./ContextProjects";
 const client = generateClient<Schema>();
 
 const fetchCrmProject = (projectId?: string) => async () => {
@@ -18,6 +18,7 @@ const fetchCrmProject = (projectId?: string) => async () => {
     { selectionSet: selectionSetCrmProject }
   );
   if (errors) throw errors;
+  if (!data) throw new Error("fetchCrmProject didn't retrieve data");
   return mapCrmProject(data);
 };
 

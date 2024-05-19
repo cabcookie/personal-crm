@@ -10,7 +10,7 @@ export type Inbox = {
     createdAt: Date;
 }
 
-type MapInboxFn = (data: Schema["Inbox"]) => Inbox;
+type MapInboxFn = (data: Schema["Inbox"]["type"]) => Inbox;
 
 const mapInbox: MapInboxFn = ({id, note, createdAt}) => ({
     id,
@@ -19,7 +19,7 @@ const mapInbox: MapInboxFn = ({id, note, createdAt}) => ({
 })
 
 const fetchInbox = async () => {
-    const {data,errors} = await client.models.Inbox.listByDone({done: "false"});
+    const {data,errors} = await client.models.Inbox.listInboxByDone({done: "false"});
     if (errors) throw errors;
     return data.map(mapInbox).sort((a,b) => a.createdAt.getTime() - b.createdAt.getTime())
 }
@@ -40,7 +40,7 @@ const useInbox = () => {
         })
         if (errors) handleApiErrors(errors, "Error creating inbox item");
         mutate(updated)
-        return data.id;
+        return data?.id;
     }
 
     const finishItem = async (id: string) => {
@@ -49,7 +49,7 @@ const useInbox = () => {
         const {data, errors} = await client.models.Inbox.update({id, done: "true"});
         if (errors) handleApiErrors(errors, "Error updating status of inbox item");
         mutate(updated);
-        return data.id;
+        return data?.id;
     }
 
     const updateNote = async (id: string, note: string) => {
@@ -58,7 +58,7 @@ const useInbox = () => {
         const {data, errors} = await client.models.Inbox.update({id, note});
         if (errors) handleApiErrors(errors, "Error updating inbox item");
         mutate(updated);
-        return data.id;
+        return data?.id;
     };
 
     return {inbox, errorInbox, createInbox, finishItem, updateNote}

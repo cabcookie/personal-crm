@@ -23,7 +23,7 @@ const selectionSet = [
   "forProjects.projectsId",
 ] as const;
 
-type ActivityData = SelectionSet<Schema["Activity"], typeof selectionSet>;
+type ActivityData = SelectionSet<Schema["Activity"]["type"], typeof selectionSet>;
 
 export const mapActivity: (activity: ActivityData) => Activity = ({
   id,
@@ -49,6 +49,7 @@ const fetchActivity = (activityId?: string) => async () => {
     { selectionSet }
   );
   if (errors) throw errors;
+  if (!data) throw new Error("fetchActivity didn't retrieve data");
   return mapActivity(data);
 };
 
@@ -75,7 +76,7 @@ const useActivity = (activityId?: string) => {
     if (errors) handleApiErrors(errors, "Error updating date of activity");
 
     mutateActivity(updated);
-    return data.id;
+    return data?.id;
   };
 
   const updateNotes = async (notes: string) => {
@@ -88,7 +89,7 @@ const useActivity = (activityId?: string) => {
     });
     if (errors) handleApiErrors(errors, "Error updating activity notes");
     mutateActivity(updated);
-    return data.id;
+    return data?.id;
   };
 
   const addProjectToActivity = async (
