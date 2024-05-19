@@ -94,6 +94,8 @@ const schema = a.schema({
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       notes: a.string(),
+      formatVersion: a.integer().default(1),
+      notesJson: a.json(),
       forProjects: a.hasMany("ProjectActivity", "activityId"),
       meetingActivitiesId: a.id(),
       forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
