@@ -15,7 +15,9 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      note: a.string().required(),
+      note: a.string(),
+      formatVersion: a.integer().default(1),
+      noteJson: a.json(),
       done: a.id().required(),
     })
     .secondaryIndexes((inbox) => [inbox("done")])
