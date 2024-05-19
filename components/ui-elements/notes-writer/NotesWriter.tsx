@@ -4,6 +4,75 @@ import RecordDetails from "../record-details/record-details";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
+const test = {
+  "type":"doc",
+  "content":[{
+    "type":"paragraph",
+    "content":[{
+      "type":"text",
+      "text":"Hello "
+    },{
+      "type":"text",
+      "marks":[{
+        "type":"bold"
+      }],
+      "text":"World"
+    },{
+      "type":"text",
+      "text":" "
+    },{
+      "type":"text",
+      "marks":[{
+        "type":"italic"
+      }],
+      "text":"test"
+    }]
+  },{
+    "type":"heading",
+    "attrs":{"level":1},
+    "content":[{
+      "type":"text",
+      "text":"test"
+    }]
+  },{
+    "type":"paragraph"
+  },{
+    "type":"heading",
+    "attrs":{"level":2},
+    "content":[{
+      "type":"text",
+      "text":"test2"
+    }]
+  },{
+    "type":"bulletList",
+    "content":[{
+      "type":"listItem",
+      "content":[{
+        "type":"paragraph",
+        "content":[{
+          "type":"text",
+          "text":"testing"
+        }]
+      }]
+    },{
+      "type":"listItem",
+      "content":[{
+        "type":"paragraph",
+        "content":[{
+          "type":"text",
+          "text":"Test 2"
+        }]
+      }]
+    }]
+  },{
+    "type":"paragraph",
+    "content":[{
+      "type":"text",
+      "text":"Again"
+    }]
+  }]
+};
+
 type NotesWriterProps = {
   notes: string;
   saveNotes?: (serializer: () => string) => void;
@@ -47,7 +116,6 @@ const NotesWriter: FC<NotesWriterProps> = ({
   const handleOnChange = () => {
     if (!saveNotes) return;
     if (!editor) return;
-    setJson(editor.getJSON());
     saveNotes(() => {
       const json = editor.getJSON();
       return JSON.stringify(json)}
@@ -57,7 +125,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   return (
     <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
       <EditorContent editor={editor} onChange={handleOnChange} />
-      <div>{JSON.stringify(editor?.getJSON())}</div>
+      <div>{editor?.getText()}</div>
     </RecordDetails>
   );
 };
