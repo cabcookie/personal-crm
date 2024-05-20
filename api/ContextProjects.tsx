@@ -22,8 +22,8 @@ interface ProjectsContextType {
   ) => Promise<string | undefined>;
   saveNextActions: (
     projectId: string,
-    myNextActions: string,
-    othersNextActions: string
+    myNextActions: EditorJsonContent,
+    othersNextActions: EditorJsonContent
   ) => Promise<string | undefined>;
   saveProjectName: (
     projectId: string,
@@ -259,30 +259,29 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     myNextActions,
     othersNextActions,
   }: UpdateProjectProps) => {
-    const updProject: Project[] = [...(projects?.find(p => p.id === id) || [])].map((p) => ({
-              ...p,
-              project: !project ? p.project : project,
-              done: done === undefined ? p.done : done,
-              doneOn: !doneOn ? p.doneOn : doneOn,
-              dueOn: !dueOn ? p.dueOn : dueOn,
-              onHoldTill: !onHoldTill ? p.onHoldTill : onHoldTill,
-              myNextActions: !myNextActions ? p.myNextActions : myNextActions,
-              othersNextActions: !othersNextActions
-                ? p.othersNextActions
-                : othersNextActions,
-            }));
-    const updated: Project[] = projects?.map((p) => p.id === id && updProject.length === 1 ? updProject[0] : p) || [];
+    const updProject: Project | undefined = projects?.find(p => p.id === id);
+    if (!updProject) return;
+    if (!!project) updProject.project = project;
+    if (done !== undefined) updProject.done = done;
+    if (!!doneOn) updProject.doneOn = doneOn;
+    if (!!dueOn) updProject.dueOn = dueOn;
+    if (!!onHoldTill) updProject.onHoldTill = onHoldTill;
+    if (!!myNextActions) updProject.myNextActions = myNextActions;
+    if (!!othersNextActions) updProject.othersNextActions = othersNextActions;
 
+    const updated: Project[] = projects?.map((p) => p.id === id ? updProject : p) || [];
     mutateProjects(updated, false);
+
     const newProject = {
       id,
       project,
       done,
-      ...(!!myNextActions || !!othersNextActions ? {
+      ...(myNextActions || othersNextActions ? {
         myNextActions: null,
         othersNextActions: null,
         formatVersion: 2,
-        myNextActionsJson: 
+        myNextActionsJson: updProject.myNextActions,
+        othersNextActionsJson: updProject.othersNextActions,
       } : {}),
       dueOn: dueOn ? dueOn.toISOString().split("T")[0] : undefined,
       doneOn:
@@ -303,9 +302,9 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
   const saveNextActions = (
     projectId: string,
-    myNextActions: string,
-    othersNextActions: string
-  ) => updateProject({ id: projectId, myNextActions, othersNextActions });
+    myNextActions: EditorJsonContent,
+    othersNextActions: EditorJsonContent
+  ) => updateProject({ id: projectId, myNextActions, othersNextActions, });
 
   const saveProjectName = (projectId: string, projectName: string) =>
     updateProject({ id: projectId, project: projectName });

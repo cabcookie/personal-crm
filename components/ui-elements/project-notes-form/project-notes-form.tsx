@@ -2,7 +2,7 @@ import useActivity from "@/api/useActivity";
 import { FC, useState } from "react";
 import ProjectName from "../tokens/project-name";
 import ProjectSelector from "../project-selector";
-import NotesWriter from "../notes-writer/NotesWriter";
+import NotesWriter, { EditorJsonContent } from "../notes-writer/NotesWriter";
 import SavedState from "./saved-state";
 import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
@@ -12,7 +12,7 @@ import RecordDetails from "../record-details/record-details";
 type ProjectNotesFormProps = {
   className?: string;
   activityId: string;
-  createActivity?: (notes?: string) => Promise<string | undefined>;
+  createActivity?: (notes?: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
@@ -36,7 +36,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
     await addProjectToActivity(projectId, activity.id);
   };
 
-  const handleNotesUpdate = (serializer: () => string) => {
+  const handleNotesUpdate = (serializer: () => EditorJsonContent) => {
     if (!updateNotes) return;
     setNotesSaved(false);
     debouncedUpdateNotes({
@@ -60,7 +60,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       </RecordDetails>
 
       <NotesWriter
-        notes={activity?.notes || ""}
+        notes={activity?.notes || {}}
         saveNotes={handleNotesUpdate}
         unsaved={!notesSaved}
       />
