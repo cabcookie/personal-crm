@@ -3,7 +3,9 @@ import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
 import useActivity from "@/api/useActivity";
 import ProjectName from "../ui-elements/tokens/project-name";
 import MeetingName from "../ui-elements/tokens/meeting-name";
-import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import NotesWriter, {
+  EditorJsonContent,
+} from "../ui-elements/notes-writer/NotesWriter";
 import ActivityMetaData from "../ui-elements/activity-meta-data";
 import DateSelector from "../ui-elements/date-selector";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
@@ -14,7 +16,7 @@ type ActivityComponentProps = {
   showProjects?: boolean;
   showMeeting?: boolean;
   autoFocus?: boolean;
-  createActivity?: (notes?: string) => Promise<string | undefined>;
+  createActivity?: (notes?: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -33,7 +35,8 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   useEffect(() => {
     setDate(activity?.finishedOn || new Date());
   }, [activity]);
-  const handleNotesUpdate = (serializer: () => string) => {
+
+  const handleNotesUpdate = (serializer: () => EditorJsonContent) => {
     setNotesSaved(false);
     debouncedUpdateNotes({
       setSaveStatus: setNotesSaved,
@@ -65,13 +68,15 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
       {showMeeting && activity?.meetingId && (
         <MeetingName meetingId={activity.meetingId} />
       )}
-      <NotesWriter
-        notes={activity?.notes || ""}
-        saveNotes={handleNotesUpdate}
-        unsaved={!notesSaved}
-        autoFocus={autoFocus}
-        key={activityId}
-      />
+      {activity && (
+        <NotesWriter
+          notes={activity.notes}
+          saveNotes={handleNotesUpdate}
+          unsaved={!notesSaved}
+          autoFocus={autoFocus}
+          key={activityId}
+        />
+      )}
       <div style={{ padding: "0.3rem 1rem" }}>
         <ActivityMetaData activity={activity} />
       </div>

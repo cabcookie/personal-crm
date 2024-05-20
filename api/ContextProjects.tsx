@@ -5,6 +5,7 @@ import useSWR, { KeyedMutator } from "swr";
 import { Context } from "@/contexts/ContextContext";
 import { handleApiErrors } from "./globals";
 import { addDaysToDate } from "@/helpers/functional";
+import { EditorJsonContent, initialNotesJson, transformNotesVersion } from "@/components/ui-elements/notes-writer/NotesWriter";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -56,8 +57,8 @@ export type Project = {
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
-  myNextActions: string;
-  othersNextActions: string;
+  myNextActions: EditorJsonContent;
+  othersNextActions: EditorJsonContent;
   context: Context;
   accountIds: string[];
   activityIds: string[];
@@ -73,6 +74,9 @@ const selectionSet = [
   "onHoldTill",
   "myNextActions",
   "othersNextActions",
+  "formatVersion",
+  "myNextActionsJson",
+  "othersNextActionsJson",
   "context",
   "accounts.accountId",
   "accounts.createdAt",
@@ -93,6 +97,9 @@ export const mapProject: (project: ProjectData) => Project = ({
   onHoldTill,
   myNextActions,
   othersNextActions,
+  formatVersion,
+  myNextActionsJson,
+  othersNextActionsJson,
   context,
   accounts,
   activities,
@@ -104,8 +111,16 @@ export const mapProject: (project: ProjectData) => Project = ({
   doneOn: doneOn ? new Date(doneOn) : undefined,
   dueOn: dueOn ? new Date(dueOn) : undefined,
   onHoldTill: onHoldTill ? new Date(onHoldTill) : undefined,
-  myNextActions: myNextActions || "",
-  othersNextActions: othersNextActions || "",
+  myNextActions: transformNotesVersion({
+    version: formatVersion,
+    notes: myNextActions,
+    notesJson: myNextActionsJson,
+  }),
+  othersNextActions: transformNotesVersion({
+    version: formatVersion,
+    notes: othersNextActions,
+    notesJson: othersNextActionsJson,
+  }),
   context,
   accountIds: accounts
     .map(({ accountId, createdAt }) => ({
@@ -172,8 +187,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       id: crypto.randomUUID(),
       project: projectName,
       done: false,
-      myNextActions: "",
-      othersNextActions: "",
+      myNextActions: initialNotesJson,
+      othersNextActions: initialNotesJson,
       context,
       accountIds: [],
       activityIds: [],
@@ -187,6 +202,9 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       context,
       project: projectName,
       done: false,
+      formatVersion: 2,
+      myNextActionsJson: initialNotesJson,
+      othersNextActionsJson: initialNotesJson,
     });
     if (errors) handleApiErrors(errors, "Error creating project");
     mutateProjects(updatedProjects);
@@ -226,8 +244,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     dueOn?: Date;
     doneOn?: Date | null;
     onHoldTill?: Date;
-    myNextActions?: string;
-    othersNextActions?: string;
+    myNextActions?: EditorJsonContent;
+    othersNextActions?: EditorJsonContent;
     done?: boolean;
   };
 
@@ -241,11 +259,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     myNextActions,
     othersNextActions,
   }: UpdateProjectProps) => {
-    const updated: Project[] =
-      projects?.map((p) =>
-        p.id !== id
-          ? p
-          : {
+    const updProject: Project[] = [...(projects?.find(p => p.id === id) || [])].map((p) => ({
               ...p,
               project: !project ? p.project : project,
               done: done === undefined ? p.done : done,
@@ -256,15 +270,20 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
               othersNextActions: !othersNextActions
                 ? p.othersNextActions
                 : othersNextActions,
-            }
-      ) || [];
+            }));
+    const updated: Project[] = projects?.map((p) => p.id === id && updProject.length === 1 ? updProject[0] : p) || [];
+
     mutateProjects(updated, false);
     const newProject = {
       id,
       project,
       done,
-      myNextActions,
-      othersNextActions,
+      ...(!!myNextActions || !!othersNextActions ? {
+        myNextActions: null,
+        othersNextActions: null,
+        formatVersion: 2,
+        myNextActionsJson: 
+      } : {}),
       dueOn: dueOn ? dueOn.toISOString().split("T")[0] : undefined,
       doneOn:
         done === undefined

@@ -1,18 +1,21 @@
 import { FC, ReactNode, useState } from "react";
-import NotesWriter from "../notes-writer/NotesWriter";
+import NotesWriter, { EditorJsonContent } from "../notes-writer/NotesWriter";
 import styles from "./ProjectDetails.module.css";
 import { debouncedUpdateActions } from "./project-updates-helpers";
 
 type NextActionsProps = {
-  own: string;
-  others: string;
-  saveFn: (own: string, others: string) => Promise<string | undefined>;
+  own: EditorJsonContent;
+  others: EditorJsonContent;
+  saveFn: (
+    own: EditorJsonContent,
+    others: EditorJsonContent
+  ) => Promise<string | undefined>;
 };
 
 type NextActionHelperProps = {
   title: ReactNode;
-  actions: string;
-  saveFn: (actions: string) => Promise<string | undefined>;
+  actions: EditorJsonContent;
+  saveFn: (actions: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const NextActionHelper: FC<NextActionHelperProps> = ({
@@ -22,9 +25,7 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
 }) => {
   const [saved, setSaved] = useState(true);
 
-  const handleNextActionsUpdate = (
-    serializer: () => string
-  ) => {
+  const handleNextActionsUpdate = (serializer: () => EditorJsonContent) => {
     setSaved(false);
     debouncedUpdateActions({
       serializer,

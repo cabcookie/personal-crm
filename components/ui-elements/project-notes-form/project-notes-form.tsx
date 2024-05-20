@@ -36,9 +36,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
     await addProjectToActivity(projectId, activity.id);
   };
 
-  const handleNotesUpdate = (
-    serializer: () => string
-  ) => {
+  const handleNotesUpdate = (serializer: () => string) => {
     if (!updateNotes) return;
     setNotesSaved(false);
     debouncedUpdateNotes({

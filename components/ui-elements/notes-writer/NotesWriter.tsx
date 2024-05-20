@@ -1,81 +1,46 @@
-import React, { FC, ReactNode, useEffect, useState } from "react";
+import React, { FC, ReactNode } from "react";
 import styles from "./NotesWriter.module.css";
 import RecordDetails from "../record-details/record-details";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { JSONContent } from "@tiptap/core";
 
-const test = {
-  "type":"doc",
-  "content":[{
-    "type":"paragraph",
-    "content":[{
-      "type":"text",
-      "text":"Hello "
-    },{
-      "type":"text",
-      "marks":[{
-        "type":"bold"
-      }],
-      "text":"World"
-    },{
-      "type":"text",
-      "text":" "
-    },{
-      "type":"text",
-      "marks":[{
-        "type":"italic"
-      }],
-      "text":"test"
-    }]
-  },{
-    "type":"heading",
-    "attrs":{"level":1},
-    "content":[{
-      "type":"text",
-      "text":"test"
-    }]
-  },{
-    "type":"paragraph"
-  },{
-    "type":"heading",
-    "attrs":{"level":2},
-    "content":[{
-      "type":"text",
-      "text":"test2"
-    }]
-  },{
-    "type":"bulletList",
-    "content":[{
-      "type":"listItem",
-      "content":[{
-        "type":"paragraph",
-        "content":[{
-          "type":"text",
-          "text":"testing"
-        }]
-      }]
-    },{
-      "type":"listItem",
-      "content":[{
-        "type":"paragraph",
-        "content":[{
-          "type":"text",
-          "text":"Test 2"
-        }]
-      }]
-    }]
-  },{
-    "type":"paragraph",
-    "content":[{
-      "type":"text",
-      "text":"Again"
-    }]
-  }]
+export type EditorJsonContent = JSONContent;
+
+type TransformNotesVersionType = {
+  version?: number | null;
+  notes?: string | null;
+  notesJson?: any;
 };
 
+export const initialNotesJson: EditorJsonContent = {
+  type: "doc",
+  content: [],
+};
+
+export const transformNotesVersion = ({
+  version = 1,
+  notes,
+  notesJson,
+}: TransformNotesVersionType) =>
+  version === 2
+    ? !!notesJson && typeof notesJson === "object"
+      ? notesJson
+      : initialNotesJson
+    : textToEditorJson(notes || "");
+
+const textToEditorJson = (notes: string): object => ({
+  type: "doc",
+  content:
+    notes?.split("\n").map((line) => ({
+      type: "paragraph",
+      text: line,
+    })) || [],
+});
+
 type NotesWriterProps = {
-  notes: string;
-  saveNotes?: (serializer: () => string) => void;
+  notes: object;
+  saveNotes?: (serializer: () => { json: object }) => void;
   unsaved?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
@@ -94,38 +59,20 @@ const NotesWriter: FC<NotesWriterProps> = ({
 }) => {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "<p>Hello World</p>",
+    content: notes,
+    onUpdate: ({ editor }) => {
+      if (!saveNotes) return;
+      saveNotes(() => ({ json: editor.getJSON() }));
+    },
   });
-  const [json, setJson] = useState({});
-
-  useEffect(() => {
-    // todo: load existing content
-  }, [notes, editor]);
-
-  /**
-  const handleEditNote = (val: Descendant[]) => {
-    if (!saveNotes) return;
-    const isAstChange = editor.operations.some(
-      (op) => "set_selection" !== op.type
-    );
-    if (!isAstChange) return;
-    saveNotes(serialize(val));
-  };
-  */
-
-  const handleOnChange = () => {
-    if (!saveNotes) return;
-    if (!editor) return;
-    saveNotes(() => {
-      const json = editor.getJSON();
-      return JSON.stringify(json)}
-    );
-  };
 
   return (
-    <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
-      <EditorContent editor={editor} onChange={handleOnChange} />
-      <div>{editor?.getText()}</div>
+    <RecordDetails
+      title={title === "" ? undefined : title}
+      className={styles.fullWidth}
+    >
+      <EditorContent editor={editor} />
+      <div>{JSON.stringify(editor?.getJSON())}</div>
     </RecordDetails>
   );
 };

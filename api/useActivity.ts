@@ -2,11 +2,12 @@ import { type Schema } from "@/amplify/data/resource";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { EditorJsonContent, initialNotesJson, transformNotesVersion } from "@/components/ui-elements/notes-writer/NotesWriter";
 const client = generateClient<Schema>();
 
 export type Activity = {
   id: string;
-  notes: string;
+  notes: EditorJsonContent;
   meetingId?: string;
   finishedOn: Date;
   updatedAt: Date;
@@ -16,6 +17,8 @@ export type Activity = {
 const selectionSet = [
   "id",
   "notes",
+  "formatVersion",
+  "notesJson",
   "meetingActivitiesId",
   "finishedOn",
   "createdAt",
@@ -28,6 +31,8 @@ type ActivityData = SelectionSet<Schema["Activity"]["type"], typeof selectionSet
 export const mapActivity: (activity: ActivityData) => Activity = ({
   id,
   notes,
+  formatVersion,
+  notesJson,
   meetingActivitiesId,
   finishedOn,
   createdAt,
@@ -35,7 +40,11 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   forProjects,
 }) => ({
   id,
-  notes: notes || "",
+  notes: transformNotesVersion({
+    version: formatVersion,
+    notes,
+    notesJson,
+  }),
   meetingId: meetingActivitiesId || undefined,
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),
@@ -79,13 +88,15 @@ const useActivity = (activityId?: string) => {
     return data?.id;
   };
 
-  const updateNotes = async (notes: string) => {
+  const updateNotes = async (notes: EditorJsonContent) => {
     if (!activity?.id) return;
     const updated: Activity = { ...activity, notes, updatedAt: new Date() };
     mutateActivity(updated, false);
     const { data, errors } = await client.models.Activity.update({
       id: activity.id,
-      notes,
+      notes: null,
+      formatVersion: 2,
+      notesJson: notes,
     });
     if (errors) handleApiErrors(errors, "Error updating activity notes");
     mutateActivity(updated);
@@ -100,7 +111,7 @@ const useActivity = (activityId?: string) => {
     if (activity?.projectIds.includes(projectId)) return;
     const updated: Activity = {
       id: activityId,
-      notes: "",
+      notes: initialNotesJson,
       finishedOn: new Date(),
       projectIds: [...(activity?.projectIds || []), projectId],
       updatedAt: new Date(),
