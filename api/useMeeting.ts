@@ -4,6 +4,7 @@ import useSWR from "swr";
 import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
 import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
 const client = generateClient<Schema>();
 
 type MeetingUpdateProps = {
@@ -61,7 +62,7 @@ const useMeeting = (meetingId?: string) => {
     return data?.meetingId;
   };
 
-  const createMeetingActivity = async (activityId: string, notes?: string) => {
+  const createMeetingActivity = async (activityId: string, notes?: EditorJsonContent) => {
     if (!meeting) return;
     const updated: Meeting = {
       ...meeting,
@@ -70,7 +71,9 @@ const useMeeting = (meetingId?: string) => {
     mutateMeeting(updated, false);
     const { data, errors } = await client.models.Activity.create({
       meetingActivitiesId: meetingId,
-      notes,
+      notes: null,
+      formatVersion: 2,
+      notesJson: notes,
     });
     if (errors) handleApiErrors(errors, "Error creating activity for meeting");
     mutateMeeting(updated);

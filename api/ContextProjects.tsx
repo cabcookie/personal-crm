@@ -18,7 +18,7 @@ interface ProjectsContextType {
   getProjectById: (projectId: string) => Project | undefined;
   createProjectActivity: (
     projectId: string,
-    notes?: string
+    notes?: EditorJsonContent
   ) => Promise<string | undefined>;
   saveNextActions: (
     projectId: string,
@@ -214,9 +214,9 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   const getProjectById = (projectId: string) =>
     projects?.find((project) => project.id === projectId);
 
-  const createProjectActivity = async (projectId: string, notes?: string) => {
+  const createProjectActivity = async (projectId: string, notes?: EditorJsonContent) => {
     const { data: activity, errors: errorsActivity } =
-      await client.models.Activity.create({ notes });
+      await client.models.Activity.create({ notesJson: notes, formatVersion: 2 });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");
       return;
