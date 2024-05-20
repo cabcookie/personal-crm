@@ -4,7 +4,8 @@
     "eslint.alwaysShowStatus": true,
     "eslint.format.enable": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": "always",
+      "source.organizeImports": "always"
     },
     "typescript.validate.enable": true,
     "typescript.format.enable": true,

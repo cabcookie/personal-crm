@@ -37,7 +37,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
   );
   const [projectContext, setProjectContext] = useState(project?.context);
   const [detailsSaved, setDetailsSaved] = useState(true);
-  const [newCrmProjectId, setNewCrmProjectId] = useState(crypto.randomUUID());
+  const [newCrmProjectId] = useState(crypto.randomUUID());
 
   useEffect(() => {
     setProject(getProjectById(projectId));

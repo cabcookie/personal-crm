@@ -51,11 +51,11 @@ type NotesWriterProps = {
 const NotesWriter: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
-  unsaved,
-  autoFocus,
-  placeholder,
+  // unsaved,
+  // autoFocus,
+  // placeholder,
   title = "Notes",
-  submitOnEnter,
+  // submitOnEnter,
 }) => {
   const editor = useEditor({
     extensions: [StarterKit],

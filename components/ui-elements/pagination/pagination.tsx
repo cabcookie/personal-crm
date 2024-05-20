@@ -1,6 +1,5 @@
 import { FC } from "react";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
-import { toLocaleDateString } from "@/helpers/functional";
 import { useContextContext } from "@/contexts/ContextContext";
 import styles from "./Pagination.module.css";
 import contextStyles from "@/components/layouts/ContextColors.module.css";

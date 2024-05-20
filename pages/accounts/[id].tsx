@@ -15,7 +15,7 @@ const AccountDetailPage = () => {
     accountId ? getAccountById(accountId) : undefined
   );
   const [accountDetailsSaved, setAccountDetailsSaved] = useState(true);
-  const [introductionSaved, setIntroductionSaved] = useState(true);
+  const [introductionSaved] = useState(true);
 
   useEffect(() => {
     if (accountId) {
