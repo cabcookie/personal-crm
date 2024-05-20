@@ -3,6 +3,7 @@ import { type Schema } from "@/amplify/data/resource";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { EditorJsonContent, initialNotesJson, transformNotesVersion } from "@/components/ui-elements/notes-writer/NotesWriter";
 const client = generateClient<Schema>();
 
 interface AccountsContextType {
@@ -22,7 +23,7 @@ interface AccountsContextType {
 export type Account = {
   id: string;
   name: string;
-  introduction: string;
+  introduction: EditorJsonContent;
   controllerId?: string;
   order: number;
   responsibilities: { startDate: Date; endDate?: Date }[];
@@ -33,6 +34,8 @@ const selectionSet = [
   "name",
   "accountSubsidiariesId",
   "introduction",
+  "introductionJson",
+  "formatVersion",
   "order",
   "responsibilities.startDate",
   "responsibilities.endDate",
@@ -45,12 +48,14 @@ export const mapAccount: (account: AccountData) => Account = ({
   name,
   accountSubsidiariesId,
   introduction,
+  introductionJson,
+  formatVersion,
   order,
   responsibilities,
 }) => ({
   id,
   name,
-  introduction: introduction || "",
+  introduction: transformNotesVersion({version: formatVersion, notes: introduction, notesJson: introductionJson}),
   controllerId: accountSubsidiariesId || undefined,
   order: order || 0,
   responsibilities: responsibilities
@@ -92,7 +97,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount: Account = {
       id: crypto.randomUUID(),
       name: accountName,
-      introduction: "",
+      introduction: initialNotesJson,
       order: 0,
       responsibilities: [],
     };
@@ -102,6 +107,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
 
     const { data, errors } = await client.models.Account.create({
       name: accountName,
+      formatVersion: 2,
     });
     if (errors) handleApiErrors(errors, "Error creating account");
     mutate(updatedAccounts);

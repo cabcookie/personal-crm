@@ -170,6 +170,8 @@ const schema = a.schema({
       name: a.string().required(),
       order: a.integer(),
       introduction: a.string(),
+      introductionJson: a.json(),
+      formatVersion: a.integer().default(1),
       subsidiaries: a.hasMany("Account", "accountSubsidiariesId"),
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
