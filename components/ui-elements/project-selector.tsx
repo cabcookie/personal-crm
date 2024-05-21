@@ -1,13 +1,14 @@
+import { useProjectsContext } from "@/api/ContextProjects";
 import { FC, ReactNode, useEffect, useState } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import ProjectName from "./tokens/project-name";
-import { useProjectsContext } from "@/api/ContextProjects";
 
 type ProjectSelectorProps = {
   allowCreateProjects?: boolean;
   clearAfterSelection?: boolean;
   onChange: (projectId: string | null) => void;
+  placeholder?: string;
 };
 
 type ProjectListOption = {
@@ -19,6 +20,7 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
   allowCreateProjects,
   onChange,
   clearAfterSelection,
+  placeholder = "Add project…",
 }) => {
   const { projects, createProject, loadingProjects } = useProjectsContext();
   const [mappedOptions, setMappedOptions] = useState<
@@ -66,9 +68,7 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
           filterOption={(candidate, input) =>
             filterProjects(candidate.value, input)
           }
-          placeholder={
-            loadingProjects ? "Loading projects..." : "Add project..."
-          }
+          placeholder={loadingProjects ? "Loading projects..." : placeholder}
         />
       ) : (
         <CreatableSelect

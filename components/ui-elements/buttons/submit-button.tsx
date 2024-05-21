@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import styles from "./SubmitButton.module.css";
+import styles from "./Button.module.css";
 
 type OnClickType = {
   onClick: () => void;
