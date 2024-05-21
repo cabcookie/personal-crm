@@ -1,10 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { Context } from "@/contexts/ContextContext";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
-import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
 import { handleApiErrors } from "./globals";
-import { Context } from "@/contexts/ContextContext";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
 const client = generateClient<Schema>();
 
 type MeetingUpdateProps = {
@@ -62,7 +62,10 @@ const useMeeting = (meetingId?: string) => {
     return data?.meetingId;
   };
 
-  const createMeetingActivity = async (activityId: string, notes?: EditorJsonContent) => {
+  const createMeetingActivity = async (
+    activityId: string,
+    notes?: EditorJsonContent
+  ) => {
     if (!meeting) return;
     const updated: Meeting = {
       ...meeting,
@@ -73,7 +76,7 @@ const useMeeting = (meetingId?: string) => {
       meetingActivitiesId: meetingId,
       notes: null,
       formatVersion: 2,
-      notesJson: notes,
+      notesJson: JSON.stringify(notes),
     });
     if (errors) handleApiErrors(errors, "Error creating activity for meeting");
     mutateMeeting(updated);

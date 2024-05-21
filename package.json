@@ -26,6 +26,9 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.2",
+    "@tiptap/extension-highlight": "^2.4.0",
+    "@tiptap/extension-link": "^2.4.0",
+    "@tiptap/extension-placeholder": "^2.4.0",
     "@tiptap/pm": "^2.4.0",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",

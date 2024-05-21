@@ -1,10 +1,19 @@
-import { FC, ReactNode, createContext, useContext } from "react";
 import { type Schema } from "@/amplify/data/resource";
+import {
+  EditorJsonContent,
+  transformNotesVersion,
+} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { SelectionSet, generateClient } from "aws-amplify/data";
+import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { EditorJsonContent, initialNotesJson, transformNotesVersion } from "@/components/ui-elements/notes-writer/NotesWriter";
 const client = generateClient<Schema>();
+
+type UpdateAccountProps = {
+  id: string;
+  name?: string;
+  introduction?: EditorJsonContent;
+};
 
 interface AccountsContextType {
   accounts: Account[] | undefined;
@@ -14,16 +23,13 @@ interface AccountsContextType {
     accountName: string
   ) => Promise<Schema["Account"]["type"] | undefined>;
   getAccountById: (accountId: string) => Account | undefined;
-  saveAccountName: (
-    accountId: string,
-    accountName: string
-  ) => Promise<string | undefined>;
+  updateAccount: (props: UpdateAccountProps) => Promise<string | undefined>;
 }
 
 export type Account = {
   id: string;
   name: string;
-  introduction: EditorJsonContent;
+  introduction?: EditorJsonContent | string;
   controllerId?: string;
   order: number;
   responsibilities: { startDate: Date; endDate?: Date }[];
@@ -55,7 +61,11 @@ export const mapAccount: (account: AccountData) => Account = ({
 }) => ({
   id,
   name,
-  introduction: transformNotesVersion({version: formatVersion, notes: introduction, notesJson: introductionJson}),
+  introduction: transformNotesVersion({
+    version: formatVersion,
+    notes: introduction,
+    notesJson: introductionJson,
+  }),
   controllerId: accountSubsidiariesId || undefined,
   order: order || 0,
   responsibilities: responsibilities
@@ -97,7 +107,6 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount: Account = {
       id: crypto.randomUUID(),
       name: accountName,
-      introduction: initialNotesJson,
       order: 0,
       responsibilities: [],
     };
@@ -117,16 +126,37 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
   const getAccountById = (accountId: string) =>
     accounts?.find((account) => account.id === accountId);
 
-  const saveAccountName = async (accountId: string, accountName: string) => {
-    const updated: Account[] =
-      accounts?.map((a) =>
-        a.id !== accountId ? a : { ...a, name: accountName }
-      ) || [];
-    mutate(updated, false);
-    const { data, errors } = await client.models.Account.update({
-      id: accountId,
-      name: accountName,
+  const updateAccount = async ({
+    id,
+    name,
+    introduction,
+  }: UpdateAccountProps) => {
+    const updAccount: Account | undefined = accounts?.find((a) => a.id === id);
+    if (!updAccount) return;
+
+    Object.assign(updAccount, {
+      ...(name && { name }),
+      ...(introduction && { introduction }),
     });
+
+    const updated: Account[] =
+      accounts?.map((a) => (a.id === id ? updAccount : a)) || [];
+    mutate(updated, false);
+
+    const newAccount = {
+      id,
+      name,
+      ...(introduction
+        ? {
+            introductionJson: JSON.stringify(introduction),
+            formatVersion: 2,
+            introduction: null,
+          }
+        : {}),
+    };
+
+    const { data, errors } = await client.models.Account.update(newAccount);
+
     if (errors) handleApiErrors(errors, "Error updating account");
     mutate(updated);
     return data?.id;
@@ -140,7 +170,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         loadingAccounts,
         createAccount,
         getAccountById,
-        saveAccountName,
+        updateAccount,
       }}
     >
       {children}

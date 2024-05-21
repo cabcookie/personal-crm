@@ -1,13 +1,16 @@
 import { type Schema } from "@/amplify/data/resource";
+import {
+  EditorJsonContent,
+  transformNotesVersion,
+} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { EditorJsonContent, initialNotesJson, transformNotesVersion } from "@/components/ui-elements/notes-writer/NotesWriter";
 const client = generateClient<Schema>();
 
 export type Activity = {
   id: string;
-  notes: EditorJsonContent;
+  notes?: EditorJsonContent | string;
   meetingId?: string;
   finishedOn: Date;
   updatedAt: Date;
@@ -26,7 +29,10 @@ const selectionSet = [
   "forProjects.projectsId",
 ] as const;
 
-type ActivityData = SelectionSet<Schema["Activity"]["type"], typeof selectionSet>;
+type ActivityData = SelectionSet<
+  Schema["Activity"]["type"],
+  typeof selectionSet
+>;
 
 export const mapActivity: (activity: ActivityData) => Activity = ({
   id,
@@ -96,7 +102,7 @@ const useActivity = (activityId?: string) => {
       id: activity.id,
       notes: null,
       formatVersion: 2,
-      notesJson: notes,
+      notesJson: JSON.stringify(notes),
     });
     if (errors) handleApiErrors(errors, "Error updating activity notes");
     mutateActivity(updated);
@@ -111,7 +117,6 @@ const useActivity = (activityId?: string) => {
     if (activity?.projectIds.includes(projectId)) return;
     const updated: Activity = {
       id: activityId,
-      notes: initialNotesJson,
       finishedOn: new Date(),
       projectIds: [...(activity?.projectIds || []), projectId],
       updatedAt: new Date(),

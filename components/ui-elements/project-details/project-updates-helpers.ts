@@ -1,15 +1,18 @@
 import { debounce } from "lodash";
-import { EditorJsonContent } from "../notes-writer/NotesWriter";
+import {
+  EditorJsonContent,
+  SerializerOutput,
+} from "../notes-writer/NotesWriter";
 
 type UpdateActionsProps = {
-  serializer: () => EditorJsonContent;
+  serializer: () => SerializerOutput;
   setSaveStatus: (status: boolean) => void;
   updateActions: (actions: EditorJsonContent) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateActions = debounce(
   async ({ serializer, setSaveStatus, updateActions }: UpdateActionsProps) => {
-    const actions = serializer();
+    const { json: actions } = serializer();
     const data = await updateActions(actions);
     if (data) setSaveStatus(true);
   },

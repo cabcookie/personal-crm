@@ -33,7 +33,6 @@ const ProjectDetailPage = () => {
 
   const saveNewActivity = async (notes?: EditorJsonContent) => {
     if (!projectId) return;
-    console.log("saveNewActivity", { notes });
     const data = await createProjectActivity(projectId, notes);
     setNewActivityId(crypto.randomUUID());
     setAutoFocusActivitiyId(data || "");

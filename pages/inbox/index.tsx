@@ -3,6 +3,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import CheckListItem from "@/components/ui-elements/list-items/checklist-item";
 import NotesWriter, {
   EditorJsonContent,
+  SerializerOutput,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
 import SubmitButton from "@/components/ui-elements/submit-button";
 import { debounce } from "lodash";
@@ -14,11 +15,11 @@ type UpdateInboxFn = (id: string, note: EditorJsonContent) => ApiResponse;
 const debouncedOnChange = debounce(
   async (
     id: string,
-    serializer: () => EditorJsonContent,
+    serializer: () => SerializerOutput,
     updateNote: UpdateInboxFn,
     setSaved: (status: boolean) => void
   ) => {
-    const note = serializer();
+    const { json: note } = serializer();
     const data = await updateNote(id, note);
     if (!data) return;
     setSaved(true);
@@ -39,7 +40,7 @@ const InputField: FC<InputFieldProps> = ({
 }) => {
   const [saved, setSaved] = useState(true);
 
-  const handleUpdate = (serializer: () => EditorJsonContent) => {
+  const handleUpdate = (serializer: () => SerializerOutput) => {
     setSaved(false);
     debouncedOnChange(id, serializer, updateNote, setSaved);
   };
@@ -47,12 +48,7 @@ const InputField: FC<InputFieldProps> = ({
   return (
     <CheckListItem
       title={
-        <NotesWriter
-          notes={note}
-          unsaved={!saved}
-          saveNotes={handleUpdate}
-          title=""
-        />
+        <NotesWriter notes={note} unsaved={!saved} saveNotes={handleUpdate} />
       }
       switchCheckbox={finishItem}
     />
@@ -85,10 +81,9 @@ const InboxPage = () => {
           title={
             <NotesWriter
               notes={newItem}
-              saveNotes={(s) => setNewItem(s())}
+              saveNotes={(s) => setNewItem(s().json)}
               unsaved={newItem.length > 3}
               placeholder="What's on your mind?"
-              title=""
             />
           }
           switchCheckbox={() => {}}

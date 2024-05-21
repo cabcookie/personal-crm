@@ -1,20 +1,24 @@
 import { FC, ReactNode, useState } from "react";
-import NotesWriter, { EditorJsonContent } from "../notes-writer/NotesWriter";
+import NotesWriter, {
+  EditorJsonContent,
+  SerializerOutput,
+} from "../notes-writer/NotesWriter";
+import RecordDetails from "../record-details/record-details";
 import styles from "./ProjectDetails.module.css";
 import { debouncedUpdateActions } from "./project-updates-helpers";
 
 type NextActionsProps = {
-  own: EditorJsonContent;
-  others: EditorJsonContent;
+  own?: EditorJsonContent | string;
+  others?: EditorJsonContent | string;
   saveFn: (
-    own: EditorJsonContent,
-    others: EditorJsonContent
+    own: EditorJsonContent | string,
+    others: EditorJsonContent | string
   ) => Promise<string | undefined>;
 };
 
 type NextActionHelperProps = {
   title: ReactNode;
-  actions: EditorJsonContent;
+  actions?: EditorJsonContent | string;
   saveFn: (actions: EditorJsonContent) => Promise<string | undefined>;
 };
 
@@ -25,7 +29,7 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
 }) => {
   const [saved, setSaved] = useState(true);
 
-  const handleNextActionsUpdate = (serializer: () => EditorJsonContent) => {
+  const handleNextActionsUpdate = (serializer: () => SerializerOutput) => {
     setSaved(false);
     debouncedUpdateActions({
       serializer,
@@ -35,15 +39,14 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
   };
 
   return (
-    <div className={styles.wrapper}>
+    <RecordDetails title={title}>
       <NotesWriter
         notes={actions}
         unsaved={!saved}
         saveNotes={handleNextActionsUpdate}
         placeholder="Define next actions..."
-        title={title}
       />
-    </div>
+    </RecordDetails>
   );
 };
 
@@ -53,12 +56,12 @@ const NextActions: FC<NextActionsProps> = ({ own, others, saveFn }) => {
       <NextActionHelper
         title="My next actions"
         actions={own}
-        saveFn={(actions) => saveFn(actions, others)}
+        saveFn={(actions) => saveFn(actions, others || "")}
       />
       <NextActionHelper
         title="Other's next actions"
         actions={others}
-        saveFn={(actions) => saveFn(own, actions)}
+        saveFn={(actions) => saveFn(own || "", actions)}
       />
     </div>
   );

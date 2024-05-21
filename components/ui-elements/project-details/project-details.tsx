@@ -1,16 +1,16 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import { FC, useEffect, useState } from "react";
-import ProjectDates from "./project-dates";
-import NextActions from "./next-actions";
-import AccountName from "../tokens/account-name";
-import SavedState from "../project-notes-form/saved-state";
-import AccountSelector from "../account-selector";
-import SelectionSlider from "../selection-slider/selection-slider";
-import { Context } from "@/contexts/ContextContext";
-import ContextWarning from "../context-warning/context-warning";
-import RecordDetails from "../record-details/record-details";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import { Context } from "@/contexts/ContextContext";
+import { FC, useEffect, useState } from "react";
+import AccountSelector from "../account-selector";
+import ContextWarning from "../context-warning/context-warning";
 import CrmProjectDetails from "../crm-project-details/crm-project-details";
+import SavedState from "../project-notes-form/saved-state";
+import RecordDetails from "../record-details/record-details";
+import SelectionSlider from "../selection-slider/selection-slider";
+import AccountName from "../tokens/account-name";
+import NextActions from "./next-actions";
+import ProjectDates from "./project-dates";
 
 type ProjectDetailsProps = {
   projectId: string;
