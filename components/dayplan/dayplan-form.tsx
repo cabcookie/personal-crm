@@ -1,6 +1,6 @@
 import { FC, FormEvent, useState } from "react";
+import SubmitButton from "../ui-elements/buttons/submit-button";
 import DateSelector from "../ui-elements/date-selector";
-import SubmitButton from "../ui-elements/submit-button";
 import styles from "./DayPlan.module.css";
 
 type DayPlanFormProps = {

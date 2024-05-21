@@ -1,15 +1,15 @@
 import useCrmProject from "@/api/useCrmProject";
-import { FC, FormEvent, useState } from "react";
-import RecordDetails from "../record-details/record-details";
-import SubmitButton from "../submit-button";
+import { CrmProject } from "@/api/useCrmProjects";
 import {
   addDaysToDate,
   makeRevenueString,
   toLocaleDateString,
 } from "@/helpers/functional";
-import CrmProjectForm, { CrmProjectOnChangeFields } from "./crm-project-form";
-import { CrmProject } from "@/api/useCrmProjects";
 import Link from "next/link";
+import { FC, FormEvent, useState } from "react";
+import SubmitButton from "../buttons/submit-button";
+import RecordDetails from "../record-details/record-details";
+import CrmProjectForm, { CrmProjectOnChangeFields } from "./crm-project-form";
 
 type CrmProjectDetailsProps = {
   projectId: string;

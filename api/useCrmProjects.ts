@@ -1,12 +1,12 @@
 import { type Schema } from "@/amplify/data/resource";
-import { SelectionSet, generateClient } from "aws-amplify/data";
-import useSWR from "swr";
-import { flow } from "lodash/fp";
 import {
   addDaysToDate,
   getDayOfDate,
   toISODateString,
 } from "@/helpers/functional";
+import { SelectionSet, generateClient } from "aws-amplify/data";
+import { flow } from "lodash/fp";
+import useSWR from "swr";
 const client = generateClient<Schema>();
 
 export type CrmStage =
@@ -126,7 +126,6 @@ const useCrmProjects = () => {
     data: crmProjects,
     error: errorCrmProjects,
     isLoading: loadingCrmProjects,
-    mutate,
   } = useSWR("/api/crm-projects/", fetchCrmProjects);
 
   return { crmProjects, errorCrmProjects, loadingCrmProjects };

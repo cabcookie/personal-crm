@@ -1,8 +1,8 @@
-import { IoChevronBackOutline } from "react-icons/io5";
-import styles from "./CategoryTitle.module.css";
 import { useRouter } from "next/router";
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
-import SubmitButton from "./ui-elements/submit-button";
+import { IoChevronBackOutline } from "react-icons/io5";
+import styles from "./CategoryTitle.module.css";
+import SubmitButton from "./ui-elements/buttons/submit-button";
 
 export type CategoryTitleProps = {
   title?: string;

@@ -1,4 +1,4 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 
 const schema = a.schema({
   Context: a.enum(["family", "hobby", "work"]),
@@ -18,9 +18,10 @@ const schema = a.schema({
       note: a.string(),
       formatVersion: a.integer().default(1),
       noteJson: a.json(),
-      done: a.id().required(),
+      status: a.id().required(),
+      movedToActivityId: a.string(),
     })
-    .secondaryIndexes((inbox) => [inbox("done")])
+    .secondaryIndexes((inbox) => [inbox("status")])
     .authorization((allow) => [allow.owner()]),
   DayPlan: a
     .model({

@@ -1,0 +1,21 @@
+.question {
+  font-weight: bold;
+  color: var(--color-btn);
+}
+
+.decisionBtns {
+  font-weight: normal;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.2rem;
+  /* margin-top: 1rem; */
+}
+
+.positive {
+  background-color: var(--secondary-button-bg-color);
+}
+
+.negative {
+  background-color: var(--primary-button-bg-color);
+}

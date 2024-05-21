@@ -2,6 +2,8 @@
 
 In einer Inbox können nun Gedanken gesammelt werden, die zwischendurch auftreten können aus verschiedenen Quellen: E-Mails, Anrufe, Gespräche, Gedanken. In der Inbox können solche Snippets festgehalten werden, so dass man sorgenfrei mit der eigentlichen Aufgabe weitermachen kann.
 
+Die einzelnen Einträge in der Inbox können dann Schritt für Schritt bearbeitet werden und somit sofort erledigt, einem Projekt als Notiz hinzugefügt, ein neues Projekt angelegt oder die Todos von einem bestehenden Projekt angepasst werden.
+
 ## Weitere Aktualisierungen
 
 Wir haben SlateJs aufgegeben. Es ist extrem umständlich, damit einen schönen Text-Editor zu bauen, da jede einfache Funktion selbst entwickelt werden muss. Mit `TipTap` fahren wir besser. Mit dem `StarterKit` bekommen wir sofort einen Text-Editor, der Markdown versteht.
