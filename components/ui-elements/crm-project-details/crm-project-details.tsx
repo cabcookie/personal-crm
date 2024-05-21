@@ -1,15 +1,15 @@
 import useCrmProject from "@/api/useCrmProject";
-import { FC, FormEvent, useState } from "react";
-import RecordDetails from "../record-details/record-details";
-import SubmitButton from "../submit-button";
+import { CrmProject } from "@/api/useCrmProjects";
 import {
   addDaysToDate,
   makeRevenueString,
   toLocaleDateString,
 } from "@/helpers/functional";
-import CrmProjectForm from "./crm-project-form";
-import { CrmProject } from "@/api/useCrmProjects";
 import Link from "next/link";
+import { FC, FormEvent, useState } from "react";
+import SubmitButton from "../buttons/submit-button";
+import RecordDetails from "../record-details/record-details";
+import CrmProjectForm, { CrmProjectOnChangeFields } from "./crm-project-form";
 
 type CrmProjectDetailsProps = {
   projectId: string;
@@ -52,32 +52,25 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
     return "";
   };
 
-  const handleUpdateNewProject = (fieldName: string, val: string | Date) => {
+  const handleUpdateNewProject = ({
+    name,
+    arr,
+    closeDate,
+    tcv,
+    stage,
+    crmId,
+  }: CrmProjectOnChangeFields) => {
     if (!newCrmProject) return;
-    switch (fieldName) {
-      case "name":
-        setNewCrmProject({ ...newCrmProject, name: val as string });
-        break;
-      case "arr":
-        setNewCrmProject({ ...newCrmProject, arr: parseInt(val as string) });
-        break;
-      case "tcv":
-        setNewCrmProject({ ...newCrmProject, tcv: parseInt(val as string) });
-        break;
-      case "stage":
-        setNewCrmProject({ ...newCrmProject, stage: val as string });
-        break;
-      case "closeDate":
-        setNewCrmProject({ ...newCrmProject, closeDate: val as Date });
-        break;
-      case "crmId":
-        const crmId = getCrmId(val as string);
-        setNewCrmProject({ ...newCrmProject, crmId });
-        break;
-
-      default:
-        break;
-    }
+    const p = newCrmProject;
+    setNewCrmProject({
+      ...p,
+      name: !name ? p.name : name,
+      arr: !arr ? p.arr : parseInt(arr),
+      tcv: !tcv ? p.tcv : parseInt(tcv),
+      closeDate: !closeDate ? p.closeDate : closeDate,
+      stage: !stage ? p.stage : stage,
+      crmId: !crmId ? p.crmId : getCrmId(crmId),
+    });
   };
 
   return !crmProject ? (

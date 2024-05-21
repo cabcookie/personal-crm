@@ -1,4 +1,8 @@
 import { type Schema } from "@/amplify/data/resource";
+import {
+  EditorJsonContent,
+  transformNotesVersion,
+} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -6,7 +10,7 @@ const client = generateClient<Schema>();
 
 export type Activity = {
   id: string;
-  notes: string;
+  notes?: EditorJsonContent | string;
   meetingId?: string;
   finishedOn: Date;
   updatedAt: Date;
@@ -16,6 +20,8 @@ export type Activity = {
 const selectionSet = [
   "id",
   "notes",
+  "formatVersion",
+  "notesJson",
   "meetingActivitiesId",
   "finishedOn",
   "createdAt",
@@ -23,11 +29,16 @@ const selectionSet = [
   "forProjects.projectsId",
 ] as const;
 
-type ActivityData = SelectionSet<Schema["Activity"], typeof selectionSet>;
+type ActivityData = SelectionSet<
+  Schema["Activity"]["type"],
+  typeof selectionSet
+>;
 
 export const mapActivity: (activity: ActivityData) => Activity = ({
   id,
   notes,
+  formatVersion,
+  notesJson,
   meetingActivitiesId,
   finishedOn,
   createdAt,
@@ -35,7 +46,11 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   forProjects,
 }) => ({
   id,
-  notes: notes || "",
+  notes: transformNotesVersion({
+    version: formatVersion,
+    notes,
+    notesJson,
+  }),
   meetingId: meetingActivitiesId || undefined,
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),
@@ -49,6 +64,7 @@ const fetchActivity = (activityId?: string) => async () => {
     { selectionSet }
   );
   if (errors) throw errors;
+  if (!data) throw new Error("fetchActivity didn't retrieve data");
   return mapActivity(data);
 };
 
@@ -75,20 +91,22 @@ const useActivity = (activityId?: string) => {
     if (errors) handleApiErrors(errors, "Error updating date of activity");
 
     mutateActivity(updated);
-    return data.id;
+    return data?.id;
   };
 
-  const updateNotes = async (notes: string) => {
+  const updateNotes = async (notes: EditorJsonContent) => {
     if (!activity?.id) return;
     const updated: Activity = { ...activity, notes, updatedAt: new Date() };
     mutateActivity(updated, false);
     const { data, errors } = await client.models.Activity.update({
       id: activity.id,
-      notes,
+      notes: null,
+      formatVersion: 2,
+      notesJson: JSON.stringify(notes),
     });
     if (errors) handleApiErrors(errors, "Error updating activity notes");
     mutateActivity(updated);
-    return data.id;
+    return data?.id;
   };
 
   const addProjectToActivity = async (
@@ -99,7 +117,6 @@ const useActivity = (activityId?: string) => {
     if (activity?.projectIds.includes(projectId)) return;
     const updated: Activity = {
       id: activityId,
-      notes: "",
       finishedOn: new Date(),
       projectIds: [...(activity?.projectIds || []), projectId],
       updatedAt: new Date(),

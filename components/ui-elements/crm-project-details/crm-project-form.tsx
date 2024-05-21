@@ -6,21 +6,30 @@ import DateSelector from "../date-selector";
 import Select from "react-select";
 import Link from "next/link";
 
+export type CrmProjectOnChangeFields = {
+  name?: string;
+  arr?: string;
+  tcv?: string;
+  stage?: string;
+  closeDate?: Date;
+  crmId?: string;
+};
+
 type CrmProjectFormProps = {
   crmProject?: CrmProject;
-  onChange: (fieldName: string, val: string | Date) => void;
+  onChange: (props: CrmProjectOnChangeFields) => void;
 };
 
 const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
   const [mappedOptions] = useState(
     crmStages.map((stage) => ({ value: stage, label: stage }))
   );
-  const [selectedOption, setSelectedOption] = useState<any>(
+  const [selectedOption] = useState<any>(
     mappedOptions.find(({ label }) => label === crmProject?.stage)
   );
 
   const selectStage = (selectedOption: any) => {
-    onChange("stage", selectedOption.label);
+    onChange({ stage: selectedOption.label });
   };
 
   return (
@@ -29,7 +38,7 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
         <div className={styles.oneRow}>
           <Input
             value={crmProject.name}
-            onChange={(newVal) => onChange("name", newVal)}
+            onChange={(newVal) => onChange({ name: newVal })}
             label="Name"
             placeholder="Opportunity Name"
             className={styles.fullWidth}
@@ -37,7 +46,7 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
           />
           <Input
             value={crmProject.crmId || ""}
-            onChange={(newVal) => onChange("crmId", newVal)}
+            onChange={(newVal) => onChange({ crmId: newVal })}
             label={
               <div className={styles.oneLine}>
                 <div>CRM ID</div>
@@ -59,20 +68,20 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
         <div className={styles.oneRow}>
           <Input
             value={crmProject.arr.toString()}
-            onChange={(newval) => onChange("arr", newval)}
+            onChange={(newval) => onChange({ arr: newval })}
             label="Annual Recurring Revenue"
             className={styles.fullWidth}
             inputClassName={styles.fullWidth}
           />
           <Input
             value={crmProject.tcv.toString()}
-            onChange={(newval) => onChange("tcv", newval)}
+            onChange={(newval) => onChange({ tcv: newval })}
             label="Total Contract Volume"
             className={styles.fullWidth}
             inputClassName={styles.fullWidth}
           />
         </div>
-        <div className={styles.oneRow}>
+        <div className={styles.oneRowy}>
           <div className={styles.fullWidth}>
             <div>Stage</div>
             <Select
@@ -87,7 +96,7 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
             <div>Close Date</div>
             <DateSelector
               date={crmProject.closeDate}
-              setDate={(date) => onChange("closeDate", date)}
+              setDate={(date) => onChange({ closeDate: date })}
             />
           </div>
         </div>

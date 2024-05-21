@@ -23,7 +23,7 @@ const DateSelector: FC<DateSelectorProps> = ({
       timeIntervals={15}
       showWeekNumbers
       todayButton="Today"
-      dateFormat={`dd MMM YYYY${selectHours ? ", hh:mm" : ""}`}
+      dateFormat={`dd MMM YYYY${selectHours ? ", HH:mm" : ""}`}
       className={styles.picker}
     />
   );

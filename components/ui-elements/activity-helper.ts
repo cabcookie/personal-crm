@@ -1,24 +1,24 @@
 import { debounce } from "lodash";
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "./notes-writer/notes-writer-helpers";
+import {
+  EditorJsonContent,
+  SerializerOutput,
+} from "./notes-writer/NotesWriter";
 
 type DebouncedUpdateNotesProps = {
-  notes: Descendant[];
-  transformerFn: TransformNotesToMdFunction;
+  serializer: () => SerializerOutput;
   setSaveStatus: (status: boolean) => void;
-  updateNotes: (notes: string) => Promise<string | undefined>;
-  createActivity?: (notes: string) => Promise<string | undefined>;
+  updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
+  createActivity?: (notes: EditorJsonContent) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateNotes = debounce(
   async ({
-    notes: descendants,
-    transformerFn,
+    serializer,
     setSaveStatus,
     updateNotes,
     createActivity,
   }: DebouncedUpdateNotesProps) => {
-    const notes = transformerFn(descendants);
+    const { json: notes } = serializer();
     if (createActivity) {
       const newActivity = await createActivity(notes);
       if (newActivity) setSaveStatus(true);

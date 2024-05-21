@@ -1,4 +1,4 @@
-import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 
 const schema = a.schema({
   Context: a.enum(["family", "hobby", "work"]),
@@ -15,10 +15,13 @@ const schema = a.schema({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      note: a.string().required(),
-      done: a.id().required(),
+      note: a.string(),
+      formatVersion: a.integer().default(1),
+      noteJson: a.json(),
+      status: a.id().required(),
+      movedToActivityId: a.string(),
     })
-    .secondaryIndexes((inbox) => [inbox("done")])
+    .secondaryIndexes((inbox) => [inbox("status")])
     .authorization((allow) => [allow.owner()]),
   DayPlan: a
     .model({
@@ -92,6 +95,8 @@ const schema = a.schema({
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       notes: a.string(),
+      formatVersion: a.integer().default(1),
+      notesJson: a.json(),
       forProjects: a.hasMany("ProjectActivity", "activityId"),
       meetingActivitiesId: a.id(),
       forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
@@ -166,6 +171,8 @@ const schema = a.schema({
       name: a.string().required(),
       order: a.integer(),
       introduction: a.string(),
+      introductionJson: a.json(),
+      formatVersion: a.integer().default(1),
       subsidiaries: a.hasMany("Account", "accountSubsidiariesId"),
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
@@ -260,6 +267,9 @@ const schema = a.schema({
       onHoldTill: a.date(),
       myNextActions: a.string(),
       othersNextActions: a.string(),
+      formatVersion: a.integer().default(1),
+      myNextActionsJson: a.json(),
+      othersNextActionsJson: a.json(),
       context: a.ref("Context").required(),
       accounts: a.hasMany("AccountProjects", "projectsId"),
       batches: a.hasMany("SixWeekBatchProjects", "projectsId"),

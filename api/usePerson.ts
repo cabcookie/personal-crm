@@ -8,7 +8,7 @@ export type Person = {
   name: string;
 };
 
-export const mapPerson = ({ id, name }: Schema["Person"]): Person => ({
+export const mapPerson = ({ id, name }: Schema["Person"]["type"]): Person => ({
   id,
   name,
 });
@@ -17,6 +17,7 @@ const fetchPerson = (personId?: string) => async () => {
   if (!personId) return;
   const { data, errors } = await client.models.Person.get({ id: personId });
   if (errors) throw errors;
+  if (!data) throw new Error("fetchPerson returns no data");
   return mapPerson(data);
 };
 

@@ -1,36 +1,29 @@
-import { FC, ReactNode } from "react";
-import styles from "./ListItem.module.css";
+import { FC } from "react";
 import { IoCheckboxSharp, IoSquareOutline } from "react-icons/io5";
+import styles from "./ListItem.module.css";
+import ListItem, { ListItemProps } from "./list-item";
 
-type CheckListItemProps = {
-    title: ReactNode;
-    description?: ReactNode;
-    checked?: boolean;
-    switchCheckbox: (checked: boolean) => any;
+type CheckListItemProps = ListItemProps & {
+  checked?: boolean;
+  switchCheckbox: (checked: boolean) => any;
 };
 
 const CheckListItem: FC<CheckListItemProps> = ({
-    title,
-    description,
-    switchCheckbox,
-    checked,
+  switchCheckbox,
+  checked,
+  ...props
 }) => (
-    <article>
-      <div className={styles.postLine}>
-        <a
-          className={styles.postCheckbox}
-          onClick={() => switchCheckbox(!checked)}
-        >
-          {!checked ? <IoSquareOutline /> : <IoCheckboxSharp />}
-        </a>
-        <div className={styles.postBody}>
-            <div>{title}</div>
-            <div className={styles.description}>
-              {description}
-            </div>
-        </div>
-      </div>
-    </article>
-  );
+  <ListItem
+    {...props}
+    itemSelector={
+      <a
+        className={styles.listItemIcon}
+        onClick={() => switchCheckbox(!checked)}
+      >
+        {!checked ? <IoSquareOutline /> : <IoCheckboxSharp />}
+      </a>
+    }
+  />
+);
 
 export default CheckListItem;

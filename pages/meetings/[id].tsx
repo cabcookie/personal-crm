@@ -14,6 +14,7 @@ import SelectionSlider from "@/components/ui-elements/selection-slider/selection
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import { Context } from "@/contexts/ContextContext";
 import ContextWarning from "@/components/ui-elements/context-warning/context-warning";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -89,7 +90,7 @@ const MeetingDetailPage = () => {
     debouncedUpdateMeeting({ title: newTitle });
   };
 
-  const saveNewActivity = async (notes?: string) => {
+  const saveNewActivity = async (notes?: EditorJsonContent) => {
     const data = await createMeetingActivity(newActivityId, notes);
     setNewActivityId(crypto.randomUUID());
     return data;

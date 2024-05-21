@@ -1,20 +1,21 @@
 import useActivity from "@/api/useActivity";
 import { FC, useState } from "react";
-import ProjectName from "../tokens/project-name";
-import ProjectSelector from "../project-selector";
-import NotesWriter from "../notes-writer/NotesWriter";
-import SavedState from "./saved-state";
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "../notes-writer/notes-writer-helpers";
-import ActivityMetaData from "../activity-meta-data";
 import { debouncedUpdateNotes } from "../activity-helper";
+import ActivityMetaData from "../activity-meta-data";
+import NotesWriter, {
+  EditorJsonContent,
+  SerializerOutput,
+} from "../notes-writer/NotesWriter";
 import ProjectDetails from "../project-details/project-details";
+import ProjectSelector from "../project-selector";
 import RecordDetails from "../record-details/record-details";
+import ProjectName from "../tokens/project-name";
+import SavedState from "./saved-state";
 
 type ProjectNotesFormProps = {
   className?: string;
   activityId: string;
-  createActivity?: (notes?: string) => Promise<string | undefined>;
+  createActivity?: (notes?: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
@@ -38,15 +39,11 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
     await addProjectToActivity(projectId, activity.id);
   };
 
-  const handleNotesUpdate = (
-    notes: Descendant[],
-    transformerFn: TransformNotesToMdFunction
-  ) => {
+  const handleNotesUpdate = (serializer: () => SerializerOutput) => {
     if (!updateNotes) return;
     setNotesSaved(false);
     debouncedUpdateNotes({
-      notes,
-      transformerFn,
+      serializer,
       setSaveStatus: setNotesSaved,
       updateNotes,
       createActivity,
@@ -65,11 +62,14 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
         <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
       </RecordDetails>
 
-      <NotesWriter
-        notes={activity?.notes || ""}
-        saveNotes={handleNotesUpdate}
-        unsaved={!notesSaved}
-      />
+      <RecordDetails title="Notes">
+        <NotesWriter
+          notes={activity?.notes || {}}
+          saveNotes={handleNotesUpdate}
+          unsaved={!notesSaved}
+        />
+      </RecordDetails>
+
       <div style={{ padding: "0.3rem 1rem" }}>
         <ActivityMetaData activity={activity} />
         <SavedState saved={notesSaved} />

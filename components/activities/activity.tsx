@@ -1,14 +1,16 @@
-import { FC, useEffect, useState } from "react";
-import { Descendant } from "slate";
-import { TransformNotesToMdFunction } from "../ui-elements/notes-writer/notes-writer-helpers";
-import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
 import useActivity from "@/api/useActivity";
-import ProjectName from "../ui-elements/tokens/project-name";
-import MeetingName from "../ui-elements/tokens/meeting-name";
-import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import { FC, useEffect, useState } from "react";
+import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
 import ActivityMetaData from "../ui-elements/activity-meta-data";
 import DateSelector from "../ui-elements/date-selector";
+import NotesWriter, {
+  EditorJsonContent,
+  SerializerOutput,
+} from "../ui-elements/notes-writer/NotesWriter";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
+import RecordDetails from "../ui-elements/record-details/record-details";
+import MeetingName from "../ui-elements/tokens/meeting-name";
+import ProjectName from "../ui-elements/tokens/project-name";
 
 type ActivityComponentProps = {
   activityId: string;
@@ -16,7 +18,7 @@ type ActivityComponentProps = {
   showProjects?: boolean;
   showMeeting?: boolean;
   autoFocus?: boolean;
-  createActivity?: (notes?: string) => Promise<string | undefined>;
+  createActivity?: (notes?: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -35,17 +37,14 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   useEffect(() => {
     setDate(activity?.finishedOn || new Date());
   }, [activity]);
-  const handleNotesUpdate = (
-    notes: Descendant[],
-    transformerFn: TransformNotesToMdFunction
-  ) => {
+
+  const handleNotesUpdate = (serializer: () => SerializerOutput) => {
     setNotesSaved(false);
     debouncedUpdateNotes({
-      notes,
-      transformerFn,
       setSaveStatus: setNotesSaved,
       updateNotes,
       createActivity,
+      serializer,
     });
   };
 
@@ -71,13 +70,17 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
       {showMeeting && activity?.meetingId && (
         <MeetingName meetingId={activity.meetingId} />
       )}
-      <NotesWriter
-        notes={activity?.notes || ""}
-        saveNotes={handleNotesUpdate}
-        unsaved={!notesSaved}
-        autoFocus={autoFocus}
-        key={activityId}
-      />
+
+      <RecordDetails title="Notes">
+        <NotesWriter
+          notes={activity?.notes}
+          saveNotes={handleNotesUpdate}
+          unsaved={!notesSaved}
+          autoFocus={autoFocus}
+          key={activityId}
+        />
+      </RecordDetails>
+
       <div style={{ padding: "0.3rem 1rem" }}>
         <ActivityMetaData activity={activity} />
       </div>

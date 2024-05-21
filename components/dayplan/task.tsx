@@ -1,11 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
-import { FC, FormEvent, useState } from "react";
-import styles from "./Task.module.css";
-import { IoCheckboxSharp, IoSquareOutline } from "react-icons/io5";
-import ProjectName from "../ui-elements/tokens/project-name";
 import { DayPlanTodo } from "@/api/useDayplans";
+import { FC, FormEvent, useState } from "react";
+import { IoCheckboxSharp, IoSquareOutline } from "react-icons/io5";
+import SubmitButton from "../ui-elements/buttons/submit-button";
 import ProjectSelector from "../ui-elements/project-selector";
-import SubmitButton from "../ui-elements/submit-button";
+import ProjectName from "../ui-elements/tokens/project-name";
+import styles from "./Task.module.css";
 
 type TaskProps = {
   todo: DayPlanTodo;
@@ -14,7 +14,7 @@ type TaskProps = {
   createTodo?: (
     todo: string,
     projectId?: string
-  ) => Promise<Schema["DayPlanTodo"] | undefined>;
+  ) => Promise<Schema["DayPlanTodo"]["type"] | undefined>;
 };
 
 const Task: FC<TaskProps> = ({

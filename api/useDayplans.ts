@@ -1,10 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
-import { SelectionSet, generateClient } from "aws-amplify/data";
-import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
-import useSWR from "swr";
 import { sortByDate } from "@/helpers/functional";
+import { SelectionSet, generateClient } from "aws-amplify/data";
 import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 type DayNonProjectTask = {
@@ -65,7 +65,10 @@ const dayplanSelectionSet = [
   "todos.project.id",
 ] as const;
 
-type DayPlanData = SelectionSet<Schema["DayPlan"], typeof dayplanSelectionSet>;
+type DayPlanData = SelectionSet<
+  Schema["DayPlan"]["type"],
+  typeof dayplanSelectionSet
+>;
 
 const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
   id,
@@ -144,7 +147,7 @@ export type CreateTodoFn = (props: {
   todo: string;
   dayplanId: string;
   projectId?: string;
-}) => Promise<Schema["DayPlanTodo"] | undefined>;
+}) => Promise<Schema["DayPlanTodo"]["type"] | undefined>;
 
 type SwitchTodoDoneFn = (todoId: string, done: boolean) => Promise<void>;
 
@@ -264,6 +267,7 @@ const useDayPlans = (context?: Context) => {
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating day plan");
+    if (!data) throw new Error("createDayPlan didn't return result data");
     mutate([{ ...newDayPlan, id: data.id }, ...(dayPlans || [])]);
   };
 
@@ -301,7 +305,7 @@ const useDayPlans = (context?: Context) => {
     });
     if (errors) handleApiErrors(errors, "Error creating todo");
     mutate(updated);
-    return data;
+    return data || undefined;
   };
 
   const switchTodoDone: SwitchTodoDoneFn = async (todoId, done) => {

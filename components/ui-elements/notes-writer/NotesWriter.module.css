@@ -1,10 +1,17 @@
-.fullWidth {
-  width: 100%;
+.wrapper {
+  margin-top: -1.7rem;
 }
 
-.editorInput {
-  margin: -0.5rem;
-  padding: 0.5rem;
+.emptyEditor:first-child::before {
+  color: rgb(176, 176, 176);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+}
+
+.editor {
+  margin: 0 -0.5rem;
+  padding: 0 0.5rem;
   border-radius: 0.4rem;
   background-color: inherit;
   transition: background-color 1s ease;
@@ -14,7 +21,7 @@
   background-color: rgba(232, 67, 34, 0.1);
 }
 
-.editorInput h1,
+/* .editorInput h1,
 .editorInput h2,
 .editorInput h3 {
   text-transform: uppercase;
@@ -55,4 +62,4 @@
 .editorInput h6 {
   font-size: 1.8rem;
   font-style: italic;
-}
+} */

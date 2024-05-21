@@ -1,10 +1,14 @@
-import { FC, ReactNode, createContext, useContext } from "react";
 import { type Schema } from "@/amplify/data/resource";
-import { SelectionSet, generateClient } from "aws-amplify/data";
-import useSWR, { KeyedMutator } from "swr";
+import {
+  EditorJsonContent,
+  transformNotesVersion,
+} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { Context } from "@/contexts/ContextContext";
-import { handleApiErrors } from "./globals";
 import { addDaysToDate } from "@/helpers/functional";
+import { SelectionSet, generateClient } from "aws-amplify/data";
+import { FC, ReactNode, createContext, useContext } from "react";
+import useSWR, { KeyedMutator } from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -13,16 +17,16 @@ interface ProjectsContextType {
   loadingProjects: boolean;
   createProject: (
     projectName: string
-  ) => Promise<Schema["Projects"] | undefined>;
+  ) => Promise<Schema["Projects"]["type"] | undefined>;
   getProjectById: (projectId: string) => Project | undefined;
   createProjectActivity: (
     projectId: string,
-    notes?: string
+    notes?: EditorJsonContent
   ) => Promise<string | undefined>;
   saveNextActions: (
     projectId: string,
-    myNextActions: string,
-    othersNextActions: string
+    myNextActions: EditorJsonContent | string,
+    othersNextActions: EditorJsonContent | string
   ) => Promise<string | undefined>;
   saveProjectName: (
     projectId: string,
@@ -56,8 +60,8 @@ export type Project = {
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
-  myNextActions: string;
-  othersNextActions: string;
+  myNextActions?: EditorJsonContent | string;
+  othersNextActions?: EditorJsonContent | string;
   context: Context;
   accountIds: string[];
   activityIds: string[];
@@ -73,6 +77,9 @@ const selectionSet = [
   "onHoldTill",
   "myNextActions",
   "othersNextActions",
+  "formatVersion",
+  "myNextActionsJson",
+  "othersNextActionsJson",
   "context",
   "accounts.accountId",
   "accounts.createdAt",
@@ -82,7 +89,10 @@ const selectionSet = [
   "crmProjects.crmProject.id",
 ] as const;
 
-type ProjectData = SelectionSet<Schema["Projects"], typeof selectionSet>;
+type ProjectData = SelectionSet<
+  Schema["Projects"]["type"],
+  typeof selectionSet
+>;
 
 export const mapProject: (project: ProjectData) => Project = ({
   id,
@@ -93,6 +103,9 @@ export const mapProject: (project: ProjectData) => Project = ({
   onHoldTill,
   myNextActions,
   othersNextActions,
+  formatVersion,
+  myNextActionsJson,
+  othersNextActionsJson,
   context,
   accounts,
   activities,
@@ -104,8 +117,16 @@ export const mapProject: (project: ProjectData) => Project = ({
   doneOn: doneOn ? new Date(doneOn) : undefined,
   dueOn: dueOn ? new Date(dueOn) : undefined,
   onHoldTill: onHoldTill ? new Date(onHoldTill) : undefined,
-  myNextActions: myNextActions || "",
-  othersNextActions: othersNextActions || "",
+  myNextActions: transformNotesVersion({
+    version: formatVersion,
+    notes: myNextActions,
+    notesJson: myNextActionsJson,
+  }),
+  othersNextActions: transformNotesVersion({
+    version: formatVersion,
+    notes: othersNextActions,
+    notesJson: othersNextActionsJson,
+  }),
   context,
   accountIds: accounts
     .map(({ accountId, createdAt }) => ({
@@ -131,7 +152,7 @@ const fetchProjects = (context?: Context) => async () => {
     filter: {
       context: { eq: context },
       or: [
-        { done: { ne: "true" } },
+        { done: { ne: true } },
         {
           doneOn: {
             ge: addDaysToDate(-90)(new Date()).toISOString().split("T")[0],
@@ -164,7 +185,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
   const createProject = async (
     projectName: string
-  ): Promise<Schema["Projects"] | undefined> => {
+  ): Promise<Schema["Projects"]["type"] | undefined> => {
     if (!context) return;
     if (projectName.length < 3) return;
 
@@ -172,8 +193,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       id: crypto.randomUUID(),
       project: projectName,
       done: false,
-      myNextActions: "",
-      othersNextActions: "",
       context,
       accountIds: [],
       activityIds: [],
@@ -190,19 +209,26 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     });
     if (errors) handleApiErrors(errors, "Error creating project");
     mutateProjects(updatedProjects);
-    return data;
+    return data || undefined;
   };
 
   const getProjectById = (projectId: string) =>
     projects?.find((project) => project.id === projectId);
 
-  const createProjectActivity = async (projectId: string, notes?: string) => {
+  const createProjectActivity = async (
+    projectId: string,
+    notes?: EditorJsonContent
+  ) => {
     const { data: activity, errors: errorsActivity } =
-      await client.models.Activity.create({ notes });
+      await client.models.Activity.create({
+        notesJson: JSON.stringify(notes),
+        formatVersion: 2,
+      });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");
       return;
     }
+    if (!activity) return;
     const updated: Project[] =
       projects?.map((project) =>
         project.id !== projectId
@@ -216,7 +242,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     });
     if (errors) handleApiErrors(errors, "Error linking activity with project");
     mutateProjects(updated);
-    return data.activityId;
+    return data?.activityId;
   };
 
   type UpdateProjectProps = {
@@ -225,8 +251,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     dueOn?: Date;
     doneOn?: Date | null;
     onHoldTill?: Date;
-    myNextActions?: string;
-    othersNextActions?: string;
+    myNextActions?: EditorJsonContent | string;
+    othersNextActions?: EditorJsonContent | string;
     done?: boolean;
   };
 
@@ -240,30 +266,36 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     myNextActions,
     othersNextActions,
   }: UpdateProjectProps) => {
+    const updProject: Project | undefined = projects?.find((p) => p.id === id);
+    if (!updProject) return;
+
+    Object.assign(updProject, {
+      ...(project && { project }),
+      ...(done !== undefined && { done }),
+      ...(doneOn && { doneOn }),
+      ...(dueOn && { dueOn }),
+      ...(onHoldTill && { onHoldTill }),
+      ...(myNextActions && { myNextActions }),
+      ...(othersNextActions && { othersNextActions }),
+    });
+
     const updated: Project[] =
-      projects?.map((p) =>
-        p.id !== id
-          ? p
-          : {
-              ...p,
-              project: !project ? p.project : project,
-              done: done === undefined ? p.done : done,
-              doneOn: !doneOn ? p.doneOn : doneOn,
-              dueOn: !dueOn ? p.dueOn : dueOn,
-              onHoldTill: !onHoldTill ? p.onHoldTill : onHoldTill,
-              myNextActions: !myNextActions ? p.myNextActions : myNextActions,
-              othersNextActions: !othersNextActions
-                ? p.othersNextActions
-                : othersNextActions,
-            }
-      ) || [];
+      projects?.map((p) => (p.id === id ? updProject : p)) || [];
     mutateProjects(updated, false);
+
     const newProject = {
       id,
       project,
       done,
-      myNextActions,
-      othersNextActions,
+      ...(myNextActions || othersNextActions
+        ? {
+            myNextActions: null,
+            othersNextActions: null,
+            formatVersion: 2,
+            myNextActionsJson: JSON.stringify(updProject.myNextActions),
+            othersNextActionsJson: JSON.stringify(updProject.othersNextActions),
+          }
+        : {}),
       dueOn: dueOn ? dueOn.toISOString().split("T")[0] : undefined,
       doneOn:
         done === undefined
@@ -283,8 +315,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
   const saveNextActions = (
     projectId: string,
-    myNextActions: string,
-    othersNextActions: string
+    myNextActions: EditorJsonContent | string,
+    othersNextActions: EditorJsonContent | string
   ) => updateProject({ id: projectId, myNextActions, othersNextActions });
 
   const saveProjectName = (projectId: string, projectName: string) =>
@@ -334,7 +366,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       handleApiErrors(errors, "Error updating project's context");
       return;
     }
-    return data.id;
+    return data?.id;
   };
 
   return (
