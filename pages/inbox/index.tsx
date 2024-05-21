@@ -269,27 +269,3 @@ const InboxPage = () => {
 };
 
 export default InboxPage;
-
-/**
- *           statusFilter === "new" ? (
-          ) : statusFilter === "actionable" ? (
-            <Question
-              question="Doable in 2 minutes?"
-              action={respondTwoMinuteRule}
-            />
-          ) : statusFilter === "notActionable" ? (
-            <Question
-              question="Move to a project?"
-              action={respondMoveToProject}
-            />
-          ) : statusFilter === "doNow" ? (
-            <Question question="Done?" action={respondDone} />
-          ) : statusFilter === "done" ? (
-            <MdDoneOutline className={listStyles.listItemIcon} />
-          ) : statusFilter === "moveToProject" ? (
-            <FaArrowRight className={listStyles.listItemIcon} />
-          ) : (
-            "Unknown Status"
-          )
-
- */
