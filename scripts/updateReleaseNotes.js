@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { exec, execSync } = require("child_process");
+const { execSync } = require("child_process");
 
 const docsDir = path.join(__dirname, "..", "docs", "releases");
 const templateFilePath = path.join(docsDir, "template.md");
@@ -86,6 +86,7 @@ const appendToSection = ({ type, scope, message, commitLink }) => {
   });
 };
 
+/**
 const stageReleaseNotes = () => {
   exec(`git add ${releaseNotesFilePath}`, (error, stdout, stderr) => {
     if (error) {
@@ -95,6 +96,7 @@ const stageReleaseNotes = () => {
     console.info("next.md staged for commit.");
   });
 };
+*/
 
 fs.access(releaseNotesFilePath, fs.constants.F_OK, (err) => {
   if (err) {

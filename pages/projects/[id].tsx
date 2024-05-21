@@ -1,6 +1,7 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import ActivityComponent from "@/components/activities/activity";
 import MainLayout from "@/components/layouts/MainLayout";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
 import ProjectDetails from "@/components/ui-elements/project-details/project-details";
 import { debouncedUpdateProjectDetails } from "@/components/ui-elements/project-details/project-updates-helpers";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
@@ -30,9 +31,8 @@ const ProjectDetailPage = () => {
     }
   }, [getProjectById, projectId]);
 
-  const saveNewActivity = async (notes?: string) => {
+  const saveNewActivity = async (notes?: EditorJsonContent) => {
     if (!projectId) return;
-    console.log("saveNewActivity", { notes });
     const data = await createProjectActivity(projectId, notes);
     setNewActivityId(crypto.randomUUID());
     setAutoFocusActivitiyId(data || "");

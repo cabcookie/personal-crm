@@ -1,16 +1,36 @@
-import React, { FC, ReactNode, useEffect, useState } from "react";
-import styles from "./NotesWriter.module.css";
-import RecordDetails from "../record-details/record-details";
+import { JSONContent } from "@tiptap/core";
+import Highlight from "@tiptap/extension-highlight";
+import Link from "@tiptap/extension-link";
+import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { FC, useEffect, useState } from "react";
+import styles from "./NotesWriter.module.css";
+
+export type EditorJsonContent = JSONContent;
+export type SerializerOutput = {
+  json: EditorJsonContent;
+};
+
+type TransformNotesVersionType = {
+  version?: number | null;
+  notes?: string | null;
+  notesJson?: any;
+};
+
+export const transformNotesVersion = ({
+  version,
+  notes,
+  notesJson,
+}: TransformNotesVersionType) =>
+  version === 2 ? (notesJson ? JSON.parse(notesJson) : "") : notes || undefined;
 
 type NotesWriterProps = {
-  notes: string;
-  saveNotes?: (serializer: () => string) => void;
+  notes?: EditorJsonContent | string;
+  saveNotes?: (serializer: () => SerializerOutput) => void;
   unsaved?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
-  title?: ReactNode;
   submitOnEnter?: boolean;
 };
 
@@ -19,41 +39,65 @@ const NotesWriter: FC<NotesWriterProps> = ({
   saveNotes,
   unsaved,
   autoFocus,
-  placeholder,
-  title = "Notes",
-  submitOnEnter,
+  placeholder = "Start taking notes...",
+  // submitOnEnter,
 }) => {
+  const [isSaved, setIsSaved] = useState(!unsaved);
+  const [initialNotes, setInitialNotes] = useState(notes);
+
   const editor = useEditor({
-    extensions: [StarterKit],
-    content: "<p>Hello World</p>",
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        emptyEditorClass: styles.emptyEditor,
+        placeholder,
+      }),
+      Highlight,
+      Link.configure({
+        HTMLAttributes: {
+          class: styles.link,
+        },
+      }),
+    ],
+    autofocus: autoFocus,
+    editorProps: {
+      attributes: {
+        class: `${styles.editor} ${isSaved ? "" : styles.unsaved}`,
+      },
+    },
+    content: notes,
+    onUpdate: ({ editor }) => {
+      if (!saveNotes) return;
+      saveNotes(() => ({ json: editor.getJSON() }));
+    },
   });
 
   useEffect(() => {
-    // todo: load existing content
-  }, [notes, editor]);
-
-  /**
-  const handleEditNote = (val: Descendant[]) => {
-    if (!saveNotes) return;
-    const isAstChange = editor.operations.some(
-      (op) => "set_selection" !== op.type
-    );
-    if (!isAstChange) return;
-    saveNotes(serialize(val));
-  };
-  */
-
-  const handleOnChange = () => {
-    if (!saveNotes) return;
     if (!editor) return;
-    const json = editor.getJSON();
-    saveNotes(() => JSON.stringify(json));
-  };
+    if (unsaved !== isSaved) return;
+    editor.setOptions({
+      editorProps: {
+        attributes: {
+          class: `${styles.editor} ${unsaved ? styles.unsaved : ""}`,
+        },
+      },
+    });
+    setIsSaved(!unsaved);
+  }, [editor, unsaved, isSaved]);
+
+  useEffect(() => {
+    if (!editor) return;
+    if (initialNotes === notes) return;
+    const { from, to } = editor.state.selection;
+    editor.commands.setContent(notes || "");
+    editor.commands.setTextSelection({ from, to });
+    setInitialNotes(notes);
+  }, [editor, notes, initialNotes]);
 
   return (
-    <RecordDetails title={title === "" ? undefined : title} className={styles.fullWidth}>
-      <EditorContent editor={editor} onChange={handleOnChange} />
-    </RecordDetails>
+    <div className={styles.wrapper}>
+      <EditorContent editor={editor} />
+    </div>
   );
 };
 

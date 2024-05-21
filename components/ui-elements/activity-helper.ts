@@ -1,10 +1,14 @@
 import { debounce } from "lodash";
+import {
+  EditorJsonContent,
+  SerializerOutput,
+} from "./notes-writer/NotesWriter";
 
 type DebouncedUpdateNotesProps = {
-  serializer: () => string;
+  serializer: () => SerializerOutput;
   setSaveStatus: (status: boolean) => void;
-  updateNotes: (notes: string) => Promise<string | undefined>;
-  createActivity?: (notes: string) => Promise<string | undefined>;
+  updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
+  createActivity?: (notes: EditorJsonContent) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateNotes = debounce(
@@ -14,7 +18,7 @@ export const debouncedUpdateNotes = debounce(
     updateNotes,
     createActivity,
   }: DebouncedUpdateNotesProps) => {
-    const notes = serializer();
+    const { json: notes } = serializer();
     if (createActivity) {
       const newActivity = await createActivity(notes);
       if (newActivity) setSaveStatus(true);

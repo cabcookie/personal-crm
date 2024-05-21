@@ -29,7 +29,7 @@ export const meetingSelectionSet = [
   "activities.createdAt",
 ] as const;
 
-type MeetingData = SelectionSet<Schema["Meeting"], typeof meetingSelectionSet>;
+type MeetingData = SelectionSet<Schema["Meeting"]["type"], typeof meetingSelectionSet>;
 
 export const mapMeeting: (data: MeetingData) => Meeting = ({
   id,
@@ -162,7 +162,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
     mutateMeetings(updatedMeetings);
-    return data.id;
+    return data?.id;
   };
 
   useEffect(() => {

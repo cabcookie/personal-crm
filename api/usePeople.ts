@@ -30,7 +30,7 @@ const usePeople = () => {
     const { data, errors } = await client.models.Person.create({ name });
     if (errors) handleApiErrors(errors, "Error creating person");
     mutatePeople(updated);
-    return data.id;
+    return data?.id;
   };
 
   return { people, errorPeople, loadingPeople, createPerson };
