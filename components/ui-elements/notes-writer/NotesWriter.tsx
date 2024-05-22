@@ -79,6 +79,11 @@ const NotesWriter: FC<NotesWriterProps> = ({
 
   useEffect(() => {
     if (!editor) return;
+    if (editor.getText() === "" && notes) editor.commands.setContent(notes);
+  }, [editor, notes]);
+
+  useEffect(() => {
+    if (!editor) return;
     editor.setOptions({
       editorProps: {
         attributes: {
@@ -88,7 +93,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
         },
       },
     });
-  }, [editor, notes]);
+  }, [editor?.getJSON(), notes]);
 
   return (
     <div className={styles.wrapper}>
