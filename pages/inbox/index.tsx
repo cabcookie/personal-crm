@@ -17,7 +17,7 @@ import ProjectSelector from "@/components/ui-elements/project-selector";
 import StatusSelector from "@/components/ui-elements/status-selector/status-selector";
 import ProjectName from "@/components/ui-elements/tokens/project-name";
 import { debounce } from "lodash";
-import { FC, FormEvent, useState } from "react";
+import { FC, useState } from "react";
 import { FaArrowRight } from "react-icons/fa6";
 import { MdDoneOutline } from "react-icons/md";
 import styles from "./Inbox.module.css";
@@ -64,7 +64,7 @@ type InputFieldProps = {
 };
 
 const InboxPage = () => {
-  const [newItem, setNewItem] = useState<EditorJsonContent>({});
+  const [newItem, setNewItem] = useState<EditorJsonContent | string>("");
   const [statusFilter, setStatusFilter] = useState<InboxStatus>("new");
   const {
     inbox,
@@ -224,11 +224,10 @@ const InboxPage = () => {
     );
   };
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = await createInbox(newItem);
+  const onSubmit = async (item: EditorJsonContent) => {
+    const data = await createInbox(item);
     if (!data) return;
-    setNewItem({});
+    setNewItem("");
   };
 
   return (
@@ -242,18 +241,26 @@ const InboxPage = () => {
         <InputField key={item.id} inboxItem={item} />
       ))}
       {statusFilter === "new" && (
-        <form onSubmit={handleSubmit}>
+        <div>
           <ToProcessItem
             title={
               <NotesWriter
                 notes={newItem}
                 saveNotes={(s) => setNewItem(s().json)}
                 placeholder="What's on your mind?"
+                onSubmit={onSubmit}
               />
             }
           />
-          <SubmitButton type="submit">Confirm</SubmitButton>
-        </form>
+          <SubmitButton
+            onClick={() => {
+              if (typeof newItem === "string") return;
+              onSubmit(newItem);
+            }}
+          >
+            Confirm
+          </SubmitButton>
+        </div>
       )}
     </MainLayout>
   );

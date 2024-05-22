@@ -31,7 +31,7 @@ type NotesWriterProps = {
   saveNotes?: (serializer: () => SerializerOutput) => void;
   autoFocus?: boolean;
   placeholder?: string;
-  submitOnEnter?: boolean;
+  onSubmit?: (item: EditorJsonContent) => void;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -39,7 +39,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   saveNotes,
   autoFocus,
   placeholder = "Start taking notes...",
-  // submitOnEnter,
+  onSubmit,
 }) => {
   const editor = useEditor({
     extensions: [
@@ -59,6 +59,15 @@ const NotesWriter: FC<NotesWriterProps> = ({
     editorProps: {
       attributes: {
         class: styles.editor,
+      },
+      handleKeyDown: (view, event) => {
+        if (!onSubmit) return false;
+        if (event.metaKey && event.key === "Enter") {
+          event.preventDefault();
+          onSubmit(view.state.doc.toJSON());
+          return true;
+        }
+        return false;
       },
     },
     content: notes,
