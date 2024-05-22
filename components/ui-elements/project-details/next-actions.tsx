@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode } from "react";
 import NotesWriter, {
   EditorJsonContent,
   SerializerOutput,
@@ -27,13 +27,9 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
   saveFn,
   title,
 }) => {
-  const [saved, setSaved] = useState(true);
-
   const handleNextActionsUpdate = (serializer: () => SerializerOutput) => {
-    setSaved(false);
     debouncedUpdateActions({
       serializer,
-      setSaveStatus: setSaved,
       updateActions: saveFn,
     });
   };
@@ -42,7 +38,6 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
     <RecordDetails title={title}>
       <NotesWriter
         notes={actions}
-        unsaved={!saved}
         saveNotes={handleNextActionsUpdate}
         placeholder="Define next actions..."
       />

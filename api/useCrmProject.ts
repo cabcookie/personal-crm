@@ -1,14 +1,14 @@
 import { type Schema } from "@/amplify/data/resource";
+import { getDayOfDate } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
+import { useProjectsContext } from "./ContextProjects";
+import { handleApiErrors } from "./globals";
 import {
   CrmProject,
   mapCrmProject,
   selectionSetCrmProject,
 } from "./useCrmProjects";
-import { getDayOfDate } from "@/helpers/functional";
-import { handleApiErrors } from "./globals";
-import { useProjectsContext } from "./ContextProjects";
 const client = generateClient<Schema>();
 
 const fetchCrmProject = (projectId?: string) => async () => {
@@ -27,7 +27,6 @@ const useCrmProject = (projectId?: string) => {
     data: crmProject,
     error: errorCrmProject,
     isLoading: loadingCrmProject,
-    mutate,
   } = useSWR(`/api/crm-projects/${projectId}`, fetchCrmProject(projectId));
   const { projects, mutateProjects } = useProjectsContext();
 
@@ -46,7 +45,7 @@ const useCrmProject = (projectId?: string) => {
       return;
     }
     if (!newProject) return;
-    const { data, errors } = await client.models.CrmProjectProjects.create({
+    const { errors } = await client.models.CrmProjectProjects.create({
       projectId: project.projectIds[0],
       crmProjectId: newProject.id,
     });
