@@ -47,22 +47,6 @@ const InboxPage = () => {
 
   return (
     <MainLayout title="Inbox" sectionName="Inbox">
-      <ContextSwitcher context={context} />
-      <div className={styles.spacer} />
-
-      {inbox?.map((item) => (
-        <ToProcessItem
-          key={item.id}
-          title={
-            <WorkFlowItem
-              inboxItemId={item.id}
-              forwardUrl={`/inbox/${item.id}`}
-            />
-          }
-          actionStep={<GrCycle className={listStyles.listItemIcon} />}
-        />
-      ))}
-
       <div>
         <ToProcessItem
           title={
@@ -84,6 +68,23 @@ const InboxPage = () => {
           Confirm
         </SubmitButton>
       </div>
+
+      <div className={styles.spacer} />
+      <ContextSwitcher context={context} />
+      <div className={styles.spacer} />
+
+      {inbox?.map((item) => (
+        <ToProcessItem
+          key={item.id}
+          title={
+            <WorkFlowItem
+              inboxItemId={item.id}
+              forwardUrl={`/inbox/${item.id}`}
+            />
+          }
+          actionStep={<GrCycle className={listStyles.listItemIcon} />}
+        />
+      ))}
     </MainLayout>
   );
 };

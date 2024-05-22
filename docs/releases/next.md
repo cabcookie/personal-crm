@@ -1,3 +1,3 @@
-# UI Optimierung für Notizen Editor (Version :VERSION)
+# Optimierung der Inbox (Version :VERSION)
 
-Der Notizen Editor hat nicht korrekt angezeigt, ob eine Notiz in der Datenbank gespeichert ist. Das ist nun behoben.
+Das Formular ist jetzt ganz oben auf der Seite und die aktuellsten Einträge ebenso.
