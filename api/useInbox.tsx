@@ -69,7 +69,7 @@ const fetchInbox = async () => {
   if (errors) throw errors;
   return data
     .map(mapInbox)
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 };
 
 const useInbox = () => {
