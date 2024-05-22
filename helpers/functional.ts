@@ -21,10 +21,10 @@ export const toLocaleDateString = (date?: Date) =>
         year: "numeric",
       });
 export const toISODateString = (date: Date) => {
-  var year = date.getFullYear();
+  const year = date.getFullYear();
   // Months are zero-based, so we add 1 to get the correct month
-  var month = (date.getMonth() + 1).toString().padStart(2, "0");
-  var day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
 
   return year + "-" + month + "-" + day;
 };
