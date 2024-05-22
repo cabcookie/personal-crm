@@ -6,15 +6,13 @@ import {
 
 type UpdateActionsProps = {
   serializer: () => SerializerOutput;
-  setSaveStatus: (status: boolean) => void;
   updateActions: (actions: EditorJsonContent) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateActions = debounce(
-  async ({ serializer, setSaveStatus, updateActions }: UpdateActionsProps) => {
+  async ({ serializer, updateActions }: UpdateActionsProps) => {
     const { json: actions } = serializer();
-    const data = await updateActions(actions);
-    if (data) setSaveStatus(true);
+    await updateActions(actions);
   },
   1000
 );

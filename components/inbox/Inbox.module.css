@@ -1,0 +1,36 @@
+.spacer {
+  margin-top: 3rem;
+}
+
+.question {
+  font-size: var(--font-size-x-large);
+  display: flex;
+  flex-direction: row;
+  vertical-align: middle;
+  font-weight: bold;
+  color: var(--color-btn);
+  margin-top: -0.6rem;
+  gap: 1rem;
+}
+
+.decisionBtns {
+  font-weight: normal;
+  font-size: var(--font-size-large);
+  display: flex;
+  flex-direction: row;
+  vertical-align: middle;
+  margin-top: -0.4rem;
+  gap: 0.4rem;
+}
+
+.positive {
+  background-color: var(--secondary-button-bg-color);
+}
+
+.negative {
+  background-color: var(--primary-button-bg-color);
+}
+
+.small {
+  font-size: var(--font-size-small);
+}

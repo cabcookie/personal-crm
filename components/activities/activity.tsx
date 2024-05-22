@@ -30,7 +30,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   createActivity,
 }) => {
   const { activity, updateNotes, updateDate } = useActivity(activityId);
-  const [notesSaved, setNotesSaved] = useState(true);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
 
@@ -39,9 +38,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   }, [activity]);
 
   const handleNotesUpdate = (serializer: () => SerializerOutput) => {
-    setNotesSaved(false);
     debouncedUpdateNotes({
-      setSaveStatus: setNotesSaved,
       updateNotes,
       createActivity,
       serializer,
@@ -75,7 +72,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
         <NotesWriter
           notes={activity?.notes}
           saveNotes={handleNotesUpdate}
-          unsaved={!notesSaved}
           autoFocus={autoFocus}
           key={activityId}
         />
