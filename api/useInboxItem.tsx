@@ -76,6 +76,7 @@ const useInboxItem = (itemId?: string) => {
   };
 
   const updateStatus = async (id: string, status: InboxStatus) => {
+    if (inboxItem) mutate({ ...inboxItem, status }, false);
     const { data, errors } = await client.models.Inbox.update({ id, status });
     if (errors) handleApiErrors(errors, "Can't update status");
     if (!data) return;
