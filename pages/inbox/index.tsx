@@ -34,12 +34,15 @@ export const debouncedOnChangeInboxNote = debounce(
 const InboxPage = () => {
   const { context } = useContextContext();
   const [newItem, setNewItem] = useState<EditorJsonContent | string>("");
+  const [newItemKey, setNewItemKey] = useState(crypto.randomUUID());
+
   const { inbox, createInbox } = useInbox();
 
   const onSubmit = async (item: EditorJsonContent) => {
     const data = await createInbox(item);
     if (!data) return;
     setNewItem("");
+    setNewItemKey(crypto.randomUUID());
   };
 
   return (
@@ -64,7 +67,8 @@ const InboxPage = () => {
         <ToProcessItem
           title={
             <NotesWriter
-              notes={newItem}
+              key={newItemKey}
+              notes={""}
               saveNotes={(s) => setNewItem(s().json)}
               placeholder="What's on your mind?"
               onSubmit={onSubmit}

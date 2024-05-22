@@ -80,16 +80,6 @@ const useInbox = () => {
   } = useSWR("/api/inbox", fetchInbox);
 
   const createInbox = async (note: EditorJsonContent) => {
-    const updated: Inbox[] = [
-      ...(inbox || []),
-      {
-        id: crypto.randomUUID(),
-        note,
-        status: "new",
-        createdAt: new Date(),
-      },
-    ];
-    mutate(updated, false);
     const { data, errors } = await client.models.Inbox.create({
       noteJson: JSON.stringify(note),
       note: null,
@@ -97,7 +87,6 @@ const useInbox = () => {
       status: "new",
     });
     if (errors) handleApiErrors(errors, "Error creating inbox item");
-    mutate(updated);
     return data?.id;
   };
 
