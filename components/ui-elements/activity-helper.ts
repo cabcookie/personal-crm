@@ -6,7 +6,6 @@ import {
 
 type DebouncedUpdateNotesProps = {
   serializer: () => SerializerOutput;
-  setSaveStatus: (status: boolean) => void;
   updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
   createActivity?: (notes: EditorJsonContent) => Promise<string | undefined>;
 };
@@ -14,18 +13,12 @@ type DebouncedUpdateNotesProps = {
 export const debouncedUpdateNotes = debounce(
   async ({
     serializer,
-    setSaveStatus,
     updateNotes,
     createActivity,
   }: DebouncedUpdateNotesProps) => {
     const { json: notes } = serializer();
-    if (createActivity) {
-      const newActivity = await createActivity(notes);
-      if (newActivity) setSaveStatus(true);
-      return;
-    }
-    const data = await updateNotes(notes);
-    if (data) setSaveStatus(true);
+    if (createActivity) return await createActivity(notes);
+    await updateNotes(notes);
   },
   1000
 );

@@ -18,7 +18,6 @@ const AccountDetailPage = () => {
     accountId ? getAccountById(accountId) : undefined
   );
   const [accountDetailsSaved, setAccountDetailsSaved] = useState(true);
-  const [introductionSaved, setIntroductionSaved] = useState(true);
 
   useEffect(() => {
     if (accountId) {
@@ -37,18 +36,15 @@ const AccountDetailPage = () => {
     debouncedUpdateAccountDetails({
       id: account.id,
       name: newName,
-      setSaveStatus: setAccountDetailsSaved,
       updateAccountFn: updateAccount,
     });
   };
 
   const handleUpdateIntroduction = (serializer: () => SerializerOutput) => {
     if (!account) return;
-    setIntroductionSaved(false);
     debouncedUpdateAccountDetails({
       id: account.id,
       serializeIntroduction: serializer,
-      setSaveStatus: setIntroductionSaved,
       updateAccountFn: updateAccount,
     });
   };
@@ -71,7 +67,6 @@ const AccountDetailPage = () => {
             <NotesWriter
               notes={account.introduction}
               placeholder="Describe the account..."
-              unsaved={!introductionSaved}
               saveNotes={handleUpdateIntroduction}
             />
           </RecordDetails>

@@ -29,13 +29,11 @@ const debouncedOnChange = debounce(
   async (
     id: string,
     serializer: () => SerializerOutput,
-    updateNote: UpdateInboxFn,
-    setSaved: (status: boolean) => void
+    updateNote: UpdateInboxFn
   ) => {
     const { json: note } = serializer();
     const data = await updateNote(id, note);
     if (!data) return;
-    setSaved(true);
   },
   1500
 );
@@ -85,12 +83,10 @@ const InboxPage = () => {
   const InputField: FC<InputFieldProps> = ({
     inboxItem: { id, note, createdAt },
   }) => {
-    const [saved, setSaved] = useState(true);
     const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
     const handleUpdate = (serializer: () => SerializerOutput) => {
-      setSaved(false);
-      debouncedOnChange(id, serializer, updateNote, setSaved);
+      debouncedOnChange(id, serializer, updateNote);
     };
 
     type ResponderActionAndStatus = {
@@ -164,11 +160,7 @@ const InboxPage = () => {
                 </div>
               </div>
             )}
-            <NotesWriter
-              notes={note}
-              unsaved={!saved}
-              saveNotes={handleUpdate}
-            />
+            <NotesWriter notes={note} saveNotes={handleUpdate} />
           </>
         }
         actionStep={(() => {
@@ -256,7 +248,6 @@ const InboxPage = () => {
               <NotesWriter
                 notes={newItem}
                 saveNotes={(s) => setNewItem(s().json)}
-                unsaved={newItem.length > 3}
                 placeholder="What's on your mind?"
               />
             }

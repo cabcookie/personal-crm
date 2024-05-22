@@ -13,21 +13,18 @@ type UpdateFnProps = {
 type UpdateAccountDetailsProps = UpdateFnProps & {
   serializeIntroduction?: () => SerializerOutput;
   updateAccountFn: (props: UpdateFnProps) => Promise<string | undefined>;
-  setSaveStatus: (status: boolean) => void;
 };
 
 export const debouncedUpdateAccountDetails = debounce(
   async ({
     updateAccountFn,
-    setSaveStatus,
     serializeIntroduction,
     ...props
   }: UpdateAccountDetailsProps) => {
-    const data = await updateAccountFn({
+    await updateAccountFn({
       ...props,
       introduction: serializeIntroduction?.().json,
     });
-    if (data) setSaveStatus(true);
   },
   1500
 );

@@ -4,7 +4,8 @@ import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { FC, useEffect, useState } from "react";
+import { isEqual } from "lodash";
+import { FC, useEffect } from "react";
 import styles from "./NotesWriter.module.css";
 
 export type EditorJsonContent = JSONContent;
@@ -28,7 +29,6 @@ export const transformNotesVersion = ({
 type NotesWriterProps = {
   notes?: EditorJsonContent | string;
   saveNotes?: (serializer: () => SerializerOutput) => void;
-  unsaved?: boolean;
   autoFocus?: boolean;
   placeholder?: string;
   submitOnEnter?: boolean;
@@ -37,14 +37,10 @@ type NotesWriterProps = {
 const NotesWriter: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
-  unsaved,
   autoFocus,
   placeholder = "Start taking notes...",
   // submitOnEnter,
 }) => {
-  const [isSaved, setIsSaved] = useState(!unsaved);
-  const [initialNotes, setInitialNotes] = useState(notes);
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -62,7 +58,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
     autofocus: autoFocus,
     editorProps: {
       attributes: {
-        class: `${styles.editor} ${isSaved ? "" : styles.unsaved}`,
+        class: styles.editor,
       },
     },
     content: notes,
@@ -74,25 +70,16 @@ const NotesWriter: FC<NotesWriterProps> = ({
 
   useEffect(() => {
     if (!editor) return;
-    if (unsaved !== isSaved) return;
     editor.setOptions({
       editorProps: {
         attributes: {
-          class: `${styles.editor} ${unsaved ? styles.unsaved : ""}`,
+          class: `${styles.editor} ${
+            isEqual(notes, editor.getJSON()) ? "" : styles.unsaved
+          }`,
         },
       },
     });
-    setIsSaved(!unsaved);
-  }, [editor, unsaved, isSaved]);
-
-  useEffect(() => {
-    if (!editor) return;
-    if (initialNotes === notes) return;
-    const { from, to } = editor.state.selection;
-    editor.commands.setContent(notes || "");
-    editor.commands.setTextSelection({ from, to });
-    setInitialNotes(notes);
-  }, [editor, notes, initialNotes]);
+  }, [editor, notes]);
 
   return (
     <div className={styles.wrapper}>
