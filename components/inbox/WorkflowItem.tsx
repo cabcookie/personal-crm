@@ -2,11 +2,10 @@ import useInboxItem from "@/api/useInboxItem";
 import { debouncedOnChangeInboxNote } from "@/pages/inbox";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
-import SubmitButton from "../ui-elements/buttons/submit-button";
 import NotesWriter, {
   SerializerOutput,
 } from "../ui-elements/notes-writer/NotesWriter";
-import styles from "./Inbox.module.css";
+import { Button } from "../ui/button";
 import {
   WorkflowStepResponse,
   getPreviousStatusByStatus,
@@ -69,9 +68,9 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({ inboxItemId, forwardUrl }) => {
   ) : (
     <div>
       {inboxItem.status !== "new" && (
-        <SubmitButton btnClassName={styles.small} onClick={goBack}>
+        <Button size="sm" onClick={goBack}>
           Return to previous step
-        </SubmitButton>
+        </Button>
       )}
       {step.component && (
         <step.component

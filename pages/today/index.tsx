@@ -2,7 +2,7 @@ import useDayPlans from "@/api/useDayplans";
 import DayPlanForm from "@/components/dayplan/dayplan-form";
 import Task from "@/components/dayplan/task";
 import MainLayout from "@/components/layouts/MainLayout";
-import SubmitButton from "@/components/ui-elements/buttons/submit-button";
+import { Button } from "@/components/ui/button";
 import { useContextContext } from "@/contexts/ContextContext";
 import { isTodayOrFuture } from "@/helpers/functional";
 import { useState } from "react";
@@ -40,12 +40,9 @@ const TodayPage = () => {
         <div className={styles.migrationWarning}>
           You have {countLegacyTasks} legacy data records. Do you want to
           migrate them to the new format?{" "}
-          <SubmitButton
-            wrapperClassName={styles.warningBtn}
-            onClick={migrateLegacyTasks}
-          >
+          <Button variant="destructive" onClick={migrateLegacyTasks}>
             Yes
-          </SubmitButton>
+          </Button>
         </div>
       )}
 
@@ -73,12 +70,7 @@ const TodayPage = () => {
           <div key={dayplanId}>
             <h2 className={styles.dayGoal}>
               {dayGoal} – {new Date(day).toLocaleDateString()}
-              <SubmitButton
-                onClick={() => completeDayPlan(dayplanId)}
-                wrapperClassName={styles.doneBtn}
-              >
-                Done
-              </SubmitButton>
+              <Button onClick={() => completeDayPlan(dayplanId)}>Done</Button>
             </h2>
 
             <section>

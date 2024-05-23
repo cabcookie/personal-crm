@@ -1,5 +1,5 @@
 import { FC } from "react";
-import SubmitButton from "../ui-elements/buttons/submit-button";
+import { Button } from "../ui/button";
 import styles from "./Inbox.module.css";
 import { WorkflowStepComponentProps } from "./workflow";
 
@@ -12,13 +12,13 @@ const Question: FC<WorkflowStepComponentProps> = ({
     {question}
     <div className={styles.decisionBtns}>
       {responses?.map((response) => (
-        <SubmitButton
+        <Button
           key={response.response}
+          {...response.btnVariant}
           onClick={() => action(response)}
-          btnClassName={response.responseClassName}
         >
           {response.response}
-        </SubmitButton>
+        </Button>
       ))}
     </div>
   </div>

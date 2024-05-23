@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
 import styles from "./CategoryTitle.module.css";
-import SubmitButton from "./ui-elements/buttons/submit-button";
+import { Button } from "./ui/button";
 
 export type CategoryTitleProps = {
   title?: string;
@@ -79,13 +79,13 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
           </h1>
         ))}
       {props.addButton && (
-        <SubmitButton
-          btnClassName={styles.actionBtn}
-          wrapperClassName={styles.action}
+        <Button
+          size="sm"
+          className="absolute flex z-7 -top-1 right-0"
           onClick={props.addButton.onClick}
         >
           {props.addButton.label}
-        </SubmitButton>
+        </Button>
       )}
     </header>
   );

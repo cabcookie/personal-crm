@@ -2,13 +2,13 @@ import useInbox from "@/api/useInbox";
 import WorkFlowItem from "@/components/inbox/WorkflowItem";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
-import SubmitButton from "@/components/ui-elements/buttons/submit-button";
 import listStyles from "@/components/ui-elements/list-items/ListItem.module.css";
 import ToProcessItem from "@/components/ui-elements/list-items/to-process-item";
 import NotesWriter, {
   EditorJsonContent,
   SerializerOutput,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { Button } from "@/components/ui/button";
 import { useContextContext } from "@/contexts/ContextContext";
 import { debounce } from "lodash";
 import { useState } from "react";
@@ -59,14 +59,14 @@ const InboxPage = () => {
             />
           }
         />
-        <SubmitButton
+        <Button
           onClick={() => {
             if (typeof newItem === "string") return;
             onSubmit(newItem);
           }}
         >
           Confirm
-        </SubmitButton>
+        </Button>
       </div>
 
       <div className={styles.spacer} />

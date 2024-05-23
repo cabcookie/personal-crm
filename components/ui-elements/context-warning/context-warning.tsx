@@ -1,6 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { Context, useContextContext } from "@/contexts/ContextContext";
 import { FC } from "react";
-import SubmitButton from "../buttons/submit-button";
 import styles from "./ContextWarning.module.css";
 
 type ContextWarningProps = {
@@ -22,14 +22,14 @@ const ContextWarning: FC<ContextWarningProps> = ({
         switch to the{" "}
         <span className={styles.warning}>{recordContext?.toUpperCase()}</span>
         context?
-        <SubmitButton
+        <Button
           onClick={() => {
             if (!recordContext) return;
             setContext(recordContext);
           }}
         >
           Yes
-        </SubmitButton>
+        </Button>
       </div>
     )
   );

@@ -38,6 +38,18 @@ export const ContextContextProvider: FC<ContextContextProviderProps> = ({
     getContext(setContext, context || "work");
   }, [getContext, context]);
 
+  useEffect(() => {
+    if (!context) return;
+    document.documentElement.style.setProperty(
+      "--context-color",
+      `hsl(var(--context-color-${context}))`
+    );
+    document.documentElement.style.setProperty(
+      "--context-color-hover",
+      `hsl(var(--context-color-${context}-hover))`
+    );
+  }, [context]);
+
   const handleContextChange = (context: Context) => {
     saveContext(context);
     setContext(context);

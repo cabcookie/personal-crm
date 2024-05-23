@@ -1,8 +1,8 @@
 import useMeetings, { Meeting } from "@/api/useMeetings";
 import MainLayout from "@/components/layouts/MainLayout";
 import MeetingRecord from "@/components/meetings/meeting";
-import SubmitButton from "@/components/ui-elements/buttons/submit-button";
 import Pagination from "@/components/ui-elements/pagination/pagination";
+import { Button } from "@/components/ui/button";
 import { useContextContext } from "@/contexts/ContextContext";
 import { addDaysToDate, toLocaleDateString } from "@/helpers/functional";
 import { useRouter } from "next/router";
@@ -52,9 +52,7 @@ export default function MeetingsPage() {
       </div>
 
       {ALLOW_FAKE_DATA_CREATION === "true" && (
-        <SubmitButton onClick={() => console.log("clicked")}>
-          Create Fake Data
-        </SubmitButton>
+        <Button onClick={() => console.log("clicked")}>Create Fake Data</Button>
       )}
       {loadingMeetings && "Loading..."}
       {meetingDates.map((date) => (

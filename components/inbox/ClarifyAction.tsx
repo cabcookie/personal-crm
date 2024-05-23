@@ -1,8 +1,8 @@
 import { FC, useState } from "react";
-import SubmitButton from "../ui-elements/buttons/submit-button";
 import ProjectDetails from "../ui-elements/project-details/project-details";
 import ProjectSelector from "../ui-elements/project-selector";
 import ProjectName from "../ui-elements/tokens/project-name";
+import { Button } from "../ui/button";
 import styles from "./Inbox.module.css";
 import { WorkflowStepComponentProps } from "./workflow";
 
@@ -30,9 +30,9 @@ const ClarifyAction: FC<WorkflowStepComponentProps> = ({
         <div>
           <ProjectName projectId={selectedProject} />
           <ProjectDetails projectId={selectedProject} includeAccounts />
-          <SubmitButton onClick={() => respondProjectSelected(selectedProject)}>
+          <Button onClick={() => respondProjectSelected(selectedProject)}>
             Confirm Changes
-          </SubmitButton>
+          </Button>
         </div>
       )}
       <div className={styles.spacer}>

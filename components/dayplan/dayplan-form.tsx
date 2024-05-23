@@ -1,6 +1,6 @@
 import { FC, FormEvent, useState } from "react";
-import SubmitButton from "../ui-elements/buttons/submit-button";
 import DateSelector from "../ui-elements/date-selector";
+import { Button } from "../ui/button";
 import styles from "./DayPlan.module.css";
 
 type DayPlanFormProps = {
@@ -34,7 +34,7 @@ const DayPlanForm: FC<DayPlanFormProps> = ({ onSubmit }) => {
         </div>
       </form>
       <DateSelector date={date} setDate={setDate} />
-      <SubmitButton onClick={confirm}>Confirm</SubmitButton>
+      <Button onClick={confirm}>Confirm</Button>
     </div>
   );
 };

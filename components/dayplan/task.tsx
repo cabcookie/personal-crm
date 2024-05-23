@@ -2,9 +2,9 @@ import { type Schema } from "@/amplify/data/resource";
 import { DayPlanTodo } from "@/api/useDayplans";
 import { FC, FormEvent, useState } from "react";
 import { IoCheckboxSharp, IoSquareOutline } from "react-icons/io5";
-import SubmitButton from "../ui-elements/buttons/submit-button";
 import ProjectSelector from "../ui-elements/project-selector";
 import ProjectName from "../ui-elements/tokens/project-name";
+import { Button } from "../ui/button";
 import styles from "./Task.module.css";
 
 type TaskProps = {
@@ -69,9 +69,9 @@ const Task: FC<TaskProps> = ({
                   allowCreateProjects
                   onChange={handleProjectChange}
                 />
-                <SubmitButton type="submit" disabled={task === ""}>
+                <Button type="submit" disabled={task === ""}>
                   Create Todo
-                </SubmitButton>
+                </Button>
               </div>
             </form>
           </div>
