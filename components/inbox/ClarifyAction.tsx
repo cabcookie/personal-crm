@@ -29,7 +29,7 @@ const ClarifyAction: FC<WorkflowStepComponentProps> = ({
       {selectedProject && (
         <div>
           <ProjectName projectId={selectedProject} />
-          <ProjectDetails projectId={selectedProject} />
+          <ProjectDetails projectId={selectedProject} includeAccounts />
           <SubmitButton onClick={() => respondProjectSelected(selectedProject)}>
             Confirm Changes
           </SubmitButton>

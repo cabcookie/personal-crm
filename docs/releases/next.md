@@ -1,3 +1,3 @@
-# Optimierung der Inbox (Version :VERSION)
+# Optimierung des Inbox Prozesses (Version :VERSION)
 
-Das Formular ist jetzt ganz oben auf der Seite und die aktuellsten Einträge ebenso.
+In den Projektdetails wird nun auch der Account mit angezeigt. Das ist hilfreich, wenn man ein neues Projekt anlegt, da ich dann direkt auch einen Account damit verlinken kann, ohne erst das Projekt auf einer neuen Seite öffnen zu müssen.
