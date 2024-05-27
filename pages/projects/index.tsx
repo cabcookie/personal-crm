@@ -1,7 +1,7 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import MainLayout from "@/components/layouts/MainLayout";
+import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
 import ProjectDetails from "@/components/ui-elements/project-details/project-details";
-import SelectionSlider from "@/components/ui-elements/selection-slider/selection-slider";
 import ProjectName from "@/components/ui-elements/tokens/project-name";
 import { isTodayOrFuture } from "@/helpers/functional";
 import { useRouter } from "next/router";
@@ -26,10 +26,10 @@ const ProjectListPage = () => {
       addButton={{ label: "New", onClick: createAndOpenNewProject }}
     >
       <div className={styles.filter}>
-        <SelectionSlider
-          valueList={["WIP", "On Hold", "Done"]}
-          value={filter}
-          onChange={setFilter}
+        <ButtonGroup
+          values={["WIP", "On Hold", "Done"]}
+          selectedValue={filter}
+          onSelect={setFilter}
         />
       </div>
       {!projects

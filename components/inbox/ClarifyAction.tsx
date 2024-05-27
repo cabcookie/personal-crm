@@ -22,6 +22,7 @@ const ClarifyAction: FC<WorkflowStepComponentProps> = ({
   return (
     <div>
       <ProjectSelector
+        value={selectedProject || ""}
         placeholder="Select project…"
         onChange={setSelectedProject}
         allowCreateProjects

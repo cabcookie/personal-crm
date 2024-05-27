@@ -55,7 +55,11 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
             <ProjectDetails projectId={id} />
           </div>
         ))}
-        <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
+        <ProjectSelector
+          onChange={handleSelectProject}
+          allowCreateProjects
+          value=""
+        />
       </RecordDetails>
 
       <RecordDetails title="Notes">

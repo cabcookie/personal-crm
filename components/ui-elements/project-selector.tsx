@@ -1,91 +1,53 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
-import { FC, ReactNode, useEffect, useState } from "react";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
-import ProjectName from "./tokens/project-name";
+import { FC } from "react";
+import ComboBox from "../combo-box/combo-box";
 
 type ProjectSelectorProps = {
+  value: string;
   allowCreateProjects?: boolean;
-  clearAfterSelection?: boolean;
   onChange: (projectId: string | null) => void;
   placeholder?: string;
 };
 
-type ProjectListOption = {
-  value: string;
-  label: ReactNode;
-};
-
 const ProjectSelector: FC<ProjectSelectorProps> = ({
   allowCreateProjects,
+  value,
   onChange,
-  clearAfterSelection,
-  placeholder = "Add project…",
+  placeholder = "Search project…",
 }) => {
-  const { projects, createProject, loadingProjects } = useProjectsContext();
-  const [mappedOptions, setMappedOptions] = useState<
-    ProjectListOption[] | undefined
-  >();
-  const [selectedOption, setSelectedOption] = useState<any>(null);
+  const { projects, createProject } = useProjectsContext();
+  const { accounts } = useAccountsContext();
 
-  useEffect(() => {
-    setMappedOptions(
-      projects
-        ?.filter((p) => !p.done)
-        .map((project) => ({
-          value: project.id,
-          label: <ProjectName noLinks projectId={project.id} />,
-        }))
-    );
-  }, [projects]);
-
-  const selectProject = async (selectedOption: any) => {
-    if (!(allowCreateProjects && selectedOption.__isNew__)) {
-      onChange(selectedOption.value);
-      if (clearAfterSelection) setSelectedOption(null);
-      return;
-    }
-    const project = await createProject(selectedOption.label);
+  const onCreate = async (newProjectName: string) => {
+    const project = await createProject(newProjectName);
     if (project) onChange(project.id);
-    if (clearAfterSelection) setSelectedOption(null);
   };
-
-  const filterProjects = (projectId: string, input: string) =>
-    !!projects
-      ?.find(({ id }) => id === projectId)
-      ?.project.toLowerCase()
-      .includes(input.toLowerCase());
 
   return (
     <div>
-      {!allowCreateProjects ? (
-        <Select
-          options={mappedOptions}
-          onChange={selectProject}
-          value={selectedOption}
-          isClearable
-          isSearchable
-          filterOption={(candidate, input) =>
-            filterProjects(candidate.value, input)
-          }
-          placeholder={loadingProjects ? "Loading projects..." : placeholder}
-        />
-      ) : (
-        <CreatableSelect
-          options={mappedOptions}
-          onChange={selectProject}
-          value={selectedOption}
-          isClearable
-          isSearchable
-          filterOption={(candidate, input) =>
-            candidate.data.__isNew__ || filterProjects(candidate.value, input)
-          }
-          placeholder={
-            loadingProjects ? "Loading projects..." : "Add project..."
-          }
-          formatCreateLabel={(input) => `Create "${input}"`}
-        />
-      )}
+      <ComboBox
+        options={projects
+          ?.filter((p) => !p.done)
+          .map((project) => ({
+            value: project.id,
+            label: `${project.project}${
+              project.accountIds && project.accountIds.length > 0
+                ? ` (${project.accountIds
+                    .map(
+                      (accountId) =>
+                        accounts?.find((a) => a.id === accountId)?.name
+                    )
+                    .join(", ")})`
+                : ""
+            }`,
+          }))}
+        currentValue={value}
+        placeholder={placeholder}
+        noSearchResultMsg="No project found."
+        onChange={onChange}
+        onCreate={allowCreateProjects ? onCreate : undefined}
+      />
     </div>
   );
 };

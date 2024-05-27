@@ -1,20 +1,20 @@
 import useMeeting from "@/api/useMeeting";
 import MainLayout from "@/components/layouts/MainLayout";
-import { useRouter } from "next/router";
-import styles from "./Meetings.module.css";
+import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
+import ContextWarning from "@/components/ui-elements/context-warning/context-warning";
 import DateSelector from "@/components/ui-elements/date-selector";
-import PersonName from "@/components/ui-elements/tokens/person-name";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
 import PeopleSelector from "@/components/ui-elements/people-selector";
 import ProjectNotesForm from "@/components/ui-elements/project-notes-form/project-notes-form";
-import { useEffect, useMemo, useState } from "react";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
-import { debounce } from "lodash";
 import RecordDetails from "@/components/ui-elements/record-details/record-details";
-import SelectionSlider from "@/components/ui-elements/selection-slider/selection-slider";
-import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import PersonName from "@/components/ui-elements/tokens/person-name";
 import { Context } from "@/contexts/ContextContext";
-import ContextWarning from "@/components/ui-elements/context-warning/context-warning";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { debounce } from "lodash";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
+import styles from "./Meetings.module.css";
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -119,10 +119,13 @@ const MeetingDetailPage = () => {
           <SavedState saved={allSaved} />
 
           <RecordDetails title="Context">
-            <SelectionSlider
-              valueList={contexts}
-              value={meetingContext}
-              onChange={updateContext}
+            <ButtonGroup
+              values={contexts}
+              selectedValue={meeting.context || "family"}
+              onSelect={(val: string) => {
+                if (!contexts.includes(val as Context)) return;
+                updateContext(val as Context);
+              }}
             />
             <ContextWarning recordContext={meetingContext} />
           </RecordDetails>

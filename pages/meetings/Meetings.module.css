@@ -2,10 +2,6 @@
   margin-top: 3rem;
 }
 
-.date {
-  text-align: center;
-}
-
 .inOneLine {
   display: flex;
   align-items: center;
@@ -13,18 +9,4 @@
 
 .meetingSaved {
   margin-left: 1rem;
-}
-
-.pagination {
-  position: sticky;
-  top: 10.7rem;
-  background-color: var(--color-bg-sheet-transparent);
-  z-index: 20;
-}
-
-@media (max-width: 40em) {
-  .pagination {
-    top: 7.8rem;
-    /* padding-bottom: 1rem; */
-  }
 }

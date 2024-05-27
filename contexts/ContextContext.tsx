@@ -48,6 +48,10 @@ export const ContextContextProvider: FC<ContextContextProviderProps> = ({
       "--context-color-hover",
       `hsl(var(--context-color-${context}-hover))`
     );
+    document.documentElement.style.setProperty(
+      "--logo-filter",
+      `var(--logo-filter-${context})`
+    );
   }, [context]);
 
   const handleContextChange = (context: Context) => {
