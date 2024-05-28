@@ -14,7 +14,6 @@ import { Context } from "@/contexts/ContextContext";
 import { debounce } from "lodash";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
-import styles from "./Meetings.module.css";
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -22,7 +21,6 @@ const MeetingDetailPage = () => {
   const meetingId: string | undefined = Array.isArray(id) ? id[0] : id;
   const {
     meeting,
-    loadingMeeting,
     updateMeeting,
     createMeetingParticipant,
     createMeetingActivity,
@@ -73,7 +71,8 @@ const MeetingDetailPage = () => {
     });
   };
 
-  const addParticipant = async (personId: string) => {
+  const addParticipant = async (personId: string | null) => {
+    if (!personId) return;
     setParticipantsSaved(false);
     const data = await createMeetingParticipant(personId);
     if (data) setParticipantsSaved(true);
@@ -113,8 +112,9 @@ const MeetingDetailPage = () => {
       onTitleChange={() => setDateTitleSaved(false)}
       saveTitle={saveMeetingTitle}
     >
-      {loadingMeeting && "Loading meeting..."}
-      {meeting && (
+      {!meeting ? (
+        "Load meeting..."
+      ) : (
         <div>
           <SavedState saved={allSaved} />
 
@@ -143,11 +143,7 @@ const MeetingDetailPage = () => {
               <PersonName key={id} personId={id} />
             ))}
             <SavedState saved={participantsSaved} />
-            <PeopleSelector
-              onChange={addParticipant}
-              clearAfterSelection
-              allowNewPerson
-            />
+            <PeopleSelector value="" onChange={addParticipant} allowNewPerson />
           </RecordDetails>
 
           {[
@@ -157,7 +153,7 @@ const MeetingDetailPage = () => {
             <ProjectNotesForm
               key={id}
               activityId={id}
-              className={styles.projectNote}
+              className="mt-12"
               createActivity={
                 id === newActivityId ? saveNewActivity : undefined
               }

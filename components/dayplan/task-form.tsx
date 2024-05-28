@@ -66,13 +66,18 @@ const TaskForm: FC<TaskFormProps> = ({ createTodo }) => {
           control={form.control}
           name="projectId"
           render={({ field }) => (
-            <ProjectSelector
-              value={field.value}
-              onChange={(projectId: string | null) =>
-                projectId && form.setValue("projectId", projectId)
-              }
-              allowCreateProjects
-            />
+            <FormItem>
+              <FormControl>
+                <ProjectSelector
+                  value={field.value}
+                  onChange={(projectId: string | null) =>
+                    projectId && form.setValue("projectId", projectId)
+                  }
+                  allowCreateProjects
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
         />
         <Button type="submit">Add task</Button>

@@ -25,30 +25,28 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
   };
 
   return (
-    <div>
-      <ComboBox
-        options={projects
-          ?.filter((p) => !p.done)
-          .map((project) => ({
-            value: project.id,
-            label: `${project.project}${
-              project.accountIds && project.accountIds.length > 0
-                ? ` (${project.accountIds
-                    .map(
-                      (accountId) =>
-                        accounts?.find((a) => a.id === accountId)?.name
-                    )
-                    .join(", ")})`
-                : ""
-            }`,
-          }))}
-        currentValue={value}
-        placeholder={placeholder}
-        noSearchResultMsg="No project found."
-        onChange={onChange}
-        onCreate={allowCreateProjects ? onCreate : undefined}
-      />
-    </div>
+    <ComboBox
+      options={projects
+        ?.filter((p) => !p.done)
+        .map((project) => ({
+          value: project.id,
+          label: `${project.project}${
+            project.accountIds && project.accountIds.length > 0
+              ? ` (${project.accountIds
+                  .map(
+                    (accountId) =>
+                      accounts?.find((a) => a.id === accountId)?.name
+                  )
+                  .join(", ")})`
+              : ""
+          }`,
+        }))}
+      currentValue={value}
+      placeholder={placeholder}
+      noSearchResultMsg="No project found."
+      onChange={onChange}
+      onCreate={allowCreateProjects ? onCreate : undefined}
+    />
   );
 };
 

@@ -1,63 +1,37 @@
 import usePeople from "@/api/usePeople";
-import { FC, useState } from "react";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
+import { FC } from "react";
+import ComboBox from "../combo-box/combo-box";
 
 type PeopleSelectorProps = {
-  onChange: (personId: string) => void;
-  clearAfterSelection?: boolean;
+  value: string;
+  onChange: (personId: string | null) => void;
   allowNewPerson?: boolean;
 };
 
 const PeopleSelector: FC<PeopleSelectorProps> = ({
+  value,
   onChange,
-  clearAfterSelection,
   allowNewPerson,
 }) => {
   const { people, createPerson } = usePeople();
-  const [selectedOption, setSelectedOption] = useState<any>(null);
 
-  const mapOptions = () =>
-    people?.map((person) => ({
-      value: person.id,
-      label: person.name,
-    }));
-
-  const selectPerson = async (selectedOption: any) => {
-    if (!(allowNewPerson && selectedOption.__isNew__)) {
-      onChange(selectedOption.value as string);
-      if (clearAfterSelection) setSelectedOption(null);
-      return;
-    }
-    const personId = await createPerson(selectedOption.label);
-    if (!personId) return;
-    onChange(personId);
-    if (clearAfterSelection) setSelectedOption(null);
+  const onCreate = async (newPersonName: string) => {
+    const person = await createPerson(newPersonName);
+    if (person) onChange(person);
   };
 
   return (
-    <div>
-      {!allowNewPerson ? (
-        <Select
-          options={mapOptions()}
-          onChange={selectPerson}
-          isClearable
-          isSearchable
-          placeholder="Add person..."
-          value={selectedOption}
-        />
-      ) : (
-        <CreatableSelect
-          options={mapOptions()}
-          onChange={selectPerson}
-          isClearable
-          isSearchable
-          placeholder="Add person..."
-          value={selectedOption}
-          formatCreateLabel={(inputValue) => `Create "${inputValue}"`}
-        />
-      )}
-    </div>
+    <ComboBox
+      currentValue={value}
+      placeholder="Search person…"
+      noSearchResultMsg="No person found."
+      onChange={onChange}
+      onCreate={allowNewPerson ? onCreate : undefined}
+      options={people?.map(({ id, name }) => ({
+        value: id,
+        label: name,
+      }))}
+    />
   );
 };
 export default PeopleSelector;

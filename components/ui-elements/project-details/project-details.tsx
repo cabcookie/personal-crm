@@ -98,6 +98,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
               ))}
             </div>
             <AccountSelector
+              value=""
               allowCreateAccounts
               onChange={handleSelectAccount}
             />
