@@ -1,16 +1,15 @@
 import useActivity from "@/api/useActivity";
 import { FC, useEffect, useState } from "react";
-import { debouncedUpdateNotes } from "../ui-elements/activity-helper";
-import ActivityMetaData from "../ui-elements/activity-meta-data";
-import DateSelector from "../ui-elements/date-selector";
 import NotesWriter, {
   EditorJsonContent,
   SerializerOutput,
 } from "../ui-elements/notes-writer/NotesWriter";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
-import RecordDetails from "../ui-elements/record-details/record-details";
+import DateSelector from "../ui-elements/selectors/date-selector";
 import MeetingName from "../ui-elements/tokens/meeting-name";
 import ProjectName from "../ui-elements/tokens/project-name";
+import { debouncedUpdateNotes, debounedUpdateDate } from "./activity-helper";
+import ActivityMetaData from "./activity-meta-data";
 
 type ActivityComponentProps = {
   activityId: string;
@@ -48,38 +47,53 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   const handleDateUpdate = async (date: Date) => {
     setDateSaved(false);
     setDate(date);
-    const data = await updateDate(date);
-    if (data) setDateSaved(true);
+    debounedUpdateDate({
+      updateDate: () => updateDate(date),
+      setSaveStatus: setDateSaved,
+    });
   };
 
   return (
-    <div style={{ marginBottom: "2rem" }}>
+    <div className="pb-8">
       {showDates && (
-        <h2>
-          <DateSelector date={date} setDate={handleDateUpdate} selectHours />
+        <h1 className="flex flex-row gap-2  sticky top-[7rem] md:top-[8rem] bg-bgTransparent z-[20] pb-2">
+          <DateSelector
+            date={date}
+            setDate={handleDateUpdate}
+            selectHours
+            bold
+          />
           <SavedState saved={dateSaved} />
-        </h2>
-      )}
-      {showProjects &&
-        activity?.projectIds.map((id) => (
-          <ProjectName key={id} projectId={id} />
-        ))}
-      {showMeeting && activity?.meetingId && (
-        <MeetingName meetingId={activity.meetingId} />
+        </h1>
       )}
 
-      <RecordDetails title="Notes">
+      {showProjects && (
+        <div className="flex flex-row gap-2 sticky top-[14rem] md:top-[15rem] bg-bgTransparent z-[20] pb-2">
+          On:
+          {activity?.projectIds.map((id) => (
+            <ProjectName key={id} projectId={id} />
+          ))}
+        </div>
+      )}
+
+      {showMeeting && activity?.meetingId && (
+        <div className="flex flex-row gap-2 sticky top-[10rem] md:top-[11rem] bg-bgTransparent z-[20] pb-2">
+          At:
+          <MeetingName meetingId={activity.meetingId} />
+        </div>
+      )}
+
+      <div>
+        <h4 className="font-semibold tracking-tight">Notes:</h4>
         <NotesWriter
           notes={activity?.notes}
           saveNotes={handleNotesUpdate}
           autoFocus={autoFocus}
           key={activityId}
         />
-      </RecordDetails>
-
-      <div style={{ padding: "0.3rem 1rem" }}>
-        <ActivityMetaData activity={activity} />
       </div>
+
+      <ActivityMetaData activity={activity} />
     </div>
   );
 };

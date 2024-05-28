@@ -3,6 +3,13 @@ export const getCurrentDate = () => new Date();
 export const makeDate = (str: string) => new Date(str);
 export const addDaysToDate = (days: number) => (date: Date) =>
   new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+export const toLocaleTimeString = (date?: Date) =>
+  !date
+    ? ""
+    : date.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 export const toLocaleDateTimeString = (date?: Date) =>
   !date
     ? ""

@@ -1,6 +1,6 @@
-import { FC } from "react";
 import { Meeting } from "@/api/useMeetings";
-import styles from "./Meeting.module.css";
+import { toLocaleTimeString } from "@/helpers/functional";
+import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import PersonName from "../ui-elements/tokens/person-name";
 
@@ -10,32 +10,37 @@ type MeetingRecordProps = {
 
 const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => (
   <div>
-    <h2>
-      <a href={`/meetings/${meeting.id}`} className={styles.title}>
-        {meeting.meetingOn.toLocaleTimeString(undefined, {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}{" "}
-        – {meeting.topic}
-        <small style={{ color: "gray" }}>
-          {" "}
-          {(meeting.context || "none").toUpperCase()}
+    <h2 className="md:text-lg font-bold tracking-tight bg-bgTransparent sticky top-[12rem] md:top-[13rem] z-[25] pb-2">
+      <a href={`/meetings/${meeting.id}`} className="hover:underline">
+        {toLocaleTimeString(meeting.meetingOn)} – {meeting.topic}
+        <small className="text-muted-foreground uppercase ml-2">
+          {meeting.context || "none"}
         </small>
       </a>
     </h2>
+
+    {meeting.participantIds.length > 0 && (
+      <div className="flex flex-row gap-4 pb-2">
+        Attendees:
+        {meeting.participantIds.map((personId) => (
+          <PersonName
+            className="font-semibold"
+            key={personId}
+            personId={personId}
+          />
+        ))}
+      </div>
+    )}
+
     <div>
-      {meeting.participantIds.length > 0 && "Attendees: "}
-      {meeting.participantIds.map((personId) => (
-        <PersonName key={personId} personId={personId} />
-      ))}
-      {meeting.activityIds.length > 0 && <h3>Meeting notes:</h3>}
-      {meeting.activityIds.map((activityId) => (
-        <ActivityComponent
-          key={activityId}
-          activityId={activityId}
-          showProjects
-        />
-      ))}
+      {meeting.activityIds.length > 0 &&
+        meeting.activityIds.map((activityId) => (
+          <ActivityComponent
+            key={activityId}
+            activityId={activityId}
+            showProjects
+          />
+        ))}
     </div>
   </div>
 );

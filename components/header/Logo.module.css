@@ -1,41 +1,10 @@
-.logoNameWrapper {
-  display: flex;
-  align-items: center;
-}
-
 .logoIcon {
-  width: 5rem;
-  height: 5rem;
-  display: block;
-  background: url("/images/app-logo-transparent.png") no-repeat center/5rem;
+  background: url("/images/app-logo-transparent.png") no-repeat center/3rem;
   filter: var(--logo-filter);
 }
 
-.appName {
-  display: flex;
-  align-items: center;
-  width: auto;
-  color: var(--color-text-secondary);
-  font-weight: 1000;
-  font-size: var(--font-size-x-large);
-  text-transform: uppercase;
-  margin-right: 1rem;
-}
-
-@media (max-width: 39.999em) {
+@media (min-width: 768px) {
   .logoIcon {
-    width: 4rem;
-    height: 4rem;
-    background: url("/images/app-logo-transparent.png") no-repeat center/4rem;
-  }
-
-  .appName {
-    font-size: var(--font-size-large);
-  }
-}
-
-@media (max-width: 29.999em) {
-  .appName {
-    display: none;
+    background-size: 4rem;
   }
 }

@@ -1,23 +1,26 @@
-import { FC } from "react";
-import styles from "./Tokens.module.css";
 import usePerson from "@/api/usePerson";
+import { FC } from "react";
 
 type PersonNameProps = {
   personId: string;
   noLinks?: boolean;
+  className?: string;
 };
 
-const PersonName: FC<PersonNameProps> = ({ personId, noLinks }) => {
-  const { person, loadingPerson } = usePerson(personId);
-  return (
-    !loadingPerson &&
-    (noLinks ? (
-      <span className={styles.personName}>{person?.name}</span>
-    ) : (
-      <a href={`/people/${personId}`} className={styles.personName}>
-        {person?.name}
-      </a>
-    ))
+const PersonName: FC<PersonNameProps> = ({ personId, noLinks, className }) => {
+  const { person } = usePerson(personId);
+  return !person ? (
+    "…"
+  ) : (
+    <div className={className}>
+      {noLinks ? (
+        person.name
+      ) : (
+        <a href={`/people/${personId}`} className="hover:underline">
+          {person.name}
+        </a>
+      )}
+    </div>
   );
 };
 export default PersonName;

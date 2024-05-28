@@ -1,6 +1,5 @@
 import { FC } from "react";
-import SubmitButton from "../ui-elements/buttons/submit-button";
-import styles from "./Inbox.module.css";
+import { Button } from "../ui/button";
 import { WorkflowStepComponentProps } from "./workflow";
 
 const Question: FC<WorkflowStepComponentProps> = ({
@@ -8,17 +7,17 @@ const Question: FC<WorkflowStepComponentProps> = ({
   responses,
   action,
 }) => (
-  <div className={styles.question}>
+  <div className="flex flex-row align-middle font-bold gap-4">
     {question}
-    <div className={styles.decisionBtns}>
+    <div className="font-normal flex flex-row align-middle gap-2">
       {responses?.map((response) => (
-        <SubmitButton
+        <Button
           key={response.response}
+          {...response.btnVariant}
           onClick={() => action(response)}
-          btnClassName={response.responseClassName}
         >
           {response.response}
-        </SubmitButton>
+        </Button>
       ))}
     </div>
   </div>

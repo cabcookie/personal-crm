@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Context } from "@/contexts/ContextContext";
-import { sortByDate } from "@/helpers/functional";
+import { toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
@@ -33,7 +33,7 @@ export type DayPlanTodo = {
 
 type DayPlan = {
   id: string;
-  day: string;
+  day: Date;
   dayGoal: string;
   context: Context;
   done: boolean;
@@ -81,7 +81,7 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
   todos,
 }) => ({
   id,
-  day,
+  day: new Date(day),
   dayGoal,
   context: context || "work",
   done: !!done,
@@ -140,7 +140,7 @@ const fetchDayPlans = (context?: Context) => async () => {
   if (!context) return;
   return (await fetchDayPlansWithToken(context))
     ?.map(mapDayPlan)
-    .sort((a, b) => sortByDate(true)([a.day, b.day]));
+    .sort((a, b) => b.day.getTime() - a.day.getTime());
 };
 
 export type CreateTodoFn = (props: {
@@ -244,7 +244,7 @@ const useDayPlans = (context?: Context) => {
   };
 
   const createDayPlan = async (
-    day: string,
+    day: Date,
     dayGoal: string,
     context?: Context
   ) => {
@@ -261,7 +261,7 @@ const useDayPlans = (context?: Context) => {
     };
     mutate([newDayPlan, ...(dayPlans || [])], false);
     const { data, errors } = await client.models.DayPlan.create({
-      day,
+      day: toISODateString(day),
       dayGoal,
       done: false,
       context,
@@ -271,15 +271,42 @@ const useDayPlans = (context?: Context) => {
     mutate([{ ...newDayPlan, id: data.id }, ...(dayPlans || [])]);
   };
 
+  const undoDayplanCompletion = async (dayplan: Schema["DayPlan"]["type"]) => {
+    const updatedDayPlans: DayPlan[] = [
+      ...(dayPlans?.filter(({ id }) => id !== dayplan.id) || []),
+      {
+        id: dayplan.id,
+        context: dayplan.context,
+        day: new Date(dayplan.day),
+        dayGoal: dayplan.dayGoal,
+        done: false,
+        nonprojectTasks: [],
+        projectTasks: [],
+        todos: [],
+      },
+    ];
+    mutate(updatedDayPlans, false);
+    const { data, errors } = await client.models.DayPlan.update({
+      id: dayplan.id,
+      done: false,
+    });
+    if (errors) handleApiErrors(errors, "Error undoing completion of day plan");
+    if (!data) return;
+    mutate(updatedDayPlans);
+    return data;
+  };
+
   const completeDayPlan = async (dayPlanId: string) => {
     const updatedDayPlans = dayPlans?.filter(({ id }) => id !== dayPlanId);
     mutate(updatedDayPlans, false);
-    const { errors } = await client.models.DayPlan.update({
+    const { data, errors } = await client.models.DayPlan.update({
       id: dayPlanId,
       done: true,
     });
     if (errors) handleApiErrors(errors, "Error completing day plan");
+    if (!data) return;
     mutate(updatedDayPlans);
+    return data;
   };
 
   const createTodo: CreateTodoFn = async ({ todo, dayplanId, projectId }) => {
@@ -330,6 +357,7 @@ const useDayPlans = (context?: Context) => {
     loadingDayPlans,
     createDayPlan,
     completeDayPlan,
+    undoDayplanCompletion,
     createTodo,
     switchTodoDone,
     migrateLegacyTasks,

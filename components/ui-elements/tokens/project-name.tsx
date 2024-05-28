@@ -1,8 +1,7 @@
-import AccountName from "./account-name";
-import { FC, useEffect, useState } from "react";
-import styles from "./Tokens.module.css";
 import { useProjectsContext } from "@/api/ContextProjects";
+import { FC, useEffect, useState } from "react";
 import { IoCheckboxSharp } from "react-icons/io5";
+import AccountName from "./account-name";
 
 type ProjectNameProps = {
   projectId: string;
@@ -17,39 +16,23 @@ const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
     setProject(getProjectById(projectId));
   }, [getProjectById, projectId]);
 
-  return (
+  return !project ? (
+    "Loading…"
+  ) : (
     <div>
+      {project.done && <IoCheckboxSharp className="mt-1" />}
       {noLinks ? (
-        <div className={styles.projectName}>
-          {project?.done && <IoCheckboxSharp className={styles.projectDone} />}
-          {!project ? "..." : project.project}
-          <small style={{ color: "gray" }}>
-            {" "}
-            {(project?.context || "none").toUpperCase()}
-          </small>
-        </div>
+        project.project
       ) : (
-        <a href={`/projects/${projectId}`} className={styles.projectName}>
-          {project?.done && <IoCheckboxSharp className={styles.projectDone} />}
+        <a href={`/projects/${projectId}`} className="hover:underline">
           {!project ? "..." : project.project}
-          <small style={{ color: "gray" }}>
-            {" "}
-            {(project?.context || "none").toUpperCase()}
-          </small>
         </a>
       )}
-      <div>
-        {project?.accountIds.map(
-          (accountId) =>
-            accountId && (
-              <AccountName
-                noLinks={noLinks}
-                key={accountId}
-                accountId={accountId}
-              />
-            )
-        )}
-      </div>
+      {project.accountIds.map((accountId) => (
+        <small key={accountId} className="mt-[0.1rem] uppercase">
+          <AccountName accountId={accountId} noLinks={noLinks} />
+        </small>
+      ))}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
@@ -82,17 +83,10 @@ const NotesWriter: FC<NotesWriterProps> = ({
         placeholder,
       }),
       Highlight,
-      Link.configure({
-        HTMLAttributes: {
-          class: styles.link,
-        },
-      }),
+      Link,
     ],
     autofocus: autoFocus,
     editorProps: {
-      attributes: {
-        class: styles.editor,
-      },
       handleKeyDown: (view, event) => {
         if (!onSubmit) return false;
         if (event.metaKey && event.key === "Enter") {
@@ -120,19 +114,17 @@ const NotesWriter: FC<NotesWriterProps> = ({
     editor.setOptions({
       editorProps: {
         attributes: {
-          class: `${styles.editor} ${
-            isUpToDate(notes, editor.getJSON()) ? "" : styles.unsaved
-          }`,
+          class: cn(
+            "prose w-full max-w-full text-notesEditor rounded-md -mx-2 p-2 bg-inherit transition duration-1000 ease",
+            !isUpToDate(notes, editor.getJSON()) && "bg-destructive/10"
+          ),
         },
       },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.getJSON(), notes]);
 
-  return (
-    <div className={styles.wrapper}>
-      <EditorContent editor={editor} />
-    </div>
-  );
+  return <EditorContent editor={editor} />;
 };
 
 export default NotesWriter;

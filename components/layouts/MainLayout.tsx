@@ -1,18 +1,16 @@
-import Head from "next/head";
-import { FC, ReactNode, useEffect, useRef } from "react";
-import contextStyles from "./ContextColors.module.css";
-import styles from "./MainLayout.module.css";
-import { Context, useContextContext } from "@/contexts/ContextContext";
 import CategoryTitle, { CategoryTitleProps } from "@/components/CategoryTitle";
 import Header from "@/components/header/Header";
-import { useRouter } from "next/router";
-import { addKeyDownListener } from "@/helpers/keyboard-events/main-layout";
 import NavigationMenu from "@/components/navigation-menu/NavigationMenu";
+import { Context, useContextContext } from "@/contexts/ContextContext";
 import {
   NavMenuContextProvider,
   useNavMenuContext,
 } from "@/contexts/NavMenuContext";
-import { addOutsideMenuClickListener } from "@/helpers/mouse-events/navigation";
+import { addKeyDownListener } from "@/helpers/keyboard-events/main-layout";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { FC, ReactNode, useEffect } from "react";
+import { Toaster } from "../ui/toaster";
 
 type MainLayoutProps = CategoryTitleProps & {
   context?: Context;
@@ -28,16 +26,14 @@ export const MainLayoutInner: FC<MainLayoutProps> = ({
   context: propsContext,
   ...categoryTitleProps
 }) => {
-  const { menuIsOpen, toggleMenu } = useNavMenuContext();
+  const { toggleMenu } = useNavMenuContext();
   const { context: storedContext, setContext } = useContextContext();
   const context = propsContext || storedContext || "family";
   const router = useRouter();
-  const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => addKeyDownListener(router, setContext), [router, setContext]);
   useEffect(
-    () => addOutsideMenuClickListener(menuRef, menuIsOpen, toggleMenu),
-    [menuIsOpen, toggleMenu]
+    () => addKeyDownListener(router, setContext, toggleMenu),
+    [router, setContext, toggleMenu]
   );
 
   return (
@@ -47,25 +43,20 @@ export const MainLayoutInner: FC<MainLayoutProps> = ({
           recordName ? `- ${recordName}` : ""
         } · ${sectionName}`}</title>
       </Head>
-      <div className={context ? contextStyles[`${context}ColorScheme`] : ""}>
+      <div className="flex flex-col items-center justify-center w-full">
         <Header context={context} />
-        <div
-          className={`${styles.navMenu} ${menuIsOpen ? styles.menuIsOpen : ""}`}
-        >
-          <NavigationMenu context={context} ref={menuRef} />
-        </div>
-        <main
-          className={`${styles.page} ${menuIsOpen ? styles.blurContent : ""}`}
-        >
-          <div className={styles.pageContent}>
-            <div className={styles.sheet}>
-              <div className={styles.categoryWrapper}>
+        <NavigationMenu />
+        <main className="w-full xl:w-[64rem]">
+          <div className="flex flex-col pb-0">
+            <div className="px-3 md:px-8 lg:px-16">
+              <div className="relative flex flex-col flex-1">
                 <CategoryTitle {...(categoryTitleProps || {})} />
-                <div className={styles.categoryContent}>{children}</div>
+                <div className="flex flex-col flex-1 relative">{children}</div>
               </div>
             </div>
           </div>
         </main>
+        <Toaster />
       </div>
     </div>
   );

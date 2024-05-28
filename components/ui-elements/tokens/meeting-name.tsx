@@ -1,6 +1,5 @@
-import { FC } from "react";
-import styles from "./Tokens.module.css";
 import useMeeting from "@/api/useMeeting";
+import { FC } from "react";
 import PersonName from "./person-name";
 
 type MeetingNameProps = {
@@ -30,25 +29,26 @@ const NameAndDate: FC<{ topic: string; meetingOn: Date }> = ({
 const MeetingName: FC<MeetingNameProps> = ({ meetingId, noLinks }) => {
   const { meeting } = useMeeting(meetingId);
 
-  return (
-    meeting && (
-      <div>
-        {noLinks ? (
-          <div className={styles.meetingName}>
-            <NameAndDate topic={meeting.topic} meetingOn={meeting.meetingOn} />
-          </div>
-        ) : (
-          <a href={`/meetings/${meetingId}`} className={styles.meetingName}>
-            <NameAndDate topic={meeting.topic} meetingOn={meeting.meetingOn} />
-          </a>
-        )}
-        <div>
+  return !meeting ? (
+    "…"
+  ) : (
+    <div>
+      {noLinks ? (
+        <NameAndDate topic={meeting.topic} meetingOn={meeting.meetingOn} />
+      ) : (
+        <a href={`/meetings/${meeting.id}`} className="hover:underline">
+          <NameAndDate topic={meeting.topic} meetingOn={meeting.meetingOn} />
+        </a>
+      )}
+      {meeting.participantIds.length > 0 && (
+        <div className="flex flex-row gap-2">
+          with:
           {meeting.participantIds.map((personId) => (
             <PersonName key={personId} personId={personId} noLinks={noLinks} />
           ))}
         </div>
-      </div>
-    )
+      )}
+    </div>
   );
 };
 
