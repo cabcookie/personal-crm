@@ -59,7 +59,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   return (
     <div className="pb-8">
       {showDates && (
-        <h2 className="flex flex-row gap-2  sticky top-[7rem] md:top-[8rem] bg-bgTransparent z-[20] pb-2">
+        <h1 className="flex flex-row gap-2  sticky top-[7rem] md:top-[8rem] bg-bgTransparent z-[20] pb-2">
           <DateSelector
             date={date}
             setDate={handleDateUpdate}
@@ -67,7 +67,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
             bold
           />
           <SavedState saved={dateSaved} />
-        </h2>
+        </h1>
       )}
 
       {showProjects && (

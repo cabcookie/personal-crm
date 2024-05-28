@@ -76,14 +76,14 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
                 className="border-none outline-none w-full overflow-hidden resize-none textarea-bottom-line"
               />
             ) : (
-              <h1
+              <div
                 className={
                   props.saveTitle && "cursor-pointer hover:border-b-2 mb-1"
                 }
                 onClick={() => (props.saveTitle ? setIsEditing(true) : null)}
               >
                 {title}
-              </h1>
+              </div>
             )}
           </div>
         )}

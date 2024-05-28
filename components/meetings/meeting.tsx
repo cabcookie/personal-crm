@@ -10,14 +10,14 @@ type MeetingRecordProps = {
 
 const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => (
   <div>
-    <h3 className="md:text-lg font-bold tracking-tight bg-bgTransparent sticky top-[12rem] md:top-[13rem] z-[25] pb-2">
+    <h2 className="md:text-lg font-bold tracking-tight bg-bgTransparent sticky top-[12rem] md:top-[13rem] z-[25] pb-2">
       <a href={`/meetings/${meeting.id}`} className="hover:underline">
         {toLocaleTimeString(meeting.meetingOn)} – {meeting.topic}
         <small className="text-muted-foreground uppercase ml-2">
           {meeting.context || "none"}
         </small>
       </a>
-    </h3>
+    </h2>
 
     {meeting.participantIds.length > 0 && (
       <div className="flex flex-row gap-4 pb-2">

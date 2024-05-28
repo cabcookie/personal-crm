@@ -65,9 +65,9 @@ export default function MeetingsPage() {
         ? "Loading meetings…"
         : meetingDates.map((date) => (
             <div key={date.toLocaleDateString()}>
-              <h2 className="text-center text-lg md:text-xl font-bold bg-bgTransparent sticky top-[10rem] md:top-[11rem] z-30 tracking-tight pb-1">
+              <h1 className="text-center text-lg md:text-xl font-bold bg-bgTransparent sticky top-[10rem] md:top-[11rem] z-30 tracking-tight pb-1">
                 {date.toLocaleDateString()}
-              </h2>
+              </h1>
               {meetings
                 ?.filter(
                   ({ meetingOn }) =>

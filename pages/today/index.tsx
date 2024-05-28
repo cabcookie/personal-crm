@@ -124,9 +124,9 @@ const TodayPage = () => {
                 <IoSquareOutline
                   onClick={() => handleCompleteDayPlan(dayplanId)}
                 />
-                <h2 className="font-bold">
+                <h1 className="font-bold">
                   {dayGoal} – {day.toLocaleDateString()}
-                </h2>
+                </h1>
               </div>
 
               <section className="mt-1">

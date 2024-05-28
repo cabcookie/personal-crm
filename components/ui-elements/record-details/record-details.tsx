@@ -1,5 +1,5 @@
+import { cn } from "@/lib/utils";
 import { FC, ReactNode } from "react";
-import styles from "./RecordDetails.module.css";
 
 type RecordDetailsProps = {
   className?: string;
@@ -15,11 +15,16 @@ const RecordDetails: FC<RecordDetailsProps> = ({
   contentClassName,
 }) => {
   return (
-    <div className={`${title !== "" && styles.infoBox} ${className}`}>
-      {title && <h3 className={styles.title}>{title}</h3>}
-      <div className={contentClassName || styles.contentContainer}>
-        {children}
-      </div>
+    <div
+      className={cn(
+        title !== "" && "w-full border-solid border rounded-md mb-4",
+        className
+      )}
+    >
+      {title && (
+        <h3 className="mx-4 mt-4 font-semibold tracking-tight">{title}</h3>
+      )}
+      <div className={contentClassName || "p-4"}>{children}</div>
     </div>
   );
 };

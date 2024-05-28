@@ -90,6 +90,20 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           </RecordDetails>
         )}
 
+        {includeAccounts && (
+          <RecordDetails title="Accounts">
+            <div className="flex flex-row gap-4">
+              {project.accountIds.map((accountId) => (
+                <AccountName key={accountId} accountId={accountId} />
+              ))}
+            </div>
+            <AccountSelector
+              allowCreateAccounts
+              onChange={handleSelectAccount}
+            />
+          </RecordDetails>
+        )}
+
         {(!showCrmDetails
           ? project.crmProjectIds
           : [
@@ -104,18 +118,6 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             crmProjectDetails={showCrmDetails}
           />
         ))}
-
-        {includeAccounts && (
-          <RecordDetails title="Accounts">
-            {project.accountIds.map((accountId) => (
-              <AccountName key={accountId} accountId={accountId} />
-            ))}
-            <AccountSelector
-              allowCreateAccounts
-              onChange={handleSelectAccount}
-            />
-          </RecordDetails>
-        )}
 
         <RecordDetails>
           <ProjectDates project={project} updateDatesFn={handleDateChange} />

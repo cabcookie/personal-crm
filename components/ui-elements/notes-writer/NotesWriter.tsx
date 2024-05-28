@@ -87,9 +87,6 @@ const NotesWriter: FC<NotesWriterProps> = ({
     ],
     autofocus: autoFocus,
     editorProps: {
-      attributes: {
-        class: "prose prose-base",
-      },
       handleKeyDown: (view, event) => {
         if (!onSubmit) return false;
         if (event.metaKey && event.key === "Enter") {

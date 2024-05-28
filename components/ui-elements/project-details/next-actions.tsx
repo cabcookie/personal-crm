@@ -4,7 +4,6 @@ import NotesWriter, {
   SerializerOutput,
 } from "../notes-writer/NotesWriter";
 import RecordDetails from "../record-details/record-details";
-import styles from "./ProjectDetails.module.css";
 import { debouncedUpdateActions } from "./project-updates-helpers";
 
 type NextActionsProps = {
@@ -47,7 +46,7 @@ const NextActionHelper: FC<NextActionHelperProps> = ({
 
 const NextActions: FC<NextActionsProps> = ({ own, others, saveFn }) => {
   return (
-    <div className={styles.oneRow}>
+    <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">
       <NextActionHelper
         title="My next actions"
         actions={own}

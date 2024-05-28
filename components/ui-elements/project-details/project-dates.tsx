@@ -1,6 +1,5 @@
-import { FC } from "react";
-import styles from "./ProjectDetails.module.css";
 import { Project } from "@/api/ContextProjects";
+import { FC } from "react";
 import DateSelector from "../date-selector";
 
 type ProjectDatesProps = {
@@ -24,8 +23,8 @@ const ProjectDatesHelper: FC<ProjectDatesHelperProps> = ({
   updateDateFn,
 }) => {
   return (
-    <div className={styles.wrapper}>
-      <h3 className={styles.title}>{title}</h3>
+    <div className="flex-1 m-0 p-0 box-border">
+      <h3 className="font-semibold tracking-tight">{title}</h3>
       <DateSelector date={date} setDate={updateDateFn} />
     </div>
   );
@@ -36,7 +35,7 @@ const ProjectDates: FC<ProjectDatesProps> = ({
   updateDatesFn,
 }) => {
   return (
-    <div className={styles.oneRow}>
+    <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">
       <ProjectDatesHelper
         title="Due on"
         date={dueOn}
