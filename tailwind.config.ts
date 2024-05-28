@@ -32,6 +32,7 @@ const config = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        notesEditor: "var(--notes-editor)",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
@@ -75,14 +76,53 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        fadeOut: {
+          "0%": { opacity: "1" },
+          "100%": { opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        fadeOut: "fadeOut 2s forwards",
+      },
+      backgroundColor: {
+        inherit: "inherit",
+      },
+      typography: {
+        DEFAULT: {
+          css: {
+            "--tw-prose-headings": "var(--notes-editor)",
+            "--tw-prose-links": "blue",
+            "p, ul": {
+              "margin-top": "var(--notes-margin)",
+              "margin-bottom": "var(--notes-margin)",
+            },
+            "h1, h2, h3, h4": {
+              "margin-top": "var(--notes-heading-mt)",
+              "margin-bottom": "var(--notes-margin)",
+            },
+            a: {
+              cursor: "pointer",
+            },
+            h1: {
+              "font-size": "1.6em",
+            },
+            h2: {
+              "font-size": "1.4em",
+            },
+            h3: {
+              "font-size": "1.2em",
+            },
+            h4: {
+              "font-size": "1em",
+            },
+          },
+        },
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;
 
 export default config;

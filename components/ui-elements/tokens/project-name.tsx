@@ -20,21 +20,19 @@ const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
     "Loading…"
   ) : (
     <div>
-      <div className="flex flex-row gap-2">
-        {project.done && <IoCheckboxSharp className="mt-1" />}
-        {noLinks ? (
-          project.project
-        ) : (
-          <a href={`/projects/${projectId}`} className="hover:underline">
-            {!project ? "..." : project.project}
-          </a>
-        )}
-        {project.accountIds.map((accountId) => (
-          <small key={accountId} className="mt-[0.1rem] uppercase">
-            <AccountName accountId={accountId} noLinks={noLinks} />
-          </small>
-        ))}
-      </div>
+      {project.done && <IoCheckboxSharp className="mt-1" />}
+      {noLinks ? (
+        project.project
+      ) : (
+        <a href={`/projects/${projectId}`} className="hover:underline">
+          {!project ? "..." : project.project}
+        </a>
+      )}
+      {project.accountIds.map((accountId) => (
+        <small key={accountId} className="mt-[0.1rem] uppercase">
+          <AccountName accountId={accountId} noLinks={noLinks} />
+        </small>
+      ))}
     </div>
   );
 };

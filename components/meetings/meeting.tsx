@@ -10,18 +10,17 @@ type MeetingRecordProps = {
 
 const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => (
   <div>
-    <h3 className="md:text-lg font-semibold tracking-tight">
+    <h3 className="md:text-lg font-bold tracking-tight bg-bgTransparent sticky top-[12rem] md:top-[13rem] z-[25] pb-2">
       <a href={`/meetings/${meeting.id}`} className="hover:underline">
         {toLocaleTimeString(meeting.meetingOn)} – {meeting.topic}
-        <small className="text-muted-foreground uppercase">
-          {" "}
+        <small className="text-muted-foreground uppercase ml-2">
           {meeting.context || "none"}
         </small>
       </a>
     </h3>
 
     {meeting.participantIds.length > 0 && (
-      <div className="flex flex-row gap-4">
+      <div className="flex flex-row gap-4 pb-2">
         Attendees:
         {meeting.participantIds.map((personId) => (
           <PersonName
@@ -32,19 +31,16 @@ const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => (
         ))}
       </div>
     )}
+
     <div>
-      {meeting.activityIds.length > 0 && (
-        <div>
-          Notes:
-          {meeting.activityIds.map((activityId) => (
-            <ActivityComponent
-              key={activityId}
-              activityId={activityId}
-              showProjects
-            />
-          ))}
-        </div>
-      )}
+      {meeting.activityIds.length > 0 &&
+        meeting.activityIds.map((activityId) => (
+          <ActivityComponent
+            key={activityId}
+            activityId={activityId}
+            showProjects
+          />
+        ))}
     </div>
   </div>
 );

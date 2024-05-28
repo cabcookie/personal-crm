@@ -31,6 +31,10 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
+    --notes-editor: hsl(245, 48%, 24%);
+    --notes-margin: 0.2em;
+    --notes-heading-mt: 1em;
+
     --context-color-family: 55 85% 65%;
     --context-color-hobby: 98 80% 62%;
     --context-color-work: 181 80% 62%;

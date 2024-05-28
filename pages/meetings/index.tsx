@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/pagination";
 import { useContextContext } from "@/contexts/ContextContext";
 import { addDaysToDate, toLocaleDateString } from "@/helpers/functional";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -44,29 +45,27 @@ export default function MeetingsPage() {
       sectionName="Meetings"
       addButton={{ label: "New", onClick: createAndOpenNewMeeting }}
     >
-      {!meetings ? (
-        "Loading meetings…"
-      ) : (
-        <>
-          <Pagination className="bg-bgTransparent sticky top-[7rem] z-8">
-            <PaginationContent>
-              {page > 1 && (
-                <PaginationItem>
-                  <PaginationPrevious onClick={() => setPage(page - 1)} />
-                </PaginationItem>
-              )}
-              <PaginationItem>
-                {toLocaleDateString(fromDate)} – {toLocaleDateString(toDate)}
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext onClick={() => setPage(page + 1)} />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-
-          {meetingDates.map((date) => (
+      <Pagination className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious onClick={() => setPage(page + 1)} />
+          </PaginationItem>
+          <PaginationItem>
+            {toLocaleDateString(fromDate)} – {toLocaleDateString(toDate)}
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => setPage(page - 1)}
+              className={cn(page < 2 && "hidden")}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+      {!meetings
+        ? "Loading meetings…"
+        : meetingDates.map((date) => (
             <div key={date.toLocaleDateString()}>
-              <h2 className="text-center text-lg md:text-xl font-bold bg-bgTransparent sticky top-[9rem] z-8 tracking-tight">
+              <h2 className="text-center text-lg md:text-xl font-bold bg-bgTransparent sticky top-[10rem] md:top-[11rem] z-30 tracking-tight pb-1">
                 {date.toLocaleDateString()}
               </h2>
               {meetings
@@ -80,8 +79,6 @@ export default function MeetingsPage() {
                 ))}
             </div>
           ))}
-        </>
-      )}
     </MainLayout>
   );
 }

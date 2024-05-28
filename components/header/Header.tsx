@@ -9,7 +9,7 @@ type HeaderProps = {
 };
 
 const Header: FC<HeaderProps> = ({ context }) => (
-  <div className="border-b sticky top-0 left-0 right-0 z-20 flex flex-col items-center justify-center bg-bgTransparent h-12 md:h-16 w-full">
+  <div className="border-b sticky top-0 left-0 right-0 z-[45] flex flex-col items-center justify-center bg-bgTransparent h-12 md:h-16 w-full">
     <div className="relative flex items-center justify-center w-full xl:w-[80rem]">
       <div className="absolute left-2 flex items-center">
         <SearchBar />

@@ -45,7 +45,7 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
   };
 
   return (
-    <header className="sticky top-12 z-20 bg-bgTransparent pt-3 md:pt-8 pb-4">
+    <header className="sticky top-12 z-40 bg-bgTransparent pt-3 md:pt-8 pb-4">
       <div className="flex justify-between gap-2">
         {(props.drawBackBtn || props.onBackBtnClick) && (
           <div>

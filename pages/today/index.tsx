@@ -120,7 +120,7 @@ const TodayPage = () => {
 
           {dayPlans.map(({ id: dayplanId, day, dayGoal, todos }) => (
             <div key={dayplanId} className="mb-4">
-              <div className="flex flex-row gap-2 items-center sticky top-28 z-8 bg-bgTransparent text-lg md:text-xl tracking-tight">
+              <div className="flex flex-row gap-2 items-center sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent text-lg md:text-xl tracking-tight">
                 <IoSquareOutline
                   onClick={() => handleCompleteDayPlan(dayplanId)}
                 />
