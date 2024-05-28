@@ -1,6 +1,5 @@
-import { FC, useEffect, useState } from "react";
-import styles from "./Tokens.module.css";
 import { useAccountsContext } from "@/api/ContextAccounts";
+import { FC, useEffect, useState } from "react";
 
 type AccountNameProps = {
   accountId: string;
@@ -15,15 +14,18 @@ const AccountName: FC<AccountNameProps> = ({ accountId, noLinks }) => {
     setAccount(getAccountById(accountId));
   }, [accountId, getAccountById]);
 
-  return (
-    account &&
-    (noLinks ? (
-      <span className={styles.accountName}>{account?.name}</span>
-    ) : (
-      <a href={`/accounts/${accountId}`} className={styles.accountName}>
-        {account?.name}
-      </a>
-    ))
+  return !account ? (
+    "…"
+  ) : (
+    <div>
+      {noLinks ? (
+        account.name
+      ) : (
+        <a href={`/accounts/${accountId}`} className="hover:underline">
+          {account.name}
+        </a>
+      )}
+    </div>
   );
 };
 

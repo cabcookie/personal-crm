@@ -1,8 +1,7 @@
 import { useRouter } from "next/router";
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
-import styles from "./CategoryTitle.module.css";
-import SubmitButton from "./ui-elements/buttons/submit-button";
+import { Button } from "./ui/button";
 
 export type CategoryTitleProps = {
   title?: string;
@@ -46,47 +45,54 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
   };
 
   return (
-    <header className={styles.content}>
-      {(props.drawBackBtn || props.onBackBtnClick) && (
-        <div
-          className={styles.backAction}
-          onClick={
-            props.onBackBtnClick ? props.onBackBtnClick : () => router.back()
-          }
-        >
-          <IoChevronBackOutline className={styles.backBtn} />
-        </div>
-      )}
-      {title &&
-        (props.saveTitle && isEditing ? (
-          <textarea
-            rows={1}
-            ref={textAreaRef}
-            value={title}
-            onChange={handleTitleChange}
-            onBlur={handleBlur}
-            className={`${styles.editableTitle} ${styles.alignCenterOnMedium} ${styles.flush}`}
-            autoFocus
-          />
-        ) : (
-          <h1
-            className={`${styles.alignCenterOnMedium} ${styles.flush} ${
-              props.saveTitle ? styles.isEditable : ""
-            }`}
-            onClick={() => (props.saveTitle ? setIsEditing(true) : null)}
-          >
-            {title}
-          </h1>
-        ))}
-      {props.addButton && (
-        <SubmitButton
-          btnClassName={styles.actionBtn}
-          wrapperClassName={styles.action}
-          onClick={props.addButton.onClick}
-        >
-          {props.addButton.label}
-        </SubmitButton>
-      )}
+    <header className="sticky top-12 z-40 bg-bgTransparent pt-3 md:pt-8 pb-4">
+      <div className="flex justify-between gap-2">
+        {(props.drawBackBtn || props.onBackBtnClick) && (
+          <div>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 text-lg md:text-xl text-[--context-color]"
+              onClick={
+                props.onBackBtnClick
+                  ? props.onBackBtnClick
+                  : () => router.back()
+              }
+            >
+              <IoChevronBackOutline />
+            </Button>
+          </div>
+        )}
+        {title && (
+          <div className="text-left md:text-center flex-1 text-2xl md:text-3xl font-bold leading-8 p-0 mt-0 tracking-tight">
+            {props.saveTitle && isEditing ? (
+              <textarea
+                rows={1}
+                ref={textAreaRef}
+                value={title}
+                onChange={handleTitleChange}
+                onBlur={handleBlur}
+                autoFocus
+                className="border-none outline-none w-full overflow-hidden resize-none textarea-bottom-line"
+              />
+            ) : (
+              <div
+                className={
+                  props.saveTitle && "cursor-pointer hover:border-b-2 mb-1"
+                }
+                onClick={() => (props.saveTitle ? setIsEditing(true) : null)}
+              >
+                {title}
+              </div>
+            )}
+          </div>
+        )}
+        {props.addButton && (
+          <Button size="sm" onClick={props.addButton.onClick}>
+            {props.addButton.label}
+          </Button>
+        )}
+      </div>
     </header>
   );
 };

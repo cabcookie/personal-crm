@@ -1,5 +1,4 @@
 import { FC, ReactNode } from "react";
-import styles from "./ListItem.module.css";
 
 export type ListItemProps = {
   title: ReactNode;
@@ -16,13 +15,11 @@ const ListItem: FC<InternalListItemProps> = ({
   itemSelector,
 }) => {
   return (
-    <article>
-      <div className={styles.postLine}>
-        {itemSelector}
-        <div className={styles.postBody}>
-          <div>{title}</div>
-          <div className={styles.description}>{description}</div>
-        </div>
+    <article className="flex flex-row gap-4 mb-8">
+      <div className="text-xl md:text-2xl">{itemSelector}</div>
+      <div className="flex flex-col w-full">
+        <div>{title}</div>
+        <div className="text-muted-foreground">{description}</div>
       </div>
     </article>
   );

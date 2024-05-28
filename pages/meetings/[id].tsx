@@ -1,20 +1,19 @@
 import useMeeting from "@/api/useMeeting";
 import MainLayout from "@/components/layouts/MainLayout";
-import { useRouter } from "next/router";
-import styles from "./Meetings.module.css";
-import DateSelector from "@/components/ui-elements/date-selector";
-import PersonName from "@/components/ui-elements/tokens/person-name";
-import PeopleSelector from "@/components/ui-elements/people-selector";
-import ProjectNotesForm from "@/components/ui-elements/project-notes-form/project-notes-form";
-import { useEffect, useMemo, useState } from "react";
-import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
-import { debounce } from "lodash";
-import RecordDetails from "@/components/ui-elements/record-details/record-details";
-import SelectionSlider from "@/components/ui-elements/selection-slider/selection-slider";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
-import { Context } from "@/contexts/ContextContext";
+import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
 import ContextWarning from "@/components/ui-elements/context-warning/context-warning";
 import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import ProjectNotesForm from "@/components/ui-elements/project-notes-form/project-notes-form";
+import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
+import RecordDetails from "@/components/ui-elements/record-details/record-details";
+import DateSelector from "@/components/ui-elements/selectors/date-selector";
+import PeopleSelector from "@/components/ui-elements/selectors/people-selector";
+import PersonName from "@/components/ui-elements/tokens/person-name";
+import { Context } from "@/contexts/ContextContext";
+import { debounce } from "lodash";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
 
 const MeetingDetailPage = () => {
   const router = useRouter();
@@ -22,7 +21,6 @@ const MeetingDetailPage = () => {
   const meetingId: string | undefined = Array.isArray(id) ? id[0] : id;
   const {
     meeting,
-    loadingMeeting,
     updateMeeting,
     createMeetingParticipant,
     createMeetingActivity,
@@ -73,7 +71,8 @@ const MeetingDetailPage = () => {
     });
   };
 
-  const addParticipant = async (personId: string) => {
+  const addParticipant = async (personId: string | null) => {
+    if (!personId) return;
     setParticipantsSaved(false);
     const data = await createMeetingParticipant(personId);
     if (data) setParticipantsSaved(true);
@@ -113,16 +112,20 @@ const MeetingDetailPage = () => {
       onTitleChange={() => setDateTitleSaved(false)}
       saveTitle={saveMeetingTitle}
     >
-      {loadingMeeting && "Loading meeting..."}
-      {meeting && (
+      {!meeting ? (
+        "Load meeting..."
+      ) : (
         <div>
           <SavedState saved={allSaved} />
 
           <RecordDetails title="Context">
-            <SelectionSlider
-              valueList={contexts}
-              value={meetingContext}
-              onChange={updateContext}
+            <ButtonGroup
+              values={contexts}
+              selectedValue={meeting.context || "family"}
+              onSelect={(val: string) => {
+                if (!contexts.includes(val as Context)) return;
+                updateContext(val as Context);
+              }}
             />
             <ContextWarning recordContext={meetingContext} />
           </RecordDetails>
@@ -140,11 +143,7 @@ const MeetingDetailPage = () => {
               <PersonName key={id} personId={id} />
             ))}
             <SavedState saved={participantsSaved} />
-            <PeopleSelector
-              onChange={addParticipant}
-              clearAfterSelection
-              allowNewPerson
-            />
+            <PeopleSelector value="" onChange={addParticipant} allowNewPerson />
           </RecordDetails>
 
           {[
@@ -154,7 +153,7 @@ const MeetingDetailPage = () => {
             <ProjectNotesForm
               key={id}
               activityId={id}
-              className={styles.projectNote}
+              className="mt-12"
               createActivity={
                 id === newActivityId ? saveNewActivity : undefined
               }

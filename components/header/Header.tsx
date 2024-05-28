@@ -1,50 +1,25 @@
 import { Context } from "@/contexts/ContextContext";
 import { FC } from "react";
-import contextStyles from "../layouts/ContextColors.module.css";
-import styles from "./Header.module.css";
 import Logo from "./Logo";
-import SearchBar from "./SearchBar";
 import ProfilePicture from "./ProfilePicture";
-import { useNavMenuContext } from "@/contexts/NavMenuContext";
+import SearchBar from "./SearchBar";
 
 type HeaderProps = {
   context?: Context;
-  logoOnly?: boolean;
 };
 
-const Header: FC<HeaderProps> = ({ context, logoOnly }) => {
-  const { menuIsOpen, toggleMenu } = useNavMenuContext();
-
-  return logoOnly ? (
-    <div
-      className={`${context ? contextStyles[`${context}ColorScheme`] : ""} ${
-        styles.logoOnlyWrapper
-      } ${menuIsOpen ? styles.menuIsOpen : ""}`}
-    >
-      <Logo context={context} logoOnly={logoOnly} />
-    </div>
-  ) : (
-    <nav
-      className={`${context ? contextStyles[`${context}ColorScheme`] : ""} ${
-        styles.header
-      } ${menuIsOpen ? styles.menuIsOpen : ""}`}
-    >
-      <div className={styles.headerContent}>
-        <div className={styles.headerLeft}>
-          <SearchBar context={context} />
-        </div>
-        <div
-          className={styles.headerMid}
-          onClick={() => !menuIsOpen && toggleMenu()}
-        >
-          <Logo context={context} logoOnly={logoOnly} />
-        </div>
-        <div className={styles.headerRight}>
-          <ProfilePicture />
-        </div>
+const Header: FC<HeaderProps> = ({ context }) => (
+  <div className="border-b sticky top-0 left-0 right-0 z-[45] flex flex-col items-center justify-center bg-bgTransparent h-12 md:h-16 w-full">
+    <div className="relative flex items-center justify-center w-full xl:w-[80rem]">
+      <div className="absolute left-2 flex items-center">
+        <SearchBar />
       </div>
-    </nav>
-  );
-};
+      <Logo context={context} />
+      <div className="absolute right-2 flex items-center">
+        <ProfilePicture />
+      </div>
+    </div>
+  </div>
+);
 
 export default Header;

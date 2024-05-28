@@ -2,18 +2,15 @@ import useInbox from "@/api/useInbox";
 import WorkFlowItem from "@/components/inbox/WorkflowItem";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
-import SubmitButton from "@/components/ui-elements/buttons/submit-button";
-import listStyles from "@/components/ui-elements/list-items/ListItem.module.css";
 import ToProcessItem from "@/components/ui-elements/list-items/to-process-item";
 import NotesWriter, {
   EditorJsonContent,
   SerializerOutput,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
-import { useContextContext } from "@/contexts/ContextContext";
+import { Button } from "@/components/ui/button";
 import { debounce } from "lodash";
 import { useState } from "react";
 import { GrCycle } from "react-icons/gr";
-import styles from "./Inbox.module.css";
 
 type ApiResponse = Promise<string | undefined>;
 type UpdateInboxFn = (id: string, note: EditorJsonContent) => ApiResponse;
@@ -32,7 +29,6 @@ export const debouncedOnChangeInboxNote = debounce(
 );
 
 const InboxPage = () => {
-  const { context } = useContextContext();
   const [newItem, setNewItem] = useState<EditorJsonContent | string>("");
   const [newItemKey, setNewItemKey] = useState(crypto.randomUUID());
 
@@ -59,19 +55,19 @@ const InboxPage = () => {
             />
           }
         />
-        <SubmitButton
+        <Button
           onClick={() => {
             if (typeof newItem === "string") return;
             onSubmit(newItem);
           }}
         >
           Confirm
-        </SubmitButton>
+        </Button>
       </div>
 
-      <div className={styles.spacer} />
-      <ContextSwitcher context={context} />
-      <div className={styles.spacer} />
+      <div className="mt-12" />
+      <ContextSwitcher />
+      <div className="mt-12" />
 
       {inbox?.map((item) => (
         <ToProcessItem
@@ -82,7 +78,7 @@ const InboxPage = () => {
               forwardUrl={`/inbox/${item.id}`}
             />
           }
-          actionStep={<GrCycle className={listStyles.listItemIcon} />}
+          actionStep={<GrCycle />}
         />
       ))}
     </MainLayout>

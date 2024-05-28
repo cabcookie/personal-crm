@@ -1,6 +1,7 @@
 import { InboxStatus } from "@/api/useInbox";
+import { type VariantProps } from "class-variance-authority";
+import { buttonVariants } from "../ui/button";
 import ClarifyAction from "./ClarifyAction";
-import styles from "./Inbox.module.css";
 import Question from "./Question";
 
 export type WorkflowStepComponentProps = {
@@ -11,7 +12,7 @@ export type WorkflowStepComponentProps = {
 
 export type WorkflowStepResponse = {
   response: string;
-  responseClassName?: string;
+  btnVariant?: VariantProps<typeof buttonVariants>;
   nextStep?: WorkflowStep;
 };
 
@@ -31,7 +32,7 @@ export const workflow: WorkflowStep = {
   responses: [
     {
       response: "Yes",
-      responseClassName: styles.positive,
+      btnVariant: { variant: "constructive" },
       nextStep: {
         status: "actionable",
         question: "Doable in 2 minutes?",
@@ -39,7 +40,7 @@ export const workflow: WorkflowStep = {
         responses: [
           {
             response: "Yes",
-            responseClassName: styles.positive,
+            btnVariant: { variant: "constructive" },
             nextStep: {
               status: "doNow",
               question: "Done?",
@@ -47,7 +48,7 @@ export const workflow: WorkflowStep = {
               responses: [
                 {
                   response: "Yes",
-                  responseClassName: styles.positive,
+                  btnVariant: { variant: "constructive" },
                   nextStep: {
                     status: "done",
                     toHome: true,
@@ -58,7 +59,7 @@ export const workflow: WorkflowStep = {
           },
           {
             response: "No",
-            responseClassName: styles.negative,
+            btnVariant: { variant: "destructive" },
             nextStep: {
               status: "clarifyAction",
               component: ClarifyAction,
@@ -75,7 +76,7 @@ export const workflow: WorkflowStep = {
     },
     {
       response: "No",
-      responseClassName: styles.negative,
+      btnVariant: { variant: "destructive" },
       nextStep: {
         status: "notActionable",
         question: "Move to a project?",
@@ -83,7 +84,7 @@ export const workflow: WorkflowStep = {
         responses: [
           {
             response: "Yes",
-            responseClassName: styles.positive,
+            btnVariant: { variant: "constructive" },
             nextStep: {
               status: "moveToProject",
               component: ClarifyAction,
@@ -97,7 +98,7 @@ export const workflow: WorkflowStep = {
           },
           {
             response: "No",
-            responseClassName: styles.negative,
+            btnVariant: { variant: "destructive" },
             nextStep: {
               status: "clarifyDeletion",
               question: "Confirm deletion:",
@@ -105,7 +106,7 @@ export const workflow: WorkflowStep = {
               responses: [
                 {
                   response: "Yes",
-                  responseClassName: styles.negative,
+                  btnVariant: { variant: "destructive" },
                   nextStep: { status: "done", toHome: true },
                 },
               ],

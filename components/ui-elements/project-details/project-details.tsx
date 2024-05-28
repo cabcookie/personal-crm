@@ -2,12 +2,12 @@ import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import { Context } from "@/contexts/ContextContext";
 import { FC, useEffect, useState } from "react";
-import AccountSelector from "../account-selector";
+import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
 import CrmProjectDetails from "../crm-project-details/crm-project-details";
 import SavedState from "../project-notes-form/saved-state";
 import RecordDetails from "../record-details/record-details";
-import SelectionSlider from "../selection-slider/selection-slider";
+import AccountSelector from "../selectors/account-selector";
 import AccountName from "../tokens/account-name";
 import NextActions from "./next-actions";
 import ProjectDates from "./project-dates";
@@ -78,12 +78,30 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
       <div>
         {showContext && (
           <RecordDetails title="Context">
-            <SelectionSlider
-              valueList={contexts}
-              value={projectContext}
-              onChange={updateContext}
+            <ButtonGroup
+              values={contexts}
+              selectedValue={projectContext || "family"}
+              onSelect={(val: string) => {
+                if (!contexts.includes(val as Context)) return;
+                updateContext(val as Context);
+              }}
             />
             <ContextWarning recordContext={projectContext} />
+          </RecordDetails>
+        )}
+
+        {includeAccounts && (
+          <RecordDetails title="Accounts">
+            <div className="flex flex-row gap-4">
+              {project.accountIds.map((accountId) => (
+                <AccountName key={accountId} accountId={accountId} />
+              ))}
+            </div>
+            <AccountSelector
+              value=""
+              allowCreateAccounts
+              onChange={handleSelectAccount}
+            />
           </RecordDetails>
         )}
 
@@ -101,18 +119,6 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             crmProjectDetails={showCrmDetails}
           />
         ))}
-
-        {includeAccounts && (
-          <RecordDetails title="Accounts">
-            {project.accountIds.map((accountId) => (
-              <AccountName key={accountId} accountId={accountId} />
-            ))}
-            <AccountSelector
-              allowCreateAccounts
-              onChange={handleSelectAccount}
-            />
-          </RecordDetails>
-        )}
 
         <RecordDetails>
           <ProjectDates project={project} updateDatesFn={handleDateChange} />

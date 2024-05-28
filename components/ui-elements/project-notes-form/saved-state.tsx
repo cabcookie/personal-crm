@@ -1,5 +1,5 @@
+import { cn } from "@/lib/utils";
 import { FC, useEffect, useState } from "react";
-import styles from "./SavedState.module.css";
 
 type SavedStateProps = {
   saved: boolean;
@@ -21,13 +21,14 @@ const SavedState: FC<SavedStateProps> = (props) => {
 
   return (
     <div
-      className={`${styles.savedStatusMsg} ${
+      className={cn(
+        "text-xs pt-3 px-2 text-muted-foreground",
         props.saved
           ? showSavedMsg
             ? ""
-            : styles.fadeOut
-          : styles.unsavedChanges
-      }`}
+            : "animate-fadeOut"
+          : "border rounded-md"
+      )}
     >
       {props.saved ? "Changes saved" : "Unsaved changes"}
     </div>

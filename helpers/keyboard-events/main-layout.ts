@@ -3,7 +3,8 @@ import { NextRouter } from "next/router";
 
 export const addKeyDownListener = (
   router: NextRouter,
-  setContext: (context: Context) => void
+  setContext: (context: Context) => void,
+  toggleNavMenu: () => void
 ) => {
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
@@ -18,6 +19,14 @@ export const addKeyDownListener = (
         h: () => setContext("hobby"),
         f: () => setContext("family"),
         k: () => console.log("Focus search bar"),
+      }[event.key.toLowerCase()];
+      if (func) {
+        func();
+      }
+    }
+    if (event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
+      const func = {
+        k: toggleNavMenu,
       }[event.key.toLowerCase()];
       if (func) {
         func();

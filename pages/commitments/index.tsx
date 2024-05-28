@@ -1,4 +1,3 @@
-// import styles from "./Commitments.module.css";
 import MainLayout from "@/components/layouts/MainLayout";
 
 const CommitmentPage = () => {

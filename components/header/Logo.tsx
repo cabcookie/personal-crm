@@ -1,24 +1,21 @@
-import { FC } from "react";
 import { Context } from "@/contexts/ContextContext";
-import contextStyles from "@/components/layouts/ContextColors.module.css";
+import { useNavMenuContext } from "@/contexts/NavMenuContext";
+import { FC } from "react";
 import styles from "./Logo.module.css";
 
 type LogoProps = {
   context?: Context;
-  logoOnly?: boolean;
 };
 
-const Logo: FC<LogoProps> = ({ context, logoOnly }) => {
+const Logo: FC<LogoProps> = ({ context }) => {
+  const { toggleMenu } = useNavMenuContext();
+
   return (
-    <div
-      className={`${context ? contextStyles[`${context}ColorScheme`] : ""} ${
-        styles.logoNameWrapper
-      }`}
-    >
-      <div className={styles.logoIcon} />
-      {!logoOnly && (
-        <div className={styles.appName}>{context || "Impulso"}</div>
-      )}
+    <div className="flex items-center cursor-pointer" onClick={toggleMenu}>
+      <div className={`${styles.logoIcon} w-12 h-12 md:w-16 md:h-16 block`} />
+      <div className="hidden sm:flex items-center font-black uppercase mr-4">
+        {context || "Impulso"}
+      </div>
     </div>
   );
 };

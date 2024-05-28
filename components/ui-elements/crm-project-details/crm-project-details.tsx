@@ -1,5 +1,6 @@
 import useCrmProject from "@/api/useCrmProject";
 import { CrmProject } from "@/api/useCrmProjects";
+import { Button } from "@/components/ui/button";
 import {
   addDaysToDate,
   makeRevenueString,
@@ -7,7 +8,6 @@ import {
 } from "@/helpers/functional";
 import Link from "next/link";
 import { FC, FormEvent, useState } from "react";
-import SubmitButton from "../buttons/submit-button";
 import RecordDetails from "../record-details/record-details";
 import CrmProjectForm, { CrmProjectOnChangeFields } from "./crm-project-form";
 
@@ -80,7 +80,8 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
           crmProject={newCrmProject}
           onChange={handleUpdateNewProject}
         />
-        <SubmitButton type="submit">Create CRM Project</SubmitButton>
+
+        <Button type="submit">Create CRM Project</Button>
       </form>
     </RecordDetails>
   ) : (

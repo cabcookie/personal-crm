@@ -1,14 +1,14 @@
 import useActivity from "@/api/useActivity";
 import { FC } from "react";
-import { debouncedUpdateNotes } from "../activity-helper";
-import ActivityMetaData from "../activity-meta-data";
+import { debouncedUpdateNotes } from "../../activities/activity-helper";
+import ActivityMetaData from "../../activities/activity-meta-data";
 import NotesWriter, {
   EditorJsonContent,
   SerializerOutput,
 } from "../notes-writer/NotesWriter";
 import ProjectDetails from "../project-details/project-details";
-import ProjectSelector from "../project-selector";
 import RecordDetails from "../record-details/record-details";
+import ProjectSelector from "../selectors/project-selector";
 import ProjectName from "../tokens/project-name";
 
 type ProjectNotesFormProps = {
@@ -55,7 +55,11 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
             <ProjectDetails projectId={id} />
           </div>
         ))}
-        <ProjectSelector onChange={handleSelectProject} allowCreateProjects />
+        <ProjectSelector
+          onChange={handleSelectProject}
+          allowCreateProjects
+          value=""
+        />
       </RecordDetails>
 
       <RecordDetails title="Notes">
