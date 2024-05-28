@@ -1,6 +1,6 @@
 import usePeople from "@/api/usePeople";
 import { FC } from "react";
-import ComboBox from "../combo-box/combo-box";
+import ComboBox from "../../combo-box/combo-box";
 
 type PeopleSelectorProps = {
   value: string;

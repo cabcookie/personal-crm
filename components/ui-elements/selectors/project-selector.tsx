@@ -1,7 +1,7 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
+import ComboBox from "@/components/combo-box/combo-box";
 import { FC } from "react";
-import ComboBox from "../combo-box/combo-box";
 
 type ProjectSelectorProps = {
   value: string;

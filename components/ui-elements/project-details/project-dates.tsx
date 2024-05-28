@@ -1,6 +1,6 @@
 import { Project } from "@/api/ContextProjects";
+import DateSelector from "@/components/ui-elements/selectors/date-selector";
 import { FC } from "react";
-import DateSelector from "../date-selector";
 
 type ProjectDatesProps = {
   project: Project;

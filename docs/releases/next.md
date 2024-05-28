@@ -1,3 +1,5 @@
-# Optimierung des Inbox Prozesses (Version :VERSION)
+# UI auf shadcn/ui und Tailwind CSS umstellen (Version :VERSION)
 
-In den Projektdetails wird nun auch der Account mit angezeigt. Das ist hilfreich, wenn man ein neues Projekt anlegt, da ich dann direkt auch einen Account damit verlinken kann, ohne erst das Projekt auf einer neuen Seite öffnen zu müssen.
+Die Formatierungen sind auf [shadcn/ui](https://ui.shadcn.com/docs) und [Tailwind CSS](https://tailwindcss.com/) umgestellt.
+Das ist mehr eine interne Änderung in der Applikation. Für den Anwender wird die Applikation insgesamt stabiler und ansehnlicher und kommt mit ein paar schönen neuen Funktionen. Mit der Tastenkombination `Cmd + K` kann nun das Navigationsmenü geöffnet werden, in dem wir in der Zukunft auch die Suche integrieren werden.
+Zusätzlich haben wir auch einen Toaster implementiert. Wenn zum Beispiel ein Tagesplan abgeschlossen wird, erscheint eine Meldung, die auch ein Undo anbietet.

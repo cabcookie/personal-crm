@@ -1,18 +1,15 @@
 import useActivity from "@/api/useActivity";
 import { FC, useEffect, useState } from "react";
-import {
-  debouncedUpdateNotes,
-  debounedUpdateDate,
-} from "../ui-elements/activity-helper";
-import ActivityMetaData from "../ui-elements/activity-meta-data";
-import DateSelector from "../ui-elements/date-selector";
 import NotesWriter, {
   EditorJsonContent,
   SerializerOutput,
 } from "../ui-elements/notes-writer/NotesWriter";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
+import DateSelector from "../ui-elements/selectors/date-selector";
 import MeetingName from "../ui-elements/tokens/meeting-name";
 import ProjectName from "../ui-elements/tokens/project-name";
+import { debouncedUpdateNotes, debounedUpdateDate } from "./activity-helper";
+import ActivityMetaData from "./activity-meta-data";
 
 type ActivityComponentProps = {
   activityId: string;

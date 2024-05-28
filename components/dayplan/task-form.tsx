@@ -1,9 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
+import ProjectSelector from "@/components/ui-elements/selectors/project-selector";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FC } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import ProjectSelector from "../ui-elements/project-selector";
 import { Button } from "../ui/button";
 import {
   Form,

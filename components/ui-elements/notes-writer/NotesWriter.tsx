@@ -121,6 +121,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
         },
       },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.getJSON(), notes]);
 
   return <EditorContent editor={editor} />;

@@ -2,7 +2,7 @@ import { debounce } from "lodash";
 import {
   EditorJsonContent,
   SerializerOutput,
-} from "./notes-writer/NotesWriter";
+} from "../ui-elements/notes-writer/NotesWriter";
 
 type DebouncedUpdateNotesProps = {
   serializer: () => SerializerOutput;

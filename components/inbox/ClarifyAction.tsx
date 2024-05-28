@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import ProjectDetails from "../ui-elements/project-details/project-details";
-import ProjectSelector from "../ui-elements/project-selector";
+import ProjectSelector from "../ui-elements/selectors/project-selector";
 import ProjectName from "../ui-elements/tokens/project-name";
 import { Button } from "../ui/button";
 import { WorkflowStepComponentProps } from "./workflow";

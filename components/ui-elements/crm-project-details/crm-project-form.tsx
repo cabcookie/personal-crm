@@ -1,8 +1,8 @@
 import { CrmProject, crmStages } from "@/api/useCrmProjects";
+import DateSelector from "@/components/ui-elements/selectors/date-selector";
 import Link from "next/link";
 import { FC, ReactNode, useState } from "react";
 import Select from "react-select";
-import DateSelector from "../date-selector";
 import Input from "../form-fields/input";
 
 export type CrmProjectOnChangeFields = {
