@@ -1,10 +1,9 @@
 import { CrmProject, crmStages } from "@/api/useCrmProjects";
-import { FC, useState } from "react";
-import styles from "./CrmProjectDetails.module.css";
-import Input from "../form-fields/input";
-import DateSelector from "../date-selector";
-import Select from "react-select";
 import Link from "next/link";
+import { FC, ReactNode, useState } from "react";
+import Select from "react-select";
+import DateSelector from "../date-selector";
+import Input from "../form-fields/input";
 
 export type CrmProjectOnChangeFields = {
   name?: string;
@@ -32,23 +31,29 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
     onChange({ stage: selectedOption.label });
   };
 
+  const OneRow = (props: { children: ReactNode }) => (
+    <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0 mb-4">
+      {props.children}
+    </div>
+  );
+
   return (
     crmProject && (
       <div>
-        <div className={styles.oneRow}>
+        <OneRow>
           <Input
             value={crmProject.name}
             onChange={(newVal) => onChange({ name: newVal })}
             label="Name"
             placeholder="Opportunity Name"
-            className={styles.fullWidth}
-            inputClassName={styles.fullWidth}
+            className="w-full"
+            inputClassName="w-full"
           />
           <Input
             value={crmProject.crmId || ""}
             onChange={(newVal) => onChange({ crmId: newVal })}
             label={
-              <div className={styles.oneLine}>
+              <div className="flex flex-row gap-4 w-full">
                 <div>CRM ID</div>
                 {crmProject.crmId && crmProject.crmId.length > 6 && (
                   <Link
@@ -61,45 +66,47 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({ crmProject, onChange }) => {
               </div>
             }
             placeholder="Paste Opportunity URL or ID..."
-            className={styles.fullWidth}
-            inputClassName={styles.fullWidth}
+            className="w-full"
+            inputClassName="w-full"
           />
-        </div>
-        <div className={styles.oneRow}>
+        </OneRow>
+
+        <OneRow>
           <Input
             value={crmProject.arr.toString()}
             onChange={(newval) => onChange({ arr: newval })}
             label="Annual Recurring Revenue"
-            className={styles.fullWidth}
-            inputClassName={styles.fullWidth}
+            className="w-full"
+            inputClassName="w-full"
           />
           <Input
             value={crmProject.tcv.toString()}
             onChange={(newval) => onChange({ tcv: newval })}
             label="Total Contract Volume"
-            className={styles.fullWidth}
-            inputClassName={styles.fullWidth}
+            className="w-full"
+            inputClassName="w-full"
           />
-        </div>
-        <div className={styles.oneRowy}>
-          <div className={styles.fullWidth}>
+        </OneRow>
+
+        <OneRow>
+          <div className="w-full">
             <div>Stage</div>
             <Select
               options={mappedOptions}
               onChange={selectStage}
               value={selectedOption}
               isSearchable
-              className={styles.fullWidth}
+              className="w-full"
             />
           </div>
-          <div className={styles.fullWidth}>
+          <div className="w-full">
             <div>Close Date</div>
             <DateSelector
               date={crmProject.closeDate}
               setDate={(date) => onChange({ closeDate: date })}
             />
           </div>
-        </div>
+        </OneRow>
       </div>
     )
   );

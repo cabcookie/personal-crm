@@ -3,7 +3,6 @@ import ProjectDetails from "../ui-elements/project-details/project-details";
 import ProjectSelector from "../ui-elements/project-selector";
 import ProjectName from "../ui-elements/tokens/project-name";
 import { Button } from "../ui/button";
-import styles from "./Inbox.module.css";
 import { WorkflowStepComponentProps } from "./workflow";
 
 const ClarifyAction: FC<WorkflowStepComponentProps> = ({
@@ -36,7 +35,7 @@ const ClarifyAction: FC<WorkflowStepComponentProps> = ({
           </Button>
         </div>
       )}
-      <div className={styles.spacer}>
+      <div className="mt-12">
         <strong>Inbox Notes (will be moved to selected project):</strong>
       </div>
     </div>
