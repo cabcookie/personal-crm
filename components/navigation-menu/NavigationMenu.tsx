@@ -14,6 +14,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "../ui/command";
+import Version from "../version/version";
 import ContextSwitcher from "./ContextSwitcher";
 
 type NavigationItem = {
@@ -96,6 +97,11 @@ const NavigationMenu = () => {
             </CommandItem>
           ))}
         </CommandGroup>
+        <CommandItem onSelect={() => {}}>
+          <div className="px-2 text-muted-foreground text-xs">
+            <Version />
+          </div>
+        </CommandItem>
       </CommandList>
     </CommandDialog>
   );
