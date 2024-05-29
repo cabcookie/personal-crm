@@ -3,11 +3,13 @@ import {
   EditorJsonContent,
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
-import { addDaysToDate } from "@/helpers/functional";
+import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
+import { flow } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
-import useSWR, { KeyedMutator } from "swr";
+import useSWR, { KeyedMutator, mutate } from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
@@ -45,6 +47,12 @@ interface ProjectsContextType {
   addAccountToProject: (
     projectId: string,
     accountId: string
+  ) => Promise<string | undefined>;
+  removeAccountFromProject: (
+    projectId: string,
+    projectName: string,
+    accountId: string,
+    accountName: string
   ) => Promise<string | undefined>;
   updateProjectContext: (
     projectId: string,
@@ -155,7 +163,7 @@ const fetchProjects = (context?: Context) => async () => {
         { done: { ne: true } },
         {
           doneOn: {
-            ge: addDaysToDate(-90)(new Date()).toISOString().split("T")[0],
+            ge: flow(addDaysToDate(-90), toISODateString)(new Date()),
           },
         },
       ],
@@ -354,6 +362,46 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.id;
   };
 
+  const removeAccountFromProject = async (
+    projectId: string,
+    projectName: string,
+    accountId: string,
+    accountName: string
+  ) => {
+    const updated: Project[] | undefined = projects?.map((p) =>
+      p.id !== projectId
+        ? p
+        : {
+            ...p,
+            accountIds: p.accountIds.filter((id) => id !== accountId),
+          }
+    );
+    if (updated) mutate(updated, false);
+
+    const accProj =
+      await client.models.AccountProjects.listAccountProjectsByProjectsId(
+        { projectsId: projectId },
+        { filter: { accountId: { eq: accountId } } }
+      );
+    if (accProj.errors)
+      handleApiErrors(accProj.errors, "Error fetching account/project link");
+    if (!accProj.data) return;
+    const result = await client.models.AccountProjects.delete({
+      id: accProj.data[0].id,
+    });
+    if (result.errors)
+      handleApiErrors(result.errors, "Error deleting account/project link");
+
+    if (updated) mutate(updated);
+
+    toast({
+      title: "Removed account from project",
+      description: `Removed account ${accountName} from project ${projectName}.`,
+    });
+
+    return result.data?.id;
+  };
+
   const updateProjectContext = async (
     projectId: string,
     newContext: Context
@@ -383,6 +431,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         saveProjectDates,
         updateProjectState,
         addAccountToProject,
+        removeAccountFromProject,
         updateProjectContext,
         mutateProjects,
       }}

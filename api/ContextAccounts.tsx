@@ -1,8 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
+import { Responsibility } from "@/components/accounts/ResponsibilityRecord";
 import {
   EditorJsonContent,
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
@@ -24,25 +26,38 @@ interface AccountsContextType {
   ) => Promise<Schema["Account"]["type"] | undefined>;
   getAccountById: (accountId: string) => Account | undefined;
   updateAccount: (props: UpdateAccountProps) => Promise<string | undefined>;
+  addResponsibility: (newResp: Responsibility) => Promise<string | undefined>;
+  assignController: (
+    accountId: string,
+    controllerId: string | null
+  ) => Promise<string | undefined>;
+  updateOrder: (accounts: Account[]) => Promise<(string | undefined)[]>;
 }
 
 export type Account = {
   id: string;
   name: string;
   introduction?: EditorJsonContent | string;
-  controllerId?: string;
+  controller?: {
+    id: string;
+    name: string;
+  };
   order: number;
-  responsibilities: { startDate: Date; endDate?: Date }[];
+  responsibilities: Responsibility[];
+  createdAt: Date;
 };
 
 const selectionSet = [
   "id",
   "name",
-  "accountSubsidiariesId",
+  "controller.id",
+  "controller.name",
   "introduction",
   "introductionJson",
   "formatVersion",
   "order",
+  "createdAt",
+  "responsibilities.id",
   "responsibilities.startDate",
   "responsibilities.endDate",
 ] as const;
@@ -52,12 +67,13 @@ type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
 export const mapAccount: (account: AccountData) => Account = ({
   id,
   name,
-  accountSubsidiariesId,
+  controller,
   introduction,
   introductionJson,
   formatVersion,
   order,
   responsibilities,
+  createdAt,
 }) => ({
   id,
   name,
@@ -66,10 +82,12 @@ export const mapAccount: (account: AccountData) => Account = ({
     notes: introduction,
     notesJson: introductionJson,
   }),
-  controllerId: accountSubsidiariesId || undefined,
+  controller,
   order: order || 0,
+  createdAt: new Date(createdAt),
   responsibilities: responsibilities
-    .map(({ startDate, endDate }) => ({
+    .map(({ id, startDate, endDate }) => ({
+      id,
       startDate: new Date(startDate),
       endDate: !endDate ? undefined : new Date(endDate),
     }))
@@ -97,7 +115,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     error: errorAccounts,
     isLoading: loadingAccounts,
     mutate,
-  } = useSWR(`/api/accounts/`, fetchAccounts);
+  } = useSWR("/api/accounts/", fetchAccounts);
 
   const createAccount = async (
     accountName: string
@@ -109,6 +127,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
       name: accountName,
       order: 0,
       responsibilities: [],
+      createdAt: new Date(),
     };
 
     const updatedAccounts = [...(accounts || []), newAccount];
@@ -162,6 +181,86 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data?.id;
   };
 
+  const assignController = async (
+    accountId: string,
+    controllerId: string | null
+  ) => {
+    const updated: Account[] | undefined = accounts?.map((account) =>
+      account.id !== accountId
+        ? account
+        : {
+            ...account,
+            controller: !controllerId
+              ? undefined
+              : {
+                  id: controllerId,
+                  name:
+                    accounts.find(({ id }) => id === controllerId)?.name || "",
+                },
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.Account.update({
+      id: accountId,
+      accountSubsidiariesId: controllerId,
+    });
+    if (errors) handleApiErrors(errors, "Error updating parent company");
+    if (!data) return;
+    if (updated) mutate(updated);
+    return data.id;
+  };
+
+  const addResponsibility = async ({
+    id,
+    startDate,
+    endDate,
+  }: Responsibility) => {
+    const updated = accounts?.map((account) =>
+      account.id !== id
+        ? account
+        : {
+            ...account,
+            responsibilities: [{ id: crypto.randomUUID(), startDate, endDate }],
+          }
+    );
+    if (accounts) mutate(updated, false);
+
+    const { data, errors } = await client.models.AccountResponsibilities.create(
+      {
+        accountId: id,
+        startDate: toISODateString(startDate),
+        endDate: !endDate ? undefined : toISODateString(endDate),
+      }
+    );
+    if (errors) handleApiErrors(errors, "Error creating new responsibility");
+    if (accounts) mutate(updated);
+    if (!data) return;
+    return data.id;
+  };
+
+  const updateAccountOrderNo = async (
+    id: string,
+    order: number
+  ): Promise<string | undefined> => {
+    const { data, errors } = await client.models.Account.update({ id, order });
+    if (errors) handleApiErrors(errors, "Error updating the order of accounts");
+    return data?.id;
+  };
+
+  const updateOrder = async (items: Account[]) => {
+    const updated: Account[] | undefined = accounts?.map(({ id, ...rest }) => ({
+      id,
+      ...rest,
+      order: items.find((item) => item.id === id)?.order || rest.order,
+    }));
+    if (updated) mutate(updated, false);
+    const result = await Promise.all(
+      items.map(({ id, order }) => updateAccountOrderNo(id, order))
+    );
+    if (updated) mutate(updated);
+    return result;
+  };
+
   return (
     <AccountsContext.Provider
       value={{
@@ -171,6 +270,9 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         createAccount,
         getAccountById,
         updateAccount,
+        addResponsibility,
+        assignController,
+        updateOrder,
       }}
     >
       {children}

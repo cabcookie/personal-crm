@@ -1,5 +1,14 @@
-# UI auf shadcn/ui und Tailwind CSS umstellen (Version :VERSION)
+# Oberfläche für Accounts implementiert (Version :VERSION)
 
-Die Formatierungen sind auf [shadcn/ui](https://ui.shadcn.com/docs) und [Tailwind CSS](https://tailwindcss.com/) umgestellt.
-Das ist mehr eine interne Änderung in der Applikation. Für den Anwender wird die Applikation insgesamt stabiler und ansehnlicher und kommt mit ein paar schönen neuen Funktionen. Mit der Tastenkombination `Cmd + K` kann nun das Navigationsmenü geöffnet werden, in dem wir in der Zukunft auch die Suche integrieren werden.
-Zusätzlich haben wir auch einen Toaster implementiert. Wenn zum Beispiel ein Tagesplan abgeschlossen wird, erscheint eine Meldung, die auch ein Undo anbietet.
+In der Account Liste sehe ich nun alle Accounts, für die ich im Moment zuständig bin. Ich kann zusätzlich eine Liste aller Accounts aufklappen, für die ich im Moment nicht zuständig bin.
+
+Ich kann jedem Account ein Mutterunternehmen zuordnen.
+
+Ich kann die Reihenfolge der Accounts nun nach Wichtigkeit ordnen und Zeiträume für Zuständigkeiten definieren.
+
+In der Account-Detailansicht kann ich mir Zuständigkeiten, Tochterunternehmen, eine Einleitung zum Account, aktuelle Projekte und Notizen anschauen.
+
+## Geschlossene Issues
+
+Fixes [#36](https://github.com/cabcookie/personal-crm/issues/36)
+Fixes [#33](https://github.com/cabcookie/personal-crm/issues/33)

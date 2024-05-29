@@ -1,0 +1,211 @@
+import { Account } from "@/api/ContextAccounts";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { toLocaleDateString } from "@/helpers/functional";
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CalendarIcon } from "lucide-react";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../ui/button";
+import { Calendar } from "../ui/calendar";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useToast } from "../ui/use-toast";
+import ResponsibilitiesList from "./ResponsibilitiesList";
+import { Responsibility } from "./ResponsibilityRecord";
+
+const FormSchema = z
+  .object({
+    startDate: z.date({
+      required_error: "Please provide a start date for this responsibility",
+    }),
+    endDate: z.date().optional(),
+  })
+  .refine(({ startDate, endDate }) => !endDate || endDate > startDate, {
+    message: "End date cannot be before start date",
+    path: ["endDate"],
+  });
+
+type ResponsibilitiesDialogProps = {
+  account: Account;
+  addResponsibility: (newResp: Responsibility) => void;
+};
+
+const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
+  account,
+  addResponsibility,
+}) => {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+  });
+
+  const onSubmit = ({ startDate, endDate }: z.infer<typeof FormSchema>) => {
+    toast({
+      title: "Responsibility created",
+      description: `Responsibility created for account ${account.name} from ${[
+        startDate,
+        ...(endDate ? [endDate] : []),
+      ]
+        .map(toLocaleDateString)
+        .join(" to ")}.`,
+    });
+    setOpen(false);
+    addResponsibility({
+      id: account.id,
+      startDate,
+      endDate,
+    });
+  };
+
+  return (
+    <Form {...form}>
+      <form>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm">Add Responsibility</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Responsibilities {account.name}</DialogTitle>
+              <DialogDescription>
+                Set the date range for your responsibility for the account{" "}
+                {account.name}.
+              </DialogDescription>
+            </DialogHeader>
+            <div>
+              <small>
+                <div>
+                  <strong>Existing responsibilities:</strong>
+                </div>
+                <div>
+                  <ResponsibilitiesList
+                    responsibilities={account.responsibilities}
+                  />
+                </div>
+              </small>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Start date</FormLabel>
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              toLocaleDateString(field.value)
+                            ) : (
+                              <span>Pick a start date…</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <FormDescription>
+                      When is your responsibility for this account beginning?
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="endDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>End date</FormLabel>
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              toLocaleDateString(field.value)
+                            ) : (
+                              <span>Pick an end date…</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date <= form.getValues().startDate
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <FormDescription>
+                      When will your responsibility end for this account?
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <Button onClick={form.handleSubmit(onSubmit)}>
+                Save changes
+              </Button>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </form>
+    </Form>
+  );
+};
+
+export default ResponsibilitiesDialog;

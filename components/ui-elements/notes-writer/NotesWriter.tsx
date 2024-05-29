@@ -66,6 +66,7 @@ type NotesWriterProps = {
   autoFocus?: boolean;
   placeholder?: string;
   onSubmit?: (item: EditorJsonContent) => void;
+  readonly?: boolean;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -74,6 +75,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   autoFocus,
   placeholder = "Start taking notes...",
   onSubmit,
+  readonly,
 }) => {
   const editor = useEditor({
     extensions: [
@@ -86,6 +88,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
       Link,
     ],
     autofocus: autoFocus,
+    editable: !readonly,
     editorProps: {
       handleKeyDown: (view, event) => {
         if (!onSubmit) return false;
