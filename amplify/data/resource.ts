@@ -87,6 +87,7 @@ const schema = a.schema({
       projectsId: a.id().required(),
       projects: a.belongsTo("Projects", "projectsId"),
     })
+    .secondaryIndexes((index) => [index("projectsId")])
     .authorization((allow) => [allow.owner()]),
   Activity: a
     .model({
@@ -150,6 +151,7 @@ const schema = a.schema({
       projectsId: a.id().required(),
       projects: a.belongsTo("Projects", "projectsId"),
     })
+    .secondaryIndexes((index) => [index("projectsId"), index("accountId")])
     .authorization((allow) => [allow.owner()]),
   AccountResponsibilities: a
     .model({
