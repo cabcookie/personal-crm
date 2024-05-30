@@ -1,3 +1,3 @@
-# Editieren von Zuständigkeiten (Version :VERSION)
+# Editieren von Zuständigkeiten funktioniert (Version :VERSION)
 
-Die Zuständigkeiten für Accounts können nun editiert werden.
+Die Zuständigkeiten für Accounts können nun editiert werden. Sie wurde zuvor zwar in der Oberfläche angezeigt und angeboten, aber die Änderungen wurden nicht in der Datenbank gespeichert.
