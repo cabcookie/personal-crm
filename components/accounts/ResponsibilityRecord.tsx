@@ -1,9 +1,12 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
 import { format } from "date-fns";
 import { FC } from "react";
 import ResponsibilitiesDialog from "./responsibilities-dialog";
 
 export type Responsibility = {
   id: string;
+  accountId: string;
+  accountName: string;
   startDate: Date;
   endDate?: Date;
 };
@@ -13,20 +16,23 @@ type ResponsibilityRecordProps = {
 };
 
 const ResponsibilityRecord: FC<ResponsibilityRecordProps> = ({
-  responsibility: { id, startDate, endDate },
+  responsibility,
 }) => {
+  const { updateResponsibility } = useAccountsContext();
+
   return (
     <div className="flex flex-row gap-2">
       Since{" "}
-      {[startDate, ...(endDate ? [endDate] : [])]
+      {[
+        responsibility.startDate,
+        ...(responsibility.endDate ? [responsibility.endDate] : []),
+      ]
         .map((date) => format(date, "PPP"))
         .join(" to ")}
       .
       <ResponsibilitiesDialog
-        updateAccount={{ id, startDate, endDate }}
-        updateResponsibility={(r) => {
-          console.log(r);
-        }}
+        updateAccount={responsibility}
+        updateResponsibility={updateResponsibility}
       />
     </div>
   );

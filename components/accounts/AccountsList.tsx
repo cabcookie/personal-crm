@@ -14,7 +14,6 @@ import {
 } from "@dnd-kit/sortable";
 import { flow } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
-import { Responsibility } from "./ResponsibilityRecord";
 import AccountRecord from "./account-record";
 
 type ShowInvalidOnly = {
@@ -41,7 +40,11 @@ type AccountsListProps = (
   | ShowSubsidaries
 ) & {
   accounts: Account[];
-  addResponsibility: (resp: Responsibility) => void;
+  addResponsibility: (
+    accountId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => void;
 };
 
 type GetSortedAccountsProps = {

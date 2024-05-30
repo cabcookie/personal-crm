@@ -45,7 +45,11 @@ const FormSchema = z
 
 type CreateResponsibility = {
   account: Account;
-  addResponsibility: (newResp: Responsibility) => void;
+  addResponsibility: (
+    accountId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => void;
   updateAccount?: never;
   updateResponsibility?: never;
 };
@@ -54,7 +58,11 @@ type UpdateResponsibility = {
   account?: never;
   addResponsibility?: never;
   updateAccount: Responsibility;
-  updateResponsibility: (newResp: Responsibility) => void;
+  updateResponsibility: (
+    responsibilityId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => void;
 };
 
 type ResponsibilitiesDialogProps = CreateResponsibility | UpdateResponsibility;
@@ -86,7 +94,7 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
         .join(" to ")}.`,
     });
     setOpen(false);
-    addResponsibility({ id: account.id, startDate, endDate });
+    addResponsibility(account.id, startDate, endDate);
   };
 
   const onUpdateSubmit = ({
@@ -96,15 +104,14 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
     if (!updateAccount) return;
     toast({
       title: "Responsibility updated",
-      description: `Responsibility updated for the account from ${[
-        startDate,
-        ...(endDate ? [endDate] : []),
-      ]
+      description: `Responsibility updated for account ${
+        updateAccount.accountName
+      } from ${[startDate, ...(endDate ? [endDate] : [])]
         .map(toLocaleDateString)
         .join(" to ")}.`,
     });
     setOpen(false);
-    updateResponsibility({ id: updateAccount.id, startDate, endDate });
+    updateResponsibility(updateAccount.id, startDate, endDate);
   };
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
@@ -127,7 +134,7 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
             <DialogHeader>
               <DialogTitle>
                 {updateAccount
-                  ? "Update Responsibility"
+                  ? `Update Responsibility ${updateAccount.accountName}`
                   : `Responsibilities ${account.name}`}
               </DialogTitle>
             </DialogHeader>

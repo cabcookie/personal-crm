@@ -11,12 +11,15 @@ import AddControllerDialog from "./AddControllerDialog";
 import LeanAccordianItem from "./LeanAccordionItem";
 import ProjectList from "./ProjectList";
 import ResponsibilitiesList from "./ResponsibilitiesList";
-import { Responsibility } from "./ResponsibilityRecord";
 import ResponsibilitiesDialog from "./responsibilities-dialog";
 
 type AccountDetailsProps = {
   account: Account;
-  addResponsibility: (resp: Responsibility) => void;
+  addResponsibility: (
+    accountId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => void;
   showResponsibilities?: boolean;
   showSubsidaries?: boolean;
   showIntroduction?: boolean;
@@ -56,10 +59,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           title="Responsibilities"
           isVisible={showResponsibilities}
         >
-          <ResponsibilitiesList
-            responsibilities={account.responsibilities}
-            onlyCurrent
-          />
+          <ResponsibilitiesList responsibilities={account.responsibilities} />
           <div className="mt-4" />
           <ResponsibilitiesDialog
             account={account}

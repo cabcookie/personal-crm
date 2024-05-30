@@ -9,12 +9,15 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import AccountDetails from "./AccountDetails";
-import { Responsibility } from "./ResponsibilityRecord";
 
 type AccountRecordProps = {
   account: Account;
   className?: string;
-  addResponsibility: (resp: Responsibility) => void;
+  addResponsibility: (
+    accountId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => void;
 };
 
 const AccountRecord: FC<AccountRecordProps> = ({
