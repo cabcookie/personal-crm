@@ -11,7 +11,7 @@ import {
 import { toLocaleDateString } from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Edit } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,7 +21,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -44,22 +43,39 @@ const FormSchema = z
     path: ["endDate"],
   });
 
-type ResponsibilitiesDialogProps = {
+type CreateResponsibility = {
   account: Account;
   addResponsibility: (newResp: Responsibility) => void;
+  updateAccount?: never;
+  updateResponsibility?: never;
 };
+
+type UpdateResponsibility = {
+  account?: never;
+  addResponsibility?: never;
+  updateAccount: Responsibility;
+  updateResponsibility: (newResp: Responsibility) => void;
+};
+
+type ResponsibilitiesDialogProps = CreateResponsibility | UpdateResponsibility;
 
 const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
   account,
   addResponsibility,
+  updateAccount,
+  updateResponsibility,
 }) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: !updateAccount
+      ? undefined
+      : { startDate: updateAccount.startDate, endDate: updateAccount.endDate },
   });
 
-  const onSubmit = ({ startDate, endDate }: z.infer<typeof FormSchema>) => {
+  const onAddSubmit = ({ startDate, endDate }: z.infer<typeof FormSchema>) => {
+    if (!account) return;
     toast({
       title: "Responsibility created",
       description: `Responsibility created for account ${account.name} from ${[
@@ -70,11 +86,30 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
         .join(" to ")}.`,
     });
     setOpen(false);
-    addResponsibility({
-      id: account.id,
-      startDate,
-      endDate,
+    addResponsibility({ id: account.id, startDate, endDate });
+  };
+
+  const onUpdateSubmit = ({
+    startDate,
+    endDate,
+  }: z.infer<typeof FormSchema>) => {
+    if (!updateAccount) return;
+    toast({
+      title: "Responsibility updated",
+      description: `Responsibility updated for the account from ${[
+        startDate,
+        ...(endDate ? [endDate] : []),
+      ]
+        .map(toLocaleDateString)
+        .join(" to ")}.`,
     });
+    setOpen(false);
+    updateResponsibility({ id: updateAccount.id, startDate, endDate });
+  };
+
+  const onSubmit = (data: z.infer<typeof FormSchema>) => {
+    if (addResponsibility) return onAddSubmit(data);
+    return onUpdateSubmit(data);
   };
 
   return (
@@ -82,28 +117,34 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
       <form>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">Add Responsibility</Button>
+            {addResponsibility ? (
+              <Button size="sm">Add Responsibility</Button>
+            ) : (
+              <Edit className="w-5 h-5 text-muted-foreground hover:text-primary" />
+            )}
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Responsibilities {account.name}</DialogTitle>
-              <DialogDescription>
-                Set the date range for your responsibility for the account{" "}
-                {account.name}.
-              </DialogDescription>
+              <DialogTitle>
+                {updateAccount
+                  ? "Update Responsibility"
+                  : `Responsibilities ${account.name}`}
+              </DialogTitle>
             </DialogHeader>
-            <div>
-              <small>
-                <div>
-                  <strong>Existing responsibilities:</strong>
-                </div>
-                <div>
-                  <ResponsibilitiesList
-                    responsibilities={account.responsibilities}
-                  />
-                </div>
-              </small>
-            </div>
+            {account && (
+              <div>
+                <small>
+                  <div>
+                    <strong>Existing responsibilities:</strong>
+                  </div>
+                  <div>
+                    <ResponsibilitiesList
+                      responsibilities={account.responsibilities}
+                    />
+                  </div>
+                </small>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-2">
               <FormField
                 control={form.control}

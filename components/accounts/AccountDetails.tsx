@@ -51,59 +51,54 @@ const AccountDetails: FC<AccountDetailsProps> = ({
       <AddControllerDialog account={account} />
       <div className="mt-8" />
 
-      {accounts &&
-        accounts.filter(({ controller }) => controller?.id === account.id)
-          .length > 0 && (
-          <Accordion type="single" collapsible className="w-full">
-            <LeanAccordianItem
-              title="Responsibilities"
-              isVisible={showResponsibilities}
-            >
-              <ResponsibilitiesList
-                responsibilities={account.responsibilities}
-                onlyCurrent
-              />
-              <div className="mt-4" />
-              <ResponsibilitiesDialog
-                account={account}
+      <Accordion type="single" collapsible className="w-full">
+        <LeanAccordianItem
+          title="Responsibilities"
+          isVisible={showResponsibilities}
+        >
+          <ResponsibilitiesList
+            responsibilities={account.responsibilities}
+            onlyCurrent
+          />
+          <div className="mt-4" />
+          <ResponsibilitiesDialog
+            account={account}
+            addResponsibility={addResponsibility}
+          />
+        </LeanAccordianItem>
+
+        {accounts && (
+          <LeanAccordianItem title="Subsidiaries" isVisible={showSubsidaries}>
+            <Accordion type="single" collapsible className="w-full">
+              <AccountsList
+                accounts={accounts}
+                controllerId={account.id}
                 addResponsibility={addResponsibility}
               />
-            </LeanAccordianItem>
-
-            <LeanAccordianItem title="Subsidiaries" isVisible={showSubsidaries}>
-              <Accordion type="single" collapsible className="w-full">
-                <AccountsList
-                  accounts={accounts}
-                  controllerId={account.id}
-                  addResponsibility={addResponsibility}
-                />
-              </Accordion>
-            </LeanAccordianItem>
-
-            <LeanAccordianItem
-              title="Introduction"
-              isVisible={showIntroduction}
-            >
-              <NotesWriter
-                notes={account.introduction}
-                placeholder="Describe the account..."
-                saveNotes={handleUpdateIntroduction}
-              />
-            </LeanAccordianItem>
-
-            <LeanAccordianItem title="Projects" isVisible={showProjects}>
-              <ProjectList accountId={account.id} />
-            </LeanAccordianItem>
-
-            <LeanAccordianItem title="Contacts" isVisible={showContacts}>
-              Test
-            </LeanAccordianItem>
-
-            <LeanAccordianItem title="Notes" isVisible={showNotes}>
-              <AccountNotes accountId={account.id} />
-            </LeanAccordianItem>
-          </Accordion>
+            </Accordion>
+          </LeanAccordianItem>
         )}
+
+        <LeanAccordianItem title="Introduction" isVisible={showIntroduction}>
+          <NotesWriter
+            notes={account.introduction}
+            placeholder="Describe the account..."
+            saveNotes={handleUpdateIntroduction}
+          />
+        </LeanAccordianItem>
+
+        <LeanAccordianItem title="Projects" isVisible={showProjects}>
+          <ProjectList accountId={account.id} />
+        </LeanAccordianItem>
+
+        <LeanAccordianItem title="Contacts" isVisible={showContacts}>
+          WORK IN PROGRESS
+        </LeanAccordianItem>
+
+        <LeanAccordianItem title="Notes" isVisible={showNotes}>
+          <AccountNotes accountId={account.id} />
+        </LeanAccordianItem>
+      </Accordion>
     </>
   );
 };

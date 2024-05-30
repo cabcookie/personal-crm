@@ -59,13 +59,13 @@ const getSortedAccounts = ({
 }: GetSortedAccountsProps) =>
   accounts
     .filter(({ controller, responsibilities }) => {
-      if (controllerId && controller?.id === controllerId) return true;
+      if (controllerId && controller && controller.id === controllerId)
+        return true;
       if (controller) return false;
-      const currentResponsibility =
-        responsibilities.filter(
-          ({ startDate, endDate }) =>
-            startDate <= new Date() && (!endDate || endDate >= new Date())
-        ).length > 0;
+      const currentResponsibility = responsibilities.some(
+        ({ startDate, endDate }) =>
+          startDate <= new Date() && (!endDate || endDate >= new Date())
+      );
       return (
         (showCurrentOnly && currentResponsibility) ||
         (showInvalidOnly && !currentResponsibility)
@@ -112,29 +112,11 @@ const AccountsList: FC<AccountsListProps> = ({
     [accounts, controllerId, showCurrentOnly, showInvalidOnly]
   );
 
-  const updateOrderNumbers =
-    (newIndex: number) =>
-    (list: Account[]): Account[] => {
-      const current = list[newIndex];
-      if (newIndex === 0) return [{ ...current, order: list[1].order + 1000 }];
-      if (newIndex === list.length - 1)
-        return [{ ...current, order: list[newIndex - 1].order - 1000 }];
-
-      const orderPrev = list[newIndex - 1].order;
-      const orderNext = list[newIndex + 1].order;
-      const orderBetween =
-        orderPrev > orderNext + 1
-          ? Math.round((orderPrev + orderNext) / 2)
-          : undefined;
-      if (orderBetween) return [{ ...current, order: orderBetween }];
-
-      return list
-        .filter((_, index) => index <= newIndex)
-        .map((account, idx) => ({
-          ...account,
-          order: orderNext + 1000 * (newIndex - idx + 1),
-        }));
-    };
+  const updateOrderNumbers = (list: Account[]): Account[] =>
+    list.map((account, idx) => ({
+      ...account,
+      order: (list.length - idx) * 10,
+    }));
 
   const moveItem = (items: Account[], oldIndex: number) => (newIndex: number) =>
     arrayMove(items, oldIndex, newIndex);
@@ -145,11 +127,7 @@ const AccountsList: FC<AccountsListProps> = ({
     const oldIndex = items.findIndex((item) => item.id === active.id);
     const newIndex = items.findIndex((item) => item.id === over.id);
 
-    flow(
-      moveItem(items, oldIndex),
-      updateOrderNumbers(newIndex),
-      updateOrder
-    )(newIndex);
+    flow(moveItem(items, oldIndex), updateOrderNumbers, updateOrder)(newIndex);
   };
 
   return items.length === 0 ? (
