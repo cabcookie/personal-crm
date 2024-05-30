@@ -42,7 +42,10 @@ const AccountRecord: FC<AccountRecordProps> = ({
     >
       <AccordionTrigger className="font-bold tracking-tight hover:no-underline hover:bg-muted">
         <div className="flex flex-row gap-2 start-0 align-middle">
-          <div>{account.name}</div>
+          <div>
+            {account.name}{" "}
+            <small className="font-normal">(Prio: {account.priority})</small>
+          </div>
           <div className="font-normal">
             <small className="hover:underline">
               <Link href={`/accounts/${account.id}`}>Open</Link>

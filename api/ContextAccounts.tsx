@@ -6,6 +6,7 @@ import {
 } from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
+import { add, filter, flatMapDeep, flow, last, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -54,6 +55,12 @@ export type Account = {
   order: number;
   responsibilities: Responsibility[];
   createdAt: Date;
+  priority?: number;
+};
+
+type AccountWithSubsidaries = Account & {
+  subsidaries: AccountWithSubsidaries[];
+  priority: number;
 };
 
 const selectionSet = [
@@ -72,6 +79,93 @@ const selectionSet = [
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
+
+const isCurrentResponsibility = ({ responsibilities }: Account) =>
+  responsibilities.some(
+    ({ startDate, endDate }) =>
+      startDate <= new Date() && (!endDate || endDate >= new Date())
+  );
+
+const addSubsidaries =
+  (accounts: Account[]) =>
+  (account: Account): AccountWithSubsidaries => ({
+    ...account,
+    priority: 1,
+    subsidaries: flow(
+      filter(({ controller }: Account) => controller?.id === account.id),
+      sortBy((a) => a.order),
+      map(addSubsidaries(accounts))
+    )(accounts),
+  });
+
+const getPriorityValue =
+  (startPrio: number) => (account?: AccountWithSubsidaries) =>
+    !account
+      ? startPrio
+      : account.subsidaries.length === 0
+      ? account.priority + 1
+      : account.subsidaries[account.subsidaries.length - 1].priority + 1;
+
+const setPriority =
+  (startPrio: number) =>
+  (
+    prev: AccountWithSubsidaries[],
+    curr: AccountWithSubsidaries
+  ): AccountWithSubsidaries[] => {
+    return [
+      ...prev,
+      {
+        ...curr,
+        priority: flow(last, getPriorityValue(startPrio))(prev),
+        subsidaries: curr.subsidaries.reduce(
+          setPriority(flow(last, getPriorityValue(startPrio), add(1))(prev)),
+          []
+        ),
+      },
+    ];
+  };
+
+const bypass = (a: any) => a;
+
+const removeSubsidaries = ({
+  subsidaries,
+  ...rest
+}: AccountWithSubsidaries): Account[] =>
+  flatMapDeep(bypass)([rest, flatMapDeep(removeSubsidaries)(subsidaries)]);
+
+const mergeAccountsWithPriorities =
+  (accounts: Account[]) => (withPrio: Account[]) =>
+    accounts.map(({ priority, ...account }) => ({
+      ...account,
+      priority: withPrio.find((a) => a.id === account.id)?.priority || priority,
+    }));
+
+const assignPriorities = (accounts: Account[]): Account[] =>
+  flow(
+    filter(({ controller }: Account) => !controller),
+    filter(isCurrentResponsibility),
+    map(addSubsidaries(accounts)),
+    sortBy((a) => a.order),
+    (acc) => acc.reduce(setPriority(1), []),
+    flatMapDeep(removeSubsidaries),
+    mergeAccountsWithPriorities(accounts)
+  )(accounts);
+
+type ResponsibilityData = {
+  id: string;
+  startDate: string;
+  endDate?: string | null;
+};
+
+const mapResponsibilities =
+  (accountId: string, accountName: string) =>
+  ({ id, startDate, endDate }: ResponsibilityData): Responsibility => ({
+    id,
+    accountId: accountId,
+    accountName: accountName,
+    startDate: new Date(startDate),
+    endDate: !endDate ? undefined : new Date(endDate),
+  });
 
 export const mapAccount: (account: AccountData) => Account = ({
   id: accountId,
@@ -94,17 +188,10 @@ export const mapAccount: (account: AccountData) => Account = ({
   controller,
   order: order || 0,
   createdAt: new Date(createdAt),
-  responsibilities: responsibilities
-    .map(
-      ({ id: respId, startDate, endDate }): Responsibility => ({
-        id: respId,
-        accountId: accountId,
-        accountName: name,
-        startDate: new Date(startDate),
-        endDate: !endDate ? undefined : new Date(endDate),
-      })
-    )
-    .sort((a, b) => b.startDate.getTime() - a.startDate.getTime()),
+  responsibilities: flow(
+    map(mapResponsibilities(accountId, name)),
+    sortBy((r: Responsibility) => -r.startDate.getTime())
+  )(responsibilities),
 });
 
 const fetchAccounts = async () => {
@@ -113,7 +200,7 @@ const fetchAccounts = async () => {
     selectionSet,
   });
   if (errors) throw errors;
-  return data.map(mapAccount).sort((a, b) => a.order - b.order);
+  return flow(map(mapAccount), assignPriorities)(data);
 };
 
 interface AccountsContextProviderProps {

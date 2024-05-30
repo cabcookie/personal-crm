@@ -1,3 +1,3 @@
-# Editieren von Zuständigkeiten funktioniert (Version :VERSION)
+# Prioritäten für Accounts (Version :VERSION)
 
-Die Zuständigkeiten für Accounts können nun editiert werden. Sie wurde zuvor zwar in der Oberfläche angezeigt und angeboten, aber die Änderungen wurden nicht in der Datenbank gespeichert.
+Die Priorität eines Accounts wird nun anhand der Order Number beim Laden der Accounts berechnet.
