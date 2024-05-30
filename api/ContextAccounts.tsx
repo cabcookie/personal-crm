@@ -26,7 +26,16 @@ interface AccountsContextType {
   ) => Promise<Schema["Account"]["type"] | undefined>;
   getAccountById: (accountId: string) => Account | undefined;
   updateAccount: (props: UpdateAccountProps) => Promise<string | undefined>;
-  addResponsibility: (newResp: Responsibility) => Promise<string | undefined>;
+  addResponsibility: (
+    accountId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => Promise<string | undefined>;
+  updateResponsibility: (
+    responsibilityId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => Promise<string | undefined>;
   assignController: (
     accountId: string,
     controllerId: string | null
@@ -65,7 +74,7 @@ const selectionSet = [
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
 
 export const mapAccount: (account: AccountData) => Account = ({
-  id,
+  id: accountId,
   name,
   controller,
   introduction,
@@ -75,7 +84,7 @@ export const mapAccount: (account: AccountData) => Account = ({
   responsibilities,
   createdAt,
 }) => ({
-  id,
+  id: accountId,
   name,
   introduction: transformNotesVersion({
     version: formatVersion,
@@ -86,11 +95,15 @@ export const mapAccount: (account: AccountData) => Account = ({
   order: order || 0,
   createdAt: new Date(createdAt),
   responsibilities: responsibilities
-    .map(({ id, startDate, endDate }) => ({
-      id,
-      startDate: new Date(startDate),
-      endDate: !endDate ? undefined : new Date(endDate),
-    }))
+    .map(
+      ({ id: respId, startDate, endDate }): Responsibility => ({
+        id: respId,
+        accountId: accountId,
+        accountName: name,
+        startDate: new Date(startDate),
+        endDate: !endDate ? undefined : new Date(endDate),
+      })
+    )
     .sort((a, b) => b.startDate.getTime() - a.startDate.getTime()),
 });
 
@@ -210,24 +223,33 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data.id;
   };
 
-  const addResponsibility = async ({
-    id,
-    startDate,
-    endDate,
-  }: Responsibility) => {
+  const addResponsibility = async (
+    accountId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => {
     const updated = accounts?.map((account) =>
-      account.id !== id
+      account.id !== accountId
         ? account
         : {
             ...account,
-            responsibilities: [{ id: crypto.randomUUID(), startDate, endDate }],
+            responsibilities: [
+              ...account.responsibilities,
+              {
+                id: crypto.randomUUID(),
+                accountId: account.id,
+                accountName: account.name,
+                startDate,
+                endDate,
+              },
+            ],
           }
     );
     if (accounts) mutate(updated, false);
 
     const { data, errors } = await client.models.AccountResponsibilities.create(
       {
-        accountId: id,
+        accountId: accountId,
         startDate: toISODateString(startDate),
         endDate: !endDate ? undefined : toISODateString(endDate),
       }
@@ -236,6 +258,35 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     if (accounts) mutate(updated);
     if (!data) return;
     return data.id;
+  };
+
+  const updateResponsibility = async (
+    responsibilityId: string,
+    startDate: Date,
+    endDate?: Date
+  ) => {
+    const updated = accounts?.map((account) =>
+      !account.responsibilities.some((r) => r.id === responsibilityId)
+        ? account
+        : {
+            ...account,
+            responsibilities: account.responsibilities.map((r) =>
+              r.id !== responsibilityId ? r : { ...r, startDate, endDate }
+            ),
+          }
+    );
+    if (accounts) mutate(updated, false);
+
+    const { data, errors } = await client.models.AccountResponsibilities.update(
+      {
+        id: responsibilityId,
+        startDate: toISODateString(startDate),
+        endDate: !endDate ? null : toISODateString(endDate),
+      }
+    );
+    if (errors) handleApiErrors(errors, "Error updating responsibility");
+    if (accounts) mutate(updated);
+    return data?.id;
   };
 
   const updateAccountOrderNo = async (
@@ -271,6 +322,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         getAccountById,
         updateAccount,
         addResponsibility,
+        updateResponsibility,
         assignController,
         updateOrder,
       }}

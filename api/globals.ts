@@ -1,4 +1,5 @@
-import { flow, map, join } from "lodash/fp";
+import { toast } from "@/components/ui/use-toast";
+import { flow, join, map } from "lodash/fp";
 
 /**
  * Represents a location in a Source.
@@ -56,15 +57,16 @@ export const handleApiErrors = (
   message?: string
 ) => {
   console.error(message, errors);
-  let errorText = flow(
+  const errorText = flow(
     map(
       ({ errorType, message }: GraphQLFormattedError) =>
         `${errorType}: ${message}`
     ),
     join("; ")
   )(errors);
-  if (message) {
-    errorText = `${message}: ${errorText}`;
-  }
-  alert(errorText);
+  toast({
+    title: message || "Error",
+    description: errorText,
+    variant: "destructive",
+  });
 };
