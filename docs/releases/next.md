@@ -1,3 +1,3 @@
-# Account Ansicht verbessert (Version :VERSION)
+# Editieren von Zuständigkeiten (Version :VERSION)
 
-Bei Accounts, die keine Töchterunternehmen haben, wurden die Details nicht korrekt angezeigt.
+Die Zuständigkeiten für Accounts können nun editiert werden.
