@@ -16,7 +16,7 @@ export type WorkflowStepResponse = {
   nextStep?: WorkflowStep;
 };
 
-export type WorkflowStep = {
+type WorkflowStep = {
   status: InboxStatus;
   question?: string;
   toHome?: boolean;

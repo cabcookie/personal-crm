@@ -167,7 +167,7 @@ const mapResponsibilities =
     endDate: !endDate ? undefined : new Date(endDate),
   });
 
-export const mapAccount: (account: AccountData) => Account = ({
+const mapAccount: (account: AccountData) => Account = ({
   id: accountId,
   name,
   controller,

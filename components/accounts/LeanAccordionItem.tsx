@@ -25,9 +25,7 @@ const LeanAccordianItem: FC<LeanAccordianItemProps> = ({
   link,
 }) => (
   <AccordionItem value={value || title} className={cn(!isVisible && "hidden")}>
-    <AccordionTrigger
-      className={cn("px-4 hover:no-underline hover:bg-muted", className)}
-    >
+    <AccordionTrigger className={className}>
       <div className="flex flex-row gap-2 start-0 align-middle">
         <div>{title}</div>
         {link && (
@@ -39,7 +37,7 @@ const LeanAccordianItem: FC<LeanAccordianItemProps> = ({
         )}
       </div>
     </AccordionTrigger>
-    <AccordionContent className="px-4">{children}</AccordionContent>
+    <AccordionContent>{children}</AccordionContent>
   </AccordionItem>
 );
 

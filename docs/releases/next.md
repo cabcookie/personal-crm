@@ -1,3 +1,7 @@
-# Prioritäten für Accounts (Version :VERSION)
+# Prioritäten für Accounts und Projekte (Version :VERSION)
 
-Die Priorität eines Accounts wird nun anhand der Order Number beim Laden der Accounts berechnet.
+Die Priorität eines Accounts und von Projekten wird nun anhand der Order Number und dem erwarteten Umsatz beim Laden der Daten berechnet.
+
+## UI vereinfacht
+
+Mit Hilfe von Accordions können wir nun viele Informationen anzeigen, ohne dass sie viel Raum auf der Seite einnehmen. Die Listen lassen sich auf- und zuklappen und somit alle relevanten Informationen anzeigen, wenn notwendig.

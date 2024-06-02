@@ -1,72 +1,118 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
+import {
+  Project,
+  calcRevenueTwoYears,
+  useProjectsContext,
+} from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
-import { FC } from "react";
+import { Accordion } from "@/components/ui/accordion";
+import { formatUsdCurrency } from "@/helpers/functional";
+import { flow, map, sum } from "lodash/fp";
+import Link from "next/link";
+import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";
 import ActivityMetaData from "../../activities/activity-meta-data";
-import NotesWriter, {
-  EditorJsonContent,
-  SerializerOutput,
-} from "../notes-writer/NotesWriter";
+import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
+import NotesWriter, { SerializerOutput } from "../notes-writer/NotesWriter";
 import ProjectDetails from "../project-details/project-details";
 import RecordDetails from "../record-details/record-details";
-import ProjectSelector from "../selectors/project-selector";
-import ProjectName from "../tokens/project-name";
+
+type ProjectItemProps = {
+  project?: Project;
+  accordionSelectedValue?: string;
+};
+
+const ProjectItem: FC<ProjectItemProps> = ({
+  project,
+  accordionSelectedValue,
+}) => {
+  const { getAccountById } = useAccountsContext();
+
+  return (
+    project && (
+      <DefaultAccordionItem
+        value={project.id}
+        title={project.project}
+        accordionSelectedValue={accordionSelectedValue}
+        link={`/projects/${project.id}`}
+        isVisible
+        subTitle={
+          <>
+            {project.accountIds.map((id: string) => (
+              <small key={id} className="hover:underline">
+                <Link href={`/accounts/${id}`}>{getAccountById(id)?.name}</Link>
+              </small>
+            ))}
+            {project.crmProjects.length > 0 && (
+              <small>
+                Revenue next 2Ys:{" "}
+                {flow(
+                  map(calcRevenueTwoYears),
+                  sum,
+                  formatUsdCurrency
+                )(project.crmProjects)}
+              </small>
+            )}
+          </>
+        }
+      >
+        <ProjectDetails projectId={project.id} showCrmDetails includeAccounts />
+      </DefaultAccordionItem>
+    )
+  );
+};
 
 type ProjectNotesFormProps = {
   className?: string;
   activityId: string;
-  createActivity?: (notes?: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   activityId,
   className,
-  createActivity,
 }) => {
-  const { activity, updateNotes, addProjectToActivity } =
-    useActivity(activityId);
-
-  const handleSelectProject = async (projectId: string | null) => {
-    if (!projectId) return;
-    if (createActivity) {
-      const newId = await createActivity();
-      if (!newId) return;
-      await addProjectToActivity(projectId, newId);
-      return;
-    }
-    if (!activity) return;
-    await addProjectToActivity(projectId, activity.id);
-  };
+  const { getProjectById } = useProjectsContext();
+  const { activity, updateNotes } = useActivity(activityId);
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined
+  );
 
   const handleNotesUpdate = (serializer: () => SerializerOutput) => {
     if (!updateNotes) return;
     debouncedUpdateNotes({
       serializer,
       updateNotes,
-      createActivity,
     });
   };
 
-  return (
+  return !activity ? (
+    "Loading…"
+  ) : (
     <div className={className}>
-      <RecordDetails title="For projects">
-        {activity?.projectIds.map((id) => (
-          <div key={id}>
-            <ProjectName projectId={id} />
-            <ProjectDetails projectId={id} />
-          </div>
-        ))}
-        <ProjectSelector
-          onChange={handleSelectProject}
-          allowCreateProjects
-          value=""
-        />
-      </RecordDetails>
+      <RecordDetails title="Notes for project:">
+        <Accordion
+          type="single"
+          collapsible
+          value={accordionValue}
+          onValueChange={(val) =>
+            setAccordionValue(val === accordionValue ? undefined : val)
+          }
+        >
+          {activity.projectIds.map((id) => (
+            <ProjectItem
+              key={id}
+              project={getProjectById(id)}
+              accordionSelectedValue={accordionValue}
+            />
+          ))}
+        </Accordion>
 
-      <RecordDetails title="Notes">
-        <NotesWriter
-          notes={activity?.notes || {}}
-          saveNotes={handleNotesUpdate}
-        />
+        <div className="my-2">
+          <NotesWriter
+            notes={activity?.notes || {}}
+            saveNotes={handleNotesUpdate}
+          />
+        </div>
       </RecordDetails>
 
       <div style={{ padding: "0.3rem 1rem" }}>

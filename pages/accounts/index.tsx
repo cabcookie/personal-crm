@@ -26,13 +26,13 @@ const AccountsListPage = () => {
       addButton={{ label: "New", onClick: createAndOpenNewAccount }}
     >
       {!accounts ? (
-        "Loading accounts..."
+        "Loading accounts…"
       ) : (
         <div>
           <div className="text-left md:text-center">
             Drag to change the priority of your accounts.
           </div>
-          <Accordion type="multiple" className="w-full">
+          <Accordion type="multiple">
             <AccountsList
               accounts={accounts}
               showCurrentOnly
@@ -40,13 +40,13 @@ const AccountsListPage = () => {
             />
           </Accordion>
           <div className="mt-8" />
-          <Accordion type="single" collapsible className="w-full">
+          <Accordion type="single" collapsible>
             <AccordionItem value="invalid-accounts">
               <AccordionTrigger>
                 Show accounts with no current responsibility
               </AccordionTrigger>
               <AccordionContent>
-                <Accordion type="multiple" className="w-full">
+                <Accordion type="multiple">
                   <AccountsList
                     accounts={accounts}
                     showInvalidOnly

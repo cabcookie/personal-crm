@@ -3,12 +3,12 @@ import MainLayout from "@/components/layouts/MainLayout";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
 import ContextWarning from "@/components/ui-elements/context-warning/context-warning";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
 import ProjectNotesForm from "@/components/ui-elements/project-notes-form/project-notes-form";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
 import RecordDetails from "@/components/ui-elements/record-details/record-details";
 import DateSelector from "@/components/ui-elements/selectors/date-selector";
 import PeopleSelector from "@/components/ui-elements/selectors/people-selector";
+import ProjectSelector from "@/components/ui-elements/selectors/project-selector";
 import PersonName from "@/components/ui-elements/tokens/person-name";
 import { Context } from "@/contexts/ContextContext";
 import { debounce } from "lodash";
@@ -34,7 +34,6 @@ const MeetingDetailPage = () => {
   const [participantsSaved, setParticipantsSaved] = useState(true);
   const [contextSaved, setContextSaved] = useState(true);
   const [allSaved, setAllSaved] = useState(true);
-  const [newActivityId, setNewActivityId] = useState(crypto.randomUUID());
 
   useEffect(() => {
     setAllSaved(dateTitleSaved && participantsSaved && contextSaved);
@@ -89,12 +88,6 @@ const MeetingDetailPage = () => {
     debouncedUpdateMeeting({ title: newTitle });
   };
 
-  const saveNewActivity = async (notes?: EditorJsonContent) => {
-    const data = await createMeetingActivity(newActivityId, notes);
-    setNewActivityId(crypto.randomUUID());
-    return data;
-  };
-
   const updateContext = async (context: Context) => {
     if (!meeting) return;
     setContextSaved(false);
@@ -102,6 +95,9 @@ const MeetingDetailPage = () => {
     const data = await updateMeetingContext(context);
     if (data) setContextSaved(true);
   };
+
+  const handleSelectProject = (projectId: string | null) =>
+    projectId && createMeetingActivity(projectId);
 
   return (
     <MainLayout
@@ -146,19 +142,18 @@ const MeetingDetailPage = () => {
             <PeopleSelector value="" onChange={addParticipant} allowNewPerson />
           </RecordDetails>
 
-          {[
-            ...meeting.activityIds.filter((id) => id !== newActivityId),
-            newActivityId,
-          ].map((id) => (
-            <ProjectNotesForm
-              key={id}
-              activityId={id}
-              className="mt-12"
-              createActivity={
-                id === newActivityId ? saveNewActivity : undefined
-              }
-            />
+          {meeting.activityIds.map((id) => (
+            <ProjectNotesForm key={id} activityId={id} className="mt-12" />
           ))}
+
+          <strong>Add notes for an additional project</strong>
+          <ProjectSelector
+            value=""
+            onChange={handleSelectProject}
+            allowCreateProjects
+            placeholder="Add a project…"
+          />
+          <div className="mb-8" />
         </div>
       )}
     </MainLayout>

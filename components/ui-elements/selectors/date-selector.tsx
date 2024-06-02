@@ -37,14 +37,15 @@ const DateSelector: FC<DateSelectorProps> = ({
 
   const getCombinedDate = (d: Date | undefined, t: Date | string | undefined) =>
     d &&
-    t &&
-    new Date(
-      d.getFullYear(),
-      d.getMonth(),
-      d.getDate(),
-      typeof t === "string" ? parseInt(t.substring(0, 2)) : t.getHours(),
-      typeof t === "string" ? parseInt(t.substring(3, 5)) : t.getMinutes()
-    );
+    (!t
+      ? new Date(d.getFullYear(), d.getMonth(), d.getDate())
+      : new Date(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate(),
+          typeof t === "string" ? parseInt(t.substring(0, 2)) : t.getHours(),
+          typeof t === "string" ? parseInt(t.substring(3, 5)) : t.getMinutes()
+        ));
 
   const onDateChange = (d: Date | undefined) => {
     const newDate = getCombinedDate(d, time);

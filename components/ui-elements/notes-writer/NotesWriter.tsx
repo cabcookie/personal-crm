@@ -3,7 +3,7 @@ import { JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, generateText, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { FC, useEffect } from "react";
 import styles from "./NotesWriter.module.css";
@@ -20,6 +20,11 @@ type TransformNotesVersionType = {
 };
 
 type GenericObject = { [key: string]: any };
+
+const MyExtensions = [StarterKit, Highlight, Link];
+
+export const getTextFromEditorJsonContent = (json: EditorJsonContent) =>
+  generateText(json, MyExtensions).split("\n\n").join(", ");
 
 const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
   for (const key in obj1) {
@@ -79,13 +84,11 @@ const NotesWriter: FC<NotesWriterProps> = ({
 }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      ...MyExtensions,
       Placeholder.configure({
         emptyEditorClass: styles.emptyEditor,
         placeholder,
       }),
-      Highlight,
-      Link,
     ],
     autofocus: autoFocus,
     editable: !readonly,
@@ -118,7 +121,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
       editorProps: {
         attributes: {
           class: cn(
-            "prose w-full max-w-full text-notesEditor rounded-md -mx-2 p-2 bg-inherit transition duration-1000 ease",
+            "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",
             !isUpToDate(notes, editor.getJSON()) && "bg-destructive/10"
           ),
         },

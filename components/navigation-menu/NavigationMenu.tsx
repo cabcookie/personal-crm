@@ -1,3 +1,4 @@
+import { useContextContext } from "@/contexts/ContextContext";
 import { useNavMenuContext } from "@/contexts/NavMenuContext";
 import { useRouter } from "next/router";
 import { BiConversation } from "react-icons/bi";
@@ -25,6 +26,7 @@ type NavigationItem = {
 };
 
 const NavigationMenu = () => {
+  const { isWorkContext } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
   const router = useRouter();
 
@@ -51,8 +53,12 @@ const NavigationMenu = () => {
 
   const otherNavigation: NavigationItem[] = [
     { label: "Projects", url: "/projects", shortcut: "^P" },
-    { label: "Accounts", url: "/accounts", shortcut: "^A" },
-    { label: "CRM Projects", url: "/crm-projects" },
+    ...(isWorkContext()
+      ? [
+          { label: "Accounts", url: "/accounts", shortcut: "^A" },
+          { label: "CRM Projects", url: "/crm-projects" },
+        ]
+      : []),
     { label: "Inbox", url: "/inbox", shortcut: "^I" },
   ];
 

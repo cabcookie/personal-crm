@@ -1,15 +1,16 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import { Accordion } from "@/components/ui/accordion";
 import { Context } from "@/contexts/ContextContext";
 import { FC, useEffect, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
-import CrmProjectDetails from "../crm-project-details/crm-project-details";
+import CrmProjectsList from "../crm-project-details/crm-projects-list";
 import SavedState from "../project-notes-form/saved-state";
 import RecordDetails from "../record-details/record-details";
-import AccountSelector from "../selectors/account-selector";
-import AccountName from "../tokens/account-name";
 import NextActions from "./next-actions";
+import ProjectAccountDetails from "./project-account-details";
+import ProjectActivities from "./project-activities";
 import ProjectDates from "./project-dates";
 
 type ProjectDetailsProps = {
@@ -17,6 +18,7 @@ type ProjectDetailsProps = {
   includeAccounts?: boolean;
   showContext?: boolean;
   showCrmDetails?: boolean;
+  showNotes?: boolean;
 };
 
 const ProjectDetails: FC<ProjectDetailsProps> = ({
@@ -24,6 +26,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
   includeAccounts,
   showContext,
   showCrmDetails,
+  showNotes,
 }) => {
   const {
     getProjectById,
@@ -31,13 +34,16 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     saveProjectDates,
     addAccountToProject,
     updateProjectContext,
+    removeAccountFromProject,
   } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>(
     projectId ? getProjectById(projectId) : undefined
   );
   const [projectContext, setProjectContext] = useState(project?.context);
   const [detailsSaved, setDetailsSaved] = useState(true);
-  const [newCrmProjectId] = useState(crypto.randomUUID());
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     setProject(getProjectById(projectId));
@@ -90,47 +96,58 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           </RecordDetails>
         )}
 
-        {includeAccounts && (
-          <RecordDetails title="Accounts">
-            <div className="flex flex-row gap-4">
-              {project.accountIds.map((accountId) => (
-                <AccountName key={accountId} accountId={accountId} />
-              ))}
-            </div>
-            <AccountSelector
-              value=""
-              allowCreateAccounts
-              onChange={handleSelectAccount}
-            />
-          </RecordDetails>
-        )}
-
-        {(!showCrmDetails
-          ? project.crmProjectIds
-          : [
-              ...project.crmProjectIds.filter((id) => id !== newCrmProjectId),
-              newCrmProjectId,
-            ]
-        ).map((id) => (
-          <CrmProjectDetails
-            key={id}
-            crmProjectId={id}
-            projectId={project.id}
-            crmProjectDetails={showCrmDetails}
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full"
+          value={accordionValue}
+          onValueChange={(val) =>
+            setAccordionValue(val === accordionValue ? undefined : val)
+          }
+        >
+          <ProjectAccountDetails
+            accoundIds={project.accountIds}
+            onAddAccount={handleSelectAccount}
+            accordionSelectedValue={accordionValue}
+            isVisible={includeAccounts}
+            onRemoveAccount={(accountId, accountName) =>
+              removeAccountFromProject(
+                project.id,
+                project.project,
+                accountId,
+                accountName
+              )
+            }
           />
-        ))}
 
-        <RecordDetails>
-          <ProjectDates project={project} updateDatesFn={handleDateChange} />
-        </RecordDetails>
+          <CrmProjectsList
+            crmProjects={project.crmProjects}
+            isVisible={showCrmDetails}
+            accordionSelectedValue={accordionValue}
+            projectId={project.id}
+          />
 
-        <NextActions
-          own={project.myNextActions}
-          others={project.othersNextActions}
-          saveFn={(own, others) => saveNextActions(project.id, own, others)}
-        />
+          <ProjectDates
+            project={project}
+            updateDatesFn={handleDateChange}
+            accordionSelectedValue={accordionValue}
+          />
 
-        <SavedState saved={detailsSaved} />
+          <NextActions
+            own={project.myNextActions}
+            others={project.othersNextActions}
+            saveFn={(own, others) => saveNextActions(project.id, own, others)}
+            accordionSelectedValue={accordionValue}
+          />
+
+          <SavedState saved={detailsSaved} />
+
+          <ProjectActivities
+            accordionSelectedValue={accordionValue}
+            isVisible={showNotes}
+            project={project}
+          />
+        </Accordion>
       </div>
     )
   );

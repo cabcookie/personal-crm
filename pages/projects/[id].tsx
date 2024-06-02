@@ -1,7 +1,5 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import ActivityComponent from "@/components/activities/activity";
 import MainLayout from "@/components/layouts/MainLayout";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
 import ProjectDetails from "@/components/ui-elements/project-details/project-details";
 import { debouncedUpdateProjectDetails } from "@/components/ui-elements/project-details/project-updates-helpers";
 import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
@@ -12,16 +10,11 @@ const ProjectDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const projectId = Array.isArray(id) ? id[0] : id;
-  const {
-    getProjectById,
-    createProjectActivity,
-    saveProjectName,
-    updateProjectState,
-  } = useProjectsContext();
+  const { getProjectById, saveProjectName, updateProjectState } =
+    useProjectsContext();
   const [project, setProject] = useState<Project | undefined>(
     projectId ? getProjectById(projectId) : undefined
   );
-  const [newActivityId, setNewActivityId] = useState(crypto.randomUUID());
   const [autoFocusActivityId, setAutoFocusActivitiyId] = useState("");
   const [projectDetailsSaved, setProjectDetailsSaved] = useState(true);
 
@@ -30,14 +23,6 @@ const ProjectDetailPage = () => {
       setProject(getProjectById(projectId));
     }
   }, [getProjectById, projectId]);
-
-  const saveNewActivity = async (notes?: EditorJsonContent) => {
-    if (!projectId) return;
-    const data = await createProjectActivity(projectId, notes);
-    setNewActivityId(crypto.randomUUID());
-    setAutoFocusActivitiyId(data || "");
-    return data;
-  };
 
   useEffect(() => {
     if (autoFocusActivityId.length > 5) {
@@ -87,20 +72,9 @@ const ProjectDetailPage = () => {
               includeAccounts
               showContext
               showCrmDetails
+              showNotes
             />
           )}
-          {[newActivityId, ...(project?.activityIds || [])].map((id) => (
-            <ActivityComponent
-              key={id}
-              activityId={id}
-              showDates
-              showMeeting
-              autoFocus={id === autoFocusActivityId}
-              createActivity={
-                id === newActivityId ? saveNewActivity : undefined
-              }
-            />
-          ))}
         </div>
       )}
     </MainLayout>

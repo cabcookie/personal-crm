@@ -1,125 +1,59 @@
+import { calcRevenueTwoYears } from "@/api/ContextProjects";
 import useCrmProject from "@/api/useCrmProject";
-import { CrmProject } from "@/api/useCrmProjects";
-import { Button } from "@/components/ui/button";
-import {
-  addDaysToDate,
-  makeRevenueString,
-  toLocaleDateString,
-} from "@/helpers/functional";
-import Link from "next/link";
-import { FC, FormEvent, useState } from "react";
-import RecordDetails from "../record-details/record-details";
-import CrmProjectForm, { CrmProjectOnChangeFields } from "./crm-project-form";
+import { formatUsdCurrency } from "@/helpers/functional";
+import { format } from "date-fns";
+import { flow } from "lodash/fp";
+import { FC } from "react";
+import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
+import CrmProjectForm from "./CrmProjectForm";
 
 type CrmProjectDetailsProps = {
-  projectId: string;
   crmProjectId: string;
-  crmProjectDetails?: boolean;
+  accordionSelectedValue?: string;
 };
 
-const makeNewCrmProject = (projectId: string): CrmProject => ({
-  id: crypto.randomUUID(),
-  name: "",
-  arr: 0,
-  closeDate: addDaysToDate(60)(new Date()),
-  projectIds: [projectId],
-  stage: "Prospect",
-  tcv: 0,
-  crmId: "",
-});
-
 const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
-  projectId,
   crmProjectId,
-  crmProjectDetails,
+  accordionSelectedValue,
 }) => {
-  const { crmProject, createCrmProject } = useCrmProject(crmProjectId);
-  const [newCrmProject, setNewCrmProject] = useState<CrmProject | undefined>(
-    !crmProject ? makeNewCrmProject(projectId) : undefined
-  );
-
-  const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!newCrmProject) return;
-    const data = await createCrmProject(newCrmProject);
-    if (data) setNewCrmProject(makeNewCrmProject(projectId));
-  };
-
-  const getCrmId = (input: string) => {
-    if (/^006\w{15}$/.test(input)) return input;
-    const match = input.match(/\/Opportunity\/(006\w{15})\//);
-    if (match) return match[1];
-    return "";
-  };
-
-  const handleUpdateNewProject = ({
-    name,
-    arr,
-    closeDate,
-    tcv,
-    stage,
-    crmId,
-  }: CrmProjectOnChangeFields) => {
-    if (!newCrmProject) return;
-    const p = newCrmProject;
-    setNewCrmProject({
-      ...p,
-      name: !name ? p.name : name,
-      arr: !arr ? p.arr : parseInt(arr),
-      tcv: !tcv ? p.tcv : parseInt(tcv),
-      closeDate: !closeDate ? p.closeDate : closeDate,
-      stage: !stage ? p.stage : stage,
-      crmId: !crmId ? p.crmId : getCrmId(crmId),
-    });
-  };
+  const { crmProject, updateCrmProject } = useCrmProject(crmProjectId);
 
   return !crmProject ? (
-    <RecordDetails title="Create New CRM Project">
-      <form onSubmit={handleFormSubmit}>
-        <CrmProjectForm
-          crmProject={newCrmProject}
-          onChange={handleUpdateNewProject}
-        />
-
-        <Button type="submit">Create CRM Project</Button>
-      </form>
-    </RecordDetails>
+    "Loading..."
   ) : (
-    <RecordDetails
+    <DefaultAccordionItem
+      value={crmProject.id}
+      accordionSelectedValue={accordionSelectedValue}
       title={
+        <div className="flex flex-row gap-2">
+          {crmProject.name}
+          <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
+        </div>
+      }
+      link={
+        crmProject.crmId && crmProject.crmId.length > 6
+          ? `https://aws-crm.lightning.force.com/lightning/r/Opportunity/${crmProject.crmId}/view`
+          : undefined
+      }
+      subTitle={
         <>
-          CRM:{" "}
-          {crmProject.crmId && crmProject.crmId.length > 6 ? (
-            <Link
-              href={`https://aws-crm.lightning.force.com/lightning/r/Opportunity/${crmProject.crmId}/view`}
-              target="_blank"
-            >
-              {crmProject.name}
-            </Link>
-          ) : (
-            crmProject.name
-          )}{" "}
-          (Stage: {crmProject.stage})
+          <small>{crmProject.stage}</small>
+          <small>
+            Revenue next 2Ys:{" "}
+            {flow(calcRevenueTwoYears, formatUsdCurrency)(crmProject)}
+          </small>
         </>
       }
     >
-      <div>
-        {crmProject.arr > 0 && (
-          <div>
-            Annual recurring revenue: {makeRevenueString(crmProject.arr)}
-          </div>
-        )}
-        {crmProject.tcv > 0 && (
-          <div>Total contract volume: {makeRevenueString(crmProject.tcv)}</div>
-        )}
-        <div>Close date: {toLocaleDateString(crmProject.closeDate)}</div>
-        {crmProjectDetails && (
-          <div style={{ fontSize: "1.2rem", color: "red" }}>
-            Projects can not be updated at the moment
-          </div>
-        )}
-      </div>
-    </RecordDetails>
+      Stage: {crmProject.stage}
+      {crmProject.arr > 0 && (
+        <div>Annual recurring revenue: {formatUsdCurrency(crmProject.arr)}</div>
+      )}
+      {crmProject.tcv > 0 && (
+        <div>Total contract volume: {formatUsdCurrency(crmProject.tcv)}</div>
+      )}
+      <div>Close date: {format(crmProject.closeDate, "PPP")}</div>
+    </DefaultAccordionItem>
   );
 };
 

@@ -7,26 +7,9 @@ import {
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow } from "lodash/fp";
 import useSWR from "swr";
+import { Project, useProjectsContext } from "./ContextProjects";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
-
-export type CrmStage =
-  | "Prospect"
-  | "Qualified"
-  | "Technical Validation"
-  | "Business Validation"
-  | "Committed"
-  | "Closed Lost"
-  | "Launched";
-
-export const crmStages = [
-  "Prospect",
-  "Qualified",
-  "Technical Validation",
-  "Business Validation",
-  "Committed",
-  "Closed Lost",
-  "Launched",
-];
 
 export type CrmProject = {
   id: string;
@@ -34,6 +17,7 @@ export type CrmProject = {
   crmId?: string;
   arr: number;
   tcv: number;
+  isMarketplace: boolean;
   closeDate: Date;
   projectIds: string[];
   stage: string;
@@ -45,6 +29,7 @@ export const selectionSetCrmProject = [
   "crmId",
   "annualRecurringRevenue",
   "totalContractVolume",
+  "isMarketplace",
   "closeDate",
   "projects.project.id",
   "stage",
@@ -56,6 +41,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   crmId,
   annualRecurringRevenue,
   totalContractVolume,
+  isMarketplace,
   closeDate,
   projects,
   stage,
@@ -65,6 +51,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   crmId: crmId || undefined,
   arr: annualRecurringRevenue || 0,
   tcv: totalContractVolume || 0,
+  isMarketplace: !!isMarketplace,
   closeDate: new Date(closeDate),
   projectIds: projects.map(({ project: { id } }) => id),
   stage,
@@ -128,7 +115,64 @@ const useCrmProjects = () => {
     isLoading: loadingCrmProjects,
   } = useSWR("/api/crm-projects/", fetchCrmProjects);
 
-  return { crmProjects, errorCrmProjects, loadingCrmProjects };
+  const { projects, mutateProjects } = useProjectsContext();
+
+  const createCrmProject = async (project: CrmProject) => {
+    const updated: Project[] | undefined = projects?.map((p) =>
+      !project.projectIds.some((projectId) => projectId === p.id)
+        ? p
+        : {
+            ...p,
+            crmProjects: [
+              ...p.crmProjects,
+              {
+                id: project.id,
+                arr: project.arr,
+                tcv: project.tcv,
+                isMarketPlace: project.isMarketplace,
+                closeDate: project.closeDate,
+              },
+            ],
+          }
+    );
+
+    if (updated) mutateProjects(updated, false);
+
+    const { data: newProject, errors: projectErrors } =
+      await client.models.CrmProject.create({
+        closeDate: getDayOfDate(project.closeDate),
+        name: project.name,
+        stage: project.stage,
+        annualRecurringRevenue: project.arr,
+        crmId: project.crmId,
+        totalContractVolume: project.tcv,
+      });
+
+    if (projectErrors) {
+      handleApiErrors(projectErrors, "Error creating CRM project");
+      return;
+    }
+    if (!newProject) return;
+    const { errors } = await client.models.CrmProjectProjects.create({
+      projectId: project.projectIds[0],
+      crmProjectId: newProject.id,
+    });
+    if (errors) {
+      handleApiErrors(errors, "Error linking CRM project to project");
+      return;
+    }
+
+    if (updated) mutateProjects(updated);
+
+    return newProject.id;
+  };
+
+  return {
+    crmProjects,
+    errorCrmProjects,
+    loadingCrmProjects,
+    createCrmProject,
+  };
 };
 
 export default useCrmProjects;
