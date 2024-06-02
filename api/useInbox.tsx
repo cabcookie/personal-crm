@@ -8,17 +8,7 @@ import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
-export type InboxStatus =
-  | "new"
-  | "actionable"
-  | "notActionable"
-  | "doNow"
-  | "moveToProject"
-  | "clarifyDeletion"
-  | "clarifyAction"
-  | "done";
-
-export const STATUS_LIST: InboxStatus[] = [
+const STATUS_LIST = [
   "new",
   "actionable",
   "notActionable",
@@ -27,15 +17,17 @@ export const STATUS_LIST: InboxStatus[] = [
   "clarifyAction",
   "clarifyDeletion",
   "done",
-];
+] as const;
 
-export const isValidInboxStatus = (status: string): status is InboxStatus =>
+export type InboxStatus = (typeof STATUS_LIST)[number];
+
+const isValidInboxStatus = (status: string): status is InboxStatus =>
   STATUS_LIST.includes(status as InboxStatus);
 
 const mapStatus = (status: string): InboxStatus =>
   isValidInboxStatus(status) ? status : "new";
 
-export type Inbox = {
+type Inbox = {
   id: string;
   note: EditorJsonContent;
   status: InboxStatus;

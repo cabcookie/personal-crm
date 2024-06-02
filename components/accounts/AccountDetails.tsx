@@ -1,5 +1,5 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
-import { FC } from "react";
+import { FC, useState } from "react";
 import { debouncedUpdateAccountDetails } from "../ui-elements/account-details/account-updates-helpers";
 import NotesWriter, {
   SerializerOutput,
@@ -39,6 +39,9 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   showSubsidaries = true,
 }) => {
   const { accounts, updateAccount } = useAccountsContext();
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined
+  );
 
   const handleUpdateIntroduction = (serializer: () => SerializerOutput) => {
     if (!account) return;
@@ -51,10 +54,19 @@ const AccountDetails: FC<AccountDetailsProps> = ({
 
   return (
     <>
-      <AddControllerDialog account={account} />
+      <div className="px-4">
+        <AddControllerDialog account={account} />
+      </div>
       <div className="mt-8" />
 
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion
+        type="single"
+        collapsible
+        value={accordionValue}
+        onValueChange={(val) =>
+          setAccordionValue(val === accordionValue ? undefined : val)
+        }
+      >
         <LeanAccordianItem
           title="Responsibilities"
           isVisible={showResponsibilities}
@@ -69,7 +81,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
 
         {accounts && (
           <LeanAccordianItem title="Subsidiaries" isVisible={showSubsidaries}>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible>
               <AccountsList
                 accounts={accounts}
                 controllerId={account.id}

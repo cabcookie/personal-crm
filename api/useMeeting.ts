@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
@@ -62,25 +62,37 @@ const useMeeting = (meetingId?: string) => {
     return data?.meetingId;
   };
 
-  const createMeetingActivity = async (
-    activityId: string,
-    notes?: EditorJsonContent
-  ) => {
+  const createMeetingActivity = async (projectId: string) => {
     if (!meeting) return;
-    const updated: Meeting = {
-      ...meeting,
-      activityIds: [...meeting.activityIds, activityId],
-    };
-    mutateMeeting(updated, false);
-    const { data, errors } = await client.models.Activity.create({
-      meetingActivitiesId: meetingId,
-      notes: null,
-      formatVersion: 2,
-      notesJson: JSON.stringify(notes),
+    const { data: activity, errors: errorsActivity } =
+      await client.models.Activity.create({
+        meetingActivitiesId: meetingId,
+        notes: null,
+        formatVersion: 2,
+      });
+    if (errorsActivity)
+      return handleApiErrors(
+        errorsActivity,
+        "Error creating activity for meeting"
+      );
+    if (!activity)
+      return toast({
+        title: "Error creating activity",
+        description:
+          "The API didn't confirm the successful creation of the new activity.",
+      });
+
+    const { errors } = await client.models.ProjectActivity.create({
+      activityId: activity.id,
+      projectsId: projectId,
     });
-    if (errors) handleApiErrors(errors, "Error creating activity for meeting");
-    mutateMeeting(updated);
-    return data?.id;
+    if (errors)
+      return handleApiErrors(
+        errors,
+        "Error linking the project to the activity"
+      );
+    mutateMeeting(meeting);
+    return activity.id;
   };
 
   const updateMeetingContext = async (newContext: Context) => {

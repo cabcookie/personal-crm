@@ -1,3 +1,7 @@
-# Editieren von Zuständigkeiten funktioniert (Version :VERSION)
+# Prioritäten für Accounts und Projekte (Version :VERSION)
 
-Die Zuständigkeiten für Accounts können nun editiert werden. Sie wurde zuvor zwar in der Oberfläche angezeigt und angeboten, aber die Änderungen wurden nicht in der Datenbank gespeichert.
+Die Priorität eines Accounts und von Projekten wird nun anhand der Order Number und dem erwarteten Umsatz beim Laden der Daten berechnet.
+
+## UI vereinfacht
+
+Mit Hilfe von Accordions können wir nun viele Informationen anzeigen, ohne dass sie viel Raum auf der Seite einnehmen. Die Listen lassen sich auf- und zuklappen und somit alle relevanten Informationen anzeigen, wenn notwendig.

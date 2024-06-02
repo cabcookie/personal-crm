@@ -13,6 +13,9 @@ export type SetContextStateFn = (context: Context) => void;
 interface ContextContextType {
   context?: Context;
   setContext: SetContextStateFn;
+  isWorkContext: () => boolean;
+  isHobbyContext: () => boolean;
+  isFamilyContext: () => boolean;
 }
 
 type ContextHookResult = {
@@ -64,6 +67,9 @@ export const ContextContextProvider: FC<ContextContextProviderProps> = ({
       value={{
         context,
         setContext: handleContextChange,
+        isFamilyContext: () => context === "family",
+        isWorkContext: () => context === "work",
+        isHobbyContext: () => context === "hobby",
       }}
     >
       {children}

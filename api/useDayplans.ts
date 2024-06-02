@@ -143,7 +143,7 @@ const fetchDayPlans = (context?: Context) => async () => {
     .sort((a, b) => b.day.getTime() - a.day.getTime());
 };
 
-export type CreateTodoFn = (props: {
+type CreateTodoFn = (props: {
   todo: string;
   dayplanId: string;
   projectId?: string;

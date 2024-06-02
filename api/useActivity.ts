@@ -34,7 +34,7 @@ type ActivityData = SelectionSet<
   typeof selectionSet
 >;
 
-export const mapActivity: (activity: ActivityData) => Activity = ({
+const mapActivity: (activity: ActivityData) => Activity = ({
   id,
   notes,
   formatVersion,
@@ -109,34 +109,11 @@ const useActivity = (activityId?: string) => {
     return data?.id;
   };
 
-  const addProjectToActivity = async (
-    projectId: string,
-    activityId: string
-  ) => {
-    if (!activityId) return;
-    if (activity?.projectIds.includes(projectId)) return;
-    const updated: Activity = {
-      id: activityId,
-      finishedOn: new Date(),
-      projectIds: [...(activity?.projectIds || []), projectId],
-      updatedAt: new Date(),
-    };
-    mutateActivity(updated, false);
-    const { errors } = await client.models.ProjectActivity.create({
-      activityId: activityId,
-      projectsId: projectId,
-    });
-    if (errors)
-      handleApiErrors(errors, "Error adding a project to an activitiy");
-    mutateActivity(updated);
-  };
-
   return {
     activity,
     loadingActivity,
     errorActivity,
     updateNotes,
-    addProjectToActivity,
     updateDate,
   };
 };

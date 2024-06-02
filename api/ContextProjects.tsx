@@ -7,9 +7,10 @@ import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow } from "lodash/fp";
+import { differenceInCalendarMonths } from "date-fns";
+import { flow, map, max, round, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
-import useSWR, { KeyedMutator, mutate } from "swr";
+import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
@@ -61,6 +62,14 @@ interface ProjectsContextType {
   mutateProjects: KeyedMutator<Project[] | undefined>;
 }
 
+export type CrmProjectData = {
+  id: string;
+  arr: number;
+  tcv: number;
+  closeDate: Date;
+  isMarketPlace: boolean;
+};
+
 export type Project = {
   id: string;
   project: string;
@@ -73,7 +82,8 @@ export type Project = {
   context: Context;
   accountIds: string[];
   activityIds: string[];
-  crmProjectIds: string[];
+  crmProjects: CrmProjectData[];
+  priority: number;
 };
 
 const selectionSet = [
@@ -95,6 +105,10 @@ const selectionSet = [
   "activities.activity.finishedOn",
   "activities.activity.createdAt",
   "crmProjects.crmProject.id",
+  "crmProjects.crmProject.closeDate",
+  "crmProjects.crmProject.isMarketplace",
+  "crmProjects.crmProject.annualRecurringRevenue",
+  "crmProjects.crmProject.totalContractVolume",
 ] as const;
 
 type ProjectData = SelectionSet<
@@ -102,7 +116,55 @@ type ProjectData = SelectionSet<
   typeof selectionSet
 >;
 
-export const mapProject: (project: ProjectData) => Project = ({
+type CrmDataProps = {
+  crmProject: {
+    id: string;
+    annualRecurringRevenue?: number | null;
+    totalContractVolume?: number | null;
+    closeDate: string;
+    isMarketplace?: boolean | null;
+  };
+};
+
+const mapCrmData = ({
+  crmProject: {
+    id,
+    annualRecurringRevenue,
+    totalContractVolume,
+    closeDate,
+    isMarketplace,
+  },
+}: CrmDataProps): CrmProjectData => ({
+  id,
+  arr: annualRecurringRevenue || 0,
+  tcv: totalContractVolume || 0,
+  isMarketPlace: !!isMarketplace,
+  closeDate: new Date(closeDate),
+});
+
+export const calcRevenueTwoYears = flow(
+  ({ arr, tcv, closeDate, isMarketPlace }: CrmProjectData): number[] => [
+    (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
+    tcv / (isMarketPlace ? 2 : 1),
+  ],
+  max,
+  round
+);
+
+const calcProjectPriority = ({
+  arr,
+  tcv,
+  closeDate,
+  isMarketPlace,
+}: CrmProjectData): number =>
+  Math.round(
+    Math.max(
+      (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
+      tcv / (isMarketPlace ? 2 : 1)
+    ) / 100000
+  );
+
+const mapProject: (project: ProjectData) => Project = ({
   id,
   project,
   done,
@@ -151,7 +213,8 @@ export const mapProject: (project: ProjectData) => Project = ({
     }))
     .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
     .map(({ id }) => id),
-  crmProjectIds: crmProjects.map(({ crmProject: { id } }) => id),
+  crmProjects: crmProjects.map(mapCrmData),
+  priority: flow(map(mapCrmData), map(calcProjectPriority), sum)(crmProjects),
 });
 
 const fetchProjects = (context?: Context) => async () => {
@@ -204,7 +267,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       context,
       accountIds: [],
       activityIds: [],
-      crmProjectIds: [],
+      crmProjects: [],
+      priority: 0,
     };
 
     const updatedProjects = [...(projects || []), newProject];
@@ -304,16 +368,14 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
             othersNextActionsJson: JSON.stringify(updProject.othersNextActions),
           }
         : {}),
-      dueOn: dueOn ? dueOn.toISOString().split("T")[0] : undefined,
+      dueOn: dueOn ? toISODateString(dueOn) : undefined,
       doneOn:
         done === undefined
           ? undefined
           : doneOn
-          ? doneOn.toISOString().split("T")[0]
+          ? toISODateString(doneOn)
           : null,
-      onHoldTill: onHoldTill
-        ? onHoldTill.toISOString().split("T")[0]
-        : undefined,
+      onHoldTill: onHoldTill ? toISODateString(onHoldTill) : undefined,
     };
     const { data, errors } = await client.models.Projects.update(newProject);
     if (errors) handleApiErrors(errors, "Error updating project");
@@ -376,7 +438,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
             accountIds: p.accountIds.filter((id) => id !== accountId),
           }
     );
-    if (updated) mutate(updated, false);
+    if (updated) mutateProjects(updated, false);
 
     const accProj =
       await client.models.AccountProjects.listAccountProjectsByProjectsId(
@@ -392,7 +454,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     if (result.errors)
       handleApiErrors(result.errors, "Error deleting account/project link");
 
-    if (updated) mutate(updated);
+    if (updated) mutateProjects(updated);
 
     toast({
       title: "Removed account from project",

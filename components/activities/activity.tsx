@@ -1,7 +1,6 @@
 import useActivity from "@/api/useActivity";
 import { FC, useEffect, useState } from "react";
 import NotesWriter, {
-  EditorJsonContent,
   SerializerOutput,
 } from "../ui-elements/notes-writer/NotesWriter";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
@@ -17,7 +16,6 @@ type ActivityComponentProps = {
   showProjects?: boolean;
   showMeeting?: boolean;
   autoFocus?: boolean;
-  createActivity?: (notes?: EditorJsonContent) => Promise<string | undefined>;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -26,7 +24,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showMeeting,
   showProjects,
   autoFocus,
-  createActivity,
 }) => {
   const { activity, updateNotes, updateDate } = useActivity(activityId);
   const [dateSaved, setDateSaved] = useState(true);
@@ -39,7 +36,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   const handleNotesUpdate = (serializer: () => SerializerOutput) => {
     debouncedUpdateNotes({
       updateNotes,
-      createActivity,
       serializer,
     });
   };
@@ -56,7 +52,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   return (
     <div className="pb-8">
       {showDates && (
-        <h1 className="flex flex-row gap-2  sticky top-[7rem] md:top-[8rem] bg-bgTransparent z-[20] pb-2">
+        <div>
           <DateSelector
             date={date}
             setDate={handleDateUpdate}
@@ -64,11 +60,11 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
             bold
           />
           <SavedState saved={dateSaved} />
-        </h1>
+        </div>
       )}
 
       {showProjects && (
-        <div className="flex flex-row gap-2 sticky top-[14rem] md:top-[15rem] bg-bgTransparent z-[20] pb-2">
+        <div>
           On:
           {activity?.projectIds.map((id) => (
             <ProjectName key={id} projectId={id} />
@@ -77,14 +73,13 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
       )}
 
       {showMeeting && activity?.meetingId && (
-        <div className="flex flex-row gap-2 sticky top-[10rem] md:top-[11rem] bg-bgTransparent z-[20] pb-2">
+        <div>
           At:
           <MeetingName meetingId={activity.meetingId} />
         </div>
       )}
 
       <div>
-        <h4 className="font-semibold tracking-tight">Notes:</h4>
         <NotesWriter
           notes={activity?.notes}
           saveNotes={handleNotesUpdate}

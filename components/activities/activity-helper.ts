@@ -7,17 +7,11 @@ import {
 type DebouncedUpdateNotesProps = {
   serializer: () => SerializerOutput;
   updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
-  createActivity?: (notes: EditorJsonContent) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateNotes = debounce(
-  async ({
-    serializer,
-    updateNotes,
-    createActivity,
-  }: DebouncedUpdateNotesProps) => {
+  async ({ serializer, updateNotes }: DebouncedUpdateNotesProps) => {
     const { json: notes } = serializer();
-    if (createActivity) return await createActivity(notes);
     await updateNotes(notes);
   },
   1000

@@ -102,7 +102,7 @@ const AddControllerDialog: FC<AddControllerDialogProps> = ({
                 {accounts
                   .filter(({ id }) => id !== account.id)
                   .map(({ id, name }) => (
-                    <CommandItem key={id} value={id} onSelect={assignParent}>
+                    <CommandItem key={id} value={name} onSelect={assignParent}>
                       {name}
                     </CommandItem>
                   ))}

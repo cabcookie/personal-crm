@@ -19,7 +19,7 @@ type MainLayoutProps = CategoryTitleProps & {
   children: ReactNode;
 };
 
-export const MainLayoutInner: FC<MainLayoutProps> = ({
+const MainLayoutInner: FC<MainLayoutProps> = ({
   children,
   recordName,
   sectionName,
@@ -55,8 +55,8 @@ export const MainLayoutInner: FC<MainLayoutProps> = ({
               </div>
             </div>
           </div>
+          <Toaster />
         </main>
-        <Toaster />
       </div>
     </div>
   );

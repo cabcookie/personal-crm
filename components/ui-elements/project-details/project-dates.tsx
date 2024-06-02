@@ -1,15 +1,8 @@
 import { Project } from "@/api/ContextProjects";
 import DateSelector from "@/components/ui-elements/selectors/date-selector";
+import { format } from "date-fns";
 import { FC } from "react";
-
-type ProjectDatesProps = {
-  project: Project;
-  updateDatesFn: (props: {
-    dueOn?: Date;
-    onHoldTill?: Date;
-    doneOn?: Date;
-  }) => Promise<string | undefined>;
-};
+import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 
 type ProjectDatesHelperProps = {
   date?: Date;
@@ -23,19 +16,49 @@ const ProjectDatesHelper: FC<ProjectDatesHelperProps> = ({
   updateDateFn,
 }) => {
   return (
-    <div className="flex-1 m-0 p-0 box-border">
+    <div>
       <h3 className="font-semibold tracking-tight">{title}</h3>
       <DateSelector date={date} setDate={updateDateFn} />
     </div>
   );
 };
 
+type ProjectDatesProps = {
+  project: Project;
+  updateDatesFn: (props: {
+    dueOn?: Date;
+    onHoldTill?: Date;
+    doneOn?: Date;
+  }) => Promise<string | undefined>;
+  accordionSelectedValue?: string;
+};
+
 const ProjectDates: FC<ProjectDatesProps> = ({
   project: { dueOn, doneOn, onHoldTill },
   updateDatesFn,
-}) => {
-  return (
-    <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">
+  accordionSelectedValue,
+}) => (
+  <DefaultAccordionItem
+    value="project-dates"
+    title="Project Dates"
+    accordionSelectedValue={accordionSelectedValue}
+    isVisible
+    subTitle={
+      <>
+        {doneOn ? (
+          <small>Done on: {format(doneOn, "PPP")}</small>
+        ) : (
+          <>
+            {dueOn && <small>Due: {format(dueOn, "PPP")}</small>}
+            {onHoldTill && (
+              <small>On hold till: {format(onHoldTill, "PPP")}</small>
+            )}
+          </>
+        )}
+      </>
+    }
+  >
+    <div className="space-y-4">
       <ProjectDatesHelper
         title="Due on"
         date={dueOn}
@@ -54,7 +77,7 @@ const ProjectDates: FC<ProjectDatesProps> = ({
         />
       )}
     </div>
-  );
-};
+  </DefaultAccordionItem>
+);
 
 export default ProjectDates;

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { CommandLoading } from "cmdk";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { FC, useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -58,7 +58,12 @@ const ComboBox: FC<ComboBoxProps> = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command loop shouldFilter={false}>
+        <Command
+          loop
+          filter={(val, search) =>
+            val.includes(search) ? 1 : val === "create-new-record" ? 1 : 0
+          }
+        >
           <CommandInput
             placeholder={placeholder}
             value={searchVal}
@@ -68,44 +73,39 @@ const ComboBox: FC<ComboBoxProps> = ({
             {!options && <CommandLoading>{loadingResultsMsg}</CommandLoading>}
             <CommandEmpty>{noSearchResultMsg}</CommandEmpty>
             <CommandGroup>
-              {[
-                ...(options || []),
-                ...(onCreate ? [{ value: "new", label: createItemLabel }] : []),
-              ]
-                .filter(
-                  (opt) =>
-                    opt.label.toLowerCase().includes(searchVal.toLowerCase()) ||
-                    opt.value === "new"
-                )
-                .map((opt) => (
-                  <CommandItem
-                    key={opt.value}
-                    value={opt.label}
-                    onSelect={() => {
-                      if (opt.value === "new" && onCreate) {
-                        onCreate(searchVal);
-                        setSearchVal("");
-                        setOpen(false);
-                        return;
-                      }
-                      if (!onChange) return;
-                      onChange(opt.value === currentValue ? "" : opt.value);
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        opt.value === currentValue ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                    {opt.value === "new" ? (
-                      <strong>{opt.label}</strong>
-                    ) : (
-                      opt.label
+              {options?.map((opt) => (
+                <CommandItem
+                  key={opt.value}
+                  value={opt.label}
+                  onSelect={() => {
+                    if (!onChange) return;
+                    onChange(opt.value === currentValue ? "" : opt.value);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      opt.value === currentValue ? "opacity-100" : "opacity-0"
                     )}
-                  </CommandItem>
-                ))}
+                  />
+                  {opt.label}
+                </CommandItem>
+              ))}
+
+              {onCreate && (
+                <CommandItem
+                  value="create-new-record"
+                  onSelect={() => {
+                    onCreate(searchVal);
+                    setSearchVal("");
+                    setOpen(false);
+                  }}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  {createItemLabel}
+                </CommandItem>
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

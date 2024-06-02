@@ -26,7 +26,7 @@ Amplify.configure(config);
 
 const CONTEXT_LOCAL_STORAGE_NAME = "currentContext";
 
-export const contextLocalStorage = {
+const contextLocalStorage = {
   getContext: (setContext: SetContextStateFn, fallBackContext: Context) => {
     const result: string =
       window.localStorage.getItem(CONTEXT_LOCAL_STORAGE_NAME) ||

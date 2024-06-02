@@ -11,6 +11,7 @@ import {
 import { toLocaleDateString } from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
 import { CalendarIcon, Edit } from "lucide-react";
 import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -170,7 +171,7 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
                             )}
                           >
                             {field.value ? (
-                              toLocaleDateString(field.value)
+                              format(field.value, "PPP")
                             ) : (
                               <span>Pick a start date…</span>
                             )}
@@ -211,7 +212,7 @@ const ResponsibilitiesDialog: FC<ResponsibilitiesDialogProps> = ({
                             )}
                           >
                             {field.value ? (
-                              toLocaleDateString(field.value)
+                              format(field.value, "PPP")
                             ) : (
                               <span>Pick an end date…</span>
                             )}

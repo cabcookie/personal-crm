@@ -6,12 +6,14 @@ type AccountSelectorProps = {
   value: string;
   allowCreateAccounts?: boolean;
   onChange: (accountId: string | null) => void;
+  placeholder?: string;
 };
 
 const AccountSelector: FC<AccountSelectorProps> = ({
   value,
   allowCreateAccounts,
   onChange,
+  placeholder = "Search accounts…",
 }) => {
   const { accounts, createAccount } = useAccountsContext();
 
@@ -27,7 +29,7 @@ const AccountSelector: FC<AccountSelectorProps> = ({
         label: account.name,
       }))}
       currentValue={value}
-      placeholder="Search accounts…"
+      placeholder={placeholder}
       noSearchResultMsg="No account found."
       onChange={onChange}
       onCreate={allowCreateAccounts ? onCreate : undefined}

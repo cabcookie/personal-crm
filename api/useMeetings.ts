@@ -1,11 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
-import { useEffect, useState } from "react";
-import { SelectionSet, generateClient } from "aws-amplify/data";
-import { handleApiErrors } from "./globals";
 import { Context } from "@/contexts/ContextContext";
-import useSWR from "swr";
-import { flow } from "lodash";
 import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
+import { SelectionSet, generateClient } from "aws-amplify/data";
+import { flow } from "lodash";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 export type Meeting = {
@@ -29,7 +29,10 @@ export const meetingSelectionSet = [
   "activities.createdAt",
 ] as const;
 
-type MeetingData = SelectionSet<Schema["Meeting"]["type"], typeof meetingSelectionSet>;
+type MeetingData = SelectionSet<
+  Schema["Meeting"]["type"],
+  typeof meetingSelectionSet
+>;
 
 export const mapMeeting: (data: MeetingData) => Meeting = ({
   id,

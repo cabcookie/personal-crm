@@ -251,6 +251,7 @@ const schema = a.schema({
       crmId: a.string(),
       annualRecurringRevenue: a.integer(),
       totalContractVolume: a.integer(),
+      isMarketplace: a.boolean(),
       closeDate: a.date().required(),
       projects: a.hasMany("CrmProjectProjects", "crmProjectId"),
       stage: a.string().required(),

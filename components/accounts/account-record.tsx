@@ -3,6 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import Link from "next/link";
 import { FC } from "react";
+import { BiLinkExternal } from "react-icons/bi";
 import {
   AccordionContent,
   AccordionItem,
@@ -40,13 +41,17 @@ const AccountRecord: FC<AccountRecordProps> = ({
       {...attributes}
       {...listeners}
     >
-      <AccordionTrigger className="font-bold tracking-tight hover:no-underline hover:bg-muted">
+      <AccordionTrigger className="font-bold tracking-tight">
         <div className="flex flex-row gap-2 start-0 align-middle">
           <div>{account.name}</div>
-          <div className="font-normal">
-            <small className="hover:underline">
-              <Link href={`/accounts/${account.id}`}>Open</Link>
-            </small>
+          <Link
+            href={`/accounts/${account.id}`}
+            className="mt-1 text-muted-foreground hover:text-primary"
+          >
+            <BiLinkExternal />
+          </Link>
+          <div className="font-normal space-x-2">
+            <small className="font-normal">(Prio: {account.priority})</small>
           </div>
         </div>
       </AccordionTrigger>
