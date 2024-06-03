@@ -52,34 +52,32 @@ const NextActions: FC<NextActionsProps> = ({
   others,
   saveFn,
   accordionSelectedValue,
-}) => {
-  return (
-    <DefaultAccordionItem
-      value="next-actions"
-      title="Next Actions"
-      accordionSelectedValue={accordionSelectedValue}
-      subTitle={
-        <small>
-          {own &&
-            (typeof own === "string" ? own : getTextFromEditorJsonContent(own))}
-        </small>
-      }
-      isVisible
-    >
-      <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">
-        <NextActionHelper
-          title="My next actions"
-          actions={own}
-          saveFn={(actions) => saveFn(actions, others || "")}
-        />
-        <NextActionHelper
-          title="Other's next actions"
-          actions={others}
-          saveFn={(actions) => saveFn(own || "", actions)}
-        />
-      </div>
-    </DefaultAccordionItem>
-  );
-};
+}) => (
+  <DefaultAccordionItem
+    value="next-actions"
+    title="Next Actions"
+    accordionSelectedValue={accordionSelectedValue}
+    subTitle={
+      <small>
+        {own &&
+          (typeof own === "string" ? own : getTextFromEditorJsonContent(own))}
+      </small>
+    }
+    isVisible
+  >
+    <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">
+      <NextActionHelper
+        title="My next actions"
+        actions={own}
+        saveFn={(actions) => saveFn(actions, others || "")}
+      />
+      <NextActionHelper
+        title="Other's next actions"
+        actions={others}
+        saveFn={(actions) => saveFn(own || "", actions)}
+      />
+    </div>
+  </DefaultAccordionItem>
+);
 
 export default NextActions;

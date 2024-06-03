@@ -1,7 +1,3 @@
-# Prioritäten für Accounts und Projekte (Version :VERSION)
+# Accordion-Breite optimiert (Version :VERSION)
 
-Die Priorität eines Accounts und von Projekten wird nun anhand der Order Number und dem erwarteten Umsatz beim Laden der Daten berechnet.
-
-## UI vereinfacht
-
-Mit Hilfe von Accordions können wir nun viele Informationen anzeigen, ohne dass sie viel Raum auf der Seite einnehmen. Die Listen lassen sich auf- und zuklappen und somit alle relevanten Informationen anzeigen, wenn notwendig.
+Wenn ein Accordion zu viel Text im Untertitel hatte, wurde es breiter, als der Screen. Das ist jetzt behoben.
