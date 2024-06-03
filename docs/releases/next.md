@@ -1,4 +1,3 @@
-# Notizen Seite eingeführt (Version :VERSION)
+# Kleinere Veränderungen (Version :VERSION)
 
-Notizen können nun auf einer eigenen Seite geöffnet werden. Dort können sie dann auch noch einmal für ein weiteres Projekt verlinkt werden.
-Für Aktivitäten kann man nun den Link in die Zwischenablage kopieren und somit in anderen Notizen darauf verlinken.
+- Bei Suchen nach Personen, Accounts und Projekten musste auf Groß- und Kleinschreibung geachtet werden. Das ist nun nicht mehr so.
