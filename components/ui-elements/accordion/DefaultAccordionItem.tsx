@@ -3,6 +3,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { FC, ReactNode } from "react";
 import { BiLinkExternal } from "react-icons/bi";
@@ -30,19 +31,21 @@ const DefaultAccordionItem: FC<DefaultAccordionItemProps> = ({
 }) =>
   isVisible && (
     <AccordionItem value={value}>
-      <AccordionTrigger className={className}>
-        <div className="flex flex-row gap-2 start-0 align-middle">
-          <div>{title}</div>
+      <AccordionTrigger className={cn("w-full", className)}>
+        <div className="flex flex-row gap-2 items-center w-full">
+          <div className="flex-shrink-0">{title}</div>
           {link && (
             <Link
               href={link}
-              className="mt-1 text-muted-foreground hover:text-primary"
+              className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
             >
               <BiLinkExternal />
             </Link>
           )}
           {subTitle && accordionSelectedValue !== value && (
-            <div className="font-normal space-x-2 truncate">{subTitle}</div>
+            <div className="flex-1 min-w-0 font-normal space-x-2 truncate">
+              {subTitle}
+            </div>
           )}
         </div>
       </AccordionTrigger>
