@@ -3,6 +3,7 @@ import {
   EditorJsonContent,
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { useToast } from "@/components/ui/use-toast";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -75,6 +76,7 @@ const useActivity = (activityId?: string) => {
     isLoading: loadingActivity,
     mutate: mutateActivity,
   } = useSWR(`/api/activities/${activityId}`, fetchActivity(activityId));
+  const { toast } = useToast();
 
   const updateDate = async (date: Date) => {
     if (!activity) return;
@@ -109,12 +111,31 @@ const useActivity = (activityId?: string) => {
     return data?.id;
   };
 
+  const addProjectToActivity = async (projectId: string | null) => {
+    if (!activity) return;
+    if (!projectId) return;
+    const updated: Activity = {
+      ...activity,
+      projectIds: [...activity.projectIds, projectId],
+    };
+    mutateActivity(updated, false);
+    const { data, errors } = await client.models.ProjectActivity.create({
+      activityId: activity.id,
+      projectsId: projectId,
+    });
+    if (errors) handleApiErrors(errors, "Error adding project to current note");
+    if (data) toast({ title: "Added note to another project" });
+    mutateActivity(updated);
+    return data?.id;
+  };
+
   return {
     activity,
     loadingActivity,
     errorActivity,
     updateNotes,
     updateDate,
+    addProjectToActivity,
   };
 };
 
