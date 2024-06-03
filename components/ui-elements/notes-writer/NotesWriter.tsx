@@ -24,7 +24,7 @@ type GenericObject = { [key: string]: any };
 const MyExtensions = [StarterKit, Highlight, Link];
 
 export const getTextFromEditorJsonContent = (json: EditorJsonContent) =>
-  generateText(json, MyExtensions).split("\n\n").join(", ");
+  generateText(json, MyExtensions);
 
 const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
   for (const key in obj1) {
