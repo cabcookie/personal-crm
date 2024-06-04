@@ -1,7 +1,7 @@
 import { addDaysToDate } from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { addDays, format, getHours } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { FC } from "react";
 import { useForm } from "react-hook-form";
@@ -44,7 +44,10 @@ const DayPlanForm: FC<DayPlanFormProps> = ({
 }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { goal: "" },
+    defaultValues: {
+      goal: "",
+      date: getHours(new Date()) < 12 ? new Date() : addDays(new Date(), 1),
+    },
   });
   const { toast } = useToast();
 
