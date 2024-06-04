@@ -1,5 +1,8 @@
-# Kleinere Veränderungen (Version :VERSION)
+# Optimierungen beim Arbeiten mit Tagesplänen (Version :VERSION)
 
-- Bei Suchen nach Personen, Accounts und Projekten musste auf Groß- und Kleinschreibung geachtet werden. Das ist nun nicht mehr so.
-- Actions mit Bullet Points sahen in der Vorschau bei einem geschlossenen Accordion etwas komisch aus und waren mit doppelten Kommas durchsät. Das ist jetzt nicht mehr so.
-- Das Erstellen eines neuen Eintrags in der Inbox ist in das Navigationsmenü und in den Header verlegt worden.
+- Beim Einrichten eines neuen Tagesplans den aktuellen Tag als Standard anbieten, wenn es vormittags ist, ansonsten den nächsten Tag
+- Aufgabenliste umstellen auf Checkbox
+- Editieren von Einträgen in Aufgabenliste ermöglichen
+- Löschen von Einträgen ermöglichen (in Today's Tasks; immer zur Sicherheit abfragen)
+- Aufgaben im Tagesplan sortieren (erledigte nach unten, dann nach Erstelldatum)
+- Die Bestätigung, dass eine Aufgabe im Tagesplan angelegt wurde, ist unnötig

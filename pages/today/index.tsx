@@ -6,13 +6,14 @@ import TaskForm from "@/components/dayplan/task-form";
 import MainLayout from "@/components/layouts/MainLayout";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { useContextContext } from "@/contexts/ContextContext";
 import { isTodayOrFuture } from "@/helpers/functional";
+import { format } from "date-fns";
 import { FileWarning } from "lucide-react";
 import { useState } from "react";
-import { IoSquareOutline } from "react-icons/io5";
 
 const TodayPage = () => {
   const { context } = useContextContext();
@@ -22,6 +23,8 @@ const TodayPage = () => {
     completeDayPlan,
     undoDayplanCompletion,
     createTodo,
+    updateTodo,
+    deleteTodo,
     switchTodoDone,
     migrateLegacyTasks,
     countLegacyTasks,
@@ -118,44 +121,51 @@ const TodayPage = () => {
 
           <div className="mt-4" />
 
-          {dayPlans.map(({ id: dayplanId, day, dayGoal, todos }) => (
-            <div key={dayplanId} className="mb-4">
-              <div className="flex flex-row gap-2 items-center sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent text-lg md:text-xl tracking-tight">
-                <IoSquareOutline
-                  onClick={() => handleCompleteDayPlan(dayplanId)}
+          <div className="space-y-12">
+            {dayPlans.map(({ id: dayplanId, day, dayGoal, todos }) => (
+              <div
+                key={dayplanId}
+                className="items-top flex space-x-2 tracking-tight"
+              >
+                <Checkbox
+                  id={dayplanId}
+                  onCheckedChange={() => handleCompleteDayPlan(dayplanId)}
+                  className="mt-[0.05rem] sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent "
                 />
-                <h1 className="font-bold">
-                  {dayGoal} – {day.toLocaleDateString()}
-                </h1>
+                <div className="grid gap-2 leading-none w-full">
+                  <label
+                    htmlFor={dayplanId}
+                    className="text-lg md:text-xl font-bold  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent pb-2 flex gap-2"
+                  >
+                    {dayGoal} – {format(day, "PPP")}
+                  </label>
+                  {todos.length === 0 ? (
+                    <p className="text-muted-foreground">No open todos</p>
+                  ) : (
+                    todos.map((todo) => (
+                      <Task
+                        key={todo.id}
+                        todo={todo}
+                        switchTodoDone={switchTodoDone}
+                        updateTodo={updateTodo}
+                        deleteTodo={deleteTodo}
+                        editable={isTodayOrFuture(day)}
+                      />
+                    ))
+                  )}
+                  {isTodayOrFuture(day) && (
+                    <div className="flex flex-row mt-2 text-base md:text-lg gap-2">
+                      <TaskForm
+                        createTodo={(todo, projectId?: string) =>
+                          createTodo({ todo, projectId, dayplanId })
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <section className="mt-1">
-                {todos.length === 0 ? (
-                  <div className="text-secondary-foreground ml-7">
-                    No open todos
-                  </div>
-                ) : (
-                  todos.map((todo) => (
-                    <Task
-                      key={todo.id}
-                      todo={todo}
-                      switchTodoDone={switchTodoDone}
-                    />
-                  ))
-                )}
-                {isTodayOrFuture(day) && (
-                  <article className="flex flex-row mt-2 text-base md-text-lg ml-6 gap-2">
-                    <IoSquareOutline className="mt-1" />
-                    <TaskForm
-                      createTodo={(todo, projectId?: string) =>
-                        createTodo({ todo, projectId, dayplanId })
-                      }
-                    />
-                  </article>
-                )}
-              </section>
-            </div>
-          ))}
+            ))}
+          </div>
         </>
       )}
     </MainLayout>

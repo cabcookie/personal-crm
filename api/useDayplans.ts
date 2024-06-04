@@ -94,7 +94,11 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
       doneOn: doneOn ? new Date(doneOn) : undefined,
       projectId: project?.id,
     }))
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+    .sort((a, b) =>
+      a.done === b.done
+        ? a.createdAt.getTime() - b.createdAt.getTime()
+        : (a.done ? 1 : 0) - (b.done ? 1 : 0)
+    ),
   projectTasks: projectTasks
     .map(({ id, task, done, createdAt, projects }) => ({
       id,
@@ -148,6 +152,13 @@ type CreateTodoFn = (props: {
   dayplanId: string;
   projectId?: string;
 }) => Promise<Schema["DayPlanTodo"]["type"] | undefined>;
+
+type UpdateTodoFn = (
+  todo: string,
+  todoId: string
+) => Promise<string | undefined>;
+
+type DeleteTodoFn = (todoId: string) => Promise<string | undefined>;
 
 type SwitchTodoDoneFn = (todoId: string, done: boolean) => Promise<void>;
 
@@ -335,6 +346,43 @@ const useDayPlans = (context?: Context) => {
     return data || undefined;
   };
 
+  const updateTodo: UpdateTodoFn = async (todo, todoId) => {
+    const updated: DayPlan[] | undefined = dayPlans?.map((d) =>
+      !d.todos.some((t) => t.id === todoId)
+        ? d
+        : {
+            ...d,
+            todos: d.todos.map((t) => (t.id !== todoId ? t : { ...t, todo })),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DayPlanTodo.update({
+      id: todoId,
+      todo,
+    });
+    if (errors) handleApiErrors(errors, "Error updating todo");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  const deleteTodo: DeleteTodoFn = async (todoId) => {
+    const updated: DayPlan[] | undefined = dayPlans?.map((d) =>
+      !d.todos.some((t) => t.id === todoId)
+        ? d
+        : {
+            ...d,
+            todos: d.todos.filter((t) => t.id !== todoId),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DayPlanTodo.delete({
+      id: todoId,
+    });
+    if (errors) handleApiErrors(errors, "Error deleting task from day plan.");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const switchTodoDone: SwitchTodoDoneFn = async (todoId, done) => {
     const updated = dayPlans?.map(({ todos, ...rest }) => ({
       ...rest,
@@ -359,6 +407,8 @@ const useDayPlans = (context?: Context) => {
     completeDayPlan,
     undoDayplanCompletion,
     createTodo,
+    updateTodo,
+    deleteTodo,
     switchTodoDone,
     migrateLegacyTasks,
     countLegacyTasks,
