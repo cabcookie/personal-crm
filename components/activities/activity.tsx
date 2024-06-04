@@ -34,7 +34,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showDates,
   showMeeting,
   showProjects,
-  autoFocus,
   allowAddingProjects,
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
@@ -139,7 +138,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
         <NotesWriter
           notes={activity?.notes}
           saveNotes={handleNotesUpdate}
-          autoFocus={autoFocus}
           key={activityId}
         />
       </div>
