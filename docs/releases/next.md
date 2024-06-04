@@ -1,4 +1,5 @@
-# Notizen Seite eingeführt (Version :VERSION)
+# Kleinere Veränderungen (Version :VERSION)
 
-Notizen können nun auf einer eigenen Seite geöffnet werden. Dort können sie dann auch noch einmal für ein weiteres Projekt verlinkt werden.
-Für Aktivitäten kann man nun den Link in die Zwischenablage kopieren und somit in anderen Notizen darauf verlinken.
+- Bei Suchen nach Personen, Accounts und Projekten musste auf Groß- und Kleinschreibung geachtet werden. Das ist nun nicht mehr so.
+- Actions mit Bullet Points sahen in der Vorschau bei einem geschlossenen Accordion etwas komisch aus und waren mit doppelten Kommas durchsät. Das ist jetzt nicht mehr so.
+- Das Erstellen eines neuen Eintrags in der Inbox ist in das Navigationsmenü und in den Header verlegt worden.

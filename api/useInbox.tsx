@@ -71,17 +71,6 @@ const useInbox = () => {
     mutate,
   } = useSWR("/api/inbox", fetchInbox);
 
-  const createInbox = async (note: EditorJsonContent) => {
-    const { data, errors } = await client.models.Inbox.create({
-      noteJson: JSON.stringify(note),
-      note: null,
-      formatVersion: 2,
-      status: "new",
-    });
-    if (errors) handleApiErrors(errors, "Error creating inbox item");
-    return data?.id;
-  };
-
   const updateNote = async (id: string, note: EditorJsonContent) => {
     const updated = inbox?.map((item) =>
       item.id !== id ? item : { ...item, note }
@@ -98,11 +87,14 @@ const useInbox = () => {
     return data?.id;
   };
 
+  const mutateInbox = (newItem?: Inbox) =>
+    inbox && mutate([...inbox, ...(newItem ? [newItem] : [])]);
+
   return {
     inbox,
     errorInbox,
-    createInbox,
     updateNote,
+    mutateInbox,
   };
 };
 

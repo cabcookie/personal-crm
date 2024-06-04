@@ -61,7 +61,11 @@ const ComboBox: FC<ComboBoxProps> = ({
         <Command
           loop
           filter={(val, search) =>
-            val.includes(search) ? 1 : val === "create-new-record" ? 1 : 0
+            val.toLowerCase().includes(search.toLowerCase())
+              ? 1
+              : val === "create-new-record"
+              ? 1
+              : 0
           }
         >
           <CommandInput

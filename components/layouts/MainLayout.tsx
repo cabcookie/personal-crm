@@ -10,6 +10,10 @@ import { addKeyDownListener } from "@/helpers/keyboard-events/main-layout";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { FC, ReactNode, useEffect } from "react";
+import CreateInboxItemDialog, {
+  CreateInboxItemProvider,
+  useCreateInboxItemContext,
+} from "../inbox/CreateInboxItemDialog";
 import { Toaster } from "../ui/toaster";
 
 type MainLayoutProps = CategoryTitleProps & {
@@ -27,13 +31,20 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
   ...categoryTitleProps
 }) => {
   const { toggleMenu } = useNavMenuContext();
+  const { open: openCreateInboxItemDialog } = useCreateInboxItemContext();
   const { context: storedContext, setContext } = useContextContext();
   const context = propsContext || storedContext || "family";
   const router = useRouter();
 
   useEffect(
-    () => addKeyDownListener(router, setContext, toggleMenu),
-    [router, setContext, toggleMenu]
+    () =>
+      addKeyDownListener(
+        router,
+        setContext,
+        toggleMenu,
+        openCreateInboxItemDialog
+      ),
+    [openCreateInboxItemDialog, router, setContext, toggleMenu]
   );
 
   return (
@@ -56,6 +67,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
             </div>
           </div>
           <Toaster />
+          <CreateInboxItemDialog />
         </main>
       </div>
     </div>
@@ -64,7 +76,9 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
 
 const MainLayout: FC<MainLayoutProps> = (props) => (
   <NavMenuContextProvider>
-    <MainLayoutInner {...props} />
+    <CreateInboxItemProvider>
+      <MainLayoutInner {...props} />
+    </CreateInboxItemProvider>
   </NavMenuContextProvider>
 );
 

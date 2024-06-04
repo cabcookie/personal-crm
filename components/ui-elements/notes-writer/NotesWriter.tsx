@@ -24,7 +24,7 @@ type GenericObject = { [key: string]: any };
 const MyExtensions = [StarterKit, Highlight, Link];
 
 export const getTextFromEditorJsonContent = (json: EditorJsonContent) =>
-  generateText(json, MyExtensions).split("\n\n").join(", ");
+  generateText(json, MyExtensions);
 
 const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
   for (const key in obj1) {
@@ -72,6 +72,7 @@ type NotesWriterProps = {
   placeholder?: string;
   onSubmit?: (item: EditorJsonContent) => void;
   readonly?: boolean;
+  showSaveStatus?: boolean;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -81,6 +82,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   placeholder = "Start taking notes...",
   onSubmit,
   readonly,
+  showSaveStatus = true,
 }) => {
   const editor = useEditor({
     extensions: [
@@ -122,13 +124,20 @@ const NotesWriter: FC<NotesWriterProps> = ({
         attributes: {
           class: cn(
             "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",
-            !isUpToDate(notes, editor.getJSON()) && "bg-destructive/10"
+            showSaveStatus &&
+              !isUpToDate(notes, editor.getJSON()) &&
+              "bg-destructive/10"
           ),
         },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.getJSON(), notes]);
+
+  useEffect(() => {
+    if (editor?.isActive && autoFocus && !editor?.isFocused)
+      editor.commands.focus();
+  }, [editor?.commands, editor?.isActive, editor?.isFocused, autoFocus]);
 
   return <EditorContent editor={editor} />;
 };

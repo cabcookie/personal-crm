@@ -1,10 +1,12 @@
 import { useContextContext } from "@/contexts/ContextContext";
 import { useNavMenuContext } from "@/contexts/NavMenuContext";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
 import { BiConversation } from "react-icons/bi";
 import { GoTasklist } from "react-icons/go";
 import { IconType } from "react-icons/lib";
 import { PiHandFist } from "react-icons/pi";
+import { useCreateInboxItemContext } from "../inbox/CreateInboxItemDialog";
 import {
   CommandDialog,
   CommandEmpty,
@@ -28,6 +30,7 @@ type NavigationItem = {
 const NavigationMenu = () => {
   const { isWorkContext } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
+  const { open: openCreateInboxItemDialog } = useCreateInboxItemContext();
   const router = useRouter();
 
   const mainNavigation: NavigationItem[] = [
@@ -103,6 +106,10 @@ const NavigationMenu = () => {
             </CommandItem>
           ))}
         </CommandGroup>
+        <CommandItem forceMount onSelect={openCreateInboxItemDialog}>
+          <Plus className="mr-2 h-4 w-4" />
+          <span>Create Inbox Item</span>
+        </CommandItem>
         <CommandItem onSelect={() => {}}>
           <div className="px-2 text-muted-foreground text-xs">
             <Version />
