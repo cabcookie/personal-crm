@@ -13,7 +13,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { useToast } from "../ui/use-toast";
 
 const FormSchema = z.object({
   todo: z
@@ -36,10 +35,8 @@ const TaskForm: FC<TaskFormProps> = ({ createTodo }) => {
     resolver: zodResolver(FormSchema),
     defaultValues: { todo: "", projectId: "" },
   });
-  const { toast } = useToast();
 
   const handleSubmit = ({ todo, projectId }: z.infer<typeof FormSchema>) => {
-    toast({ title: "You created a new task", description: "new task created" });
     createTodo(todo, projectId !== "" ? projectId : undefined);
     form.reset();
   };

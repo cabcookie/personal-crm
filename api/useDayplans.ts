@@ -94,7 +94,11 @@ const mapDayPlan: (dayplan: DayPlanData) => DayPlan = ({
       doneOn: doneOn ? new Date(doneOn) : undefined,
       projectId: project?.id,
     }))
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()),
+    .sort((a, b) =>
+      a.done === b.done
+        ? a.createdAt.getTime() - b.createdAt.getTime()
+        : (a.done ? 1 : 0) - (b.done ? 1 : 0)
+    ),
   projectTasks: projectTasks
     .map(({ id, task, done, createdAt, projects }) => ({
       id,

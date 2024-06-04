@@ -18,7 +18,6 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { useToast } from "../ui/use-toast";
 
 const FormSchema = z.object({
   goal: z
@@ -49,13 +48,8 @@ const DayPlanForm: FC<DayPlanFormProps> = ({
       date: getHours(new Date()) < 12 ? new Date() : addDays(new Date(), 1),
     },
   });
-  const { toast } = useToast();
 
   const handleSubmit = ({ date, goal }: z.infer<typeof FormSchema>) => {
-    toast({
-      title: "You created a new day plan.",
-      description: `Your goal for ${date.toLocaleDateString()} is "${goal}".`,
-    });
     onSubmit(goal, date);
   };
 
