@@ -149,6 +149,13 @@ type CreateTodoFn = (props: {
   projectId?: string;
 }) => Promise<Schema["DayPlanTodo"]["type"] | undefined>;
 
+type UpdateTodoFn = (
+  todo: string,
+  todoId: string
+) => Promise<string | undefined>;
+
+type DeleteTodoFn = (todoId: string) => Promise<string | undefined>;
+
 type SwitchTodoDoneFn = (todoId: string, done: boolean) => Promise<void>;
 
 const checkForLegacyTasks = async (setCount: (count: number) => void) => {
@@ -335,6 +342,43 @@ const useDayPlans = (context?: Context) => {
     return data || undefined;
   };
 
+  const updateTodo: UpdateTodoFn = async (todo, todoId) => {
+    const updated: DayPlan[] | undefined = dayPlans?.map((d) =>
+      !d.todos.some((t) => t.id === todoId)
+        ? d
+        : {
+            ...d,
+            todos: d.todos.map((t) => (t.id !== todoId ? t : { ...t, todo })),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DayPlanTodo.update({
+      id: todoId,
+      todo,
+    });
+    if (errors) handleApiErrors(errors, "Error updating todo");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  const deleteTodo: DeleteTodoFn = async (todoId) => {
+    const updated: DayPlan[] | undefined = dayPlans?.map((d) =>
+      !d.todos.some((t) => t.id === todoId)
+        ? d
+        : {
+            ...d,
+            todos: d.todos.filter((t) => t.id !== todoId),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DayPlanTodo.delete({
+      id: todoId,
+    });
+    if (errors) handleApiErrors(errors, "Error deleting task from day plan.");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const switchTodoDone: SwitchTodoDoneFn = async (todoId, done) => {
     const updated = dayPlans?.map(({ todos, ...rest }) => ({
       ...rest,
@@ -359,6 +403,8 @@ const useDayPlans = (context?: Context) => {
     completeDayPlan,
     undoDayplanCompletion,
     createTodo,
+    updateTodo,
+    deleteTodo,
     switchTodoDone,
     migrateLegacyTasks,
     countLegacyTasks,

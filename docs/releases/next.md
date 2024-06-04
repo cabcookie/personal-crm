@@ -1,14 +1,13 @@
 # Optimierungen beim Arbeiten mit Tagesplänen (Version :VERSION)
 
 - Beim Einrichten eines neuen Tagesplans den aktuellen Tag als Standard anbieten, wenn es vormittags ist, ansonsten den nächsten Tag
+- Aufgabenliste umstellen auf Checkbox
+- Editieren von Einträgen in Aufgabenliste ermöglichen
+- Löschen von Einträgen ermöglichen (in Today's Tasks; immer zur Sicherheit abfragen)
 
 In Arbeit:
 
-- Editieren von Einträgen in Aufgabenliste ermöglichen
-
-- Löschen von Einträgen ermöglichen (in Today's Tasks, Meetings und bei Notizen; immer zur Sicherheit abfragen)
-
-- Aufgabenliste umstellen auf Checkbox
+- Löschen von Einträgen ermöglichen (Meetings und bei Notizen; immer zur Sicherheit abfragen)
 
 - Hinweise bei den Tagesplänen, wenn offene Pläne in anderen Kontexten existieren
 
