@@ -50,9 +50,6 @@ const AccountRecord: FC<AccountRecordProps> = ({
           >
             <BiLinkExternal />
           </Link>
-          <div className="font-normal space-x-2">
-            <small className="font-normal">(Prio: {account.priority})</small>
-          </div>
         </div>
       </AccordionTrigger>
       <AccordionContent>

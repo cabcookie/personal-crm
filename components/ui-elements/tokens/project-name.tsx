@@ -25,14 +25,7 @@ const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
         project.project
       ) : (
         <a href={`/projects/${projectId}`} className="hover:underline">
-          {!project ? (
-            "..."
-          ) : (
-            <>
-              {project.project}{" "}
-              <small className="font-normal">(Prio: {project.priority})</small>
-            </>
-          )}
+          {!project ? "..." : project.project}
         </a>
       )}
       {project.accountIds.map((accountId) => (
