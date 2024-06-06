@@ -1,8 +1,3 @@
-# Optimierungen beim Arbeiten mit Tagesplänen (Version :VERSION)
+# UI für Erstellen von Inbox Einträgen optimiert (Version :VERSION)
 
-- Beim Einrichten eines neuen Tagesplans den aktuellen Tag als Standard anbieten, wenn es vormittags ist, ansonsten den nächsten Tag
-- Aufgabenliste umstellen auf Checkbox
-- Editieren von Einträgen in Aufgabenliste ermöglichen
-- Löschen von Einträgen ermöglichen (in Today's Tasks; immer zur Sicherheit abfragen)
-- Aufgaben im Tagesplan sortieren (erledigte nach unten, dann nach Erstelldatum)
-- Die Bestätigung, dass eine Aufgabe im Tagesplan angelegt wurde, ist unnötig
+Es wurde interner JSON Code auf der Oberfläche angezeigt. Das ist nun nicht mehr der Fall.

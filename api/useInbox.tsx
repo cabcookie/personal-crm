@@ -1,8 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
 import {
   EditorJsonContent,
+  getTextFromEditorJsonContent,
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { useToast } from "@/components/ui/use-toast";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -70,6 +72,7 @@ const useInbox = () => {
     error: errorInbox,
     mutate,
   } = useSWR("/api/inbox", fetchInbox);
+  const { toast } = useToast();
 
   const updateNote = async (id: string, note: EditorJsonContent) => {
     const updated = inbox?.map((item) =>
@@ -87,14 +90,36 @@ const useInbox = () => {
     return data?.id;
   };
 
-  const mutateInbox = (newItem?: Inbox) =>
-    inbox && mutate([...inbox, ...(newItem ? [newItem] : [])]);
+  const createInboxItem = async (inboxItemText: EditorJsonContent) => {
+    const { data, errors } = await client.models.Inbox.create({
+      noteJson: JSON.stringify(inboxItemText),
+      note: null,
+      formatVersion: 2,
+      status: "new",
+    });
+    if (errors) handleApiErrors(errors, "Error creating inbox item");
+    if (!data) return;
+    toast({
+      title: "New Inbox Item Created",
+      description: getTextFromEditorJsonContent(inboxItemText),
+    });
+    mutate([
+      ...(inbox || []),
+      {
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        status: "new",
+        note: inboxItemText,
+      },
+    ]);
+    return data.id;
+  };
 
   return {
     inbox,
     errorInbox,
     updateNote,
-    mutateInbox,
+    createInboxItem,
   };
 };
 
