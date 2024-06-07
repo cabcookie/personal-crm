@@ -142,8 +142,15 @@ const mapCrmData = ({
   closeDate: new Date(closeDate),
 });
 
+export interface ICalcRevenueTwoYears {
+  arr: number;
+  tcv: number;
+  closeDate: Date;
+  isMarketPlace?: boolean;
+}
+
 export const calcRevenueTwoYears = flow(
-  ({ arr, tcv, closeDate, isMarketPlace }: CrmProjectData): number[] => [
+  ({ arr, tcv, closeDate, isMarketPlace }: ICalcRevenueTwoYears): number[] => [
     (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
     tcv / (isMarketPlace ? 2 : 1),
   ],

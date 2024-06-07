@@ -22,7 +22,7 @@ const ProjectActivities: FC<ProjectActivitiesProps> = ({
   ) : (
     <DefaultAccordionItem
       value="activities"
-      title="Notes"
+      triggerTitle="Notes"
       accordionSelectedValue={accordionSelectedValue}
       isVisible={isVisible}
     >

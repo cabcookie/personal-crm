@@ -8,9 +8,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useRouter } from "next/router";
+import { useState } from "react";
 
 const AccountsListPage = () => {
   const { accounts, createAccount, addResponsibility } = useAccountsContext();
+  const [validAccountsValue, setValidAccountsValue] = useState<
+    string | undefined
+  >(undefined);
+  const [invalidAccountsValue, setInvalidAccountsValue] = useState<
+    string | undefined
+  >(undefined);
+
   const router = useRouter();
 
   const createAndOpenNewAccount = async () => {
@@ -32,11 +40,17 @@ const AccountsListPage = () => {
           <div className="text-left md:text-center">
             Drag to change the priority of your accounts.
           </div>
-          <Accordion type="multiple">
+          <Accordion
+            type="single"
+            collapsible
+            value={validAccountsValue}
+            onValueChange={setValidAccountsValue}
+          >
             <AccountsList
               accounts={accounts}
               showCurrentOnly
               addResponsibility={addResponsibility}
+              selectedAccordionItem={validAccountsValue}
             />
           </Accordion>
           <div className="mt-8" />
@@ -46,11 +60,17 @@ const AccountsListPage = () => {
                 Show accounts with no current responsibility
               </AccordionTrigger>
               <AccordionContent>
-                <Accordion type="multiple">
+                <Accordion
+                  type="single"
+                  collapsible
+                  value={invalidAccountsValue}
+                  onValueChange={setInvalidAccountsValue}
+                >
                   <AccountsList
                     accounts={accounts}
                     showInvalidOnly
                     addResponsibility={addResponsibility}
+                    selectedAccordionItem={invalidAccountsValue}
                   />
                 </Accordion>
               </AccordionContent>

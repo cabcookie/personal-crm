@@ -45,6 +45,7 @@ type AccountsListProps = (
     startDate: Date,
     endDate?: Date
   ) => void;
+  selectedAccordionItem?: string;
 };
 
 type GetSortedAccountsProps = {
@@ -86,6 +87,7 @@ const AccountsList: FC<AccountsListProps> = ({
   showInvalidOnly,
   controllerId,
   addResponsibility,
+  selectedAccordionItem,
 }) => {
   const { updateOrder } = useAccountsContext();
   const [items, setItems] = useState(
@@ -149,6 +151,7 @@ const AccountsList: FC<AccountsListProps> = ({
               account={account}
               addResponsibility={addResponsibility}
               className="px-2"
+              selectedAccordionItem={selectedAccordionItem}
             />
           ))}
         </div>

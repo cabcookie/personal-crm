@@ -2,55 +2,71 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AccordionTriggerSubTitle,
+  AccordionTriggerTitle,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { AccordionItemProps } from "@radix-ui/react-accordion";
 import Link from "next/link";
-import { FC, ReactNode } from "react";
+import { ElementRef, ReactNode, forwardRef } from "react";
 import { BiLinkExternal } from "react-icons/bi";
 
-type DefaultAccordionItemProps = {
-  value: string;
-  title: ReactNode;
+interface DefaultAccordionItemProps extends AccordionItemProps {
+  triggerTitle: ReactNode;
   link?: string;
-  subTitle?: ReactNode;
+  triggerSubTitle?: ReactNode;
   accordionSelectedValue?: string;
-  className?: string;
-  children: ReactNode;
   isVisible?: boolean;
-};
+}
 
-const DefaultAccordionItem: FC<DefaultAccordionItemProps> = ({
-  value,
-  title,
-  link,
-  subTitle,
-  accordionSelectedValue,
-  className,
-  children,
-  isVisible = true,
-}) =>
-  isVisible && (
-    <AccordionItem value={value}>
-      <AccordionTrigger className={cn("w-full", className)}>
-        <div className="flex flex-row gap-2 items-center w-full">
-          <div className="flex-shrink-0">{title}</div>
-          {link && (
-            <Link
-              href={link}
-              className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
-            >
-              <BiLinkExternal />
-            </Link>
-          )}
-          {subTitle && accordionSelectedValue !== value && (
-            <div className="flex-1 min-w-0 font-normal space-x-2 truncate">
-              {subTitle}
+const DefaultAccordionItem = forwardRef<
+  ElementRef<typeof AccordionItem>,
+  DefaultAccordionItemProps
+>(
+  (
+    {
+      value,
+      triggerTitle,
+      link,
+      triggerSubTitle,
+      accordionSelectedValue,
+      className,
+      children,
+      isVisible = true,
+      ...props
+    },
+    ref
+  ) =>
+    isVisible && (
+      <AccordionItem value={value} ref={ref} {...props}>
+        <AccordionTrigger className={className}>
+          <AccordionTriggerTitle
+            className="pr-2"
+            isOpen={accordionSelectedValue === value}
+          >
+            <div className={cn(accordionSelectedValue !== value && "truncate")}>
+              {triggerTitle}
             </div>
-          )}
-        </div>
-      </AccordionTrigger>
-      <AccordionContent>{children}</AccordionContent>
-    </AccordionItem>
-  );
+            {link && (
+              <Link
+                href={link}
+                className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
+              >
+                <BiLinkExternal />
+              </Link>
+            )}
+          </AccordionTriggerTitle>
+          <AccordionTriggerSubTitle
+            isOpen={!!triggerSubTitle && accordionSelectedValue !== value}
+            className="font-normal"
+          >
+            {triggerSubTitle}
+          </AccordionTriggerSubTitle>
+        </AccordionTrigger>
+        <AccordionContent>{children}</AccordionContent>
+      </AccordionItem>
+    )
+);
+DefaultAccordionItem.displayName = AccordionItem.displayName;
 
 export default DefaultAccordionItem;

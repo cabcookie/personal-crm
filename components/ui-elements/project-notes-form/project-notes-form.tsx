@@ -1,13 +1,8 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
-import {
-  Project,
-  calcRevenueTwoYears,
-  useProjectsContext,
-} from "@/api/ContextProjects";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
+import { getRevenue2Years } from "@/api/useCrmProjects";
 import { Accordion } from "@/components/ui/accordion";
-import { formatUsdCurrency } from "@/helpers/functional";
-import { flow, map, sum } from "lodash/fp";
 import Link from "next/link";
 import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";
@@ -32,27 +27,23 @@ const ProjectItem: FC<ProjectItemProps> = ({
     project && (
       <DefaultAccordionItem
         value={project.id}
-        title={project.project}
+        triggerTitle={project.project}
         accordionSelectedValue={accordionSelectedValue}
         link={`/projects/${project.id}`}
         isVisible
-        subTitle={
+        triggerSubTitle={
           <>
             {project.accountIds.map((id: string) => (
-              <small key={id} className="hover:underline">
-                <Link href={`/accounts/${id}`}>{getAccountById(id)?.name}</Link>
-              </small>
+              <Link
+                key={id}
+                className="hover:underline"
+                href={`/accounts/${id}`}
+              >
+                {getAccountById(id)?.name}
+              </Link>
             ))}
-            {project.crmProjects.length > 0 && (
-              <small>
-                Revenue next 2Ys:{" "}
-                {flow(
-                  map(calcRevenueTwoYears),
-                  sum,
-                  formatUsdCurrency
-                )(project.crmProjects)}
-              </small>
-            )}
+            {project.crmProjects.length > 0 &&
+              getRevenue2Years(project.crmProjects)}
           </>
         }
       >

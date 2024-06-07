@@ -55,13 +55,10 @@ const NextActions: FC<NextActionsProps> = ({
 }) => (
   <DefaultAccordionItem
     value="next-actions"
-    title="Next Actions"
+    triggerTitle="Next Actions"
     accordionSelectedValue={accordionSelectedValue}
-    subTitle={
-      <small>
-        {own &&
-          (typeof own === "string" ? own : getTextFromEditorJsonContent(own))}
-      </small>
+    triggerSubTitle={
+      own && (typeof own === "string" ? own : getTextFromEditorJsonContent(own))
     }
     isVisible
   >
