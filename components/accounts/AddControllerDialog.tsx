@@ -76,6 +76,7 @@ const AddControllerDialog: FC<AddControllerDialogProps> = ({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
+              role="combobox"
               size="sm"
               className="w-[150px] justify-start"
             >
@@ -94,7 +95,7 @@ const AddControllerDialog: FC<AddControllerDialogProps> = ({
           )}
         </div>
         <PopoverContent className="p-0" side="right" align="start">
-          <Command>
+          <Command loop>
             <CommandInput placeholder="Change status..." />
             <CommandList>
               <CommandEmpty>No accounts found.</CommandEmpty>
@@ -102,7 +103,11 @@ const AddControllerDialog: FC<AddControllerDialogProps> = ({
                 {accounts
                   .filter(({ id }) => id !== account.id)
                   .map(({ id, name }) => (
-                    <CommandItem key={id} value={name} onSelect={assignParent}>
+                    <CommandItem
+                      key={id}
+                      value={name}
+                      onSelect={() => assignParent(id)}
+                    >
                       {name}
                     </CommandItem>
                   ))}
