@@ -36,7 +36,6 @@ const AccountRecord: FC<AccountRecordProps> = ({
       className={className}
       triggerTitle={account.name}
       link={`/accounts/${account.id}`}
-      triggerSubTitle={"test"}
       accordionSelectedValue={selectedAccordionItem}
       {...attributes}
       {...listeners}

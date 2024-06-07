@@ -1,5 +1,6 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import { FC, useState } from "react";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { debouncedUpdateAccountDetails } from "../ui-elements/account-details/account-updates-helpers";
 import NotesWriter, {
   SerializerOutput,
@@ -8,7 +9,6 @@ import { Accordion } from "../ui/accordion";
 import AccountNotes from "./AccountNotes";
 import AccountsList from "./AccountsList";
 import AddControllerDialog from "./AddControllerDialog";
-import LeanAccordianItem from "./LeanAccordionItem";
 import ProjectList from "./ProjectList";
 import ResponsibilitiesList from "./ResponsibilitiesList";
 import ResponsibilitiesDialog from "./responsibilities-dialog";
@@ -67,9 +67,11 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           setAccordionValue(val === accordionValue ? undefined : val)
         }
       >
-        <LeanAccordianItem
-          title="Responsibilities"
-          isVisible={showResponsibilities}
+        <DefaultAccordionItem
+          value="responsibilities"
+          triggerTitle="Responsibilities"
+          isVisible={!!showResponsibilities}
+          accordionSelectedValue={accordionValue}
         >
           <ResponsibilitiesList responsibilities={account.responsibilities} />
           <div className="mt-4" />
@@ -77,10 +79,15 @@ const AccountDetails: FC<AccountDetailsProps> = ({
             account={account}
             addResponsibility={addResponsibility}
           />
-        </LeanAccordianItem>
+        </DefaultAccordionItem>
 
         {accounts && (
-          <LeanAccordianItem title="Subsidiaries" isVisible={showSubsidaries}>
+          <DefaultAccordionItem
+            value="subsidaries"
+            triggerTitle="Subsidiaries"
+            isVisible={!!showSubsidaries}
+            accordionSelectedValue={accordionValue}
+          >
             <Accordion type="single" collapsible>
               <AccountsList
                 accounts={accounts}
@@ -88,28 +95,48 @@ const AccountDetails: FC<AccountDetailsProps> = ({
                 addResponsibility={addResponsibility}
               />
             </Accordion>
-          </LeanAccordianItem>
+          </DefaultAccordionItem>
         )}
 
-        <LeanAccordianItem title="Introduction" isVisible={showIntroduction}>
+        <DefaultAccordionItem
+          value="introduction"
+          triggerTitle="Introduction"
+          isVisible={!!showIntroduction}
+          accordionSelectedValue={accordionValue}
+        >
           <NotesWriter
             notes={account.introduction}
             placeholder="Describe the account..."
             saveNotes={handleUpdateIntroduction}
           />
-        </LeanAccordianItem>
+        </DefaultAccordionItem>
 
-        <LeanAccordianItem title="Projects" isVisible={showProjects}>
+        <DefaultAccordionItem
+          value="Projects"
+          triggerTitle="Projects"
+          isVisible={!!showProjects}
+          accordionSelectedValue={accordionValue}
+        >
           <ProjectList accountId={account.id} />
-        </LeanAccordianItem>
+        </DefaultAccordionItem>
 
-        <LeanAccordianItem title="Contacts" isVisible={showContacts}>
+        <DefaultAccordionItem
+          value="Contacts"
+          triggerTitle="Contacts"
+          isVisible={!!showContacts}
+          accordionSelectedValue={accordionValue}
+        >
           WORK IN PROGRESS
-        </LeanAccordianItem>
+        </DefaultAccordionItem>
 
-        <LeanAccordianItem title="Notes" isVisible={showNotes}>
+        <DefaultAccordionItem
+          value="Notes"
+          triggerTitle="Notes"
+          isVisible={!!showNotes}
+          accordionSelectedValue={accordionValue}
+        >
           <AccountNotes accountId={account.id} />
-        </LeanAccordianItem>
+        </DefaultAccordionItem>
       </Accordion>
     </>
   );

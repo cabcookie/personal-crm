@@ -44,7 +44,11 @@ const AccountsListPage = () => {
             type="single"
             collapsible
             value={validAccountsValue}
-            onValueChange={setValidAccountsValue}
+            onValueChange={(val) =>
+              setValidAccountsValue(
+                val === validAccountsValue ? undefined : val
+              )
+            }
           >
             <AccountsList
               accounts={accounts}
@@ -64,7 +68,11 @@ const AccountsListPage = () => {
                   type="single"
                   collapsible
                   value={invalidAccountsValue}
-                  onValueChange={setInvalidAccountsValue}
+                  onValueChange={(val) =>
+                    setInvalidAccountsValue(
+                      val === invalidAccountsValue ? undefined : val
+                    )
+                  }
                 >
                   <AccountsList
                     accounts={accounts}
