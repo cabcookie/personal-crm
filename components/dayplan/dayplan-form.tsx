@@ -104,11 +104,11 @@ const DayPlanForm: FC<DayPlanFormProps> = ({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      defaultMonth={field.value}
                       disabled={(date) =>
                         date < addDaysToDate(-1)(new Date()) ||
                         date > addDaysToDate(30)(new Date())
                       }
-                      initialFocus
                     />
                   </PopoverContent>
                 </Popover>

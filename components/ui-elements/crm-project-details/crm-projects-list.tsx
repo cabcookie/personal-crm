@@ -59,7 +59,9 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
         triggerTitle="CRM Projects"
         accordionSelectedValue={accordionSelectedValue}
         isVisible={isVisible}
-        triggerSubTitle={getRevenue2Years(crmProjects)}
+        triggerSubTitle={
+          crmProjects && crmProjects.length > 0 && getRevenue2Years(crmProjects)
+        }
       >
         <CrmProjectForm onCreate={onCrmProjectCreate} />
         <div className="mb-2" />

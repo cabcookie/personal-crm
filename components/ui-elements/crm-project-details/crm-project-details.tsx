@@ -1,5 +1,6 @@
 import useCrmProject from "@/api/useCrmProject";
 import { getRevenue2Years } from "@/api/useCrmProjects";
+import { makeCrmLink } from "@/components/crm/CrmLink";
 import { formatUsdCurrency } from "@/helpers/functional";
 import { format } from "date-fns";
 import { FC } from "react";
@@ -26,7 +27,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
       triggerTitle={crmProject.name}
       link={
         crmProject.crmId && crmProject.crmId.length > 6
-          ? `https://aws-crm.lightning.force.com/lightning/r/Opportunity/${crmProject.crmId}/view`
+          ? makeCrmLink("Opportunity", crmProject.crmId)
           : undefined
       }
       triggerSubTitle={

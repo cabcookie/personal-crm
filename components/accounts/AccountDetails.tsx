@@ -1,5 +1,6 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import { FC, useState } from "react";
+import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { debouncedUpdateAccountDetails } from "../ui-elements/account-details/account-updates-helpers";
 import NotesWriter, {
@@ -7,20 +8,14 @@ import NotesWriter, {
 } from "../ui-elements/notes-writer/NotesWriter";
 import { Accordion } from "../ui/accordion";
 import AccountNotes from "./AccountNotes";
+import AccountUpdateForm from "./AccountUpdateForm";
 import AccountsList from "./AccountsList";
-import AddControllerDialog from "./AddControllerDialog";
+import ListPayerAccounts from "./ListPayerAccounts";
+import ListTerritories from "./ListTerritories";
 import ProjectList from "./ProjectList";
-import ResponsibilitiesList from "./ResponsibilitiesList";
-import ResponsibilitiesDialog from "./responsibilities-dialog";
 
 type AccountDetailsProps = {
   account: Account;
-  addResponsibility: (
-    accountId: string,
-    startDate: Date,
-    endDate?: Date
-  ) => void;
-  showResponsibilities?: boolean;
   showSubsidaries?: boolean;
   showIntroduction?: boolean;
   showProjects?: boolean;
@@ -30,15 +25,13 @@ type AccountDetailsProps = {
 
 const AccountDetails: FC<AccountDetailsProps> = ({
   account,
-  addResponsibility,
   showContacts,
   showIntroduction,
   showProjects,
   showNotes,
-  showResponsibilities = true,
   showSubsidaries = true,
 }) => {
-  const { accounts, updateAccount } = useAccountsContext();
+  const { accounts, updateAccount, deletePayerAccount } = useAccountsContext();
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -53,11 +46,26 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   };
 
   return (
-    <>
-      <div className="px-4">
-        <AddControllerDialog account={account} />
+    <div className="cursor-default m-2">
+      <div className="flex flex-col gap-1 text-sm mb-2">
+        <div className="flex flex-row gap-1 items-center">
+          <div>Name:</div>
+          <div>{account.name}</div>
+          {account.crmId && <CrmLink category="Account" id={account.crmId} />}
+        </div>
+        {account.controller && (
+          <div>{`Parent account: ${account.controller?.name}`}</div>
+        )}
+        <ListTerritories territoryIds={account.territoryIds} />
+        <ListPayerAccounts
+          payerAccounts={account.payerAccounts}
+          deletePayerAccount={deletePayerAccount}
+        />
       </div>
-      <div className="mt-8" />
+      <AccountUpdateForm
+        account={account}
+        onUpdate={(props) => updateAccount({ id: account.id, ...props })}
+      />
 
       <Accordion
         type="single"
@@ -67,34 +75,24 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           setAccordionValue(val === accordionValue ? undefined : val)
         }
       >
-        <DefaultAccordionItem
-          value="responsibilities"
-          triggerTitle="Responsibilities"
-          isVisible={!!showResponsibilities}
-          accordionSelectedValue={accordionValue}
-        >
-          <ResponsibilitiesList responsibilities={account.responsibilities} />
-          <div className="mt-4" />
-          <ResponsibilitiesDialog
-            account={account}
-            addResponsibility={addResponsibility}
-          />
-        </DefaultAccordionItem>
-
         {accounts && (
           <DefaultAccordionItem
             value="subsidaries"
             triggerTitle="Subsidiaries"
+            triggerSubTitle={accounts
+              .filter((a) => a.controller?.id === account.id)
+              .map((a) => a.name)
+              .join(", ")}
             isVisible={!!showSubsidaries}
             accordionSelectedValue={accordionValue}
           >
-            <Accordion type="single" collapsible>
-              <AccountsList
-                accounts={accounts}
-                controllerId={account.id}
-                addResponsibility={addResponsibility}
-              />
-            </Accordion>
+            <AccountsList
+              accounts={accounts}
+              controllerId={account.id}
+              showContacts={showContacts}
+              showIntroduction={showIntroduction}
+              showProjects={showProjects}
+            />
           </DefaultAccordionItem>
         )}
 
@@ -138,7 +136,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           <AccountNotes accountId={account.id} />
         </DefaultAccordionItem>
       </Accordion>
-    </>
+    </div>
   );
 };
 

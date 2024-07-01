@@ -2,10 +2,7 @@
 
 - Ein bisschen Clean up bei den Accordions
 - Mutterunternehmen konnten nicht gespeichert werden
-
-In Arbeit:
-
-- Die CRM Account ID soll angegeben werden
-- AWS Account IDs sollen angegeben werden können
-- Ich möchte Territories hinterlegen können
-- Ich möchte für ein Territory eine Quote hinterlegen können
+- Wenn in einem Projekt kein CRM Projekt verlinkt ist, soll es auch keinen $0 Hinweis geben
+- Es können nun Territorys angelegt werden. Ein Territory besteht aus mindestens einem Account und hält eine Quote. Für ein Territory gibt es eine Gültigkeitsdauer.
+- Bei einem Account kann nun die ID aus dem CRM System angegeben werden.
+- Zu einem Account können nun AWS Payer IDs hinzugefügt werden.

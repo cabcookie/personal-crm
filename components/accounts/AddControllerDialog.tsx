@@ -13,8 +13,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { FC, useState } from "react";
+import { Label } from "../ui/label";
 import { ToastAction } from "../ui/toast";
 import { useToast } from "../ui/use-toast";
 
@@ -68,17 +70,21 @@ const AddControllerDialog: FC<AddControllerDialogProps> = ({
     "Loading accounts..."
   ) : (
     <div>
-      <div>
-        <strong>Parent company:</strong>
-      </div>
+      <Label className="font-semibold" htmlFor="controller">
+        Parent company
+      </Label>
       <Popover open={open} onOpenChange={setOpen}>
         <div className="flex flex-row gap-2">
           <PopoverTrigger asChild>
             <Button
+              id="controller"
               variant="outline"
               role="combobox"
               size="sm"
-              className="w-[150px] justify-start"
+              className={cn(
+                "mt-2 w-[150px] justify-start",
+                !controller && "text-muted-foreground font-normal"
+              )}
             >
               {controller?.name || "Select parent…"}
             </Button>
@@ -96,7 +102,7 @@ const AddControllerDialog: FC<AddControllerDialogProps> = ({
         </div>
         <PopoverContent className="p-0" side="right" align="start">
           <Command loop>
-            <CommandInput placeholder="Change status..." />
+            <CommandInput placeholder="Search parent..." />
             <CommandList>
               <CommandEmpty>No accounts found.</CommandEmpty>
               <CommandGroup>

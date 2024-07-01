@@ -1,4 +1,5 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
+import useTerritories from "@/api/useTerritories";
 import AccountsList from "@/components/accounts/AccountsList";
 import MainLayout from "@/components/layouts/MainLayout";
 import {
@@ -8,17 +9,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useRouter } from "next/router";
-import { useState } from "react";
 
 const AccountsListPage = () => {
-  const { accounts, createAccount, addResponsibility } = useAccountsContext();
-  const [validAccountsValue, setValidAccountsValue] = useState<
-    string | undefined
-  >(undefined);
-  const [invalidAccountsValue, setInvalidAccountsValue] = useState<
-    string | undefined
-  >(undefined);
-
+  const { accounts, createAccount } = useAccountsContext();
+  const { territories } = useTerritories();
   const router = useRouter();
 
   const createAndOpenNewAccount = async () => {
@@ -40,23 +34,15 @@ const AccountsListPage = () => {
           <div className="text-left md:text-center">
             Drag to change the priority of your accounts.
           </div>
-          <Accordion
-            type="single"
-            collapsible
-            value={validAccountsValue}
-            onValueChange={(val) =>
-              setValidAccountsValue(
-                val === validAccountsValue ? undefined : val
-              )
-            }
-          >
-            <AccountsList
-              accounts={accounts}
-              showCurrentOnly
-              addResponsibility={addResponsibility}
-              selectedAccordionItem={validAccountsValue}
-            />
-          </Accordion>
+          <AccountsList
+            accounts={accounts.filter(
+              (a) =>
+                !a.controller &&
+                territories?.some(
+                  (t) => t.latestQuota > 0 && a.territoryIds.includes(t.id)
+                )
+            )}
+          />
           <div className="mt-8" />
           <Accordion type="single" collapsible>
             <AccordionItem value="invalid-accounts">
@@ -64,23 +50,16 @@ const AccountsListPage = () => {
                 Show accounts with no current responsibility
               </AccordionTrigger>
               <AccordionContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  value={invalidAccountsValue}
-                  onValueChange={(val) =>
-                    setInvalidAccountsValue(
-                      val === invalidAccountsValue ? undefined : val
-                    )
-                  }
-                >
-                  <AccountsList
-                    accounts={accounts}
-                    showInvalidOnly
-                    addResponsibility={addResponsibility}
-                    selectedAccordionItem={invalidAccountsValue}
-                  />
-                </Accordion>
+                <AccountsList
+                  accounts={accounts.filter(
+                    (a) =>
+                      !a.controller &&
+                      !territories?.some(
+                        (t) =>
+                          t.latestQuota > 0 && a.territoryIds.includes(t.id)
+                      )
+                  )}
+                />
               </AccordionContent>
             </AccordionItem>
           </Accordion>
