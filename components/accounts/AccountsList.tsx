@@ -14,66 +14,25 @@ import {
 } from "@dnd-kit/sortable";
 import { flow } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
+import { Accordion } from "../ui/accordion";
 import AccountRecord from "./account-record";
 
-type ShowInvalidOnly = {
-  showCurrentOnly?: false;
-  showInvalidOnly: true;
-  controllerId?: never;
-};
-
-type ShowCurrentOnly = {
-  showCurrentOnly: true;
-  showInvalidOnly?: false;
-  controllerId?: never;
-};
-
-type ShowSubsidaries = {
-  showCurrentOnly?: false;
-  showInvalidOnly?: false;
-  controllerId: string;
-};
-
-type AccountsListProps = (
-  | ShowInvalidOnly
-  | ShowCurrentOnly
-  | ShowSubsidaries
-) & {
-  accounts: Account[];
-  addResponsibility: (
-    accountId: string,
-    startDate: Date,
-    endDate?: Date
-  ) => void;
-};
-
-type GetSortedAccountsProps = {
-  accounts: Account[];
+type AccountsListProps = {
   controllerId?: string;
-  showCurrentOnly?: boolean;
-  showInvalidOnly?: boolean;
+  accounts: Account[];
+  showContacts?: boolean;
+  showIntroduction?: boolean;
+  showNotes?: boolean;
+  showProjects?: boolean;
+  showSubsidaries?: boolean;
 };
 
-const getSortedAccounts = ({
-  accounts,
-  controllerId,
-  showCurrentOnly,
-  showInvalidOnly,
-}: GetSortedAccountsProps) =>
+const getSortedAccounts = (accounts: Account[], controllerId?: string) =>
   accounts
-    .filter(({ controller, responsibilities }) => {
-      if (controllerId && controller && controller.id === controllerId)
-        return true;
-      if (controller) return false;
-      const currentResponsibility = responsibilities.some(
-        ({ startDate, endDate }) =>
-          startDate <= new Date() && (!endDate || endDate >= new Date())
-      );
-      return (
-        (showCurrentOnly && currentResponsibility) ||
-        (showInvalidOnly && !currentResponsibility)
-      );
-    })
+    .filter(
+      ({ controller }) =>
+        !controllerId || (controller && controller.id === controllerId)
+    )
     .sort((a, b) =>
       a.order === b.order
         ? a.createdAt.getTime() - b.createdAt.getTime()
@@ -82,19 +41,17 @@ const getSortedAccounts = ({
 
 const AccountsList: FC<AccountsListProps> = ({
   accounts,
-  showCurrentOnly,
-  showInvalidOnly,
   controllerId,
-  addResponsibility,
+  showContacts,
+  showIntroduction,
+  showNotes,
+  showProjects,
+  showSubsidaries = true,
 }) => {
   const { updateOrder } = useAccountsContext();
-  const [items, setItems] = useState(
-    getSortedAccounts({
-      accounts,
-      controllerId,
-      showCurrentOnly,
-      showInvalidOnly,
-    })
+  const [items, setItems] = useState(getSortedAccounts(accounts, controllerId));
+  const [selectedAccount, setSelectedAccount] = useState<string | undefined>(
+    undefined
   );
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -103,16 +60,8 @@ const AccountsList: FC<AccountsListProps> = ({
   );
 
   useEffect(
-    () =>
-      setItems(
-        getSortedAccounts({
-          accounts,
-          controllerId,
-          showCurrentOnly,
-          showInvalidOnly,
-        })
-      ),
-    [accounts, controllerId, showCurrentOnly, showInvalidOnly]
+    () => setItems(getSortedAccounts(accounts, controllerId)),
+    [accounts, controllerId]
   );
 
   const updateOrderNumbers = (list: Account[]): Account[] =>
@@ -136,24 +85,38 @@ const AccountsList: FC<AccountsListProps> = ({
   return items.length === 0 ? (
     "No accounts"
   ) : (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
+    <Accordion
+      type="single"
+      collapsible
+      value={selectedAccount}
+      onValueChange={(val) =>
+        setSelectedAccount(val === selectedAccount ? undefined : val)
+      }
     >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        <div>
-          {items.map((account) => (
-            <AccountRecord
-              key={account.id}
-              account={account}
-              addResponsibility={addResponsibility}
-              className="px-2"
-            />
-          ))}
-        </div>
-      </SortableContext>
-    </DndContext>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+          <div>
+            {items.map((account) => (
+              <AccountRecord
+                key={account.id}
+                account={account}
+                className="px-2"
+                selectedAccordionItem={selectedAccount}
+                showContacts={showContacts}
+                showIntroduction={showIntroduction}
+                showNotes={showNotes}
+                showProjects={showProjects}
+                showSubsidaries={showSubsidaries}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </Accordion>
   );
 };
 

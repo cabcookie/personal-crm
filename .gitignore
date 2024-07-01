@@ -43,3 +43,4 @@ components/import-data/*
 !components/import-data/imports-aws-sdk
 
 scripts/temp
+scripts/seed-data/env.json

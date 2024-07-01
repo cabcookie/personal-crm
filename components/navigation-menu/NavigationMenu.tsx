@@ -59,6 +59,7 @@ const NavigationMenu = () => {
     ...(isWorkContext()
       ? [
           { label: "Accounts", url: "/accounts", shortcut: "^A" },
+          { label: "Territories", url: "/territories" },
           { label: "CRM Projects", url: "/crm-projects" },
         ]
       : []),

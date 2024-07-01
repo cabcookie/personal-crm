@@ -1,10 +1,7 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
-import {
-  Project,
-  calcRevenueTwoYears,
-  useProjectsContext,
-} from "@/api/ContextProjects";
-import { formatUsdCurrency, isTodayOrFuture } from "@/helpers/functional";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
+import { getRevenue2Years } from "@/api/useCrmProjects";
+import { isTodayOrFuture } from "@/helpers/functional";
 import { filter, flow, get, map, sortBy, sum } from "lodash/fp";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
@@ -103,28 +100,23 @@ const ProjectList: FC<ProjectListProps> = ({ accountId, filter }) => {
         <DefaultAccordionItem
           key={projectId}
           value={projectId}
-          title={project}
-          className="font-bold tracking-tight"
+          triggerTitle={project}
+          className="tracking-tight"
           accordionSelectedValue={accordionValue}
           link={`/projects/${projectId}`}
-          subTitle={
+          triggerSubTitle={
             <>
               {accountIds.map((id: string) => (
-                <small key={id} className="hover:underline">
-                  <Link href={`/accounts/${id}`}>
-                    {getAccountById(id)?.name}
-                  </Link>
-                </small>
+                <Link
+                  key={id}
+                  className="hover:underline truncate"
+                  href={`/accounts/${id}`}
+                >
+                  {getAccountById(id)?.name}
+                </Link>
               ))}
               {crmProjects.length > 0 && (
-                <small>
-                  Revenue next 2Ys:{" "}
-                  {flow(
-                    map(calcRevenueTwoYears),
-                    sum,
-                    formatUsdCurrency
-                  )(crmProjects)}
-                </small>
+                <div className="truncate">{getRevenue2Years(crmProjects)}</div>
               )}
             </>
           }

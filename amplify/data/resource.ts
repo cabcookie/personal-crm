@@ -141,6 +141,39 @@ const schema = a.schema({
       meetings: a.hasMany("MeetingParticipant", "personId"),
     })
     .authorization((allow) => [allow.owner()]),
+  TerritoryResponsibility: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      territoryId: a.id().required(),
+      territory: a.belongsTo("Territory", "territoryId"),
+      startDate: a.date().required(),
+      quota: a.integer().default(0),
+    })
+    .authorization((allow) => [allow.owner()]),
+  Territory: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      name: a.string(),
+      crmId: a.string(),
+      responsibilities: a.hasMany("TerritoryResponsibility", "territoryId"),
+      accounts: a.hasMany("AccountTerritory", "territoryId"),
+    })
+    .authorization((allow) => [allow.owner()]),
+  AccountTerritory: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      accountId: a.id().required(),
+      account: a.belongsTo("Account", "accountId"),
+      territoryId: a.id().required(),
+      territory: a.belongsTo("Territory", "territoryId"),
+    })
+    .authorization((allow) => [allow.owner()]),
   AccountProjects: a
     .model({
       owner: a
@@ -153,16 +186,16 @@ const schema = a.schema({
     })
     .secondaryIndexes((index) => [index("projectsId"), index("accountId")])
     .authorization((allow) => [allow.owner()]),
-  AccountResponsibilities: a
+  PayerAccount: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      awsAccountNumber: a.id().required(),
       accountId: a.id().required(),
       account: a.belongsTo("Account", "accountId"),
-      startDate: a.date().required(),
-      endDate: a.date(),
     })
+    .identifier(["awsAccountNumber"])
     .authorization((allow) => [allow.owner()]),
   Account: a
     .model({
@@ -175,11 +208,13 @@ const schema = a.schema({
       introduction: a.string(),
       introductionJson: a.json(),
       formatVersion: a.integer().default(1),
+      crmId: a.string(),
       subsidiaries: a.hasMany("Account", "accountSubsidiariesId"),
+      territories: a.hasMany("AccountTerritory", "accountId"),
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
-      responsibilities: a.hasMany("AccountResponsibilities", "accountId"),
+      payerAccounts: a.hasMany("PayerAccount", "accountId"),
     })
     .authorization((allow) => [allow.owner()]),
   SixWeekCycle: a

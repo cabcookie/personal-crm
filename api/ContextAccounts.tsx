@@ -1,10 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
-import { Responsibility } from "@/components/accounts/ResponsibilityRecord";
 import {
   EditorJsonContent,
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
-import { toISODateString } from "@/helpers/functional";
+import { toast } from "@/components/ui/use-toast";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { add, filter, flatMapDeep, flow, last, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
@@ -15,6 +14,7 @@ const client = generateClient<Schema>();
 type UpdateAccountProps = {
   id: string;
   name?: string;
+  crmId?: string;
   introduction?: EditorJsonContent;
 };
 
@@ -27,35 +27,40 @@ interface AccountsContextType {
   ) => Promise<Schema["Account"]["type"] | undefined>;
   getAccountById: (accountId: string) => Account | undefined;
   updateAccount: (props: UpdateAccountProps) => Promise<string | undefined>;
-  addResponsibility: (
-    accountId: string,
-    startDate: Date,
-    endDate?: Date
-  ) => Promise<string | undefined>;
-  updateResponsibility: (
-    responsibilityId: string,
-    startDate: Date,
-    endDate?: Date
-  ) => Promise<string | undefined>;
   assignController: (
     accountId: string,
     controllerId: string | null
   ) => Promise<string | undefined>;
+  assignTerritory: (
+    accountId: string,
+    territoryId: string
+  ) => Promise<string | undefined>;
+  deleteTerritory: (
+    accountId: string,
+    territoryId: string
+  ) => Promise<string | undefined>;
   updateOrder: (accounts: Account[]) => Promise<(string | undefined)[]>;
+  addPayerAccount: (
+    accountId: string,
+    payer: string
+  ) => Promise<string | undefined>;
+  deletePayerAccount: (payer: string) => Promise<string | undefined>;
 }
 
 export type Account = {
   id: string;
   name: string;
+  crmId?: string;
   introduction?: EditorJsonContent | string;
   controller?: {
     id: string;
     name: string;
   };
   order: number;
-  responsibilities: Responsibility[];
+  territoryIds: string[];
   createdAt: Date;
   priority?: number;
+  payerAccounts: string[];
 };
 
 type AccountWithSubsidaries = Account & {
@@ -66,6 +71,7 @@ type AccountWithSubsidaries = Account & {
 const selectionSet = [
   "id",
   "name",
+  "crmId",
   "controller.id",
   "controller.name",
   "introduction",
@@ -73,18 +79,11 @@ const selectionSet = [
   "formatVersion",
   "order",
   "createdAt",
-  "responsibilities.id",
-  "responsibilities.startDate",
-  "responsibilities.endDate",
+  "territories.territory.id",
+  "payerAccounts.awsAccountNumber",
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
-
-const isCurrentResponsibility = ({ responsibilities }: Account) =>
-  responsibilities.some(
-    ({ startDate, endDate }) =>
-      startDate <= new Date() && (!endDate || endDate >= new Date())
-  );
 
 const addSubsidaries =
   (accounts: Account[]) =>
@@ -143,7 +142,6 @@ const mergeAccountsWithPriorities =
 const assignPriorities = (accounts: Account[]): Account[] =>
   flow(
     filter(({ controller }: Account) => !controller),
-    filter(isCurrentResponsibility),
     map(addSubsidaries(accounts)),
     sortBy((a) => a.order),
     (acc) => acc.reduce(setPriority(1), []),
@@ -151,35 +149,22 @@ const assignPriorities = (accounts: Account[]): Account[] =>
     mergeAccountsWithPriorities(accounts)
   )(accounts);
 
-type ResponsibilityData = {
-  id: string;
-  startDate: string;
-  endDate?: string | null;
-};
-
-const mapResponsibilities =
-  (accountId: string, accountName: string) =>
-  ({ id, startDate, endDate }: ResponsibilityData): Responsibility => ({
-    id,
-    accountId: accountId,
-    accountName: accountName,
-    startDate: new Date(startDate),
-    endDate: !endDate ? undefined : new Date(endDate),
-  });
-
 const mapAccount: (account: AccountData) => Account = ({
   id: accountId,
   name,
+  crmId,
   controller,
   introduction,
   introductionJson,
   formatVersion,
   order,
-  responsibilities,
+  territories,
   createdAt,
+  payerAccounts,
 }) => ({
   id: accountId,
   name,
+  crmId: crmId || undefined,
   introduction: transformNotesVersion({
     version: formatVersion,
     notes: introduction,
@@ -188,10 +173,8 @@ const mapAccount: (account: AccountData) => Account = ({
   controller,
   order: order || 0,
   createdAt: new Date(createdAt),
-  responsibilities: flow(
-    map(mapResponsibilities(accountId, name)),
-    sortBy((r: Responsibility) => -r.startDate.getTime())
-  )(responsibilities),
+  territoryIds: territories.map((t) => t.territory.id),
+  payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
 });
 
 const fetchAccounts = async () => {
@@ -226,8 +209,9 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
       id: crypto.randomUUID(),
       name: accountName,
       order: 0,
-      responsibilities: [],
+      territoryIds: [],
       createdAt: new Date(),
+      payerAccounts: [],
     };
 
     const updatedAccounts = [...(accounts || []), newAccount];
@@ -248,6 +232,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
   const updateAccount = async ({
     id,
     name,
+    crmId,
     introduction,
   }: UpdateAccountProps) => {
     const updAccount: Account | undefined = accounts?.find((a) => a.id === id);
@@ -256,6 +241,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     Object.assign(updAccount, {
       ...(name && { name }),
       ...(introduction && { introduction }),
+      ...(crmId && { crmId }),
     });
 
     const updated: Account[] =
@@ -265,6 +251,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount = {
       id,
       name,
+      crmId,
       ...(introduction
         ? {
             introductionJson: JSON.stringify(introduction),
@@ -278,7 +265,12 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
 
     if (errors) handleApiErrors(errors, "Error updating account");
     mutate(updated);
-    return data?.id;
+    if (!data) return;
+    toast({
+      title: "Account information updated",
+      description: `Account ${name} successfully updated (CRM ID: ${crmId}).`,
+    });
+    return data.id;
   };
 
   const assignController = async (
@@ -310,70 +302,74 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data.id;
   };
 
-  const addResponsibility = async (
-    accountId: string,
-    startDate: Date,
-    endDate?: Date
-  ) => {
-    const updated = accounts?.map((account) =>
+  const assignTerritory = async (accountId: string, territoryId: string) => {
+    const updated: Account[] | undefined = accounts?.map((account) =>
       account.id !== accountId
         ? account
-        : {
-            ...account,
-            responsibilities: [
-              ...account.responsibilities,
-              {
-                id: crypto.randomUUID(),
-                accountId: account.id,
-                accountName: account.name,
-                startDate,
-                endDate,
-              },
-            ],
-          }
+        : { ...account, territoryIds: [...account.territoryIds, territoryId] }
     );
-    if (accounts) mutate(updated, false);
-
-    const { data, errors } = await client.models.AccountResponsibilities.create(
-      {
-        accountId: accountId,
-        startDate: toISODateString(startDate),
-        endDate: !endDate ? undefined : toISODateString(endDate),
-      }
-    );
-    if (errors) handleApiErrors(errors, "Error creating new responsibility");
-    if (accounts) mutate(updated);
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.AccountTerritory.create({
+      accountId,
+      territoryId,
+    });
+    if (errors)
+      handleApiErrors(errors, "Assigning territory to account failed");
+    if (updated) mutate(updated);
     if (!data) return;
+    toast({
+      title: "Assigned territory",
+      description: `Assigned territory to account “${
+        accounts?.find((a) => a.id === accountId)?.name
+      }”`,
+    });
     return data.id;
   };
 
-  const updateResponsibility = async (
-    responsibilityId: string,
-    startDate: Date,
-    endDate?: Date
+  const getAccountTerritory = async (
+    accountId: string,
+    territoryId: string
   ) => {
-    const updated = accounts?.map((account) =>
-      !account.responsibilities.some((r) => r.id === responsibilityId)
-        ? account
+    const { data: territory, errors: errorsTerritory } =
+      await client.models.Territory.get({
+        id: territoryId,
+      });
+    if (errorsTerritory)
+      handleApiErrors(errorsTerritory, "Couldn't find territory");
+    if (!territory) return;
+    const { data, errors } = await territory.accounts();
+    if (errors) handleApiErrors(errors, "Couldn't find accounts of territory");
+    if (!data) return;
+    return data.find((a) => a.accountId === accountId)?.id;
+  };
+
+  const deleteTerritory = async (accountId: string, territoryId: string) => {
+    const updated: Account[] | undefined = accounts?.map((a) =>
+      a.id !== accountId
+        ? a
         : {
-            ...account,
-            responsibilities: account.responsibilities.map((r) =>
-              r.id !== responsibilityId ? r : { ...r, startDate, endDate }
-            ),
+            ...a,
+            territoryIds: a.territoryIds.filter((id) => id !== territoryId),
           }
     );
-    if (accounts) mutate(updated, false);
-
-    const { data, errors } = await client.models.AccountResponsibilities.update(
-      {
-        id: responsibilityId,
-        startDate: toISODateString(startDate),
-        endDate: !endDate ? null : toISODateString(endDate),
-      }
+    if (updated) mutate(updated, false);
+    const accountTerritoryId = await getAccountTerritory(
+      accountId,
+      territoryId
     );
-    if (errors) handleApiErrors(errors, "Error updating responsibility");
-    if (accounts) mutate(updated);
-    return data?.id;
+    if (!accountTerritoryId) {
+      if (updated) mutate(updated);
+      return;
+    }
+    const { data, errors } = await client.models.AccountTerritory.delete({
+      id: accountTerritoryId,
+    });
+    if (errors)
+      handleApiErrors(errors, "Deleting territory from account failed");
+    if (updated) mutate(updated);
+    if (!data) return;
+    toast({ title: "Removed territory from account" });
+    return data.id;
   };
 
   const updateAccountOrderNo = async (
@@ -399,6 +395,50 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return result;
   };
 
+  const addPayerAccount = async (accountId: string, payer: string) => {
+    const updated: Account[] | undefined = accounts?.map((a) =>
+      a.id !== accountId
+        ? a
+        : { ...a, payerAccounts: [...a.payerAccounts, payer] }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.PayerAccount.create({
+      accountId,
+      awsAccountNumber: payer,
+    });
+    if (errors) handleApiErrors(errors, "Creating payer failed");
+    if (updated) mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Payer created",
+      description: `Successfully created payer ${payer} for account ${
+        accounts?.find((a) => a.id === accountId)?.name
+      }.`,
+    });
+    return data.awsAccountNumber;
+  };
+
+  const deletePayerAccount = async (payer: string) => {
+    const account = accounts?.find((a) => a.payerAccounts.includes(payer));
+    const updated: Account[] | undefined = accounts?.map((a) =>
+      !a.payerAccounts.includes(payer)
+        ? a
+        : { ...a, payerAccounts: a.payerAccounts.filter((p) => p !== payer) }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.PayerAccount.delete({
+      awsAccountNumber: payer,
+    });
+    if (errors) handleApiErrors(errors, "Deleting payer failed");
+    if (updated) mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Payer deleted",
+      description: `Successfully deleted payer ${payer} for account ${account?.name}.`,
+    });
+    return data.awsAccountNumber;
+  };
+
   return (
     <AccountsContext.Provider
       value={{
@@ -408,10 +448,12 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         createAccount,
         getAccountById,
         updateAccount,
-        addResponsibility,
-        updateResponsibility,
         assignController,
+        assignTerritory,
+        deleteTerritory,
         updateOrder,
+        addPayerAccount,
+        deletePayerAccount,
       }}
     >
       {children}

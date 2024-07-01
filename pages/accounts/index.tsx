@@ -1,4 +1,5 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
+import useTerritories from "@/api/useTerritories";
 import AccountsList from "@/components/accounts/AccountsList";
 import MainLayout from "@/components/layouts/MainLayout";
 import {
@@ -10,7 +11,8 @@ import {
 import { useRouter } from "next/router";
 
 const AccountsListPage = () => {
-  const { accounts, createAccount, addResponsibility } = useAccountsContext();
+  const { accounts, createAccount } = useAccountsContext();
+  const { territories } = useTerritories();
   const router = useRouter();
 
   const createAndOpenNewAccount = async () => {
@@ -32,13 +34,15 @@ const AccountsListPage = () => {
           <div className="text-left md:text-center">
             Drag to change the priority of your accounts.
           </div>
-          <Accordion type="multiple">
-            <AccountsList
-              accounts={accounts}
-              showCurrentOnly
-              addResponsibility={addResponsibility}
-            />
-          </Accordion>
+          <AccountsList
+            accounts={accounts.filter(
+              (a) =>
+                !a.controller &&
+                territories?.some(
+                  (t) => t.latestQuota > 0 && a.territoryIds.includes(t.id)
+                )
+            )}
+          />
           <div className="mt-8" />
           <Accordion type="single" collapsible>
             <AccordionItem value="invalid-accounts">
@@ -46,13 +50,16 @@ const AccountsListPage = () => {
                 Show accounts with no current responsibility
               </AccordionTrigger>
               <AccordionContent>
-                <Accordion type="multiple">
-                  <AccountsList
-                    accounts={accounts}
-                    showInvalidOnly
-                    addResponsibility={addResponsibility}
-                  />
-                </Accordion>
+                <AccountsList
+                  accounts={accounts.filter(
+                    (a) =>
+                      !a.controller &&
+                      !territories?.some(
+                        (t) =>
+                          t.latestQuota > 0 && a.territoryIds.includes(t.id)
+                      )
+                  )}
+                />
               </AccordionContent>
             </AccordionItem>
           </Accordion>

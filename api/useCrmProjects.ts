@@ -1,15 +1,28 @@
 import { type Schema } from "@/amplify/data/resource";
 import {
   addDaysToDate,
+  formatUsdCurrency,
   getDayOfDate,
   toISODateString,
 } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow } from "lodash/fp";
+import { flow, map, sum } from "lodash/fp";
 import useSWR from "swr";
-import { Project, useProjectsContext } from "./ContextProjects";
+import {
+  ICalcRevenueTwoYears,
+  Project,
+  calcRevenueTwoYears,
+  useProjectsContext,
+} from "./ContextProjects";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
+
+export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
+  `Revenue next 2Ys: ${flow(
+    map(calcRevenueTwoYears),
+    sum,
+    formatUsdCurrency
+  )(projects)}`;
 
 export type CrmProject = {
   id: string;

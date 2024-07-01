@@ -4,6 +4,7 @@ import {
   TCrmStages,
 } from "@/api/useCrmProject";
 import { CrmProject } from "@/api/useCrmProjects";
+import CrmLink from "@/components/crm/CrmLink";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,18 +36,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { revenueNumber } from "@/helpers/ui-form-helpers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit } from "lucide-react";
-import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import CurrencyInput from "../forms/CurrencyInput";
-
-const revenueNumber = z
-  .number()
-  .nonnegative("Provide a positive number")
-  .lte(1000000000, "Can't be more than $1B");
 
 const FormSchema = z.object({
   name: z
@@ -207,16 +203,8 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({
                     <FormItem>
                       <FormLabel>
                         CRM ID
-                        {(field.value?.length || 0) > 6 && (
-                          <small className="ml-2">
-                            <Link
-                              href={`https://aws-crm.lightning.force.com/lightning/r/Opportunity/${field.value}/view`}
-                              target="_blank"
-                              className="text-[--context-color] hover:text-accent-foreground hover:underline"
-                            >
-                              Visit CRM
-                            </Link>
-                          </small>
+                        {field.value && field.value.length > 6 && (
+                          <CrmLink category="Opportunity" id={field.value} />
                         )}
                       </FormLabel>
                       <FormControl>
@@ -314,7 +302,7 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({
                           disabled={(date) =>
                             (onCreate && date < new Date()) || false
                           }
-                          initialFocus
+                          defaultMonth={field.value}
                         />
                       </FormControl>
                       <FormMessage />

@@ -55,12 +55,12 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
       <DefaultAccordionItem
         isVisible={isVisible}
         value="accounts"
-        title="Accounts"
+        triggerTitle="Accounts"
         accordionSelectedValue={accordionSelectedValue}
-        subTitle={accoundIds.map((id) => (
-          <small key={id} className="hover:underline">
-            <Link href={`/accounts/${id}`}>{getAccountById(id)?.name}</Link>
-          </small>
+        triggerSubTitle={accoundIds.map((id) => (
+          <Link key={id} className="hover:underline" href={`/accounts/${id}`}>
+            {getAccountById(id)?.name}
+          </Link>
         ))}
       >
         {accoundIds.map((id) => (
