@@ -10,8 +10,7 @@ const AccountDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const accountId = Array.isArray(id) ? id[0] : id;
-  const { getAccountById, updateAccount, addResponsibility } =
-    useAccountsContext();
+  const { getAccountById, updateAccount } = useAccountsContext();
   const [account, setAccount] = useState<Account | undefined>(
     accountId ? getAccountById(accountId) : undefined
   );
@@ -55,7 +54,6 @@ const AccountDetailPage = () => {
           <SavedState saved={accountNameSaved} />
           <AccountDetails
             account={account}
-            addResponsibility={addResponsibility}
             showIntroduction
             showProjects
             showNotes
