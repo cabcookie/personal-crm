@@ -1,10 +1,8 @@
-import { CrmProjectData, calcRevenueTwoYears } from "@/api/ContextProjects";
+import { CrmProjectData } from "@/api/ContextProjects";
 import { CrmProjectOnChangeFields } from "@/api/useCrmProject";
-import useCrmProjects from "@/api/useCrmProjects";
+import useCrmProjects, { getRevenue2Years } from "@/api/useCrmProjects";
 import { Accordion } from "@/components/ui/accordion";
 import { useContextContext } from "@/contexts/ContextContext";
-import { formatUsdCurrency } from "@/helpers/functional";
-import { flow, map, sum } from "lodash/fp";
 import { FC, useState } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import CrmProjectForm from "./CrmProjectForm";
@@ -58,18 +56,11 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
     isWorkContext() && (
       <DefaultAccordionItem
         value="crmprojects"
-        title="CRM Projects"
+        triggerTitle="CRM Projects"
         accordionSelectedValue={accordionSelectedValue}
         isVisible={isVisible}
-        subTitle={
-          <small>
-            Revenue next 2Ys:{" "}
-            {flow(
-              map(calcRevenueTwoYears),
-              sum,
-              formatUsdCurrency
-            )(crmProjects)}
-          </small>
+        triggerSubTitle={
+          crmProjects && crmProjects.length > 0 && getRevenue2Years(crmProjects)
         }
       >
         <CrmProjectForm onCreate={onCrmProjectCreate} />

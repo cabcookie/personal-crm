@@ -1,8 +1,8 @@
-import { calcRevenueTwoYears } from "@/api/ContextProjects";
 import useCrmProject from "@/api/useCrmProject";
+import { getRevenue2Years } from "@/api/useCrmProjects";
+import { makeCrmLink } from "@/components/crm/CrmLink";
 import { formatUsdCurrency } from "@/helpers/functional";
 import { format } from "date-fns";
-import { flow } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import CrmProjectForm from "./CrmProjectForm";
@@ -24,27 +24,20 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
     <DefaultAccordionItem
       value={crmProject.id}
       accordionSelectedValue={accordionSelectedValue}
-      title={
-        <div className="flex flex-row gap-2">
-          {crmProject.name}
-          <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
-        </div>
-      }
+      triggerTitle={crmProject.name}
       link={
         crmProject.crmId && crmProject.crmId.length > 6
-          ? `https://aws-crm.lightning.force.com/lightning/r/Opportunity/${crmProject.crmId}/view`
+          ? makeCrmLink("Opportunity", crmProject.crmId)
           : undefined
       }
-      subTitle={
+      triggerSubTitle={
         <>
-          <small>{crmProject.stage}</small>
-          <small>
-            Revenue next 2Ys:{" "}
-            {flow(calcRevenueTwoYears, formatUsdCurrency)(crmProject)}
-          </small>
+          <span>{crmProject.stage}</span>
+          <span>{getRevenue2Years([crmProject])}</span>
         </>
       }
     >
+      <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
       Stage: {crmProject.stage}
       {crmProject.arr > 0 && (
         <div>Annual recurring revenue: {formatUsdCurrency(crmProject.arr)}</div>

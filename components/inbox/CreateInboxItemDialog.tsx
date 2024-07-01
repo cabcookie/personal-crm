@@ -1,11 +1,7 @@
-import { type Schema } from "@/amplify/data/resource";
-import { handleApiErrors } from "@/api/globals";
 import useInbox from "@/api/useInbox";
-import { generateClient } from "aws-amplify/data";
 import { FC, ReactNode, createContext, useContext, useState } from "react";
 import NotesWriter, {
   EditorJsonContent,
-  getTextFromEditorJsonContent,
 } from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
 import {
@@ -17,9 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { useToast } from "../ui/use-toast";
-
-const client = generateClient<Schema>();
 
 interface CreateInboxItemContextType {
   state: boolean;
@@ -38,38 +31,20 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutateInbox } = useInbox();
+  const { createInboxItem } = useInbox();
   const [inboxItemText, setInboxItemText] = useState<
     EditorJsonContent | undefined
   >();
-  const { toast } = useToast();
 
   const handleUpdate = (val: { json: EditorJsonContent } | undefined) =>
     val && setInboxItemText(val.json);
 
-  const createInboxItem = async () => {
+  const handleCreateInboxItem = async () => {
     if (!inboxItemText) return;
-    const { data, errors } = await client.models.Inbox.create({
-      noteJson: JSON.stringify(inboxItemText),
-      note: null,
-      formatVersion: 2,
-      status: "new",
-    });
-    if (errors) handleApiErrors(errors, "Error creating inbox item");
-    if (!data) return;
-    toast({
-      title: "New Inbox Item Created",
-      description: getTextFromEditorJsonContent(inboxItemText),
-    });
-    mutateInbox({
-      id: crypto.randomUUID(),
-      createdAt: new Date(),
-      status: "new",
-      note: inboxItemText,
-    });
+    const result = await createInboxItem(inboxItemText);
     setInboxItemText(undefined);
     setIsOpen(false);
-    return data.id;
+    return result;
   };
 
   return (
@@ -80,7 +55,7 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
         close: () => setIsOpen(false),
         inboxItemText,
         setInboxItemText: handleUpdate,
-        createInboxItem,
+        createInboxItem: handleCreateInboxItem,
       }}
     >
       {children}
@@ -128,7 +103,6 @@ const CreateInboxItemDialog = () => {
           showSaveStatus={false}
           autoFocus
         />
-        {JSON.stringify(inboxItemText)}
         <DialogFooter>
           <Button onClick={createInboxItem}>Save Item</Button>
           <DialogClose asChild>

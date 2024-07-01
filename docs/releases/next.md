@@ -1,8 +1,8 @@
-# Optimierungen beim Arbeiten mit Tagesplänen (Version :VERSION)
+# Mehr Details für Accounts festhalten (Version :VERSION)
 
-- Beim Einrichten eines neuen Tagesplans den aktuellen Tag als Standard anbieten, wenn es vormittags ist, ansonsten den nächsten Tag
-- Aufgabenliste umstellen auf Checkbox
-- Editieren von Einträgen in Aufgabenliste ermöglichen
-- Löschen von Einträgen ermöglichen (in Today's Tasks; immer zur Sicherheit abfragen)
-- Aufgaben im Tagesplan sortieren (erledigte nach unten, dann nach Erstelldatum)
-- Die Bestätigung, dass eine Aufgabe im Tagesplan angelegt wurde, ist unnötig
+- Ein bisschen Clean up bei den Accordions
+- Mutterunternehmen konnten nicht gespeichert werden
+- Wenn in einem Projekt kein CRM Projekt verlinkt ist, soll es auch keinen $0 Hinweis geben
+- Es können nun Territorys angelegt werden. Ein Territory besteht aus mindestens einem Account und hält eine Quote. Für ein Territory gibt es eine Gültigkeitsdauer.
+- Bei einem Account kann nun die ID aus dem CRM System angegeben werden.
+- Zu einem Account können nun AWS Payer IDs hinzugefügt werden.

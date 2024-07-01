@@ -32,21 +32,48 @@ const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex">
+  <AccordionPrimitive.Header className="flex flex-row items-center justify-between hover:bg-muted px-4 py-4 w-full">
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between px-4 py-4 font-medium transition-all hover:bg-muted [&[data-state=open]>svg]:rotate-180",
+        "font-bold truncate transition-all [&[data-state=open]>svg]:rotate-180 w-full",
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
+    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
   </AccordionPrimitive.Header>
 ));
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
+
+const AccordionTriggerTitle: React.FC<{
+  children: React.ReactNode;
+  isOpen?: boolean;
+  className?: string;
+}> = ({ children, className, isOpen }) => (
+  <div
+    className={cn(
+      !isOpen && "flex flex-row gap-2 truncate",
+      isOpen && "flex flex-row gap-2 text-wrap text-left",
+      className
+    )}
+  >
+    {children}
+  </div>
+);
+
+const AccordionTriggerSubTitle: React.FC<{
+  children: React.ReactNode;
+  isOpen?: boolean;
+  className?: string;
+}> = ({ children, isOpen, className }) =>
+  isOpen && (
+    <div className={cn("text-sm flex flex-row gap-2 truncate", className)}>
+      {children}
+    </div>
+  );
 
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
@@ -54,7 +81,7 @@ const AccordionContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="px-4 py-2 space-y-2 overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className="px-4 py-2 space-y-2 overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
     <div className={cn("pb-4 pt-0", className)}>{children}</div>
@@ -63,4 +90,11 @@ const AccordionContent = React.forwardRef<
 
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
 
-export { Accordion, AccordionContent, AccordionItem, AccordionTrigger };
+export {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionTriggerSubTitle,
+  AccordionTriggerTitle,
+};

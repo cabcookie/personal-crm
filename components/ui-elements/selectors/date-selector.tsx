@@ -83,7 +83,7 @@ const DateSelector: FC<DateSelectorProps> = ({
             mode="single"
             selected={selectedDate}
             onSelect={onDateChange}
-            initialFocus
+            defaultMonth={selectedDate}
           />
         </PopoverContent>
       </Popover>
