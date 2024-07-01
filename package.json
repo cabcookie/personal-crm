@@ -10,7 +10,8 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "prepare": "node .husky/install.mjs",
-    "sandbox": "npx ampx sandbox --profile impulso"
+    "sandbox": "npx ampx sandbox --profile impulso",
+    "create-seed": "node scripts/create-seed-data.js --profile impulso"
   },
   "husky": {
     "hooks": {
@@ -24,6 +25,10 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.2",
+    "@aws-sdk/client-cognito-identity": "^3.600.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.600.0",
+    "@aws-sdk/client-dynamodb": "^3.602.0",
+    "@aws-sdk/credential-providers": "^3.600.0",
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^7.0.0",
     "@dnd-kit/sortable": "^8.0.0",
@@ -81,7 +86,6 @@
     "autoprefixer": "^10.4.19",
     "aws-cdk": "^2.126.0",
     "aws-cdk-lib": "^2.126.0",
-    "aws-sdk": "^2.1560.0",
     "commitlint": "^18.6.1",
     "constructs": "^10.3.0",
     "eslint": "^8",
