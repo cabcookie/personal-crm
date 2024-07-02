@@ -113,7 +113,10 @@ const fetchTerritories = async (): Promise<Territory[]> => {
     selectionSet,
   });
   if (errors) throw errors;
-  return data.map(mapTerritory);
+  return flow(
+    map(mapTerritory),
+    sortBy((t) => -t.latestQuota)
+  )(data);
 };
 
 const useTerritories = () => {
@@ -302,7 +305,6 @@ const useTerritory = (id: string | undefined) => {
   };
 
   const addTerritoryResponsibility = async (startDate: Date, quota: number) => {
-    console.log("addTerritoryResponsibility", { territory, startDate, quota });
     if (!territory) return;
     const { data, errors } = await client.models.TerritoryResponsibility.create(
       {
@@ -312,7 +314,6 @@ const useTerritory = (id: string | undefined) => {
       }
     );
     if (errors) handleApiErrors(errors, "Creating new responsibility failed");
-    console.log("addTerritoryResponsibility", { data, errors });
     return data?.id;
   };
 
