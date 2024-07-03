@@ -87,6 +87,8 @@ const ProjectList: FC<ProjectListProps> = ({ accountId, filter }) => {
 
   return !items ? (
     "Loading…"
+  ) : items.length === 0 ? (
+    "No projects"
   ) : (
     <Accordion
       type="single"

@@ -5,10 +5,14 @@ import {
 } from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toast } from "@/components/ui/use-toast";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { add, filter, flatMapDeep, flow, last, map, sortBy } from "lodash/fp";
+import { differenceInDays } from "date-fns";
+import { max } from "lodash";
+import { find, flow, get, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
+import { calcRevenueTwoYears } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
+import { CRM_STAGES } from "./useCrmProject";
 const client = generateClient<Schema>();
 
 type UpdateAccountProps = {
@@ -56,16 +60,12 @@ export type Account = {
     id: string;
     name: string;
   };
+  latestQuota: number;
+  pipeline: number;
   order: number;
   territoryIds: string[];
   createdAt: Date;
-  priority?: number;
   payerAccounts: string[];
-};
-
-type AccountWithSubsidaries = Account & {
-  subsidaries: AccountWithSubsidaries[];
-  priority: number;
 };
 
 const selectionSet = [
@@ -77,77 +77,77 @@ const selectionSet = [
   "introduction",
   "introductionJson",
   "formatVersion",
-  "order",
   "createdAt",
   "territories.territory.id",
+  "territories.territory.responsibilities.id",
+  "territories.territory.responsibilities.quota",
+  "territories.territory.responsibilities.startDate",
+  "subsidiaries.territories.territory.id",
+  "subsidiaries.territories.territory.responsibilities.id",
+  "subsidiaries.territories.territory.responsibilities.quota",
+  "subsidiaries.territories.territory.responsibilities.startDate",
+  "projects.projects.crmProjects.crmProject.closeDate",
+  "projects.projects.crmProjects.crmProject.annualRecurringRevenue",
+  "projects.projects.crmProjects.crmProject.totalContractVolume",
+  "projects.projects.crmProjects.crmProject.isMarketplace",
+  "projects.projects.crmProjects.crmProject.stage",
   "payerAccounts.awsAccountNumber",
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
+type ProjectData = AccountData["projects"][number];
+type CrmProjectData = ProjectData["projects"]["crmProjects"][number];
+type TerritoryData = AccountData["territories"][number];
+type SubsidiaryData = AccountData["subsidiaries"][number];
+type ResponsibilityData =
+  TerritoryData["territory"]["responsibilities"][number];
 
-const addSubsidaries =
-  (accounts: Account[]) =>
-  (account: Account): AccountWithSubsidaries => ({
-    ...account,
-    priority: 1,
-    subsidaries: flow(
-      filter(({ controller }: Account) => controller?.id === account.id),
-      sortBy((a) => a.order),
-      map(addSubsidaries(accounts))
-    )(accounts),
-  });
-
-const getPriorityValue =
-  (startPrio: number) => (account?: AccountWithSubsidaries) =>
-    !account
-      ? startPrio
-      : account.subsidaries.length === 0
-      ? account.priority + 1
-      : account.subsidaries[account.subsidaries.length - 1].priority + 1;
-
-const setPriority =
-  (startPrio: number) =>
-  (
-    prev: AccountWithSubsidaries[],
-    curr: AccountWithSubsidaries
-  ): AccountWithSubsidaries[] => {
-    return [
-      ...prev,
-      {
-        ...curr,
-        priority: flow(last, getPriorityValue(startPrio))(prev),
-        subsidaries: curr.subsidaries.reduce(
-          setPriority(flow(last, getPriorityValue(startPrio), add(1))(prev)),
-          []
-        ),
-      },
-    ];
-  };
-
-const bypass = (a: any) => a;
-
-const removeSubsidaries = ({
-  subsidaries,
-  ...rest
-}: AccountWithSubsidaries): Account[] =>
-  flatMapDeep(bypass)([rest, flatMapDeep(removeSubsidaries)(subsidaries)]);
-
-const mergeAccountsWithPriorities =
-  (accounts: Account[]) => (withPrio: Account[]) =>
-    accounts.map(({ priority, ...account }) => ({
-      ...account,
-      priority: withPrio.find((a) => a.id === account.id)?.priority || priority,
-    }));
-
-const assignPriorities = (accounts: Account[]): Account[] =>
+const getLatestQuota = (territories: TerritoryData[]) =>
   flow(
-    filter(({ controller }: Account) => !controller),
-    map(addSubsidaries(accounts)),
-    sortBy((a) => a.order),
-    (acc) => acc.reduce(setPriority(1), []),
-    flatMapDeep(removeSubsidaries),
-    mergeAccountsWithPriorities(accounts)
-  )(accounts);
+    map(
+      (t: TerritoryData) =>
+        flow(
+          sortBy((r: ResponsibilityData) => -new Date(r.startDate).getTime()),
+          find((r) => differenceInDays(new Date(), new Date(r.startDate)) > 0),
+          get("quota")
+        )(t.territory.responsibilities) || 0
+    ),
+    sum
+  )(territories);
+
+const getQuotaFromTerritoryOrSubsidaries = (
+  territories: TerritoryData[],
+  subsidiaries: SubsidiaryData[]
+) =>
+  max([
+    getLatestQuota(territories),
+    flow(
+      map((s: SubsidiaryData) => getLatestQuota(s.territories)),
+      sum
+    )(subsidiaries),
+  ]) || 0;
+
+const calcPipeline = (projects: ProjectData[]) =>
+  flow(
+    map((p: ProjectData) =>
+      flow(
+        map(({ crmProject: c }: CrmProjectData): number =>
+          calcRevenueTwoYears({
+            arr: c.annualRecurringRevenue || 0,
+            tcv: c.totalContractVolume || 0,
+            closeDate: new Date(c.closeDate),
+            isMarketPlace: Boolean(c.isMarketplace),
+            stage: CRM_STAGES.find((crm) => crm === c.stage) || "Prospect",
+          })
+        ),
+        sum
+      )(p.projects.crmProjects)
+    ),
+    sum
+  )(projects);
+
+const calcOrder = (quota: number, pipeline: number): number =>
+  sum([Math.floor(quota / 1000) * 1000, Math.floor(pipeline / 1000)]);
 
 const mapAccount: (account: AccountData) => Account = ({
   id: accountId,
@@ -157,8 +157,9 @@ const mapAccount: (account: AccountData) => Account = ({
   introduction,
   introductionJson,
   formatVersion,
-  order,
   territories,
+  subsidiaries,
+  projects,
   createdAt,
   payerAccounts,
 }) => ({
@@ -171,9 +172,17 @@ const mapAccount: (account: AccountData) => Account = ({
     notesJson: introductionJson,
   }),
   controller,
-  order: order || 0,
+  latestQuota: getQuotaFromTerritoryOrSubsidaries(territories, subsidiaries),
+  pipeline: calcPipeline(projects),
+  order: calcOrder(
+    getQuotaFromTerritoryOrSubsidaries(territories, subsidiaries),
+    calcPipeline(projects)
+  ),
   createdAt: new Date(createdAt),
-  territoryIds: territories.map((t) => t.territory.id),
+  territoryIds:
+    territories.length > 0
+      ? territories.map((t) => t.territory.id)
+      : subsidiaries.flatMap((s) => s.territories.map((t) => t.territory.id)),
   payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
 });
 
@@ -183,7 +192,10 @@ const fetchAccounts = async () => {
     selectionSet,
   });
   if (errors) throw errors;
-  return flow(map(mapAccount), assignPriorities)(data);
+  return flow(
+    map(mapAccount),
+    sortBy((account) => -account.order)
+  )(data);
 };
 
 interface AccountsContextProviderProps {
@@ -209,12 +221,14 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
       id: crypto.randomUUID(),
       name: accountName,
       order: 0,
+      latestQuota: 0,
+      pipeline: 0,
       territoryIds: [],
       createdAt: new Date(),
       payerAccounts: [],
     };
 
-    const updatedAccounts = [...(accounts || []), newAccount];
+    const updatedAccounts: Account[] = [...(accounts || []), newAccount];
     mutate(updatedAccounts, false);
 
     const { data, errors } = await client.models.Account.create({

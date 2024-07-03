@@ -1,7 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import {
   addDaysToDate,
-  formatUsdCurrency,
+  formatRevenue,
   getDayOfDate,
   toISODateString,
 } from "@/helpers/functional";
@@ -15,14 +15,14 @@ import {
   useProjectsContext,
 } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
+import { CRM_STAGES, TCrmStages } from "./useCrmProject";
 const client = generateClient<Schema>();
 
+export const make2YearsRevenueText = (revenue: number) =>
+  `Revenue next 2Ys: ${formatRevenue(revenue)}`;
+
 export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
-  `Revenue next 2Ys: ${flow(
-    map(calcRevenueTwoYears),
-    sum,
-    formatUsdCurrency
-  )(projects)}`;
+  make2YearsRevenueText(flow(map(calcRevenueTwoYears), sum)(projects));
 
 export type CrmProject = {
   id: string;
@@ -33,7 +33,7 @@ export type CrmProject = {
   isMarketplace: boolean;
   closeDate: Date;
   projectIds: string[];
-  stage: string;
+  stage: TCrmStages;
 };
 
 export const selectionSetCrmProject = [
@@ -67,7 +67,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   isMarketplace: !!isMarketplace,
   closeDate: new Date(closeDate),
   projectIds: projects.map(({ project: { id } }) => id),
-  stage,
+  stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
 });
 
 type CrmProjectData = SelectionSet<
@@ -144,6 +144,7 @@ const useCrmProjects = () => {
                 tcv: project.tcv,
                 isMarketPlace: project.isMarketplace,
                 closeDate: project.closeDate,
+                stage: "Prospect",
               },
             ],
           }

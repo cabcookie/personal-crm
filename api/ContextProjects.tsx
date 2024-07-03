@@ -7,11 +7,12 @@ import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { differenceInCalendarMonths } from "date-fns";
+import { differenceInCalendarMonths, differenceInDays } from "date-fns";
 import { flow, map, max, round, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
+import { CRM_STAGES, STAGES_PROBABILITY, TCrmStages } from "./useCrmProject";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -68,6 +69,7 @@ export type CrmProjectData = {
   tcv: number;
   closeDate: Date;
   isMarketPlace: boolean;
+  stage: TCrmStages;
 };
 
 export type Project = {
@@ -109,6 +111,7 @@ const selectionSet = [
   "crmProjects.crmProject.isMarketplace",
   "crmProjects.crmProject.annualRecurringRevenue",
   "crmProjects.crmProject.totalContractVolume",
+  "crmProjects.crmProject.stage",
 ] as const;
 
 type ProjectData = SelectionSet<
@@ -116,13 +119,14 @@ type ProjectData = SelectionSet<
   typeof selectionSet
 >;
 
-type CrmDataProps = {
+export type CrmDataProps = {
   crmProject: {
     id: string;
     annualRecurringRevenue?: number | null;
     totalContractVolume?: number | null;
     closeDate: string;
     isMarketplace?: boolean | null;
+    stage: string;
   };
 };
 
@@ -133,6 +137,7 @@ const mapCrmData = ({
     totalContractVolume,
     closeDate,
     isMarketplace,
+    stage,
   },
 }: CrmDataProps): CrmProjectData => ({
   id,
@@ -140,6 +145,7 @@ const mapCrmData = ({
   tcv: totalContractVolume || 0,
   isMarketPlace: !!isMarketplace,
   closeDate: new Date(closeDate),
+  stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
 });
 
 export interface ICalcRevenueTwoYears {
@@ -147,16 +153,31 @@ export interface ICalcRevenueTwoYears {
   tcv: number;
   closeDate: Date;
   isMarketPlace?: boolean;
+  stage: TCrmStages;
 }
 
-export const calcRevenueTwoYears = flow(
-  ({ arr, tcv, closeDate, isMarketPlace }: ICalcRevenueTwoYears): number[] => [
-    (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
-    tcv / (isMarketPlace ? 2 : 1),
-  ],
-  max,
-  round
-);
+const maxOfArray = (val: number[]): number => max(val) || 0;
+
+export const getProbability = (stage: string): number =>
+  (STAGES_PROBABILITY.find((s) => s.stage === stage)?.probability || 0) / 100;
+
+export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
+  flow(
+    ({
+      arr,
+      tcv,
+      closeDate,
+      isMarketPlace,
+      stage,
+    }: ICalcRevenueTwoYears): number[] => [
+      (arr / 12) *
+        (24 - differenceInCalendarMonths(closeDate, new Date())) *
+        getProbability(stage),
+      (tcv / (isMarketPlace ? 2 : 1)) * getProbability(stage),
+    ],
+    maxOfArray,
+    round
+  )(crmProject);
 
 const calcProjectPriority = ({
   arr,
@@ -193,7 +214,10 @@ const mapProject: (project: ProjectData) => Project = ({
   done: !!done,
   doneOn: doneOn ? new Date(doneOn) : undefined,
   dueOn: dueOn ? new Date(dueOn) : undefined,
-  onHoldTill: onHoldTill ? new Date(onHoldTill) : undefined,
+  onHoldTill:
+    onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
+      ? new Date(onHoldTill)
+      : undefined,
   myNextActions: transformNotesVersion({
     version: formatVersion,
     notes: myNextActions,

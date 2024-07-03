@@ -38,7 +38,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
       }
     >
       <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
-      Stage: {crmProject.stage}
+      <div>Stage: {crmProject.stage}</div>
       {crmProject.arr > 0 && (
         <div>Annual recurring revenue: {formatUsdCurrency(crmProject.arr)}</div>
       )}

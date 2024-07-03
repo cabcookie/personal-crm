@@ -127,7 +127,10 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({
   const handleCreate = async (data: z.infer<typeof FormSchema>) => {
     if (!onCreate) return;
     setFormOpen(false);
-    const result = await onCreate(data);
+    const result = await onCreate({
+      ...data,
+      stage: CRM_STAGES.find((s) => s === data.stage) || "Prospect",
+    });
     if (!result) return;
     toast({
       title: "CRM Project created",
@@ -138,7 +141,10 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({
   const handleUpdate = async (data: z.infer<typeof FormSchema>) => {
     if (!onChange) return;
     setFormOpen(false);
-    const result = await onChange(data);
+    const result = await onChange({
+      ...data,
+      stage: CRM_STAGES.find((s) => s === data.stage) || "Prospect",
+    });
     if (!result) return;
     toast({
       title: "CRM Project updated",

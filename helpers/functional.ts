@@ -26,9 +26,20 @@ export const isTodayOrFuture = (date: string | Date): boolean => {
   today.setHours(0, 0, 0, 0);
   return inputDate.getTime() >= today.getTime();
 };
-export const usdCurrency = new Intl.NumberFormat(undefined, {
+export const usdCurrency = new Intl.NumberFormat("en-US", {
   currency: "USD",
   style: "currency",
   maximumFractionDigits: 0,
 });
 export const formatUsdCurrency = (val: number) => usdCurrency.format(val);
+export const formatRevenue = (revenue: number) =>
+  revenue < 5000
+    ? new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(revenue)
+    : revenue < 500000
+    ? `$${(revenue / 1000).toFixed(0)}k`
+    : `$${(revenue / 1000000).toFixed(1)}M`;

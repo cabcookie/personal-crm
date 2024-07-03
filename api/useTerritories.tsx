@@ -5,7 +5,7 @@ import {
   sortResponsibility,
 } from "@/components/responsibility-date-ranges/ResponsibilityDateRangeRecord";
 import { toast } from "@/components/ui/use-toast";
-import { toISODateString, usdCurrency } from "@/helpers/functional";
+import { formatRevenue, toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays, format } from "date-fns";
 import { filter, first, flow, get, map, sortBy } from "lodash/fp";
@@ -29,14 +29,7 @@ type TerritoryData = SelectionSet<
   Schema["Territory"]["type"],
   typeof selectionSet
 >;
-
-type TerritoryAccountData = {
-  account: {
-    id: string;
-    name: string;
-    crmId?: string | null;
-  };
-};
+type TerritoryAccountData = TerritoryData["accounts"][number];
 
 type TerritoryAccount = {
   id: string;
@@ -75,7 +68,7 @@ export const makeCurrentResponsibilityText = (territory: Territory) =>
           !endDate
             ? `Since ${format(startDate, "PPP")}`
             : `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
-        }${!quota ? "" : ` (Quota: ${usdCurrency.format(quota)})`}`
+        }${!quota ? "" : ` (Quota: ${formatRevenue(quota)})`}`
     )
     .join(", ");
 
