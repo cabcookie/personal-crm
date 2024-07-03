@@ -50,7 +50,7 @@ const AccountDetailPage = () => {
       {!account ? (
         "Loading account..."
       ) : (
-        <div>
+        <div className="px-2 md:px-4">
           <SavedState saved={accountNameSaved} />
           <AccountDetails
             account={account}

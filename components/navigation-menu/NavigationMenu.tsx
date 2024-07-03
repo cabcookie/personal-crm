@@ -3,7 +3,6 @@ import { useProjectsContext } from "@/api/ContextProjects";
 import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
 import { useNavMenuContext } from "@/contexts/NavMenuContext";
-import { useCommandState } from "cmdk";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
 import { BiConversation } from "react-icons/bi";
@@ -23,6 +22,7 @@ import {
 } from "../ui/command";
 import Version from "../version/version";
 import ContextSwitcher from "./ContextSwitcher";
+import SearchableDataGroup from "./SearchableDataGroup";
 
 type NavigationItem = {
   label: string;
@@ -73,78 +73,6 @@ const NavigationMenu = () => {
     { label: "Inbox", url: "/inbox", shortcut: "^I" },
   ];
 
-  const Projects = () => {
-    const search = useCommandState((state) => state.search);
-    if (!search) return null;
-    if (!projects) return null;
-    return (
-      <CommandGroup heading="Projects">
-        {projects.map((p) => (
-          <CommandItem
-            key={p.id}
-            value={`${p.project} ${accounts
-              ?.filter((a) => p.accountIds.includes(a.id))
-              .map((a) => a.name)
-              .join(", ")}`}
-            onSelect={() => {
-              router.push(`/projects/${p.id}`);
-              toggleMenu();
-            }}
-          >
-            {p.project} (
-            {accounts
-              ?.filter((a) => p.accountIds.includes(a.id))
-              .map((a) => a.name)
-              .join(", ")}
-            )
-          </CommandItem>
-        ))}
-      </CommandGroup>
-    );
-  };
-
-  const People = () => {
-    const search = useCommandState((state) => state.search);
-    if (!search) return null;
-    if (!people) return null;
-    return (
-      <CommandGroup heading="People">
-        {people.map((p) => (
-          <CommandItem
-            key={p.id}
-            onSelect={() => {
-              router.push(`/people/${p.id}`);
-              toggleMenu();
-            }}
-          >
-            {p.name}
-          </CommandItem>
-        ))}
-      </CommandGroup>
-    );
-  };
-
-  const Accounts = () => {
-    const search = useCommandState((state) => state.search);
-    if (!search) return null;
-    if (!accounts) return null;
-    return (
-      <CommandGroup heading="Accounts">
-        {accounts.map((a) => (
-          <CommandItem
-            key={a.id}
-            onSelect={() => {
-              router.push(`/accounts/${a.id}`);
-              toggleMenu();
-            }}
-          >
-            {a.name}
-          </CommandItem>
-        ))}
-      </CommandGroup>
-    );
-  };
-
   return (
     <CommandDialog open={menuIsOpen} onOpenChange={toggleMenu}>
       <CommandInput placeholder="Type a command or search…" />
@@ -186,9 +114,35 @@ const NavigationMenu = () => {
             </CommandItem>
           ))}
         </CommandGroup>
-        <Projects />
-        <Accounts />
-        <People />
+        <SearchableDataGroup
+          heading="Accounts"
+          items={accounts?.map(({ id, name }) => ({
+            id,
+            value: name,
+            link: `/accounts/${id}`,
+          }))}
+        />
+        <SearchableDataGroup
+          heading="People"
+          items={people?.map(({ id, name }) => ({
+            id,
+            value: name,
+            link: `/people/${id}`,
+          }))}
+        />
+        <SearchableDataGroup
+          heading="Projects"
+          items={projects
+            ?.filter((p) => !p.done)
+            .map(({ id, project, accountIds }) => ({
+              id,
+              value: `${project} (${accounts
+                ?.filter((a) => accountIds.includes(a.id))
+                .map((a) => a.name)
+                .join(", ")})`,
+              link: `/projects/${id}`,
+            }))}
+        />
         <CommandItem forceMount onSelect={openCreateInboxItemDialog}>
           <Plus className="mr-2 h-4 w-4" />
           <span>Create Inbox Item</span>
