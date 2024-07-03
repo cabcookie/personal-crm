@@ -1,9 +1,10 @@
-import { Account, calcOrder } from "@/api/ContextAccounts";
+import { Account } from "@/api/ContextAccounts";
 import { CrmDataProps, Project, mapCrmData } from "@/api/ContextProjects";
 import { STAGES_PROBABILITY, TCrmStages } from "@/api/useCrmProject";
 import { ProjectFilters } from "@/components/accounts/ProjectList";
 import { differenceInCalendarMonths } from "date-fns";
 import { filter, flatMap, flow, get, map, max, round, sum } from "lodash/fp";
+import { calcOrder } from "./accounts";
 import { formatRevenue } from "./functional";
 
 interface CalcPipelineProps {
