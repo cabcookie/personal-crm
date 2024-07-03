@@ -1,8 +1,9 @@
 import { CrmProjectData } from "@/api/ContextProjects";
 import { CrmProjectOnChangeFields } from "@/api/useCrmProject";
-import useCrmProjects, { getRevenue2Years } from "@/api/useCrmProjects";
+import useCrmProjects from "@/api/useCrmProjects";
 import { Accordion } from "@/components/ui/accordion";
 import { useContextContext } from "@/contexts/ContextContext";
+import { getRevenue2Years } from "@/helpers/projects";
 import { FC, useState } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import CrmProjectForm from "./CrmProjectForm";

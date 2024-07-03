@@ -7,7 +7,4 @@
 - Die Detaildaten für CRM Projekte, Accounts und Territorys werden nun visuell einheitlich dargestellt.
 - Wenn bei einem Projekt ein "On Hold" Datum gesetzt ist, dieses aber in der Vergangenheit liegt, wird dieses ignoriert und somit auch nicht mehr bei den Projektdaten angezeigt.
 - Im Navigationsmenü werden nun zuerst Accounts, dann Personen und dann Projekte angezeigt. Es werden ausschließlich offene Projekte angezeigt.
-
-In Arbeit:
-
 - Projekte werden nach Wichtigkeit der Accounts und des Projektvolumens sortiert.

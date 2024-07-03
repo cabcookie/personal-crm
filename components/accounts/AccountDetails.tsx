@@ -1,5 +1,5 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
-import { make2YearsRevenueText } from "@/api/useCrmProjects";
+import { make2YearsRevenueText } from "@/helpers/projects";
 import { FC, useState } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";

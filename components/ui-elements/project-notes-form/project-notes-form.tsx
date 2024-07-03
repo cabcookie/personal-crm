@@ -1,8 +1,8 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
-import { getRevenue2Years } from "@/api/useCrmProjects";
 import { Accordion } from "@/components/ui/accordion";
+import { getRevenue2Years } from "@/helpers/projects";
 import Link from "next/link";
 import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";

@@ -4,15 +4,14 @@ import {
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toast } from "@/components/ui/use-toast";
+import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import { max } from "lodash";
 import { find, flow, get, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
-import { calcRevenueTwoYears } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
-import { CRM_STAGES } from "./useCrmProject";
 const client = generateClient<Schema>();
 
 type UpdateAccountProps = {
@@ -86,6 +85,7 @@ const selectionSet = [
   "subsidiaries.territories.territory.responsibilities.id",
   "subsidiaries.territories.territory.responsibilities.quota",
   "subsidiaries.territories.territory.responsibilities.startDate",
+  "projects.projects.crmProjects.crmProject.id",
   "projects.projects.crmProjects.crmProject.closeDate",
   "projects.projects.crmProjects.crmProject.annualRecurringRevenue",
   "projects.projects.crmProjects.crmProject.totalContractVolume",
@@ -95,8 +95,6 @@ const selectionSet = [
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
-type ProjectData = AccountData["projects"][number];
-type CrmProjectData = ProjectData["projects"]["crmProjects"][number];
 type TerritoryData = AccountData["territories"][number];
 type SubsidiaryData = AccountData["subsidiaries"][number];
 type ResponsibilityData =
@@ -127,26 +125,7 @@ const getQuotaFromTerritoryOrSubsidaries = (
     )(subsidiaries),
   ]) || 0;
 
-const calcPipeline = (projects: ProjectData[]) =>
-  flow(
-    map((p: ProjectData) =>
-      flow(
-        map(({ crmProject: c }: CrmProjectData): number =>
-          calcRevenueTwoYears({
-            arr: c.annualRecurringRevenue || 0,
-            tcv: c.totalContractVolume || 0,
-            closeDate: new Date(c.closeDate),
-            isMarketPlace: Boolean(c.isMarketplace),
-            stage: CRM_STAGES.find((crm) => crm === c.stage) || "Prospect",
-          })
-        ),
-        sum
-      )(p.projects.crmProjects)
-    ),
-    sum
-  )(projects);
-
-const calcOrder = (quota: number, pipeline: number): number =>
+export const calcOrder = (quota: number, pipeline: number): number =>
   sum([Math.floor(quota / 1000) * 1000, Math.floor(pipeline / 1000)]);
 
 const mapAccount: (account: AccountData) => Account = ({

@@ -6,13 +6,14 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { differenceInCalendarMonths, differenceInDays } from "date-fns";
-import { flow, map, max, round, sum } from "lodash/fp";
+import { differenceInDays } from "date-fns";
+import { flow } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
-import { CRM_STAGES, STAGES_PROBABILITY, TCrmStages } from "./useCrmProject";
+import { CRM_STAGES, TCrmStages } from "./useCrmProject";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -76,6 +77,7 @@ export type Project = {
   id: string;
   project: string;
   done: boolean;
+  order: number;
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
@@ -85,7 +87,6 @@ export type Project = {
   accountIds: string[];
   activityIds: string[];
   crmProjects: CrmProjectData[];
-  priority: number;
 };
 
 const selectionSet = [
@@ -118,19 +119,9 @@ type ProjectData = SelectionSet<
   Schema["Projects"]["type"],
   typeof selectionSet
 >;
+export type CrmDataProps = ProjectData["crmProjects"][number];
 
-export type CrmDataProps = {
-  crmProject: {
-    id: string;
-    annualRecurringRevenue?: number | null;
-    totalContractVolume?: number | null;
-    closeDate: string;
-    isMarketplace?: boolean | null;
-    stage: string;
-  };
-};
-
-const mapCrmData = ({
+export const mapCrmData = ({
   crmProject: {
     id,
     annualRecurringRevenue,
@@ -147,50 +138,6 @@ const mapCrmData = ({
   closeDate: new Date(closeDate),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
 });
-
-export interface ICalcRevenueTwoYears {
-  arr: number;
-  tcv: number;
-  closeDate: Date;
-  isMarketPlace?: boolean;
-  stage: TCrmStages;
-}
-
-const maxOfArray = (val: number[]): number => max(val) || 0;
-
-export const getProbability = (stage: string): number =>
-  (STAGES_PROBABILITY.find((s) => s.stage === stage)?.probability || 0) / 100;
-
-export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
-  flow(
-    ({
-      arr,
-      tcv,
-      closeDate,
-      isMarketPlace,
-      stage,
-    }: ICalcRevenueTwoYears): number[] => [
-      (arr / 12) *
-        (24 - differenceInCalendarMonths(closeDate, new Date())) *
-        getProbability(stage),
-      (tcv / (isMarketPlace ? 2 : 1)) * getProbability(stage),
-    ],
-    maxOfArray,
-    round
-  )(crmProject);
-
-const calcProjectPriority = ({
-  arr,
-  tcv,
-  closeDate,
-  isMarketPlace,
-}: CrmProjectData): number =>
-  Math.round(
-    Math.max(
-      (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
-      tcv / (isMarketPlace ? 2 : 1)
-    ) / 100000
-  );
 
 const mapProject: (project: ProjectData) => Project = ({
   id,
@@ -245,7 +192,13 @@ const mapProject: (project: ProjectData) => Project = ({
     .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
     .map(({ id }) => id),
   crmProjects: crmProjects.map(mapCrmData),
-  priority: flow(map(mapCrmData), map(calcProjectPriority), sum)(crmProjects),
+  order: calcPipeline([
+    {
+      projects: {
+        crmProjects,
+      },
+    },
+  ]),
 });
 
 const fetchProjects = (context?: Context) => async () => {
@@ -299,7 +252,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       accountIds: [],
       activityIds: [],
       crmProjects: [],
-      priority: 0,
+      order: 0,
     };
 
     const updatedProjects = [...(projects || []), newProject];
