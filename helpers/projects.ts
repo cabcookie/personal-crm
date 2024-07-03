@@ -93,4 +93,5 @@ export const filterAndSortProjects = (
 ) =>
   projects
     .filter(filterByProjectStatus(accountId, projectFilter))
-    .map(updateProjectOrder(accounts));
+    .map(updateProjectOrder(accounts))
+    .sort((a, b) => b.order - a.order);
