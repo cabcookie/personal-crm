@@ -3,7 +3,7 @@ import {
   makeCurrentResponsibilityText,
   useTerritory,
 } from "@/api/useTerritories";
-import { usdCurrency } from "@/helpers/functional";
+import { formatRevenue } from "@/helpers/functional";
 import { format } from "date-fns";
 import { FC, useState } from "react";
 import AccountsList from "../accounts/AccountsList";
@@ -33,28 +33,25 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
     "Loading territory…"
   ) : (
     <>
-      <div className="flex flex-col gap-1 text-sm">
-        <div>
-          {`Name: ${territory.name}`}
-          {territory.crmId && (
-            <CrmLink category="Territory__c" id={territory.crmId} />
-          )}
-        </div>
-        {territory.latestQuota > 0 && (
-          <div>{`Quota: ${usdCurrency.format(territory.latestQuota)}`}</div>
+      <TerritoryUpdateForm
+        territory={territory}
+        onUpdate={({ crmId, name, quota, responsibleSince }) =>
+          updateTerritory({ name, crmId, responsibleSince, quota })
+        }
+      />
+      <div>
+        Name: {territory.name}{" "}
+        {territory.crmId && (
+          <CrmLink category="Territory__c" id={territory.crmId} />
         )}
-        <div>{`Responsible since: ${format(
-          territory.latestResponsibilityStarted,
-          "PPP"
-        )}`}</div>
-        <TerritoryUpdateForm
-          territory={territory}
-          onUpdate={({ crmId, name, quota, responsibleSince }) =>
-            updateTerritory({ name, crmId, responsibleSince, quota })
-          }
-        />
       </div>
-      <div className="mt-8" />
+      {territory.latestQuota > 0 && (
+        <div>Quota: {formatRevenue(territory.latestQuota)}</div>
+      )}
+      <div>
+        Responsible since:{" "}
+        {format(territory.latestResponsibilityStarted, "PPP")}
+      </div>
 
       <Accordion
         type="single"

@@ -1,4 +1,4 @@
-import { usdCurrency } from "@/helpers/functional";
+import { formatRevenue } from "@/helpers/functional";
 import { addDays, format } from "date-fns";
 import { flow, get, last, map, reduce, sortBy } from "lodash/fp";
 import { Trash2 } from "lucide-react";
@@ -79,7 +79,7 @@ const ResponsibilityDateRangeRecord: FC<ResponsibilityDateRangeRecordProps> = ({
       .join(" and ")}. ${
       !responsibility.quota
         ? ""
-        : `(Quota: ${usdCurrency.format(responsibility.quota)})`
+        : `(Quota: ${formatRevenue(responsibility.quota)})`
     }`}
     <Button
       variant="ghost"

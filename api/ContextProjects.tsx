@@ -6,12 +6,14 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { differenceInCalendarMonths } from "date-fns";
-import { flow, map, max, round, sum } from "lodash/fp";
+import { differenceInDays } from "date-fns";
+import { flow } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
+import { CRM_STAGES, TCrmStages } from "./useCrmProject";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -68,12 +70,14 @@ export type CrmProjectData = {
   tcv: number;
   closeDate: Date;
   isMarketPlace: boolean;
+  stage: TCrmStages;
 };
 
 export type Project = {
   id: string;
   project: string;
   done: boolean;
+  order: number;
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
@@ -83,7 +87,6 @@ export type Project = {
   accountIds: string[];
   activityIds: string[];
   crmProjects: CrmProjectData[];
-  priority: number;
 };
 
 const selectionSet = [
@@ -109,30 +112,23 @@ const selectionSet = [
   "crmProjects.crmProject.isMarketplace",
   "crmProjects.crmProject.annualRecurringRevenue",
   "crmProjects.crmProject.totalContractVolume",
+  "crmProjects.crmProject.stage",
 ] as const;
 
 type ProjectData = SelectionSet<
   Schema["Projects"]["type"],
   typeof selectionSet
 >;
+export type CrmDataProps = ProjectData["crmProjects"][number];
 
-type CrmDataProps = {
-  crmProject: {
-    id: string;
-    annualRecurringRevenue?: number | null;
-    totalContractVolume?: number | null;
-    closeDate: string;
-    isMarketplace?: boolean | null;
-  };
-};
-
-const mapCrmData = ({
+export const mapCrmData = ({
   crmProject: {
     id,
     annualRecurringRevenue,
     totalContractVolume,
     closeDate,
     isMarketplace,
+    stage,
   },
 }: CrmDataProps): CrmProjectData => ({
   id,
@@ -140,36 +136,8 @@ const mapCrmData = ({
   tcv: totalContractVolume || 0,
   isMarketPlace: !!isMarketplace,
   closeDate: new Date(closeDate),
+  stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
 });
-
-export interface ICalcRevenueTwoYears {
-  arr: number;
-  tcv: number;
-  closeDate: Date;
-  isMarketPlace?: boolean;
-}
-
-export const calcRevenueTwoYears = flow(
-  ({ arr, tcv, closeDate, isMarketPlace }: ICalcRevenueTwoYears): number[] => [
-    (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
-    tcv / (isMarketPlace ? 2 : 1),
-  ],
-  max,
-  round
-);
-
-const calcProjectPriority = ({
-  arr,
-  tcv,
-  closeDate,
-  isMarketPlace,
-}: CrmProjectData): number =>
-  Math.round(
-    Math.max(
-      (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
-      tcv / (isMarketPlace ? 2 : 1)
-    ) / 100000
-  );
 
 const mapProject: (project: ProjectData) => Project = ({
   id,
@@ -193,7 +161,10 @@ const mapProject: (project: ProjectData) => Project = ({
   done: !!done,
   doneOn: doneOn ? new Date(doneOn) : undefined,
   dueOn: dueOn ? new Date(dueOn) : undefined,
-  onHoldTill: onHoldTill ? new Date(onHoldTill) : undefined,
+  onHoldTill:
+    onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
+      ? new Date(onHoldTill)
+      : undefined,
   myNextActions: transformNotesVersion({
     version: formatVersion,
     notes: myNextActions,
@@ -221,7 +192,13 @@ const mapProject: (project: ProjectData) => Project = ({
     .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
     .map(({ id }) => id),
   crmProjects: crmProjects.map(mapCrmData),
-  priority: flow(map(mapCrmData), map(calcProjectPriority), sum)(crmProjects),
+  order: calcPipeline([
+    {
+      projects: {
+        crmProjects,
+      },
+    },
+  ]),
 });
 
 const fetchProjects = (context?: Context) => async () => {
@@ -275,7 +252,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       accountIds: [],
       activityIds: [],
       crmProjects: [],
-      priority: 0,
+      order: 0,
     };
 
     const updatedProjects = [...(projects || []), newProject];

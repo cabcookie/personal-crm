@@ -17,15 +17,13 @@ const AccountName: FC<AccountNameProps> = ({
   accountName,
   removeAccount,
 }) => (
-  <div className="flex flex-row gap-2">
-    <div>
-      <Link href={`/accounts/${accountId}`} className="hover:underline">
-        {accountName}
-      </Link>
-    </div>
+  <div className="flex flex-row gap-2 items-center">
+    <Link href={`/accounts/${accountId}`} className="hover:underline">
+      {accountName}
+    </Link>
     {removeAccount && accountName && (
       <Trash2
-        className="pt-[0.1rem] pb-[0.4rem] text-muted-foreground hover:text-primary"
+        className="h-4 w-4 text-muted-foreground hover:text-primary"
         onClick={() => removeAccount(accountId, accountName)}
       />
     )}
@@ -71,6 +69,7 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
             removeAccount={onRemoveAccount}
           />
         ))}
+        <div className="mt-4" />
         <AccountSelector
           value=""
           allowCreateAccounts

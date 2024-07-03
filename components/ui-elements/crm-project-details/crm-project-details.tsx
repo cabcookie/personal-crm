@@ -1,7 +1,7 @@
 import useCrmProject from "@/api/useCrmProject";
-import { getRevenue2Years } from "@/api/useCrmProjects";
 import { makeCrmLink } from "@/components/crm/CrmLink";
 import { formatUsdCurrency } from "@/helpers/functional";
+import { getRevenue2Years } from "@/helpers/projects";
 import { format } from "date-fns";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
@@ -38,7 +38,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
       }
     >
       <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
-      Stage: {crmProject.stage}
+      <div>Stage: {crmProject.stage}</div>
       {crmProject.arr > 0 && (
         <div>Annual recurring revenue: {formatUsdCurrency(crmProject.arr)}</div>
       )}

@@ -1,6 +1,7 @@
 import { Territory } from "@/api/useTerritories";
 import { revenueNumber } from "@/helpers/ui-form-helpers";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Edit } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -101,9 +102,7 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
       <form>
         <Dialog open={formOpen} onOpenChange={onOpenChange}>
           <DialogTrigger asChild>
-            <Button size="sm" className="text-xs">
-              Edit
-            </Button>
+            <Edit className="w-5 h-5 text-muted-foreground hover:text-primary" />
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
