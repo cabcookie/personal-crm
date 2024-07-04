@@ -63,6 +63,11 @@ const ProjectList: FC<ProjectListProps> = ({
             link={`/projects/${projectId}`}
             triggerSubTitle={
               <>
+                {flow(map(calcRevenueTwoYears), sum)(crmProjects) > 0 && (
+                  <div className="truncate">
+                    {getRevenue2Years(crmProjects)}
+                  </div>
+                )}
                 {accountIds.map((id: string) => (
                   <Link
                     key={id}
@@ -72,11 +77,6 @@ const ProjectList: FC<ProjectListProps> = ({
                     {getAccountById(id)?.name}
                   </Link>
                 ))}
-                {flow(map(calcRevenueTwoYears), sum)(crmProjects) > 0 && (
-                  <div className="truncate">
-                    {getRevenue2Years(crmProjects)}
-                  </div>
-                )}
               </>
             }
           >
