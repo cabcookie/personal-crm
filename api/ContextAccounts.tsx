@@ -10,7 +10,7 @@ import {
 } from "@/helpers/accounts";
 import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow, map, sortBy } from "lodash/fp";
+import { flatMap, flow, map, sortBy, uniq } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -100,6 +100,7 @@ export type AccountData = SelectionSet<
   Schema["Account"]["type"],
   typeof selectionSet
 >;
+type SubsidiaryData = AccountData["subsidiaries"][number];
 
 const mapAccount: (account: AccountData) => Account = ({
   id: accountId,
@@ -134,7 +135,12 @@ const mapAccount: (account: AccountData) => Account = ({
   territoryIds:
     territories.length > 0
       ? territories.map((t) => t.territory.id)
-      : subsidiaries.flatMap((s) => s.territories.map((t) => t.territory.id)),
+      : flow(
+          flatMap((s: SubsidiaryData) =>
+            s.territories.map((t) => t.territory.id)
+          ),
+          uniq
+        )(subsidiaries),
   payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
 });
 

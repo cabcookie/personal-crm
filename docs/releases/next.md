@@ -1,3 +1,8 @@
 # Sortiertung Projekte korrigieren (Version :VERSION)
 
-Die Projekte wurden nicht sortiert. Jetzt werden sie nach "order" absteigend sortiert.
+- Wenn ein Account mehrere Töchter hatte und diesen ein Territory zugeordnet war, dann wurden alle Territories angezeigt, auch wenn sie doppelt waren.
+
+In Arbeit:
+
+- Pipeline in Accounts Subtitle mit anzeigen.
+- Projektsortierung debuggen. Sieht immer noch nicht richtig aus
