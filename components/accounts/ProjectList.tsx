@@ -1,6 +1,11 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
-import { filterAndSortProjects, getRevenue2Years } from "@/helpers/projects";
+import {
+  calcRevenueTwoYears,
+  filterAndSortProjects,
+  getRevenue2Years,
+} from "@/helpers/projects";
+import { flow, map, sum } from "lodash/fp";
 import Link from "next/link";
 import { FC, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -67,7 +72,7 @@ const ProjectList: FC<ProjectListProps> = ({
                     {getAccountById(id)?.name}
                   </Link>
                 ))}
-                {crmProjects.length > 0 && (
+                {flow(map(calcRevenueTwoYears), sum)(crmProjects) > 0 && (
                   <div className="truncate">
                     {getRevenue2Years(crmProjects)}
                   </div>
