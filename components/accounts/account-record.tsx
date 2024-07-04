@@ -32,6 +32,9 @@ const AccountRecord: FC<AccountRecordProps> = ({
       value={account.id}
       triggerTitle={account.name}
       triggerSubTitle={[
+        ...(account.pipeline === 0
+          ? [""]
+          : [`Pipeline: ${formatRevenue(account.pipeline)}`]),
         ...(territories
           ?.filter((t) => account.territoryIds.includes(t.id))
           .map(
