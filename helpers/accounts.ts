@@ -1,6 +1,6 @@
-import { AccountData } from "@/api/ContextAccounts";
+import { Account, AccountData } from "@/api/ContextAccounts";
 import { differenceInDays } from "date-fns";
-import { find, flow, get, map, max, sortBy, sum } from "lodash/fp";
+import { filter, find, flow, get, map, max, sortBy, sum } from "lodash/fp";
 
 type TerritoryData = AccountData["territories"][number];
 type SubsidiaryData = AccountData["subsidiaries"][number];
@@ -34,3 +34,19 @@ export const getQuotaFromTerritoryOrSubsidaries = (
 
 export const calcOrder = (quota: number, pipeline: number): number =>
   sum([Math.floor(quota / 1000) * 1000, Math.floor(pipeline / 1000)]);
+
+const calcSubsidariesPipeline = (
+  controllerId: string | undefined,
+  accounts: Account[]
+): number =>
+  !controllerId
+    ? 0
+    : flow(
+        filter((a: Account) => a.controller?.id === controllerId),
+        map((a) => a.pipeline + calcSubsidariesPipeline(a.id, accounts)),
+        sum
+      )(accounts);
+
+export const calcAccountAndSubsidariesPipeline =
+  (accounts: Account[]) => (account: Account) =>
+    account.pipeline + calcSubsidariesPipeline(account.id, accounts);

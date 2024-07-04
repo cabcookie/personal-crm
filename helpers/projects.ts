@@ -75,7 +75,7 @@ export const updateProjectOrder =
   });
 
 export const make2YearsRevenueText = (revenue: number) =>
-  `Revenue next 2Ys: ${formatRevenue(revenue)}`;
+  revenue === 0 ? "" : `Pipeline 2Ys: ${formatRevenue(revenue)}`;
 
 export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
   make2YearsRevenueText(flow(map(calcRevenueTwoYears), sum)(projects));

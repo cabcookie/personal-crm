@@ -1,5 +1,7 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
+import { calcAccountAndSubsidariesPipeline } from "@/helpers/accounts";
 import { make2YearsRevenueText } from "@/helpers/projects";
+import { filter, flow, map, sum } from "lodash/fp";
 import { FC, useState } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -77,9 +79,19 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           <DefaultAccordionItem
             value="subsidaries"
             triggerTitle="Subsidiaries"
-            triggerSubTitle={accounts
-              .filter((a) => a.controller?.id === account.id)
-              .map((a) => a.name)
+            triggerSubTitle={[
+              flow(
+                filter((a: Account) => a.controller?.id === account.id),
+                map(calcAccountAndSubsidariesPipeline(accounts)),
+                sum,
+                make2YearsRevenueText
+              )(accounts),
+              ...flow(
+                filter((a: Account) => a.controller?.id === account.id),
+                map((a) => a.name)
+              )(accounts),
+            ]
+              .filter((t) => t !== "")
               .join(", ")}
             isVisible={!!showSubsidaries}
             accordionSelectedValue={accordionValue}
