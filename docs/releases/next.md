@@ -2,6 +2,7 @@
 
 - Wenn ein Account mehrere Töchter hatte und diesen ein Territory zugeordnet war, dann wurden alle Territories angezeigt, auch wenn sie doppelt waren.
 - Pipeline wird in Accounts Subtitle mit anzeigt.
+- In der Accounts-Ansicht werden keine erledigten Projekte mehr angezeigt.
 
 In Arbeit:
 

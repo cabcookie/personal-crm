@@ -87,6 +87,7 @@ const selectionSet = [
   "subsidiaries.territories.territory.responsibilities.id",
   "subsidiaries.territories.territory.responsibilities.quota",
   "subsidiaries.territories.territory.responsibilities.startDate",
+  "projects.projects.done",
   "projects.projects.crmProjects.crmProject.id",
   "projects.projects.crmProjects.crmProject.closeDate",
   "projects.projects.crmProjects.crmProject.annualRecurringRevenue",
