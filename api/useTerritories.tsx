@@ -284,16 +284,10 @@ const useTerritory = (id: string | undefined) => {
     startDate: Date,
     quota: number | undefined
   ) => {
-    console.log("updateTerritoryResponsibility", {
-      responsibilityId,
-      startDate,
-      quota,
-    });
     const { data, errors } = await client.models.TerritoryResponsibility.update(
       { id: responsibilityId, startDate: toISODateString(startDate), quota }
     );
     if (errors) handleApiErrors(errors, "Updating responsibility failed");
-    console.log("updateTerritoryResponsibility", { data, errors });
     return data?.id;
   };
 

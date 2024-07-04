@@ -8,9 +8,12 @@ import { calcOrder } from "./accounts";
 import { formatRevenue } from "./functional";
 
 interface CalcPipelineProps {
-  projects: {
-    crmProjects: CrmDataProps[];
-  };
+  projects: ProjectProps;
+}
+
+interface ProjectProps {
+  done?: boolean | null;
+  crmProjects: CrmDataProps[];
 }
 
 export interface ICalcRevenueTwoYears {
@@ -51,6 +54,7 @@ export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
 export const calcPipeline = (projects: CalcPipelineProps[]): number =>
   flow(
     map(get("projects")),
+    filter((p: ProjectProps) => !p.done),
     map(get("crmProjects")),
     flatMap(map(mapCrmData)),
     map(calcRevenueTwoYears),
@@ -71,7 +75,7 @@ export const updateProjectOrder =
   });
 
 export const make2YearsRevenueText = (revenue: number) =>
-  `Revenue next 2Ys: ${formatRevenue(revenue)}`;
+  revenue === 0 ? "" : `Pipeline 2Ys: ${formatRevenue(revenue)}`;
 
 export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
   make2YearsRevenueText(flow(map(calcRevenueTwoYears), sum)(projects));
@@ -80,7 +84,7 @@ export const filterByProjectStatus =
   (accountId: string | undefined, projectFilter: ProjectFilters | undefined) =>
   ({ accountIds, done, onHoldTill }: Project) =>
     accountId
-      ? accountIds.includes(accountId)
+      ? accountIds.includes(accountId) && !done
       : (projectFilter === "WIP" && !done && !onHoldTill) ||
         (projectFilter === "On Hold" && !done && onHoldTill) ||
         (projectFilter === "Done" && done);

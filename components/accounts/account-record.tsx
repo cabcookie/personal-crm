@@ -1,6 +1,9 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import useTerritories from "@/api/useTerritories";
+import { calcAccountAndSubsidariesPipeline } from "@/helpers/accounts";
 import { formatRevenue } from "@/helpers/functional";
+import { make2YearsRevenueText } from "@/helpers/projects";
+import { flow } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import AccountDetails from "./AccountDetails";
@@ -32,6 +35,12 @@ const AccountRecord: FC<AccountRecordProps> = ({
       value={account.id}
       triggerTitle={account.name}
       triggerSubTitle={[
+        !accounts
+          ? ""
+          : flow(
+              calcAccountAndSubsidariesPipeline(accounts),
+              make2YearsRevenueText
+            )(account),
         ...(territories
           ?.filter((t) => account.territoryIds.includes(t.id))
           .map(
