@@ -1,7 +1,4 @@
-# Account Pipeline und Projektinformationen besser darstellen (Version :VERSION)
+# Korrigieren der Pipeline Berechnung und Visibilität (Version :VERSION)
 
-- Wenn ein Account mehrere Töchter hatte und diesen ein Territory zugeordnet war, dann wurden alle Territories angezeigt, auch wenn sie doppelt waren.
-- Pipeline wird in Accounts Subtitle mit anzeigt.
-- In der Accounts-Ansicht werden keine erledigten Projekte mehr angezeigt.
-- In Projekten wurde immer noch ein Revenue von $0 angezeigt, wenn ein CRM Projekt dran hing.
-- Auch die Summe der Pipeline der Tochter-Unternehmen wird mit angezeigt.
+- Die Summe der Pipeline der Projekte eines Accounts wird nun korrekt berechnet.
+- Auf dem Mobilgerät wird die Pipeline Information nun korrekt dargestellt.

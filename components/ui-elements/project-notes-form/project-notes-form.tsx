@@ -3,7 +3,7 @@ import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import { Accordion } from "@/components/ui/accordion";
 import { getRevenue2Years } from "@/helpers/projects";
-import Link from "next/link";
+import { flow, get, map } from "lodash/fp";
 import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";
 import ActivityMetaData from "../../activities/activity-meta-data";
@@ -31,21 +31,11 @@ const ProjectItem: FC<ProjectItemProps> = ({
         accordionSelectedValue={accordionSelectedValue}
         link={`/projects/${project.id}`}
         isVisible
-        triggerSubTitle={
-          <>
-            {project.accountIds.map((id: string) => (
-              <Link
-                key={id}
-                className="hover:underline"
-                href={`/accounts/${id}`}
-              >
-                {getAccountById(id)?.name}
-              </Link>
-            ))}
-            {project.crmProjects.length > 0 &&
-              getRevenue2Years(project.crmProjects)}
-          </>
-        }
+        triggerSubTitle={[
+          ...flow(map(getAccountById), map(get("name")))(project.accountIds),
+          project.crmProjects.length > 0 &&
+            getRevenue2Years(project.crmProjects),
+        ]}
       >
         <ProjectDetails projectId={project.id} showCrmDetails includeAccounts />
       </DefaultAccordionItem>

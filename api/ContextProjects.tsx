@@ -9,7 +9,7 @@ import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
-import { flow } from "lodash/fp";
+import { filter, flow, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
@@ -78,6 +78,7 @@ export type Project = {
   project: string;
   done: boolean;
   order: number;
+  pipeline: number;
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
@@ -155,51 +156,58 @@ const mapProject: (project: ProjectData) => Project = ({
   accounts,
   activities,
   crmProjects,
-}) => ({
-  id,
-  project,
-  done: !!done,
-  doneOn: doneOn ? new Date(doneOn) : undefined,
-  dueOn: dueOn ? new Date(dueOn) : undefined,
-  onHoldTill:
-    onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
-      ? new Date(onHoldTill)
-      : undefined,
-  myNextActions: transformNotesVersion({
-    version: formatVersion,
-    notes: myNextActions,
-    notesJson: myNextActionsJson,
-  }),
-  othersNextActions: transformNotesVersion({
-    version: formatVersion,
-    notes: othersNextActions,
-    notesJson: othersNextActionsJson,
-  }),
-  context,
-  accountIds: accounts
-    .map(({ accountId, createdAt }) => ({
-      accountId,
-      createdAt: new Date(createdAt),
-    }))
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .map(({ accountId }) => accountId),
-  activityIds: activities
-    .filter(({ activity }) => !!activity)
-    .map(({ activity: { id, createdAt, finishedOn } }) => ({
-      id,
-      finishedOn: new Date(finishedOn || createdAt),
-    }))
-    .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
-    .map(({ id }) => id),
-  crmProjects: crmProjects.map(mapCrmData),
-  order: calcPipeline([
+}) => {
+  const pipeline = calcPipeline([
     {
       projects: {
         crmProjects,
       },
     },
-  ]),
-});
+  ]);
+
+  return {
+    id,
+    project,
+    done: !!done,
+    doneOn: doneOn ? new Date(doneOn) : undefined,
+    dueOn: dueOn ? new Date(dueOn) : undefined,
+    onHoldTill:
+      onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
+        ? new Date(onHoldTill)
+        : undefined,
+    myNextActions: transformNotesVersion({
+      version: formatVersion,
+      notes: myNextActions,
+      notesJson: myNextActionsJson,
+    }),
+    othersNextActions: transformNotesVersion({
+      version: formatVersion,
+      notes: othersNextActions,
+      notesJson: othersNextActionsJson,
+    }),
+    context,
+    accountIds: flow(
+      map((a: (typeof accounts)[number]) => ({
+        accountId: a.accountId,
+        createdAt: new Date(a.createdAt),
+      })),
+      sortBy((a) => -a.createdAt.getTime()),
+      map((a) => a.accountId)
+    )(accounts),
+    activityIds: flow(
+      filter((a: (typeof activities)[number]) => !!a.activity),
+      map(({ activity: { id, createdAt, finishedOn } }) => ({
+        id,
+        finishedOn: new Date(finishedOn || createdAt),
+      })),
+      sortBy((a) => a.finishedOn.getTime()),
+      map((a) => a.id)
+    )(activities),
+    crmProjects: crmProjects.map(mapCrmData),
+    pipeline: pipeline,
+    order: pipeline,
+  };
+};
 
 const fetchProjects = (context?: Context) => async () => {
   if (!context) return;
@@ -252,6 +260,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       accountIds: [],
       activityIds: [],
       crmProjects: [],
+      pipeline: 0,
       order: 0,
     };
 

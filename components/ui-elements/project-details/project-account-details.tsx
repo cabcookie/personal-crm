@@ -1,5 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useContextContext } from "@/contexts/ContextContext";
+import { flow, get, map } from "lodash/fp";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
@@ -33,7 +34,7 @@ const AccountName: FC<AccountNameProps> = ({
 type ProjectAccountDetailsProps = {
   isVisible?: boolean;
   accordionSelectedValue?: string;
-  accoundIds: string[];
+  accountIds: string[];
   onRemoveAccount: (accountId: string, accountName: string) => void;
   onAddAccount: (accountId: string | null) => void;
 };
@@ -41,7 +42,7 @@ type ProjectAccountDetailsProps = {
 const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
   isVisible,
   accordionSelectedValue,
-  accoundIds,
+  accountIds,
   onRemoveAccount,
   onAddAccount,
 }) => {
@@ -55,13 +56,12 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
         value="accounts"
         triggerTitle="Accounts"
         accordionSelectedValue={accordionSelectedValue}
-        triggerSubTitle={accoundIds.map((id) => (
-          <Link key={id} className="hover:underline" href={`/accounts/${id}`}>
-            {getAccountById(id)?.name}
-          </Link>
-        ))}
+        triggerSubTitle={flow(
+          map(getAccountById),
+          map(get("name"))
+        )(accountIds)}
       >
-        {accoundIds.map((id) => (
+        {accountIds.map((id) => (
           <AccountName
             key={id}
             accountId={id}

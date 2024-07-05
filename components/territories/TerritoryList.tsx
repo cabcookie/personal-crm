@@ -50,9 +50,7 @@ const TerritoryList: FC<TerritoryListProps> = ({
             triggerSubTitle={[
               ...t.accounts.map((a) => a.name),
               makeCurrentResponsibilityText(t),
-            ]
-              .filter((t) => t !== "")
-              .join(", ")}
+            ]}
             accordionSelectedValue={selectedAccordionItem}
           >
             <TerritoryDetails territoryId={t.id} />

@@ -3,10 +3,9 @@ import { useProjectsContext } from "@/api/ContextProjects";
 import {
   calcRevenueTwoYears,
   filterAndSortProjects,
-  getRevenue2Years,
+  make2YearsRevenueText,
 } from "@/helpers/projects";
-import { flow, map, sum } from "lodash/fp";
-import Link from "next/link";
+import { flow, get, map, sum } from "lodash/fp";
 import { FC, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import ProjectDetails from "../ui-elements/project-details/project-details";
@@ -41,7 +40,8 @@ const ProjectList: FC<ProjectListProps> = ({
 
   return !projects ? (
     "Loading…"
-  ) : projects.length === 0 ? (
+  ) : filterAndSortProjects(projects, accountId, projectFilter, accounts)
+      .length === 0 ? (
     "No projects"
   ) : (
     <Accordion
@@ -61,24 +61,14 @@ const ProjectList: FC<ProjectListProps> = ({
             className="tracking-tight"
             accordionSelectedValue={accordionValue}
             link={`/projects/${projectId}`}
-            triggerSubTitle={
-              <>
-                {flow(map(calcRevenueTwoYears), sum)(crmProjects) > 0 && (
-                  <div className="truncate">
-                    {getRevenue2Years(crmProjects)}
-                  </div>
-                )}
-                {accountIds.map((id: string) => (
-                  <Link
-                    key={id}
-                    className="hover:underline truncate"
-                    href={`/accounts/${id}`}
-                  >
-                    {getAccountById(id)?.name}
-                  </Link>
-                ))}
-              </>
-            }
+            triggerSubTitle={[
+              flow(
+                map(calcRevenueTwoYears),
+                sum,
+                make2YearsRevenueText
+              )(crmProjects),
+              ...flow(map(getAccountById), map(get("name")))(accountIds),
+            ]}
           >
             <ProjectDetails
               projectId={projectId}

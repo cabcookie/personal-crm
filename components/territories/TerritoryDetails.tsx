@@ -64,7 +64,7 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
         <DefaultAccordionItem
           value="accounts"
           triggerTitle="Accounts"
-          triggerSubTitle={territory.accounts.map((a) => a.name).join(", ")}
+          triggerSubTitle={territory.accounts.map((a) => a.name)}
           accordionSelectedValue={accordionValue}
         >
           {accounts && (
