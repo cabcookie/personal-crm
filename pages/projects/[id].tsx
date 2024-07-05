@@ -33,7 +33,7 @@ const ProjectDetailPage = () => {
   }, [autoFocusActivityId]);
 
   const handleBackBtnClick = () => {
-    router.push("/projects");
+    router.replace("/projects");
   };
 
   const updateProjectName = (newName: string) => {

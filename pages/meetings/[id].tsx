@@ -78,7 +78,7 @@ const MeetingDetailPage = () => {
   };
 
   const handleBackBtnClick = () => {
-    router.push("/meetings");
+    router.replace("/meetings");
   };
 
   const saveMeetingTitle = (newTitle: string) => {

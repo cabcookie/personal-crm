@@ -23,7 +23,7 @@ const AccountDetailPage = () => {
   }, [accountId, getAccountById]);
 
   const handleBackBtnClick = () => {
-    router.push("/accounts");
+    router.replace("/accounts");
   };
 
   const handleUpdateName = (newName: string) => {

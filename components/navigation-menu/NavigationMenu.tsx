@@ -1,5 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
+import useMeetings from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
 import { useNavMenuContext } from "@/contexts/NavMenuContext";
@@ -24,20 +25,32 @@ import Version from "../version/version";
 import ContextSwitcher from "./ContextSwitcher";
 import SearchableDataGroup from "./SearchableDataGroup";
 
-type NavigationItem = {
+type UrlNavigationItem = {
+  url: string;
+  action?: never;
+  forceMount?: never;
+};
+
+type ActionNavigationItem = {
+  url?: never;
+  action: (value: string) => void;
+  forceMount?: boolean;
+};
+
+type NavigationItem = (UrlNavigationItem | ActionNavigationItem) & {
   label: string;
   Icon?: IconType;
   shortcut?: string;
-  url?: string;
 };
 
 const NavigationMenu = () => {
-  const { isWorkContext } = useContextContext();
+  const { isWorkContext, context } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
   const { open: openCreateInboxItemDialog } = useCreateInboxItemContext();
-  const { projects } = useProjectsContext();
+  const { projects, createProject } = useProjectsContext();
   const { accounts } = useAccountsContext();
-  const { people } = usePeople();
+  const { people, createPerson } = usePeople();
+  const { createMeeting } = useMeetings({ context });
   const router = useRouter();
 
   const mainNavigation: NavigationItem[] = [
@@ -73,6 +86,36 @@ const NavigationMenu = () => {
     { label: "Inbox", url: "/inbox", shortcut: "^I" },
   ];
 
+  const createAndOpenMeeting = async () => {
+    const meetingId = await createMeeting("New Meeting", context);
+    if (!meetingId) return;
+    router.replace(`/meetings/${meetingId}`);
+  };
+
+  const createAndOpenPerson = async () => {
+    const personId = await createPerson("New Person");
+    if (!personId) return;
+    router.replace(`/people/${personId}`);
+  };
+
+  const createAndOpenProject = async () => {
+    const project = await createProject("New Project");
+    if (!project) return;
+    router.replace(`/projects/${project.id}`);
+    toggleMenu();
+  };
+
+  const createItemsNavigation: NavigationItem[] = [
+    {
+      label: "Inbox Item",
+      action: openCreateInboxItemDialog,
+      forceMount: true,
+    },
+    { label: "Meeting", action: createAndOpenMeeting },
+    { label: "Person", action: createAndOpenPerson },
+    { label: "Project", action: createAndOpenProject },
+  ];
+
   return (
     <CommandDialog open={menuIsOpen} onOpenChange={toggleMenu}>
       <CommandInput placeholder="Type a command or search…" />
@@ -89,7 +132,7 @@ const NavigationMenu = () => {
               key={index}
               onSelect={() => {
                 if (!url) return;
-                router.push(url);
+                router.replace(url);
               }}
             >
               {Icon && <Icon className="mr-2 h-4 w-4" />}
@@ -105,7 +148,7 @@ const NavigationMenu = () => {
               key={index}
               onSelect={() => {
                 if (!url) return;
-                router.push(url);
+                router.replace(url);
               }}
             >
               {Icon && <Icon className="mr-2 h-4 w-4" />}
@@ -143,10 +186,12 @@ const NavigationMenu = () => {
               link: `/projects/${id}`,
             }))}
         />
-        <CommandItem forceMount onSelect={openCreateInboxItemDialog}>
-          <Plus className="mr-2 h-4 w-4" />
-          <span>Create Inbox Item</span>
-        </CommandItem>
+        {createItemsNavigation.map(({ label, action, forceMount }, index) => (
+          <CommandItem key={index} forceMount={forceMount} onSelect={action}>
+            <Plus className="mr-2 h-4 w-4" />
+            <span>Create {label}</span>
+          </CommandItem>
+        ))}
         <CommandItem onSelect={() => {}}>
           <div className="px-2 text-muted-foreground text-xs">
             <Version />

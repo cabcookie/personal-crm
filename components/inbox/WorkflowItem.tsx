@@ -57,8 +57,8 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({ inboxItemId, forwardUrl }) => {
       if (!result) return;
     }
 
-    if (forwardUrl) router.push(forwardUrl);
-    if (response.nextStep.toHome) router.push("/inbox");
+    if (forwardUrl) router.replace(forwardUrl);
+    if (response.nextStep.toHome) router.replace("/inbox");
   };
 
   return !inboxItem ? (

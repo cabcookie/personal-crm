@@ -1,11 +1,11 @@
 # Eine neue Struktur für Meetings schaffen (Version :VERSION)
 
 - Packages (inkl. Amplify) auf die neueste Version ohne Breaking Changes aktualisiert.
+- Das Cmd+K Menü reagiert auch auf Cmd+P.
+- Aus dem Cmk+K Menü sollen auch neue Einträge für Meetings, Projekte und Personen erstellt werden können.
 
 In Arbeit:
 
-- Das Cmd+K Menü reagiert auch auf Cmd+P.
-- Aus dem Cmk+K Menü sollen auch neue Einträge für Meetings, Projekte und Personen erstellt werden können.
 - Details zu Personen ermöglichen.
 - Ein Meeting soll eine feste Struktur haben:
   - Name des Meetings

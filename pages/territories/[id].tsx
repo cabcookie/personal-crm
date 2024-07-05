@@ -14,7 +14,7 @@ const TerritoryDetailPage = () => {
   const [territoryNameSaved, setTerritoryNameSaved] = useState(true);
 
   const handleBackBtnClick = () => {
-    router.push("/territories");
+    router.replace("/territories");
   };
 
   const handleUpdateName = (newName: string) => {
