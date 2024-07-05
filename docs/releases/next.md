@@ -1,1 +1,1 @@
-# Die Eigenschaft "Order" von der Accountliste entfernt (Version :VERSION)
+# Die Reihenfolge von Aktivitäten korrigiert (Version :VERSION)
