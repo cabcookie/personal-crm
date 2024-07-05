@@ -7,7 +7,7 @@
 
 In Arbeit:
 
-- Details zu Personen ermöglichen.
+- Details zu Personen ermöglichen (Geburtstag, Todestag, Account-Zugehörigkeit, Aussprache des Namens, Geschenkideen, Gebetsanliegen, Gelerntes zur Person).
 
 Später:
 
