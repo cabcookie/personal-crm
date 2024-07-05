@@ -106,7 +106,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           }
         >
           <ProjectAccountDetails
-            accoundIds={project.accountIds}
+            accountIds={project.accountIds}
             onAddAccount={handleSelectAccount}
             accordionSelectedValue={accordionValue}
             isVisible={includeAccounts}

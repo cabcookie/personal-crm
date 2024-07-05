@@ -5,12 +5,12 @@ import {
 } from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toast } from "@/components/ui/use-toast";
 import {
+  calcAccountAndSubsidariesPipeline,
   calcOrder,
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
-import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flatMap, flow, map, sortBy, uniq } from "lodash/fp";
+import { filter, flatMap, flow, get, map, sortBy, sum, uniq } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -44,12 +44,12 @@ interface AccountsContextType {
     accountId: string,
     territoryId: string
   ) => Promise<string | undefined>;
-  updateOrder: (accounts: Account[]) => Promise<(string | undefined)[]>;
   addPayerAccount: (
     accountId: string,
     payer: string
   ) => Promise<string | undefined>;
   deletePayerAccount: (payer: string) => Promise<string | undefined>;
+  getPipelineByControllerId: (controllerId: string) => number;
 }
 
 export type Account = {
@@ -101,9 +101,21 @@ export type AccountData = SelectionSet<
   Schema["Account"]["type"],
   typeof selectionSet
 >;
-type SubsidiaryData = AccountData["subsidiaries"][number];
+export type SubsidiaryData = AccountData["subsidiaries"][number];
+export type TerritoryData = AccountData["territories"][number];
+export type AccountProjectData = AccountData["projects"][number];
+export type AccountBeforePipelineCalculations = Omit<
+  Account,
+  "order" | "latestQuota" | "pipeline"
+> & {
+  subsidiaries: SubsidiaryData[];
+  territories: TerritoryData[];
+  projects: AccountProjectData[];
+};
 
-const mapAccount: (account: AccountData) => Account = ({
+const mapAccount: (
+  account: AccountData
+) => AccountBeforePipelineCalculations = ({
   id: accountId,
   name,
   crmId,
@@ -126,12 +138,9 @@ const mapAccount: (account: AccountData) => Account = ({
     notesJson: introductionJson,
   }),
   controller,
-  latestQuota: getQuotaFromTerritoryOrSubsidaries(territories, subsidiaries),
-  pipeline: calcPipeline(projects),
-  order: calcOrder(
-    getQuotaFromTerritoryOrSubsidaries(territories, subsidiaries),
-    calcPipeline(projects)
-  ),
+  territories,
+  subsidiaries,
+  projects,
   createdAt: new Date(createdAt),
   territoryIds:
     territories.length > 0
@@ -145,6 +154,40 @@ const mapAccount: (account: AccountData) => Account = ({
   payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
 });
 
+const addOrderNumberToAccounts = (
+  accounts: AccountBeforePipelineCalculations[]
+) =>
+  accounts.reduce(
+    (
+      prev: Account[],
+      {
+        territories,
+        subsidiaries,
+        projects,
+        ...curr
+      }: AccountBeforePipelineCalculations
+    ) => [
+      ...prev,
+      {
+        ...curr,
+        order: calcOrder(
+          getQuotaFromTerritoryOrSubsidaries(territories, subsidiaries),
+          calcAccountAndSubsidariesPipeline(accounts, curr.id, projects)
+        ),
+        latestQuota: getQuotaFromTerritoryOrSubsidaries(
+          territories,
+          subsidiaries
+        ),
+        pipeline: calcAccountAndSubsidariesPipeline(
+          accounts,
+          curr.id,
+          projects
+        ),
+      },
+    ],
+    []
+  );
+
 const fetchAccounts = async () => {
   const { data, errors } = await client.models.Account.list({
     limit: 500,
@@ -153,7 +196,8 @@ const fetchAccounts = async () => {
   if (errors) throw errors;
   return flow(
     map(mapAccount),
-    sortBy((account) => -account.order)
+    addOrderNumberToAccounts,
+    sortBy((a) => -a.order)
   )(data);
 };
 
@@ -345,29 +389,6 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data.id;
   };
 
-  const updateAccountOrderNo = async (
-    id: string,
-    order: number
-  ): Promise<string | undefined> => {
-    const { data, errors } = await client.models.Account.update({ id, order });
-    if (errors) handleApiErrors(errors, "Error updating the order of accounts");
-    return data?.id;
-  };
-
-  const updateOrder = async (items: Account[]) => {
-    const updated: Account[] | undefined = accounts?.map(({ id, ...rest }) => ({
-      id,
-      ...rest,
-      order: items.find((item) => item.id === id)?.order || rest.order,
-    }));
-    if (updated) mutate(updated, false);
-    const result = await Promise.all(
-      items.map(({ id, order }) => updateAccountOrderNo(id, order))
-    );
-    if (updated) mutate(updated);
-    return result;
-  };
-
   const addPayerAccount = async (accountId: string, payer: string) => {
     const updated: Account[] | undefined = accounts?.map((a) =>
       a.id !== accountId
@@ -412,6 +433,15 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data.awsAccountNumber;
   };
 
+  const getPipelineByControllerId = (controllerId: string): number =>
+    !accounts
+      ? 0
+      : flow(
+          filter((a: Account) => a.controller?.id === controllerId),
+          map(get("pipeline")),
+          sum
+        )(accounts);
+
   return (
     <AccountsContext.Provider
       value={{
@@ -424,9 +454,9 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         assignController,
         assignTerritory,
         deleteTerritory,
-        updateOrder,
         addPayerAccount,
         deletePayerAccount,
+        getPipelineByControllerId,
       }}
     >
       {children}

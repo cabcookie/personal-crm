@@ -1,9 +1,8 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
-import useTerritories from "@/api/useTerritories";
-import { calcAccountAndSubsidariesPipeline } from "@/helpers/accounts";
+import useTerritories, { Territory } from "@/api/useTerritories";
 import { formatRevenue } from "@/helpers/functional";
 import { make2YearsRevenueText } from "@/helpers/projects";
-import { flow } from "lodash/fp";
+import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import AccountDetails from "./AccountDetails";
@@ -35,26 +34,22 @@ const AccountRecord: FC<AccountRecordProps> = ({
       value={account.id}
       triggerTitle={account.name}
       triggerSubTitle={[
-        !accounts
-          ? ""
-          : flow(
-              calcAccountAndSubsidariesPipeline(accounts),
-              make2YearsRevenueText
-            )(account),
-        ...(territories
-          ?.filter((t) => account.territoryIds.includes(t.id))
-          .map(
+        account.order > 0 && `Order: ${account.order}`,
+        account.pipeline > 0 && make2YearsRevenueText(account.pipeline),
+        ...flow(
+          filter((t: Territory) => account.territoryIds.includes(t.id)),
+          map(
             (t): string =>
               `${t.name}${
                 t.latestQuota === 0 ? "" : ` (${formatRevenue(t.latestQuota)})`
               }`
-          ) || []),
-        ...(accounts
-          ?.filter((a) => account.id === a.controller?.id)
-          .map((a) => a.name) || []),
-      ]
-        .filter((t) => t !== "")
-        .join(", ")}
+          )
+        )(territories),
+        ...flow(
+          filter((a: Account) => account.id === a.controller?.id),
+          map((a) => a.name)
+        )(accounts),
+      ]}
       link={`/accounts/${account.id}`}
       accordionSelectedValue={selectedAccordionItem}
     >

@@ -30,12 +30,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
           ? makeCrmLink("Opportunity", crmProject.crmId)
           : undefined
       }
-      triggerSubTitle={
-        <>
-          <span>{crmProject.stage}</span>
-          <span>{getRevenue2Years([crmProject])}</span>
-        </>
-      }
+      triggerSubTitle={[crmProject.stage, getRevenue2Years([crmProject])]}
     >
       <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
       <div>Stage: {crmProject.stage}</div>

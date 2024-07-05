@@ -1,7 +1,10 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
-import { calcAccountAndSubsidariesPipeline } from "@/helpers/accounts";
-import { make2YearsRevenueText } from "@/helpers/projects";
-import { filter, flow, map, sum } from "lodash/fp";
+import { useProjectsContext } from "@/api/ContextProjects";
+import {
+  calcPipelineByAccountId,
+  make2YearsRevenueText,
+} from "@/helpers/projects";
+import { filter, flow, map } from "lodash/fp";
 import { FC, useState } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -34,7 +37,13 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   showNotes,
   showSubsidaries = true,
 }) => {
-  const { accounts, updateAccount, deletePayerAccount } = useAccountsContext();
+  const {
+    accounts,
+    updateAccount,
+    deletePayerAccount,
+    getPipelineByControllerId,
+  } = useAccountsContext();
+  const { projects } = useProjectsContext();
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -81,18 +90,14 @@ const AccountDetails: FC<AccountDetailsProps> = ({
             triggerTitle="Subsidiaries"
             triggerSubTitle={[
               flow(
-                filter((a: Account) => a.controller?.id === account.id),
-                map(calcAccountAndSubsidariesPipeline(accounts)),
-                sum,
+                getPipelineByControllerId,
                 make2YearsRevenueText
-              )(accounts),
+              )(account.id),
               ...flow(
                 filter((a: Account) => a.controller?.id === account.id),
                 map((a) => a.name)
               )(accounts),
-            ]
-              .filter((t) => t !== "")
-              .join(", ")}
+            ]}
             isVisible={!!showSubsidaries}
             accordionSelectedValue={accordionValue}
           >
@@ -122,11 +127,10 @@ const AccountDetails: FC<AccountDetailsProps> = ({
         <DefaultAccordionItem
           value="Projects"
           triggerTitle="Projects"
-          triggerSubTitle={
-            account.pipeline === 0
-              ? ""
-              : make2YearsRevenueText(account.pipeline)
-          }
+          triggerSubTitle={flow(
+            calcPipelineByAccountId(account.id),
+            make2YearsRevenueText
+          )(projects)}
           isVisible={!!showProjects}
           accordionSelectedValue={accordionValue}
         >

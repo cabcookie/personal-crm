@@ -3,7 +3,17 @@ import { CrmDataProps, Project, mapCrmData } from "@/api/ContextProjects";
 import { STAGES_PROBABILITY, TCrmStages } from "@/api/useCrmProject";
 import { ProjectFilters } from "@/components/accounts/ProjectList";
 import { differenceInCalendarMonths } from "date-fns";
-import { filter, flatMap, flow, get, map, max, round, sum } from "lodash/fp";
+import {
+  filter,
+  flatMap,
+  flow,
+  get,
+  map,
+  max,
+  round,
+  sortBy,
+  sum,
+} from "lodash/fp";
 import { calcOrder } from "./accounts";
 import { formatRevenue } from "./functional";
 
@@ -59,18 +69,19 @@ export const calcPipeline = (projects: CalcPipelineProps[]): number =>
     flatMap(map(mapCrmData)),
     map(calcRevenueTwoYears),
     sum,
-    (val: number | undefined) => (!val ? 0 : val / 1000),
+    (val: number | undefined) => val || 0,
     Math.floor
   )(projects);
 
 export const updateProjectOrder =
-  (accounts: Account[] | undefined) => (project: Project) => ({
+  (accounts: Account[] | undefined) =>
+  (project: Project): Project => ({
     ...project,
     order: flow(
       filter((a: Account) => project.accountIds.includes(a.id)),
       map(get("latestQuota")),
       max,
-      calcProjectOrder(project.order)
+      calcProjectOrder(project.pipeline)
     )(accounts),
   });
 
@@ -86,8 +97,19 @@ export const filterByProjectStatus =
     accountId
       ? accountIds.includes(accountId) && !done
       : (projectFilter === "WIP" && !done && !onHoldTill) ||
-        (projectFilter === "On Hold" && !done && onHoldTill) ||
+        (projectFilter === "On Hold" && !done && !!onHoldTill) ||
         (projectFilter === "Done" && done);
+
+export const calcPipelineByAccountId =
+  (accountId: string | undefined) =>
+  (projects?: Project[]): number =>
+    !projects
+      ? 0
+      : flow(
+          filter(filterByProjectStatus(accountId, undefined)),
+          map((p) => p.pipeline),
+          sum
+        )(projects);
 
 export const filterAndSortProjects = (
   projects: Project[],
@@ -95,7 +117,8 @@ export const filterAndSortProjects = (
   projectFilter: ProjectFilters | undefined,
   accounts: Account[] | undefined
 ) =>
-  projects
-    .filter(filterByProjectStatus(accountId, projectFilter))
-    .map(updateProjectOrder(accounts))
-    .sort((a, b) => b.order - a.order);
+  flow(
+    filter(filterByProjectStatus(accountId, projectFilter)),
+    map(updateProjectOrder(accounts)),
+    sortBy((p) => -p.order)
+  )(projects);

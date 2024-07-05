@@ -1,9 +1,13 @@
-import { Account, AccountData } from "@/api/ContextAccounts";
+import {
+  AccountBeforePipelineCalculations,
+  AccountProjectData,
+  SubsidiaryData,
+  TerritoryData,
+} from "@/api/ContextAccounts";
 import { differenceInDays } from "date-fns";
 import { filter, find, flow, get, map, max, sortBy, sum } from "lodash/fp";
+import { calcPipeline } from "./projects";
 
-type TerritoryData = AccountData["territories"][number];
-type SubsidiaryData = AccountData["subsidiaries"][number];
 type ResponsibilityData =
   TerritoryData["territory"]["responsibilities"][number];
 
@@ -17,7 +21,7 @@ const getLatestQuota = (territories: TerritoryData[]) =>
           get("quota")
         )(t.territory.responsibilities) || 0
     ),
-    sum
+    max
   )(territories);
 
 export const getQuotaFromTerritoryOrSubsidaries = (
@@ -28,7 +32,7 @@ export const getQuotaFromTerritoryOrSubsidaries = (
     getLatestQuota(territories),
     flow(
       map((s: SubsidiaryData) => getLatestQuota(s.territories)),
-      sum
+      max
     )(subsidiaries),
   ]) || 0;
 
@@ -37,16 +41,25 @@ export const calcOrder = (quota: number, pipeline: number): number =>
 
 const calcSubsidariesPipeline = (
   controllerId: string | undefined,
-  accounts: Account[]
+  accounts: AccountBeforePipelineCalculations[]
 ): number =>
   !controllerId
     ? 0
     : flow(
-        filter((a: Account) => a.controller?.id === controllerId),
-        map((a) => a.pipeline + calcSubsidariesPipeline(a.id, accounts)),
+        filter(
+          (a: AccountBeforePipelineCalculations) =>
+            a.controller?.id === controllerId
+        ),
+        map(
+          (a) =>
+            calcPipeline(a.projects) + calcSubsidariesPipeline(a.id, accounts)
+        ),
         sum
       )(accounts);
 
-export const calcAccountAndSubsidariesPipeline =
-  (accounts: Account[]) => (account: Account) =>
-    account.pipeline + calcSubsidariesPipeline(account.id, accounts);
+export const calcAccountAndSubsidariesPipeline = (
+  accounts: AccountBeforePipelineCalculations[],
+  accountId: string,
+  projects: AccountProjectData[]
+): number =>
+  calcPipeline(projects) + calcSubsidariesPipeline(accountId, accounts);
