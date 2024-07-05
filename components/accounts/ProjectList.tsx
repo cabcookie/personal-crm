@@ -5,6 +5,7 @@ import {
   filterAndSortProjects,
   make2YearsRevenueText,
 } from "@/helpers/projects";
+import { format } from "date-fns";
 import { flow, get, map, sum } from "lodash/fp";
 import { FC, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -53,7 +54,15 @@ const ProjectList: FC<ProjectListProps> = ({
       }
     >
       {filterAndSortProjects(projects, accountId, projectFilter, accounts).map(
-        ({ id: projectId, project, accountIds, crmProjects }) => (
+        ({
+          id: projectId,
+          project,
+          accountIds,
+          crmProjects,
+          doneOn,
+          dueOn,
+          onHoldTill,
+        }) => (
           <DefaultAccordionItem
             key={projectId}
             value={projectId}
@@ -62,11 +71,16 @@ const ProjectList: FC<ProjectListProps> = ({
             accordionSelectedValue={accordionValue}
             link={`/projects/${projectId}`}
             triggerSubTitle={[
+              doneOn && `Done on: ${format(doneOn, "PPP")}`,
+              onHoldTill &&
+                !doneOn &&
+                `On hold till: ${format(onHoldTill, "PPP")}`,
               flow(
                 map(calcRevenueTwoYears),
                 sum,
                 make2YearsRevenueText
               )(crmProjects),
+              dueOn && !doneOn && `Due on: ${format(dueOn, "PPP")}`,
               ...flow(map(getAccountById), map(get("name")))(accountIds),
             ]}
           >

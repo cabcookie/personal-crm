@@ -10,7 +10,7 @@ import {
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { filter, flatMap, flow, get, map, sortBy, sum, uniq } from "lodash/fp";
+import { filter, flow, get, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -142,15 +142,7 @@ const mapAccount: (
   subsidiaries,
   projects,
   createdAt: new Date(createdAt),
-  territoryIds:
-    territories.length > 0
-      ? territories.map((t) => t.territory.id)
-      : flow(
-          flatMap((s: SubsidiaryData) =>
-            s.territories.map((t) => t.territory.id)
-          ),
-          uniq
-        )(subsidiaries),
+  territoryIds: territories.map((t) => t.territory.id),
   payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
 });
 

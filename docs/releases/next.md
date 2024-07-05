@@ -3,10 +3,14 @@
 - Packages (inkl. Amplify) auf die neueste Version ohne Breaking Changes aktualisiert.
 - Das Cmd+K Menü reagiert auch auf Cmd+P.
 - Aus dem Cmk+K Menü sollen auch neue Einträge für Meetings, Projekte und Personen erstellt werden können.
+- Visualisierung der Informationen zu Accounts optimiert. Eigene Accordions für Territories und AWS Payer Accounts, so dass der Header ordentlicher ist.
 
 In Arbeit:
 
 - Details zu Personen ermöglichen.
+
+Später:
+
 - Ein Meeting soll eine feste Struktur haben:
   - Name des Meetings
   - Datum/Uhrzeit

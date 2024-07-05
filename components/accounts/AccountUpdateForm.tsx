@@ -10,6 +10,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -49,11 +50,16 @@ interface OnUpdateProps {
 type AccountUpdateFormProps = {
   account: Account;
   onUpdate: (props: OnUpdateProps) => void;
+  formControl?: {
+    open: boolean;
+    setOpen: (val: boolean) => void;
+  };
 };
 
 const AccountUpdateForm: FC<AccountUpdateFormProps> = ({
   account,
   onUpdate,
+  formControl,
 }) => {
   const { addPayerAccount, deletePayerAccount } = useAccountsContext();
   const [formOpen, setFormOpen] = useState(false);
@@ -76,24 +82,38 @@ const AccountUpdateForm: FC<AccountUpdateFormProps> = ({
 
   const onOpenChange = (open: boolean) => {
     if (!open) form.reset();
-    setFormOpen(open);
+    if (!formControl) {
+      setFormOpen(open);
+      return;
+    }
+    formControl.setOpen(open);
   };
 
   const handleSubmit = (data: z.infer<typeof FormSchema>) => {
-    setFormOpen(false);
+    if (!formControl) setFormOpen(false);
+    else setFormOpen(false);
     onUpdate(data);
   };
 
   return (
     <Form {...form}>
       <form>
-        <Dialog open={formOpen} onOpenChange={onOpenChange}>
-          <DialogTrigger asChild>
-            <Edit className="w-5 h-5 text-muted-foreground hover:text-primary" />
-          </DialogTrigger>
+        <Dialog
+          open={!formControl ? formOpen : formControl.open}
+          onOpenChange={onOpenChange}
+        >
+          {!formControl && (
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2">
+                <Edit className="w-4 h-4" />
+                Edit Account
+              </Button>
+            </DialogTrigger>
+          )}
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Update Account Information</DialogTitle>
+              <DialogTitle>Account {account.name}</DialogTitle>
+              <DialogDescription>Update account information.</DialogDescription>
             </DialogHeader>
             <ScrollArea className="h-80 md:h-[30rem] w-full">
               <div className="space-y-3 mx-1">
@@ -133,11 +153,13 @@ const AccountUpdateForm: FC<AccountUpdateFormProps> = ({
                 />
                 <AddControllerDialog account={account} />
                 <AddTerritoryDialog account={account} />
-                <AddPayerAccountDialog
-                  account={account}
-                  addPayerAccount={addPayerAccount}
-                  deletePayerAccount={deletePayerAccount}
-                />
+                <div className="text-muted-foreground">
+                  <AddPayerAccountDialog
+                    account={account}
+                    addPayerAccount={addPayerAccount}
+                    deletePayerAccount={deletePayerAccount}
+                  />
+                </div>
               </div>
             </ScrollArea>
             <DialogFooter className="gap-2 mx-1">

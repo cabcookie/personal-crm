@@ -35,14 +35,12 @@ const AccountRecord: FC<AccountRecordProps> = ({
       triggerTitle={account.name}
       triggerSubTitle={[
         account.pipeline > 0 && make2YearsRevenueText(account.pipeline),
+        account.latestQuota > 0 &&
+          `Quota: ${formatRevenue(account.latestQuota)}`,
+        !account.controller ? "" : `Parent: ${account.controller.name}`,
         ...flow(
           filter((t: Territory) => account.territoryIds.includes(t.id)),
-          map(
-            (t): string =>
-              `${t.name}${
-                t.latestQuota === 0 ? "" : ` (${formatRevenue(t.latestQuota)})`
-              }`
-          )
+          map((t) => t.name)
         )(territories),
         ...flow(
           filter((a: Account) => account.id === a.controller?.id),
