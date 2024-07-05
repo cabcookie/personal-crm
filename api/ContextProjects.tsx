@@ -200,7 +200,7 @@ const mapProject: (project: ProjectData) => Project = ({
         id,
         finishedOn: new Date(finishedOn || createdAt),
       })),
-      sortBy((a) => a.finishedOn.getTime()),
+      sortBy((a) => -a.finishedOn.getTime()),
       map((a) => a.id)
     )(activities),
     crmProjects: crmProjects.map(mapCrmData),
