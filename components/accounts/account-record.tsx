@@ -34,7 +34,6 @@ const AccountRecord: FC<AccountRecordProps> = ({
       value={account.id}
       triggerTitle={account.name}
       triggerSubTitle={[
-        account.order > 0 && `Order: ${account.order}`,
         account.pipeline > 0 && make2YearsRevenueText(account.pipeline),
         ...flow(
           filter((t: Territory) => account.territoryIds.includes(t.id)),
