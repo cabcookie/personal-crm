@@ -1,15 +1,8 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
-import {
-  calcRevenueTwoYears,
-  filterAndSortProjects,
-  make2YearsRevenueText,
-} from "@/helpers/projects";
-import { format } from "date-fns";
-import { flow, get, map, sum } from "lodash/fp";
+import { filterAndSortProjects } from "@/helpers/projects";
 import { FC, useState } from "react";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import ProjectDetails from "../ui-elements/project-details/project-details";
+import ProjectAccordionItem from "../projects/ProjectAccordionItem";
 import { Accordion } from "../ui/accordion";
 
 const PROJECT_FILTERS = ["WIP", "On Hold", "Done"] as const;
@@ -34,7 +27,7 @@ const ProjectList: FC<ProjectListProps> = ({
   filter: projectFilter,
 }) => {
   const { projects } = useProjectsContext();
-  const { accounts, getAccountById } = useAccountsContext();
+  const { accounts } = useAccountsContext();
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -54,42 +47,12 @@ const ProjectList: FC<ProjectListProps> = ({
       }
     >
       {filterAndSortProjects(projects, accountId, projectFilter, accounts).map(
-        ({
-          id: projectId,
-          project,
-          accountIds,
-          crmProjects,
-          doneOn,
-          dueOn,
-          onHoldTill,
-        }) => (
-          <DefaultAccordionItem
-            key={projectId}
-            value={projectId}
-            triggerTitle={project}
-            className="tracking-tight"
+        (project) => (
+          <ProjectAccordionItem
+            key={project.id}
+            project={project}
             accordionSelectedValue={accordionValue}
-            link={`/projects/${projectId}`}
-            triggerSubTitle={[
-              doneOn && `Done on: ${format(doneOn, "PPP")}`,
-              onHoldTill &&
-                !doneOn &&
-                `On hold till: ${format(onHoldTill, "PPP")}`,
-              flow(
-                map(calcRevenueTwoYears),
-                sum,
-                make2YearsRevenueText
-              )(crmProjects),
-              dueOn && !doneOn && `Due on: ${format(dueOn, "PPP")}`,
-              ...flow(map(getAccountById), map(get("name")))(accountIds),
-            ]}
-          >
-            <ProjectDetails
-              projectId={projectId}
-              showCrmDetails
-              includeAccounts
-            />
-          </DefaultAccordionItem>
+          />
         )
       )}
     </Accordion>

@@ -2,6 +2,7 @@ import usePerson from "@/api/usePerson";
 import { FC, useState } from "react";
 import { Accordion } from "../ui/accordion";
 import PersonDates from "./PersonDates";
+import PersonNotes from "./PersonNotes";
 import PersonUpdateForm from "./PersonUpdateForm";
 
 type PersonDetailsProps = {
@@ -10,11 +11,13 @@ type PersonDetailsProps = {
     open: boolean;
     setOpen: (val: boolean) => void;
   };
+  showNotes?: boolean;
 };
 
 const PersonDetails: FC<PersonDetailsProps> = ({
   personId,
   updateFormControl,
+  showNotes = true,
 }) => {
   const { person, updatePerson } = usePerson(personId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
@@ -43,6 +46,12 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           <PersonDates
             person={person}
             accordionSelectedValue={accordionValue}
+          />
+
+          <PersonNotes
+            accordionSelectedValue={accordionValue}
+            personId={person.id}
+            showNotes={showNotes}
           />
         </Accordion>
       </>

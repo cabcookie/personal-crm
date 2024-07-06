@@ -1,7 +1,8 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
-import { handleApiErrors } from "./globals";
+import { filter, flow, join, map } from "lodash/fp";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 import { Person, mapPerson } from "./usePerson";
 const client = generateClient<Schema>();
 
@@ -33,7 +34,16 @@ const usePeople = () => {
     return data?.id;
   };
 
-  return { people, errorPeople, loadingPeople, createPerson };
+  const getNamesByIds = (personIds?: string[]) =>
+    personIds &&
+    people &&
+    flow(
+      filter((p: Person) => personIds.includes(p.id)),
+      map((p) => p.name),
+      join(", ")
+    )(people);
+
+  return { people, errorPeople, loadingPeople, createPerson, getNamesByIds };
 };
 
 export default usePeople;

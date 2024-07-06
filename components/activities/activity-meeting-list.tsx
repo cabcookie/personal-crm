@@ -1,36 +1,31 @@
 import { Meeting } from "@/api/useMeetings";
 import { FC, useState } from "react";
+import MeetingAccordionItem from "../meetings/MeetingAccordionItem";
 import { Accordion } from "../ui/accordion";
-import MeetingActivityList from "./meeting-activity-list";
-import MeetingParticipants from "./meeting-participants";
 
-type MeetingRecordProps = {
-  meeting: Meeting;
+type ActivityMeetingListProps = {
+  meeting?: Meeting;
 };
 
-const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => {
+const ActivityMeetingList: FC<ActivityMeetingListProps> = ({ meeting }) => {
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
 
-  return (
+  return !meeting ? (
+    "Loading…"
+  ) : (
     <div>
       <Accordion
         type="single"
         collapsible
-        className="w-full"
         value={accordionValue}
         onValueChange={(val) =>
           setAccordionValue(val === accordionValue ? undefined : val)
         }
       >
-        <MeetingParticipants
-          participantIds={meeting.participantIds}
-          accordionSelectedValue={accordionValue}
-        />
-
-        <MeetingActivityList
-          activityIds={meeting.activityIds}
+        <MeetingAccordionItem
+          meeting={meeting}
           accordionSelectedValue={accordionValue}
         />
       </Accordion>
@@ -38,4 +33,4 @@ const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => {
   );
 };
 
-export default MeetingRecord;
+export default ActivityMeetingList;

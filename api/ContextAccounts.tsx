@@ -10,7 +10,7 @@ import {
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { filter, flow, get, map, sortBy, sum } from "lodash/fp";
+import { filter, flow, get, join, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -50,6 +50,7 @@ interface AccountsContextType {
   ) => Promise<string | undefined>;
   deletePayerAccount: (payer: string) => Promise<string | undefined>;
   getPipelineByControllerId: (controllerId: string) => number;
+  getAccountNamesByIds: (accountIds: string[]) => string;
 }
 
 export type Account = {
@@ -434,6 +435,13 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
           sum
         )(accounts);
 
+  const getAccountNamesByIds = (accountIds: string[]) =>
+    flow(
+      filter((a: Account) => accountIds.includes(a.id)),
+      map((a) => a.name),
+      join(", ")
+    )(accounts);
+
   return (
     <AccountsContext.Provider
       value={{
@@ -449,6 +457,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         addPayerAccount,
         deletePayerAccount,
         getPipelineByControllerId,
+        getAccountNamesByIds,
       }}
     >
       {children}

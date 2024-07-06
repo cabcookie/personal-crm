@@ -4,10 +4,11 @@
 - Das Cmd+K Menü reagiert auch auf Cmd+P.
 - Aus dem Cmk+K Menü sollen auch neue Einträge für Meetings, Projekte und Personen erstellt werden können.
 - Visualisierung der Informationen zu Accounts optimiert. Eigene Accordions für Territories und AWS Payer Accounts, so dass der Header ordentlicher ist.
+- Details zu Personen ermöglichen (Geburtstag, Todestag, Aussprache des Namens, Notizen aus Meetings).
 
 In Arbeit:
 
-- Details zu Personen ermöglichen (Geburtstag, Todestag, Account-Zugehörigkeit, Aussprache des Namens, Geschenkideen, Gebetsanliegen, Gelerntes zur Person).
+- Details zu Personen ermöglichen (Account-Zugehörigkeit, Geschenkideen, Gebetsanliegen, Gelerntes zur Person).
 
 Später:
 
