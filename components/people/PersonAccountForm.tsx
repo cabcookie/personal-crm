@@ -33,6 +33,15 @@ import { addYears } from "date-fns";
 import { Calendar } from "../ui/calendar";
 import AccountSelector from "../ui-elements/selectors/account-selector";
 
+const FormSchema = z.object({
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  position: z.string().optional(),
+  accountId: z.string({
+    required_error: "Please provide an account relationship",
+  }),
+});
+
 type CreatePersonAccountProps = {
   onCreate: (props: PersonAccountCreateProps) => Promise<string | undefined>;
   personAccount?: never;
@@ -44,15 +53,6 @@ type UpdatePersonAccountProps = {
   personAccount: PersonAccount;
   onChange: (props: PersonAccountUpdateProps) => Promise<string | undefined>;
 };
-
-const FormSchema = z.object({
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  position: z.string().optional(),
-  accountId: z.string({
-    required_error: "Please provide an account relationship",
-  }),
-});
 
 type PersonAccountFormProps = (
   | CreatePersonAccountProps

@@ -6,6 +6,14 @@ import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { flow, map, sortBy } from "lodash/fp";
 import { isFuture } from "date-fns";
+import {
+  Phone,
+  Building,
+  Mail,
+  Linkedin,
+  Instagram,
+  ExternalLink,
+} from "lucide-react";
 const client = generateClient<Schema>();
 
 interface UpdatePersonProps {
@@ -27,21 +35,71 @@ export const selectionSet = [
   "accounts.position",
   "accounts.account.id",
   "accounts.account.name",
+  "details.id",
   "details.label",
   "details.detail",
 ] as const;
 
-const personDetailsLabels = [
-  "linkedIn",
-  "phonePrivate",
-  "phoneWork",
-  "emailPrivate",
-  "emailWork",
-  "salesforce",
-  "instagram",
-] as const;
+export type TDetailLabel =
+  | "linkedIn"
+  | "phonePrivate"
+  | "phoneWork"
+  | "emailPrivate"
+  | "emailWork"
+  | "salesforce"
+  | "instagram";
 
-type TDetailLabel = (typeof personDetailsLabels)[number];
+export type TPersonDetailTypes = {
+  fieldLabel: TDetailLabel;
+  formLabel: string;
+  type: "url" | "phone" | "email";
+  Icon: typeof Phone;
+};
+
+export const personDetailsLabels: TPersonDetailTypes[] = [
+  {
+    fieldLabel: "linkedIn",
+    formLabel: "LinkedIn profile",
+    type: "url",
+    Icon: Linkedin,
+  },
+  {
+    fieldLabel: "phonePrivate",
+    formLabel: "Phone (private)",
+    type: "phone",
+    Icon: Phone,
+  },
+  {
+    fieldLabel: "phoneWork",
+    formLabel: "Phone (work)",
+    type: "phone",
+    Icon: Building,
+  },
+  {
+    fieldLabel: "emailPrivate",
+    formLabel: "Email (private)",
+    type: "email",
+    Icon: Mail,
+  },
+  {
+    fieldLabel: "emailWork",
+    formLabel: "Email (Work)",
+    type: "email",
+    Icon: Building,
+  },
+  {
+    fieldLabel: "salesforce",
+    formLabel: "Salesforce link",
+    type: "url",
+    Icon: ExternalLink,
+  },
+  {
+    fieldLabel: "instagram",
+    formLabel: "Instagram profile",
+    type: "url",
+    Icon: Instagram,
+  },
+] as const;
 
 type PersonData = SelectionSet<Schema["Person"]["type"], typeof selectionSet>;
 type AccountData = PersonData["accounts"][number];
@@ -61,6 +119,14 @@ export type PersonAccountUpdateProps = {
   personAccountId: string;
 } & PersonAccountChangeProps;
 
+export type PersonContactDetailsUpdateProps =
+  PersonContactDetailsCreateProps & { id: string };
+
+export type PersonContactDetailsCreateProps = {
+  label: string;
+  detail: string;
+};
+
 export type PersonAccount = {
   personAccountId: string;
   accountId: string;
@@ -71,8 +137,9 @@ export type PersonAccount = {
   isCurrent: boolean;
 };
 
-type PersonDetails = {
-  label: TDetailLabel;
+export type PersonDetail = {
+  id: string;
+  label: string;
   detail: string;
 };
 
@@ -82,7 +149,7 @@ export type Person = {
   howToSay?: string;
   dateOfBirth?: Date;
   dateOfDeath?: Date;
-  details: PersonDetails[];
+  details: PersonDetail[];
   accounts: PersonAccount[];
 };
 
@@ -269,6 +336,85 @@ const usePerson = (personId?: string) => {
     return data.id;
   };
 
+  const createContactDetail = async (
+    props: PersonContactDetailsCreateProps
+  ) => {
+    if (!person) return;
+    if (!personDetailsLabels.some((l) => l.fieldLabel === props.label)) return;
+    const updated: Person = {
+      ...person,
+      details: [...person.details, { ...props, id: crypto.randomUUID() }],
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.PersonDetail.create({
+      label: props.label as TDetailLabel,
+      detail: props.detail,
+      personId: person.id,
+    });
+    if (errors) handleApiErrors(errors, "Creating contact detail failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Created contact detail",
+      description: `${
+        personDetailsLabels.find((l) => l.fieldLabel === props.label)?.formLabel
+      }: ${props.detail}`,
+    });
+    return data.id;
+  };
+
+  const updateContactDetail = async (
+    contactDetail: PersonContactDetailsUpdateProps
+  ) => {
+    if (!person) return;
+    if (!personDetailsLabels.some((l) => l.fieldLabel === contactDetail.label))
+      return;
+    const updated: Person = {
+      ...person,
+      details: person.details.map((d) =>
+        d.id !== contactDetail.id ? d : { ...d, ...contactDetail }
+      ),
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.PersonDetail.update({
+      ...contactDetail,
+      label: contactDetail.label as TDetailLabel,
+    });
+    if (errors) handleApiErrors(errors, "Updating contact details failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Updated contact detail",
+      description: `${
+        personDetailsLabels.find((l) => l.fieldLabel === contactDetail.label)
+          ?.formLabel
+      }: ${contactDetail.detail}`,
+    });
+    return data.id;
+  };
+
+  const deleteContactDetail = async (contactDetailId: string) => {
+    if (!person) return;
+    const updated: Person = {
+      ...person,
+      details: person.details.filter((d) => d.id !== contactDetailId),
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.PersonDetail.delete({
+      id: contactDetailId,
+    });
+    if (errors) handleApiErrors(errors, "Deleting contact detail failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Contact detail deleted",
+      description: `${
+        personDetailsLabels.find((l) => l.fieldLabel === data.label)?.formLabel
+      }: ${data.detail}`,
+    });
+    return data.id;
+  };
+
   return {
     person,
     errorPerson,
@@ -277,6 +423,9 @@ const usePerson = (personId?: string) => {
     createPersonAccount,
     deletePersonAccount,
     updatePersonAccount,
+    createContactDetail,
+    updateContactDetail,
+    deleteContactDetail,
   };
 };
 

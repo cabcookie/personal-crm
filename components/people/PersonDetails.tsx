@@ -5,6 +5,7 @@ import PersonDates from "./PersonDates";
 import PersonNotes from "./PersonNotes";
 import PersonUpdateForm from "./PersonUpdateForm";
 import PersonAccounts from "./PersonAccounts";
+import PersonContactDetails from "./PersonContactDetails";
 
 type PersonDetailsProps = {
   personId: string;
@@ -26,6 +27,9 @@ const PersonDetails: FC<PersonDetailsProps> = ({
     createPersonAccount,
     deletePersonAccount,
     updatePersonAccount,
+    createContactDetail,
+    updateContactDetail,
+    deleteContactDetail,
   } = usePerson(personId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
@@ -51,11 +55,19 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           }
         >
           <PersonAccounts
-            accordionSelectedValue={accordionValue}
             person={person}
+            accordionSelectedValue={accordionValue}
             onCreate={createPersonAccount}
             onDelete={deletePersonAccount}
             onChange={updatePersonAccount}
+          />
+
+          <PersonContactDetails
+            person={person}
+            accordionSelectedValue={accordionValue}
+            onCreate={createContactDetail}
+            onChange={updateContactDetail}
+            onDelete={deleteContactDetail}
           />
 
           <PersonDates
@@ -64,8 +76,8 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           />
 
           <PersonNotes
-            accordionSelectedValue={accordionValue}
             personId={person.id}
+            accordionSelectedValue={accordionValue}
             showNotes={showNotes}
           />
         </Accordion>
