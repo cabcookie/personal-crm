@@ -68,16 +68,13 @@ const PersonUpdateForm: FC<PersonUpdateFormProps> = ({
 
   const onOpenChange = (open: boolean) => {
     if (!open) form.reset();
-    if (!formControl) {
-      setFormOpen(open);
-      return;
-    }
-    formControl.setOpen(open);
+    if (!formControl) setFormOpen(open);
+    else formControl.setOpen(open);
   };
 
   const handleSubmit = (data: z.infer<typeof FormSchema>) => {
     if (!formControl) setFormOpen(false);
-    else setFormOpen(false);
+    else formControl.setOpen(false);
     onUpdate(data);
   };
 

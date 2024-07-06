@@ -4,6 +4,7 @@ import { Accordion } from "../ui/accordion";
 import PersonDates from "./PersonDates";
 import PersonNotes from "./PersonNotes";
 import PersonUpdateForm from "./PersonUpdateForm";
+import PersonAccounts from "./PersonAccounts";
 
 type PersonDetailsProps = {
   personId: string;
@@ -19,7 +20,13 @@ const PersonDetails: FC<PersonDetailsProps> = ({
   updateFormControl,
   showNotes = true,
 }) => {
-  const { person, updatePerson } = usePerson(personId);
+  const {
+    person,
+    updatePerson,
+    createPersonAccount,
+    deletePersonAccount,
+    updatePersonAccount,
+  } = usePerson(personId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -43,6 +50,14 @@ const PersonDetails: FC<PersonDetailsProps> = ({
             setAccordionValue(val === accordionValue ? undefined : val)
           }
         >
+          <PersonAccounts
+            accordionSelectedValue={accordionValue}
+            person={person}
+            onCreate={createPersonAccount}
+            onDelete={deletePersonAccount}
+            onChange={updatePersonAccount}
+          />
+
           <PersonDates
             person={person}
             accordionSelectedValue={accordionValue}

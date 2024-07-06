@@ -3,11 +3,14 @@ import { generateClient } from "aws-amplify/data";
 import { filter, flow, join, map } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { Person, mapPerson } from "./usePerson";
+import { Person, mapPerson, selectionSet } from "./usePerson";
 const client = generateClient<Schema>();
 
 const fetchPeople = async () => {
-  const { data, errors } = await client.models.Person.list({ limit: 2000 });
+  const { data, errors } = await client.models.Person.list({
+    limit: 2000,
+    selectionSet,
+  });
   if (errors) throw errors;
   return data.map(mapPerson);
 };
@@ -24,6 +27,8 @@ const usePeople = () => {
     const newPerson: Person = {
       id: crypto.randomUUID(),
       name,
+      details: [],
+      accounts: [],
     };
     const updated = [...(people || []), newPerson];
     mutatePeople(updated, false);
