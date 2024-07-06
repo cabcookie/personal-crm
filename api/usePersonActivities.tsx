@@ -31,12 +31,12 @@ const fetchPersonActivities = (personId?: string) => async () => {
 };
 
 const usePersonActivities = (personId?: string) => {
-  const { data: activities } = useSWR(
+  const { data: activityIds } = useSWR(
     `/api/people/${personId}/activities`,
     fetchPersonActivities(personId)
   );
 
-  return { activities };
+  return { activityIds };
 };
 
 export default usePersonActivities;

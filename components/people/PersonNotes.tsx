@@ -14,7 +14,7 @@ const PersonNotes: FC<PersonNotesProps> = ({
   accordionSelectedValue,
   personId,
 }) => {
-  const { activities } = usePersonActivities(personId);
+  const { activityIds } = usePersonActivities(personId);
 
   return (
     <DefaultAccordionItem
@@ -23,14 +23,13 @@ const PersonNotes: FC<PersonNotesProps> = ({
       isVisible={!!showNotes}
       accordionSelectedValue={accordionSelectedValue}
     >
-      {activities?.map((a) => (
+      {activityIds?.map((a) => (
         <ActivityComponent
           key={a}
           activityId={a}
           showDates
           showMeeting
           showProjects
-          section="Person Notes"
         />
       ))}
     </DefaultAccordionItem>

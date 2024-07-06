@@ -12,7 +12,6 @@ type AccountRecordProps = {
   selectedAccordionItem?: string;
   showContacts?: boolean;
   showIntroduction?: boolean;
-  showNotes?: boolean;
   showProjects?: boolean;
   showSubsidaries?: boolean;
 };
@@ -22,7 +21,6 @@ const AccountRecord: FC<AccountRecordProps> = ({
   selectedAccordionItem,
   showContacts,
   showIntroduction,
-  showNotes,
   showProjects,
   showSubsidaries = true,
 }) => {
@@ -54,7 +52,6 @@ const AccountRecord: FC<AccountRecordProps> = ({
         account={account}
         showContacts={showContacts}
         showIntroduction={showIntroduction}
-        showNotes={showNotes}
         showProjects={showProjects}
         showSubsidaries={showSubsidaries}
       />

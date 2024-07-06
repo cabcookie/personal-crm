@@ -28,7 +28,6 @@ type AccountDetailsProps = {
   showIntroduction?: boolean;
   showProjects?: boolean;
   showContacts?: boolean;
-  showNotes?: boolean;
   showAwsAccounts?: boolean;
   showTerritories?: boolean;
   updateFormControl?: {
@@ -42,7 +41,6 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   showContacts,
   showIntroduction,
   showProjects,
-  showNotes,
   updateFormControl,
   showAwsAccounts,
   showTerritories,
@@ -156,14 +154,10 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           WORK IN PROGRESS
         </DefaultAccordionItem>
 
-        <DefaultAccordionItem
-          value="Notes"
-          triggerTitle="Notes"
-          isVisible={!!showNotes}
+        <AccountNotes
+          accountId={account.id}
           accordionSelectedValue={accordionValue}
-        >
-          <AccountNotes accountId={account.id} />
-        </DefaultAccordionItem>
+        />
 
         <DefaultAccordionItem
           value="aws-accounts"

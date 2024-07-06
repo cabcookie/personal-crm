@@ -35,7 +35,6 @@ type ActivityComponentProps = {
   showMeeting?: boolean;
   autoFocus?: boolean;
   allowAddingProjects?: boolean;
-  section?: string;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -44,7 +43,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showMeeting,
   showProjects,
   allowAddingProjects,
-  section,
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
     useActivity(activityId);
@@ -185,14 +183,11 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
         </DefaultAccordionItem>
       </Accordion>
 
-      <div>
-        {section && <h3 className="font-bold">{section}</h3>}
-        <NotesWriter
-          notes={activity?.notes}
-          saveNotes={handleNotesUpdate}
-          key={activityId}
-        />
-      </div>
+      <NotesWriter
+        notes={activity?.notes}
+        saveNotes={handleNotesUpdate}
+        key={activityId}
+      />
 
       <ActivityMetaData activity={activity} />
     </div>

@@ -5,6 +5,7 @@
 - Aus dem Cmk+K Menü sollen auch neue Einträge für Meetings, Projekte und Personen erstellt werden können.
 - Visualisierung der Informationen zu Accounts optimiert. Eigene Accordions für Territories und AWS Payer Accounts, so dass der Header ordentlicher ist.
 - Details zu Personen ermöglichen (Geburtstag, Todestag, Aussprache des Namens, Notizen aus Meetings).
+- Die Meetingsliste ist nun aufgeräumter und Meetinginformationen werden einheitlicher dargestellt bei Accounts, Personen und Meetings.
 
 In Arbeit:
 

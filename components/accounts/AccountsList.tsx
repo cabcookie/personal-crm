@@ -8,7 +8,6 @@ type AccountsListProps = {
   accounts: Account[];
   showContacts?: boolean;
   showIntroduction?: boolean;
-  showNotes?: boolean;
   showProjects?: boolean;
   showSubsidaries?: boolean;
 };
@@ -18,7 +17,6 @@ const AccountsList: FC<AccountsListProps> = ({
   controllerId,
   showContacts,
   showIntroduction,
-  showNotes,
   showProjects,
   showSubsidaries = true,
 }) => {
@@ -58,7 +56,6 @@ const AccountsList: FC<AccountsListProps> = ({
             selectedAccordionItem={selectedAccount}
             showContacts={showContacts}
             showIntroduction={showIntroduction}
-            showNotes={showNotes}
             showProjects={showProjects}
             showSubsidaries={showSubsidaries}
           />
