@@ -1,5 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import useMeetings from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
@@ -24,6 +25,7 @@ import {
 import Version from "../version/version";
 import ContextSwitcher from "./ContextSwitcher";
 import SearchableDataGroup from "./SearchableDataGroup";
+import { DialogDescription, DialogTitle } from "../ui/dialog";
 
 type UrlNavigationItem = {
   url: string;
@@ -118,6 +120,15 @@ const NavigationMenu = () => {
 
   return (
     <CommandDialog open={menuIsOpen} onOpenChange={toggleMenu}>
+      <VisuallyHidden.Root asChild>
+        <DialogTitle>The Navigation Menu</DialogTitle>
+      </VisuallyHidden.Root>
+      <VisuallyHidden.Root asChild>
+        <DialogDescription>
+          Here you can jump into different parts of the applicatoon including
+          meetings, people, accounts, and projects.
+        </DialogDescription>
+      </VisuallyHidden.Root>
       <CommandInput placeholder="Type a command or search…" />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
