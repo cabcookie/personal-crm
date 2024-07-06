@@ -1,12 +1,9 @@
-import { Territory } from "@/api/useTerritories";
-import { revenueNumber } from "@/helpers/ui-form-helpers";
+import { Person } from "@/api/usePerson";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import CrmLink from "../crm/CrmLink";
-import CurrencyInput from "../ui-elements/forms/CurrencyInput";
 import { Button } from "../ui/button";
 import { Calendar } from "../ui/calendar";
 import {
@@ -32,30 +29,20 @@ import { ScrollArea } from "../ui/scroll-area";
 
 const FormSchema = z.object({
   name: z.string(),
-  quota: revenueNumber,
-  crmId: z.string(),
-  responsibleSince: z.date({
-    required_error:
-      "Please provide a date for when your responsibility started for this territory",
-  }),
+  howToSay: z.string().optional(),
+  dateOfBirth: z.date().optional(),
+  dateOfDeath: z.date().optional(),
 });
-
-const getCrmId = (input: string) => {
-  if (/^a2pRU\w{13}$/.test(input)) return input;
-  const match = input.match(/\/Territory__c\/(a2pRU\w{13})\//);
-  if (match) return match[1];
-  return input;
-};
 
 interface OnUpdateProps {
   name: string;
-  crmId: string;
-  responsibleSince: Date;
-  quota: number;
+  howToSay?: string;
+  dayOfBirth?: Date;
+  dayOfDeath?: Date;
 }
 
-type TerritoryUpdateFormProps = {
-  territory: Territory;
+type PersonUpdateFormProps = {
+  person: Person;
   onUpdate: (props: OnUpdateProps) => void;
   formControl?: {
     open: boolean;
@@ -63,8 +50,8 @@ type TerritoryUpdateFormProps = {
   };
 };
 
-const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
-  territory,
+const PersonUpdateForm: FC<PersonUpdateFormProps> = ({
+  person,
   onUpdate,
   formControl,
 }) => {
@@ -72,21 +59,12 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: territory?.name || "",
-      crmId: territory?.crmId || "",
-      quota: territory?.latestQuota || 0,
-      responsibleSince: territory?.latestResponsibilityStarted || new Date(),
+      name: person.name,
+      howToSay: person.howToSay || "",
+      dateOfBirth: person.dateOfBirth,
+      dateOfDeath: person.dateOfDeath,
     },
   });
-
-  const crmId = form.watch("crmId");
-
-  useEffect(() => {
-    if (!crmId) return;
-    const processedId = getCrmId(crmId);
-    if (processedId === crmId) return;
-    form.setValue("crmId", processedId);
-  }, [crmId, form]);
 
   const onOpenChange = (open: boolean) => {
     if (!open) form.reset();
@@ -100,12 +78,7 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
   const handleSubmit = (data: z.infer<typeof FormSchema>) => {
     if (!formControl) setFormOpen(false);
     else setFormOpen(false);
-    onUpdate({
-      name: data.name,
-      crmId: data.crmId,
-      quota: data.quota,
-      responsibleSince: data.responsibleSince,
-    });
+    onUpdate(data);
   };
 
   return (
@@ -119,15 +92,15 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
                 <Edit className="w-4 h-4" />
-                Edit Territory
+                Edit Person
               </Button>
             </DialogTrigger>
           )}
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Territory {territory.name}</DialogTitle>
+              <DialogTitle>Person {person.name}</DialogTitle>
               <DialogDescription>
-                Update territory information.
+                Update information about the person.
               </DialogDescription>
             </DialogHeader>
             <ScrollArea className="h-80 md:h-[30rem] w-full">
@@ -137,9 +110,9 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
                   name="name"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <FormLabel>Territory Name</FormLabel>
+                      <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Territory Name…" {...field} />
+                        <Input placeholder="Name…" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -147,31 +120,13 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
                 />
                 <FormField
                   control={form.control}
-                  name="quota"
-                  render={({ field: { onChange, value } }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Quota</FormLabel>
-                      <FormControl>
-                        <CurrencyInput value={value || 0} onChange={onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="crmId"
+                  name="howToSay"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <FormLabel>
-                        CRM ID
-                        {field.value.length > 6 && (
-                          <CrmLink category="Territory__c" id={field.value} />
-                        )}
-                      </FormLabel>
+                      <FormLabel>How to say the name</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="Paste territory URL or ID…"
+                          placeholder="Clarify if not obvious…"
                           {...field}
                         />
                       </FormControl>
@@ -181,17 +136,42 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
                 />
                 <FormField
                   control={form.control}
-                  name="responsibleSince"
+                  name="dateOfBirth"
                   render={({ field }) => (
                     <FormItem className="flex-1">
-                      <FormLabel>Responsible since</FormLabel>
+                      <FormLabel>Date of Birth</FormLabel>
                       <FormControl>
                         <Calendar
                           mode="single"
                           onSelect={field.onChange}
-                          selected={field.value}
                           defaultMonth={field.value}
-                          captionLayout="dropdown"
+                          selected={field.value}
+                          captionLayout="dropdown-buttons"
+                          className="w-[17.5rem]"
+                          fromYear={1920}
+                          toYear={new Date().getFullYear()}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="dateOfDeath"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Date of Death</FormLabel>
+                      <FormControl>
+                        <Calendar
+                          mode="single"
+                          onSelect={field.onChange}
+                          defaultMonth={field.value}
+                          selected={field.value}
+                          captionLayout="dropdown-buttons"
+                          className="w-[17.5rem]"
+                          fromYear={1990}
+                          toYear={new Date().getFullYear()}
                         />
                       </FormControl>
                       <FormMessage />
@@ -217,4 +197,4 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
   );
 };
 
-export default TerritoryUpdateForm;
+export default PersonUpdateForm;

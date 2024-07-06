@@ -30,7 +30,7 @@ const SearchableDataGroup: FC<SearchableDataGroupProps> = ({
           <CommandItem
             key={id}
             onSelect={() => {
-              router.push(link);
+              router.replace(link);
               toggleMenu();
             }}
           >

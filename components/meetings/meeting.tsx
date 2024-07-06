@@ -1,48 +1,41 @@
 import { Meeting } from "@/api/useMeetings";
-import { toLocaleTimeString } from "@/helpers/functional";
-import { FC } from "react";
-import ActivityComponent from "../activities/activity";
-import PersonName from "../ui-elements/tokens/person-name";
+import { FC, useState } from "react";
+import { Accordion } from "../ui/accordion";
+import MeetingActivityList from "./meeting-activity-list";
+import MeetingParticipants from "./meeting-participants";
 
 type MeetingRecordProps = {
   meeting: Meeting;
 };
 
-const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => (
-  <div>
-    <h2 className="md:text-lg font-bold tracking-tight bg-bgTransparent sticky top-[12rem] md:top-[13rem] z-[25] pb-2">
-      <a href={`/meetings/${meeting.id}`} className="hover:underline">
-        {toLocaleTimeString(meeting.meetingOn)} – {meeting.topic}
-        <small className="text-muted-foreground uppercase ml-2">
-          {meeting.context || "none"}
-        </small>
-      </a>
-    </h2>
+const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => {
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined
+  );
 
-    {meeting.participantIds.length > 0 && (
-      <div className="flex flex-row gap-4 pb-2">
-        Attendees:
-        {meeting.participantIds.map((personId) => (
-          <PersonName
-            className="font-semibold"
-            key={personId}
-            personId={personId}
-          />
-        ))}
-      </div>
-    )}
-
+  return (
     <div>
-      {meeting.activityIds.length > 0 &&
-        meeting.activityIds.map((activityId) => (
-          <ActivityComponent
-            key={activityId}
-            activityId={activityId}
-            showProjects
-          />
-        ))}
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        value={accordionValue}
+        onValueChange={(val) =>
+          setAccordionValue(val === accordionValue ? undefined : val)
+        }
+      >
+        <MeetingParticipants
+          participantIds={meeting.participantIds}
+          accordionSelectedValue={accordionValue}
+        />
+
+        <MeetingActivityList
+          activityIds={meeting.activityIds}
+          accordionSelectedValue={accordionValue}
+        />
+      </Accordion>
     </div>
-  </div>
-);
+  );
+};
 
 export default MeetingRecord;

@@ -13,6 +13,11 @@ import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
+// const monthlyQuotaShare = [
+//   0.0766, 0.07455, 0.07972, 0.08011, 0.08278, 0.08066, 0.08506, 0.08634,
+//   0.08472, 0.08942, 0.08939, 0.09065,
+// ] as const;
+
 const selectionSet = [
   "id",
   "name",

@@ -1,10 +1,12 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
+import useTerritories, { Territory } from "@/api/useTerritories";
+import { formatRevenue } from "@/helpers/functional";
 import {
   calcPipelineByAccountId,
   make2YearsRevenueText,
 } from "@/helpers/projects";
-import { filter, flow, map } from "lodash/fp";
+import { filter, flow, get, map } from "lodash/fp";
 import { FC, useState } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -26,7 +28,12 @@ type AccountDetailsProps = {
   showIntroduction?: boolean;
   showProjects?: boolean;
   showContacts?: boolean;
-  showNotes?: boolean;
+  showAwsAccounts?: boolean;
+  showTerritories?: boolean;
+  updateFormControl?: {
+    open: boolean;
+    setOpen: (val: boolean) => void;
+  };
 };
 
 const AccountDetails: FC<AccountDetailsProps> = ({
@@ -34,7 +41,9 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   showContacts,
   showIntroduction,
   showProjects,
-  showNotes,
+  updateFormControl,
+  showAwsAccounts,
+  showTerritories,
   showSubsidaries = true,
 }) => {
   const {
@@ -43,6 +52,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
     deletePayerAccount,
     getPipelineByControllerId,
   } = useAccountsContext();
+  const { territories } = useTerritories();
   const { projects } = useProjectsContext();
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
@@ -59,22 +69,20 @@ const AccountDetails: FC<AccountDetailsProps> = ({
 
   return (
     <>
-      <AccountUpdateForm
-        account={account}
-        onUpdate={(props) => updateAccount({ id: account.id, ...props })}
-      />
-      <div>
-        Name: {account.name}{" "}
-        {account.crmId && <CrmLink category="Account" id={account.crmId} />}
+      <div className="ml-2">
+        <AccountUpdateForm
+          account={account}
+          onUpdate={(props) => updateAccount({ id: account.id, ...props })}
+          formControl={updateFormControl}
+        />
+        {account.crmId && (
+          <CrmLink
+            category="Account"
+            id={account.crmId}
+            className="font-semibold"
+          />
+        )}
       </div>
-      {account.controller && (
-        <div>{`Parent account: ${account.controller?.name}`}</div>
-      )}
-      <ListTerritories territoryIds={account.territoryIds} />
-      <ListPayerAccounts
-        payerAccounts={account.payerAccounts}
-        deletePayerAccount={deletePayerAccount}
-      />
 
       <Accordion
         type="single"
@@ -146,13 +154,41 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           WORK IN PROGRESS
         </DefaultAccordionItem>
 
+        <AccountNotes
+          accountId={account.id}
+          accordionSelectedValue={accordionValue}
+        />
+
         <DefaultAccordionItem
-          value="Notes"
-          triggerTitle="Notes"
-          isVisible={!!showNotes}
+          value="aws-accounts"
+          triggerTitle="AWS Payer Accounts"
+          triggerSubTitle={account.payerAccounts}
+          isVisible={!!showAwsAccounts && account.payerAccounts.length > 0}
           accordionSelectedValue={accordionValue}
         >
-          <AccountNotes accountId={account.id} />
+          <ListPayerAccounts
+            payerAccounts={account.payerAccounts}
+            deletePayerAccount={deletePayerAccount}
+            allowDeletion
+            showLabel={false}
+          />
+        </DefaultAccordionItem>
+
+        <DefaultAccordionItem
+          value="territories"
+          triggerTitle="Territories"
+          triggerSubTitle={[
+            account.latestQuota > 0 &&
+              `Quota: ${formatRevenue(account.latestQuota)}`,
+            ...flow(
+              filter((t: Territory) => account.territoryIds.includes(t.id)),
+              map(get("name"))
+            )(territories),
+          ]}
+          isVisible={!!showTerritories && account.territoryIds.length > 0}
+          accordionSelectedValue={accordionValue}
+        >
+          <ListTerritories territoryIds={account.territoryIds} />
         </DefaultAccordionItem>
       </Accordion>
     </>

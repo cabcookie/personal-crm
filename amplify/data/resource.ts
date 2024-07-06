@@ -114,6 +114,7 @@ const schema = a.schema({
       personId: a.id().required(),
       person: a.belongsTo("Person", "personId"),
     })
+    .secondaryIndexes((index) => [index("personId")])
     .authorization((allow) => [allow.owner()]),
   Meeting: a
     .model({

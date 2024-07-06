@@ -1,6 +1,6 @@
-import useMeetings, { Meeting } from "@/api/useMeetings";
+import useMeetings from "@/api/useMeetings";
 import MainLayout from "@/components/layouts/MainLayout";
-import MeetingRecord from "@/components/meetings/meeting";
+import MeetingDateList from "@/components/meetings/meeting-date-list";
 import {
   Pagination,
   PaginationContent,
@@ -36,7 +36,7 @@ export default function MeetingsPage() {
   const createAndOpenNewMeeting = async () => {
     const id = await createMeeting("New Meeting", context);
     if (!id) return;
-    router.push(`/meetings/${id}`);
+    router.replace(`/meetings/${id}`);
   };
 
   return (
@@ -61,24 +61,13 @@ export default function MeetingsPage() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-      {!meetings
-        ? "Loading meetings…"
-        : meetingDates.map((date) => (
-            <div key={date.toLocaleDateString()}>
-              <h1 className="text-center text-lg md:text-xl font-bold bg-bgTransparent sticky top-[10rem] md:top-[11rem] z-30 tracking-tight pb-1">
-                {date.toLocaleDateString()}
-              </h1>
-              {meetings
-                ?.filter(
-                  ({ meetingOn }) =>
-                    meetingOn.toISOString().split("T")[0] ===
-                    date.toISOString().split("T")[0]
-                )
-                .map((meeting: Meeting) => (
-                  <MeetingRecord key={meeting.id} meeting={meeting} />
-                ))}
-            </div>
-          ))}
+      {meetingDates.map((date) => (
+        <MeetingDateList
+          key={date.toISOString()}
+          meetingDate={date}
+          meetings={meetings}
+        />
+      ))}
     </MainLayout>
   );
 }

@@ -1,29 +1,32 @@
-import useAccountActivities from "@/api/useAccountActivities";
+import usePersonActivities from "@/api/usePersonActivities";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
-type AccountNotesProps = {
-  accountId: string;
+type PersonNotesProps = {
+  personId: string;
+  showNotes?: boolean;
   accordionSelectedValue?: string;
 };
 
-const AccountNotes: FC<AccountNotesProps> = ({
-  accountId,
+const PersonNotes: FC<PersonNotesProps> = ({
+  showNotes,
   accordionSelectedValue,
+  personId,
 }) => {
-  const { activities } = useAccountActivities(accountId);
+  const { activityIds } = usePersonActivities(personId);
 
   return (
     <DefaultAccordionItem
-      value="notes"
+      value="Notes"
       triggerTitle="Notes"
+      isVisible={!!showNotes}
       accordionSelectedValue={accordionSelectedValue}
     >
-      {activities?.map((a) => (
+      {activityIds?.map((a) => (
         <ActivityComponent
-          key={a.id}
-          activityId={a.id}
+          key={a}
+          activityId={a}
           showDates
           showMeeting
           showProjects
@@ -33,4 +36,4 @@ const AccountNotes: FC<AccountNotesProps> = ({
   );
 };
 
-export default AccountNotes;
+export default PersonNotes;
