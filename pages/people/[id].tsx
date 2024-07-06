@@ -12,7 +12,7 @@ const PersonDetailPage = () => {
 
   return (
     <MainLayout
-      title={`${person?.name}${
+      title={`${person?.name || "Loading…"}${
         !person?.howToSay ? "" : ` (say: ${person.howToSay})`
       }`}
       recordName={person?.name}
