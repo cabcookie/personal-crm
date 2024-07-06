@@ -1,15 +1,8 @@
-import { useAccountsContext } from "@/api/ContextAccounts";
-import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import useMeeting from "@/api/useMeeting";
-import usePeople from "@/api/usePeople";
-import { Person } from "@/api/usePerson";
-import { format } from "date-fns";
-import { filter, flow, map } from "lodash/fp";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import NotesWriter, {
   SerializerOutput,
 } from "../ui-elements/notes-writer/NotesWriter";
@@ -46,9 +39,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
     useActivity(activityId);
-  const { projects } = useProjectsContext();
-  const { people } = usePeople();
-  const { getAccountNamesByIds } = useAccountsContext();
   const { meeting } = useMeeting(activity?.meetingId);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
@@ -135,52 +125,20 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
           setAccordionValue(val === accordionValue ? undefined : val)
         }
       >
-        <DefaultAccordionItem
-          value="projects"
-          triggerTitle="For projects"
-          triggerSubTitle={flow(
-            filter((p: Project) => !!activity?.projectIds.includes(p.id)),
-            map(
-              (p) =>
-                `${p.project}${
-                  !p.accountIds
-                    ? ""
-                    : ` (${getAccountNamesByIds(p.accountIds)})`
-                }`
-            )
-          )(projects)}
-          className="tracking-tight"
+        <ActivityProjectList
+          projectIds={activity?.projectIds}
+          addProjectToActivity={
+            !allowAddingProjects ? undefined : addProjectToActivity
+          }
           accordionSelectedValue={accordionValue}
-          isVisible={showProjects}
-        >
-          <ActivityProjectList
-            projectIds={activity?.projectIds}
-            addProjectToActivity={
-              !allowAddingProjects ? undefined : addProjectToActivity
-            }
-          />
-        </DefaultAccordionItem>
+          showProjects={showProjects}
+        />
 
-        <DefaultAccordionItem
-          value="meetings"
-          triggerTitle="For meeting"
-          triggerSubTitle={[
-            meeting?.topic,
-            meeting?.meetingOn && `On: ${format(meeting?.meetingOn, "PPp")}`,
-            ...flow(
-              filter(
-                (person: Person) =>
-                  !!meeting?.participantIds.includes(person.id)
-              ),
-              map((p) => p.name)
-            )(people),
-          ]}
-          className="tracking-tight"
+        <ActivityMeetingList
+          meeting={meeting}
           accordionSelectedValue={accordionValue}
-          isVisible={showMeeting && !!meeting}
-        >
-          <ActivityMeetingList meeting={meeting} />
-        </DefaultAccordionItem>
+          showMeeting={showMeeting}
+        />
       </Accordion>
 
       <NotesWriter
