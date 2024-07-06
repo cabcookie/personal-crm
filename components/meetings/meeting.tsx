@@ -30,7 +30,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({ meeting }) => {
         />
 
         <MeetingActivityList
-          activityIds={meeting.activityIds}
+          meeting={meeting}
           accordionSelectedValue={accordionValue}
         />
       </Accordion>

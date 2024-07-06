@@ -35,7 +35,7 @@ type ActivityData = SelectionSet<
   typeof selectionSet
 >;
 
-const mapActivity: (activity: ActivityData) => Activity = ({
+export const mapActivity: (activity: ActivityData) => Activity = ({
   id,
   notes,
   formatVersion,
