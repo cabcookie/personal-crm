@@ -19,8 +19,8 @@ const ListPayerAccounts: FC<ListPayerAccountsProps> = ({
   showLinks = true,
 }) =>
   payerAccounts.length > 0 && (
-    <div>
-      {showLabel && "Payer accounts:"}
+    <>
+      <div>{showLabel && "Payer accounts:"}</div>
       {payerAccounts.map((payer) => (
         <div key={payer} className="flex flex-row gap-1 text-sm items-center">
           {payer}
@@ -57,7 +57,7 @@ const ListPayerAccounts: FC<ListPayerAccountsProps> = ({
           )}
         </div>
       ))}
-    </div>
+    </>
   );
 
 export default ListPayerAccounts;

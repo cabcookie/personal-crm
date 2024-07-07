@@ -1,8 +1,10 @@
-# Mehr Details für Accounts festhalten (Version :VERSION)
+# Mehr Details zu Personen dokumentieren (Version :VERSION)
 
-- Ein bisschen Clean up bei den Accordions
-- Mutterunternehmen konnten nicht gespeichert werden
-- Wenn in einem Projekt kein CRM Projekt verlinkt ist, soll es auch keinen $0 Hinweis geben
-- Es können nun Territorys angelegt werden. Ein Territory besteht aus mindestens einem Account und hält eine Quote. Für ein Territory gibt es eine Gültigkeitsdauer.
-- Bei einem Account kann nun die ID aus dem CRM System angegeben werden.
-- Zu einem Account können nun AWS Payer IDs hinzugefügt werden.
+- Bei Meetings, Personen und Accounts den Titel korrigiert, so dass nicht "undefined" angezeigt wird, wenn die Daten noch geladen werden.
+- Bei Notizen zu Personen, Meetings und Accounts sind die Notizen nun auch in einem Accordion Eintrag hinterlegt und dieser zeigt eine kurze Zusammenfassung der Notizen (außer bei Accounts).
+- Details zu Personen ermöglichen (Account-Zugehörigkeit, Kontaktdetails).
+- Point-in-time recovery für alle DynamoDB Tabellen aktiviert.
+
+In Arbeit:
+
+- Details zu Personen ermöglichen (Gelerntes zur Person).

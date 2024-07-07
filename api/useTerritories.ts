@@ -5,13 +5,18 @@ import {
   sortResponsibility,
 } from "@/components/responsibility-date-ranges/ResponsibilityDateRangeRecord";
 import { toast } from "@/components/ui/use-toast";
-import { toISODateString, usdCurrency } from "@/helpers/functional";
+import { formatRevenue, toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays, format } from "date-fns";
 import { filter, first, flow, get, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
+
+// const monthlyQuotaShare = [
+//   0.0766, 0.07455, 0.07972, 0.08011, 0.08278, 0.08066, 0.08506, 0.08634,
+//   0.08472, 0.08942, 0.08939, 0.09065,
+// ] as const;
 
 const selectionSet = [
   "id",
@@ -29,14 +34,7 @@ type TerritoryData = SelectionSet<
   Schema["Territory"]["type"],
   typeof selectionSet
 >;
-
-type TerritoryAccountData = {
-  account: {
-    id: string;
-    name: string;
-    crmId?: string | null;
-  };
-};
+type TerritoryAccountData = TerritoryData["accounts"][number];
 
 type TerritoryAccount = {
   id: string;
@@ -75,7 +73,7 @@ export const makeCurrentResponsibilityText = (territory: Territory) =>
           !endDate
             ? `Since ${format(startDate, "PPP")}`
             : `${format(startDate, "PPP")} - ${format(endDate, "PPP")}`
-        }${!quota ? "" : ` (Quota: ${usdCurrency.format(quota)})`}`
+        }${!quota ? "" : ` (Quota: ${formatRevenue(quota)})`}`
     )
     .join(", ");
 
@@ -113,7 +111,10 @@ const fetchTerritories = async (): Promise<Territory[]> => {
     selectionSet,
   });
   if (errors) throw errors;
-  return data.map(mapTerritory);
+  return flow(
+    map(mapTerritory),
+    sortBy((t) => -t.latestQuota)
+  )(data);
 };
 
 const useTerritories = () => {
@@ -288,21 +289,14 @@ const useTerritory = (id: string | undefined) => {
     startDate: Date,
     quota: number | undefined
   ) => {
-    console.log("updateTerritoryResponsibility", {
-      responsibilityId,
-      startDate,
-      quota,
-    });
     const { data, errors } = await client.models.TerritoryResponsibility.update(
       { id: responsibilityId, startDate: toISODateString(startDate), quota }
     );
     if (errors) handleApiErrors(errors, "Updating responsibility failed");
-    console.log("updateTerritoryResponsibility", { data, errors });
     return data?.id;
   };
 
   const addTerritoryResponsibility = async (startDate: Date, quota: number) => {
-    console.log("addTerritoryResponsibility", { territory, startDate, quota });
     if (!territory) return;
     const { data, errors } = await client.models.TerritoryResponsibility.create(
       {
@@ -312,7 +306,6 @@ const useTerritory = (id: string | undefined) => {
       }
     );
     if (errors) handleApiErrors(errors, "Creating new responsibility failed");
-    console.log("addTerritoryResponsibility", { data, errors });
     return data?.id;
   };
 

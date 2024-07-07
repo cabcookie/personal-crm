@@ -1,8 +1,6 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import AccountDetails from "@/components/accounts/AccountDetails";
 import MainLayout from "@/components/layouts/MainLayout";
-import { debouncedUpdateAccountDetails } from "@/components/ui-elements/account-details/account-updates-helpers";
-import SavedState from "@/components/ui-elements/project-notes-form/saved-state";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -10,11 +8,11 @@ const AccountDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const accountId = Array.isArray(id) ? id[0] : id;
-  const { getAccountById, updateAccount } = useAccountsContext();
+  const { getAccountById } = useAccountsContext();
   const [account, setAccount] = useState<Account | undefined>(
     accountId ? getAccountById(accountId) : undefined
   );
-  const [accountNameSaved, setAccountNameSaved] = useState(true);
+  const [updateAccountFormOpen, setUpdateAccountFormOpen] = useState(false);
 
   useEffect(() => {
     if (accountId) {
@@ -23,42 +21,36 @@ const AccountDetailPage = () => {
   }, [accountId, getAccountById]);
 
   const handleBackBtnClick = () => {
-    router.push("/accounts");
-  };
-
-  const handleUpdateName = (newName: string) => {
-    if (!account) return;
-    if (newName.trim() === account.name.trim()) return;
-    setAccountNameSaved(false);
-    debouncedUpdateAccountDetails({
-      id: account.id,
-      name: newName,
-      updateAccountFn: updateAccount,
-      updateSavedState: setAccountNameSaved,
-    });
+    router.replace("/accounts");
   };
 
   return (
     <MainLayout
-      title={account?.name}
+      title={`${account?.name || "Loading…"}${
+        !account?.controller ? "" : ` (Parent: ${account.controller.name})`
+      }`}
       recordName={account?.name}
       sectionName="Accounts"
       onBackBtnClick={handleBackBtnClick}
-      onTitleChange={() => setAccountNameSaved(false)}
-      saveTitle={handleUpdateName}
+      addButton={{
+        label: "Edit",
+        onClick: () => setUpdateAccountFormOpen(true),
+      }}
     >
       {!account ? (
         "Loading account..."
       ) : (
-        <div>
-          <SavedState saved={accountNameSaved} />
-          <AccountDetails
-            account={account}
-            showIntroduction
-            showProjects
-            showNotes
-          />
-        </div>
+        <AccountDetails
+          account={account}
+          showIntroduction
+          showProjects
+          showAwsAccounts
+          showTerritories
+          updateFormControl={{
+            open: updateAccountFormOpen,
+            setOpen: setUpdateAccountFormOpen,
+          }}
+        />
       )}
     </MainLayout>
   );

@@ -1,35 +1,36 @@
-import { useProjectsContext } from "@/api/ContextProjects";
 import useAccountActivities from "@/api/useAccountActivities";
-import { format } from "date-fns";
 import { FC } from "react";
-import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import ActivityComponent from "../activities/activity";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
 type AccountNotesProps = {
   accountId: string;
+  accordionSelectedValue?: string;
 };
 
-const AccountNotes: FC<AccountNotesProps> = ({ accountId }) => {
+const AccountNotes: FC<AccountNotesProps> = ({
+  accountId,
+  accordionSelectedValue,
+}) => {
   const { activities } = useAccountActivities(accountId);
-  const { projects } = useProjectsContext();
 
-  return activities
-    ?.sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
-    .map(({ id, projectId, notes, finishedOn }) => (
-      <div key={id} className="mb-4">
-        <div className="font-semibold md:text-lg">
-          {format(finishedOn, "PPP")}
-        </div>
-        {projectId && (
-          <a
-            href={`/projects/${projectId}`}
-            className="text-muted-foreground hover:underline"
-          >
-            On: {projects?.find((p) => p.id === projectId)?.project}
-          </a>
-        )}
-        <NotesWriter notes={notes} readonly />
-      </div>
-    ));
+  return (
+    <DefaultAccordionItem
+      value="notes"
+      triggerTitle="Notes"
+      accordionSelectedValue={accordionSelectedValue}
+    >
+      {activities?.map((a) => (
+        <ActivityComponent
+          key={a.id}
+          activityId={a.id}
+          showDates
+          showMeeting
+          showProjects
+        />
+      ))}
+    </DefaultAccordionItem>
+  );
 };
 
 export default AccountNotes;

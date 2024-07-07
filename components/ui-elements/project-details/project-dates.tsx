@@ -43,18 +43,11 @@ const ProjectDates: FC<ProjectDatesProps> = ({
     triggerTitle="Project Dates"
     accordionSelectedValue={accordionSelectedValue}
     isVisible
-    triggerSubTitle={
-      <>
-        {doneOn ? (
-          `Done on: ${format(doneOn, "PPP")}`
-        ) : (
-          <>
-            {dueOn && `Due: ${format(dueOn, "PPP")}`}
-            {onHoldTill && `On hold till: ${format(onHoldTill, "PPP")}`}
-          </>
-        )}
-      </>
-    }
+    triggerSubTitle={[
+      doneOn && `Done on: ${format(doneOn, "PPP")}`,
+      dueOn && `Due on: ${format(dueOn, "PPP")}`,
+      onHoldTill && `On hold till: ${format(onHoldTill, "PPP")}`,
+    ]}
   >
     <div className="space-y-4">
       <ProjectDatesHelper

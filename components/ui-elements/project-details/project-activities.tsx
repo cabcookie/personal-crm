@@ -1,7 +1,7 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import ActivityComponent from "@/components/activities/activity";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 
@@ -27,8 +27,12 @@ const ProjectActivities: FC<ProjectActivitiesProps> = ({
       isVisible={isVisible}
     >
       <div className="space-y-2">
-        <Button onClick={() => createProjectActivity(project.id)}>
-          <Plus />
+        <Button
+          size="sm"
+          className="gap-1"
+          onClick={() => createProjectActivity(project.id)}
+        >
+          <PlusCircle className="w-4 h-4" />
           Activity
         </Button>
         {project.activityIds.map((id) => (

@@ -4,8 +4,13 @@ import {
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toast } from "@/components/ui/use-toast";
+import {
+  calcAccountAndSubsidariesPipeline,
+  calcOrder,
+  getQuotaFromTerritoryOrSubsidaries,
+} from "@/helpers/accounts";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { add, filter, flatMapDeep, flow, last, map, sortBy } from "lodash/fp";
+import { filter, flow, get, join, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -39,12 +44,13 @@ interface AccountsContextType {
     accountId: string,
     territoryId: string
   ) => Promise<string | undefined>;
-  updateOrder: (accounts: Account[]) => Promise<(string | undefined)[]>;
   addPayerAccount: (
     accountId: string,
     payer: string
   ) => Promise<string | undefined>;
   deletePayerAccount: (payer: string) => Promise<string | undefined>;
+  getPipelineByControllerId: (controllerId: string) => number;
+  getAccountNamesByIds: (accountIds: string[]) => string;
 }
 
 export type Account = {
@@ -56,16 +62,12 @@ export type Account = {
     id: string;
     name: string;
   };
+  latestQuota: number;
+  pipeline: number;
   order: number;
   territoryIds: string[];
   createdAt: Date;
-  priority?: number;
   payerAccounts: string[];
-};
-
-type AccountWithSubsidaries = Account & {
-  subsidaries: AccountWithSubsidaries[];
-  priority: number;
 };
 
 const selectionSet = [
@@ -77,79 +79,44 @@ const selectionSet = [
   "introduction",
   "introductionJson",
   "formatVersion",
-  "order",
   "createdAt",
   "territories.territory.id",
+  "territories.territory.responsibilities.id",
+  "territories.territory.responsibilities.quota",
+  "territories.territory.responsibilities.startDate",
+  "subsidiaries.territories.territory.id",
+  "subsidiaries.territories.territory.responsibilities.id",
+  "subsidiaries.territories.territory.responsibilities.quota",
+  "subsidiaries.territories.territory.responsibilities.startDate",
+  "projects.projects.done",
+  "projects.projects.crmProjects.crmProject.id",
+  "projects.projects.crmProjects.crmProject.closeDate",
+  "projects.projects.crmProjects.crmProject.annualRecurringRevenue",
+  "projects.projects.crmProjects.crmProject.totalContractVolume",
+  "projects.projects.crmProjects.crmProject.isMarketplace",
+  "projects.projects.crmProjects.crmProject.stage",
   "payerAccounts.awsAccountNumber",
 ] as const;
 
-type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
+export type AccountData = SelectionSet<
+  Schema["Account"]["type"],
+  typeof selectionSet
+>;
+export type SubsidiaryData = AccountData["subsidiaries"][number];
+export type TerritoryData = AccountData["territories"][number];
+export type AccountProjectData = AccountData["projects"][number];
+export type AccountBeforePipelineCalculations = Omit<
+  Account,
+  "order" | "latestQuota" | "pipeline"
+> & {
+  subsidiaries: SubsidiaryData[];
+  territories: TerritoryData[];
+  projects: AccountProjectData[];
+};
 
-const addSubsidaries =
-  (accounts: Account[]) =>
-  (account: Account): AccountWithSubsidaries => ({
-    ...account,
-    priority: 1,
-    subsidaries: flow(
-      filter(({ controller }: Account) => controller?.id === account.id),
-      sortBy((a) => a.order),
-      map(addSubsidaries(accounts))
-    )(accounts),
-  });
-
-const getPriorityValue =
-  (startPrio: number) => (account?: AccountWithSubsidaries) =>
-    !account
-      ? startPrio
-      : account.subsidaries.length === 0
-      ? account.priority + 1
-      : account.subsidaries[account.subsidaries.length - 1].priority + 1;
-
-const setPriority =
-  (startPrio: number) =>
-  (
-    prev: AccountWithSubsidaries[],
-    curr: AccountWithSubsidaries
-  ): AccountWithSubsidaries[] => {
-    return [
-      ...prev,
-      {
-        ...curr,
-        priority: flow(last, getPriorityValue(startPrio))(prev),
-        subsidaries: curr.subsidaries.reduce(
-          setPriority(flow(last, getPriorityValue(startPrio), add(1))(prev)),
-          []
-        ),
-      },
-    ];
-  };
-
-const bypass = (a: any) => a;
-
-const removeSubsidaries = ({
-  subsidaries,
-  ...rest
-}: AccountWithSubsidaries): Account[] =>
-  flatMapDeep(bypass)([rest, flatMapDeep(removeSubsidaries)(subsidaries)]);
-
-const mergeAccountsWithPriorities =
-  (accounts: Account[]) => (withPrio: Account[]) =>
-    accounts.map(({ priority, ...account }) => ({
-      ...account,
-      priority: withPrio.find((a) => a.id === account.id)?.priority || priority,
-    }));
-
-const assignPriorities = (accounts: Account[]): Account[] =>
-  flow(
-    filter(({ controller }: Account) => !controller),
-    map(addSubsidaries(accounts)),
-    sortBy((a) => a.order),
-    (acc) => acc.reduce(setPriority(1), []),
-    flatMapDeep(removeSubsidaries),
-    mergeAccountsWithPriorities(accounts)
-  )(accounts);
-
-const mapAccount: (account: AccountData) => Account = ({
+const mapAccount: (
+  account: AccountData
+) => AccountBeforePipelineCalculations = ({
   id: accountId,
   name,
   crmId,
@@ -157,8 +124,9 @@ const mapAccount: (account: AccountData) => Account = ({
   introduction,
   introductionJson,
   formatVersion,
-  order,
   territories,
+  subsidiaries,
+  projects,
   createdAt,
   payerAccounts,
 }) => ({
@@ -171,11 +139,47 @@ const mapAccount: (account: AccountData) => Account = ({
     notesJson: introductionJson,
   }),
   controller,
-  order: order || 0,
+  territories,
+  subsidiaries,
+  projects,
   createdAt: new Date(createdAt),
   territoryIds: territories.map((t) => t.territory.id),
   payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
 });
+
+const addOrderNumberToAccounts = (
+  accounts: AccountBeforePipelineCalculations[]
+) =>
+  accounts.reduce(
+    (
+      prev: Account[],
+      {
+        territories,
+        subsidiaries,
+        projects,
+        ...curr
+      }: AccountBeforePipelineCalculations
+    ) => [
+      ...prev,
+      {
+        ...curr,
+        order: calcOrder(
+          getQuotaFromTerritoryOrSubsidaries(territories, subsidiaries),
+          calcAccountAndSubsidariesPipeline(accounts, curr.id, projects)
+        ),
+        latestQuota: getQuotaFromTerritoryOrSubsidaries(
+          territories,
+          subsidiaries
+        ),
+        pipeline: calcAccountAndSubsidariesPipeline(
+          accounts,
+          curr.id,
+          projects
+        ),
+      },
+    ],
+    []
+  );
 
 const fetchAccounts = async () => {
   const { data, errors } = await client.models.Account.list({
@@ -183,7 +187,11 @@ const fetchAccounts = async () => {
     selectionSet,
   });
   if (errors) throw errors;
-  return flow(map(mapAccount), assignPriorities)(data);
+  return flow(
+    map(mapAccount),
+    addOrderNumberToAccounts,
+    sortBy((a) => -a.order)
+  )(data);
 };
 
 interface AccountsContextProviderProps {
@@ -209,12 +217,14 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
       id: crypto.randomUUID(),
       name: accountName,
       order: 0,
+      latestQuota: 0,
+      pipeline: 0,
       territoryIds: [],
       createdAt: new Date(),
       payerAccounts: [],
     };
 
-    const updatedAccounts = [...(accounts || []), newAccount];
+    const updatedAccounts: Account[] = [...(accounts || []), newAccount];
     mutate(updatedAccounts, false);
 
     const { data, errors } = await client.models.Account.create({
@@ -372,29 +382,6 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data.id;
   };
 
-  const updateAccountOrderNo = async (
-    id: string,
-    order: number
-  ): Promise<string | undefined> => {
-    const { data, errors } = await client.models.Account.update({ id, order });
-    if (errors) handleApiErrors(errors, "Error updating the order of accounts");
-    return data?.id;
-  };
-
-  const updateOrder = async (items: Account[]) => {
-    const updated: Account[] | undefined = accounts?.map(({ id, ...rest }) => ({
-      id,
-      ...rest,
-      order: items.find((item) => item.id === id)?.order || rest.order,
-    }));
-    if (updated) mutate(updated, false);
-    const result = await Promise.all(
-      items.map(({ id, order }) => updateAccountOrderNo(id, order))
-    );
-    if (updated) mutate(updated);
-    return result;
-  };
-
   const addPayerAccount = async (accountId: string, payer: string) => {
     const updated: Account[] | undefined = accounts?.map((a) =>
       a.id !== accountId
@@ -439,6 +426,22 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data.awsAccountNumber;
   };
 
+  const getPipelineByControllerId = (controllerId: string): number =>
+    !accounts
+      ? 0
+      : flow(
+          filter((a: Account) => a.controller?.id === controllerId),
+          map(get("pipeline")),
+          sum
+        )(accounts);
+
+  const getAccountNamesByIds = (accountIds: string[]) =>
+    flow(
+      filter((a: Account) => accountIds.includes(a.id)),
+      map((a) => a.name),
+      join(", ")
+    )(accounts);
+
   return (
     <AccountsContext.Provider
       value={{
@@ -451,9 +454,10 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         assignController,
         assignTerritory,
         deleteTerritory,
-        updateOrder,
         addPayerAccount,
         deletePayerAccount,
+        getPipelineByControllerId,
+        getAccountNamesByIds,
       }}
     >
       {children}

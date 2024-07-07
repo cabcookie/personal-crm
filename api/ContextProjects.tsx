@@ -6,12 +6,14 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { differenceInCalendarMonths } from "date-fns";
-import { flow, map, max, round, sum } from "lodash/fp";
+import { differenceInDays } from "date-fns";
+import { filter, flow, get, join, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
+import { CRM_STAGES, TCrmStages } from "./useCrmProject";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -60,6 +62,7 @@ interface ProjectsContextType {
     context: Context
   ) => Promise<string | undefined>;
   mutateProjects: KeyedMutator<Project[] | undefined>;
+  getProjectNamesByIds: (projectIds?: string[]) => string;
 }
 
 export type CrmProjectData = {
@@ -68,12 +71,15 @@ export type CrmProjectData = {
   tcv: number;
   closeDate: Date;
   isMarketPlace: boolean;
+  stage: TCrmStages;
 };
 
 export type Project = {
   id: string;
   project: string;
   done: boolean;
+  order: number;
+  pipeline: number;
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
@@ -83,7 +89,6 @@ export type Project = {
   accountIds: string[];
   activityIds: string[];
   crmProjects: CrmProjectData[];
-  priority: number;
 };
 
 const selectionSet = [
@@ -109,30 +114,23 @@ const selectionSet = [
   "crmProjects.crmProject.isMarketplace",
   "crmProjects.crmProject.annualRecurringRevenue",
   "crmProjects.crmProject.totalContractVolume",
+  "crmProjects.crmProject.stage",
 ] as const;
 
 type ProjectData = SelectionSet<
   Schema["Projects"]["type"],
   typeof selectionSet
 >;
+export type CrmDataProps = ProjectData["crmProjects"][number];
 
-type CrmDataProps = {
-  crmProject: {
-    id: string;
-    annualRecurringRevenue?: number | null;
-    totalContractVolume?: number | null;
-    closeDate: string;
-    isMarketplace?: boolean | null;
-  };
-};
-
-const mapCrmData = ({
+export const mapCrmData = ({
   crmProject: {
     id,
     annualRecurringRevenue,
     totalContractVolume,
     closeDate,
     isMarketplace,
+    stage,
   },
 }: CrmDataProps): CrmProjectData => ({
   id,
@@ -140,36 +138,8 @@ const mapCrmData = ({
   tcv: totalContractVolume || 0,
   isMarketPlace: !!isMarketplace,
   closeDate: new Date(closeDate),
+  stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
 });
-
-export interface ICalcRevenueTwoYears {
-  arr: number;
-  tcv: number;
-  closeDate: Date;
-  isMarketPlace?: boolean;
-}
-
-export const calcRevenueTwoYears = flow(
-  ({ arr, tcv, closeDate, isMarketPlace }: ICalcRevenueTwoYears): number[] => [
-    (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
-    tcv / (isMarketPlace ? 2 : 1),
-  ],
-  max,
-  round
-);
-
-const calcProjectPriority = ({
-  arr,
-  tcv,
-  closeDate,
-  isMarketPlace,
-}: CrmProjectData): number =>
-  Math.round(
-    Math.max(
-      (arr / 12) * (24 - differenceInCalendarMonths(closeDate, new Date())),
-      tcv / (isMarketPlace ? 2 : 1)
-    ) / 100000
-  );
 
 const mapProject: (project: ProjectData) => Project = ({
   id,
@@ -187,42 +157,58 @@ const mapProject: (project: ProjectData) => Project = ({
   accounts,
   activities,
   crmProjects,
-}) => ({
-  id,
-  project,
-  done: !!done,
-  doneOn: doneOn ? new Date(doneOn) : undefined,
-  dueOn: dueOn ? new Date(dueOn) : undefined,
-  onHoldTill: onHoldTill ? new Date(onHoldTill) : undefined,
-  myNextActions: transformNotesVersion({
-    version: formatVersion,
-    notes: myNextActions,
-    notesJson: myNextActionsJson,
-  }),
-  othersNextActions: transformNotesVersion({
-    version: formatVersion,
-    notes: othersNextActions,
-    notesJson: othersNextActionsJson,
-  }),
-  context,
-  accountIds: accounts
-    .map(({ accountId, createdAt }) => ({
-      accountId,
-      createdAt: new Date(createdAt),
-    }))
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .map(({ accountId }) => accountId),
-  activityIds: activities
-    .filter(({ activity }) => !!activity)
-    .map(({ activity: { id, createdAt, finishedOn } }) => ({
-      id,
-      finishedOn: new Date(finishedOn || createdAt),
-    }))
-    .sort((a, b) => b.finishedOn.getTime() - a.finishedOn.getTime())
-    .map(({ id }) => id),
-  crmProjects: crmProjects.map(mapCrmData),
-  priority: flow(map(mapCrmData), map(calcProjectPriority), sum)(crmProjects),
-});
+}) => {
+  const pipeline = calcPipeline([
+    {
+      projects: {
+        crmProjects,
+      },
+    },
+  ]);
+
+  return {
+    id,
+    project,
+    done: !!done,
+    doneOn: doneOn ? new Date(doneOn) : undefined,
+    dueOn: dueOn ? new Date(dueOn) : undefined,
+    onHoldTill:
+      onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
+        ? new Date(onHoldTill)
+        : undefined,
+    myNextActions: transformNotesVersion({
+      version: formatVersion,
+      notes: myNextActions,
+      notesJson: myNextActionsJson,
+    }),
+    othersNextActions: transformNotesVersion({
+      version: formatVersion,
+      notes: othersNextActions,
+      notesJson: othersNextActionsJson,
+    }),
+    context,
+    accountIds: flow(
+      map((a: (typeof accounts)[number]) => ({
+        accountId: a.accountId,
+        createdAt: new Date(a.createdAt),
+      })),
+      sortBy((a) => -a.createdAt.getTime()),
+      map((a) => a.accountId)
+    )(accounts),
+    activityIds: flow(
+      filter((a: (typeof activities)[number]) => !!a.activity),
+      map(({ activity: { id, createdAt, finishedOn } }) => ({
+        id,
+        finishedOn: new Date(finishedOn || createdAt),
+      })),
+      sortBy((a) => -a.finishedOn.getTime()),
+      map((a) => a.id)
+    )(activities),
+    crmProjects: crmProjects.map(mapCrmData),
+    pipeline: pipeline,
+    order: pipeline,
+  };
+};
 
 const fetchProjects = (context?: Context) => async () => {
   if (!context) return;
@@ -275,7 +261,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       accountIds: [],
       activityIds: [],
       crmProjects: [],
-      priority: 0,
+      pipeline: 0,
+      order: 0,
     };
 
     const updatedProjects = [...(projects || []), newProject];
@@ -486,6 +473,15 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.id;
   };
 
+  const getProjectNamesByIds = (projectIds?: string[]): string =>
+    !projectIds || !projects
+      ? ""
+      : flow(
+          filter((p: Project) => projectIds.includes(p.id)),
+          map(get("project")),
+          join(", ")
+        )(projects);
+
   return (
     <ProjectsContext.Provider
       value={{
@@ -503,6 +499,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         removeAccountFromProject,
         updateProjectContext,
         mutateProjects,
+        getProjectNamesByIds,
       }}
     >
       {children}

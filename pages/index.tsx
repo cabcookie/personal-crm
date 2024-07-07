@@ -8,9 +8,9 @@ export default function Home() {
     const lastVisitedPage = window.localStorage.getItem("lastVisitedPage");
 
     if (lastVisitedPage) {
-      router.push(lastVisitedPage);
+      router.replace(lastVisitedPage);
     } else {
-      router.push("/today");
+      router.replace("/today");
     }
   }, [router]);
 

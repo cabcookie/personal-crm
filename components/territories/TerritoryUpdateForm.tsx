@@ -1,6 +1,7 @@
 import { Territory } from "@/api/useTerritories";
 import { revenueNumber } from "@/helpers/ui-form-helpers";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Edit } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -12,6 +13,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -55,11 +57,16 @@ interface OnUpdateProps {
 type TerritoryUpdateFormProps = {
   territory: Territory;
   onUpdate: (props: OnUpdateProps) => void;
+  formControl?: {
+    open: boolean;
+    setOpen: (val: boolean) => void;
+  };
 };
 
 const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
   territory,
   onUpdate,
+  formControl,
 }) => {
   const [formOpen, setFormOpen] = useState(false);
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -83,11 +90,16 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
 
   const onOpenChange = (open: boolean) => {
     if (!open) form.reset();
-    setFormOpen(open);
+    if (!formControl) {
+      setFormOpen(open);
+      return;
+    }
+    formControl.setOpen(open);
   };
 
   const handleSubmit = (data: z.infer<typeof FormSchema>) => {
-    setFormOpen(false);
+    if (!formControl) setFormOpen(false);
+    else setFormOpen(false);
     onUpdate({
       name: data.name,
       crmId: data.crmId,
@@ -99,15 +111,24 @@ const TerritoryUpdateForm: FC<TerritoryUpdateFormProps> = ({
   return (
     <Form {...form}>
       <form>
-        <Dialog open={formOpen} onOpenChange={onOpenChange}>
-          <DialogTrigger asChild>
-            <Button size="sm" className="text-xs">
-              Edit
-            </Button>
-          </DialogTrigger>
+        <Dialog
+          open={!formControl ? formOpen : formControl.open}
+          onOpenChange={onOpenChange}
+        >
+          {!formControl && (
+            <DialogTrigger asChild>
+              <Button size="sm" className="gap-2">
+                <Edit className="w-4 h-4" />
+                Edit Territory
+              </Button>
+            </DialogTrigger>
+          )}
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Update Territory Information</DialogTitle>
+              <DialogTitle>Territory {territory.name}</DialogTitle>
+              <DialogDescription>
+                Update territory information.
+              </DialogDescription>
             </DialogHeader>
             <ScrollArea className="h-80 md:h-[30rem] w-full">
               <div className="space-y-3 mx-1">

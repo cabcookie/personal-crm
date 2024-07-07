@@ -78,7 +78,7 @@ const MeetingDetailPage = () => {
   };
 
   const handleBackBtnClick = () => {
-    router.push("/meetings");
+    router.replace("/meetings");
   };
 
   const saveMeetingTitle = (newTitle: string) => {
@@ -142,8 +142,8 @@ const MeetingDetailPage = () => {
             <PeopleSelector value="" onChange={addParticipant} allowNewPerson />
           </RecordDetails>
 
-          {meeting.activityIds.map((id) => (
-            <ProjectNotesForm key={id} activityId={id} className="mt-12" />
+          {meeting.activities.map((a) => (
+            <ProjectNotesForm key={a.id} activityId={a.id} className="mt-12" />
           ))}
 
           <strong>Add notes for an additional project</strong>

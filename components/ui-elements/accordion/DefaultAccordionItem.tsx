@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
+import { filter, flow, join } from "lodash/fp";
 import Link from "next/link";
 import { ElementRef, ReactNode, forwardRef } from "react";
 import { BiLinkExternal } from "react-icons/bi";
@@ -14,7 +15,7 @@ import { BiLinkExternal } from "react-icons/bi";
 interface DefaultAccordionItemProps extends AccordionItemProps {
   triggerTitle: ReactNode;
   link?: string;
-  triggerSubTitle?: ReactNode;
+  triggerSubTitle?: string | boolean | (string | undefined | boolean)[];
   accordionSelectedValue?: string;
   isVisible?: boolean;
 }
@@ -60,7 +61,17 @@ const DefaultAccordionItem = forwardRef<
             isOpen={!!triggerSubTitle && accordionSelectedValue !== value}
             className="font-normal"
           >
-            {triggerSubTitle}
+            {typeof triggerSubTitle === "string"
+              ? triggerSubTitle
+              : typeof triggerSubTitle === "boolean"
+              ? ""
+              : flow(
+                  filter(
+                    (t: string | undefined | boolean) =>
+                      typeof t === "string" && t !== ""
+                  ),
+                  join(", ")
+                )(triggerSubTitle)}
           </AccordionTriggerSubTitle>
         </AccordionTrigger>
         <AccordionContent>{children}</AccordionContent>

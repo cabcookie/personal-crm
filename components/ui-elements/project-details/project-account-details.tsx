@@ -1,5 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useContextContext } from "@/contexts/ContextContext";
+import { flow, get, map } from "lodash/fp";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
@@ -17,15 +18,13 @@ const AccountName: FC<AccountNameProps> = ({
   accountName,
   removeAccount,
 }) => (
-  <div className="flex flex-row gap-2">
-    <div>
-      <Link href={`/accounts/${accountId}`} className="hover:underline">
-        {accountName}
-      </Link>
-    </div>
+  <div className="flex flex-row gap-2 items-center">
+    <Link href={`/accounts/${accountId}`} className="hover:underline">
+      {accountName}
+    </Link>
     {removeAccount && accountName && (
       <Trash2
-        className="pt-[0.1rem] pb-[0.4rem] text-muted-foreground hover:text-primary"
+        className="h-4 w-4 text-muted-foreground hover:text-primary"
         onClick={() => removeAccount(accountId, accountName)}
       />
     )}
@@ -35,7 +34,7 @@ const AccountName: FC<AccountNameProps> = ({
 type ProjectAccountDetailsProps = {
   isVisible?: boolean;
   accordionSelectedValue?: string;
-  accoundIds: string[];
+  accountIds: string[];
   onRemoveAccount: (accountId: string, accountName: string) => void;
   onAddAccount: (accountId: string | null) => void;
 };
@@ -43,7 +42,7 @@ type ProjectAccountDetailsProps = {
 const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
   isVisible,
   accordionSelectedValue,
-  accoundIds,
+  accountIds,
   onRemoveAccount,
   onAddAccount,
 }) => {
@@ -57,13 +56,12 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
         value="accounts"
         triggerTitle="Accounts"
         accordionSelectedValue={accordionSelectedValue}
-        triggerSubTitle={accoundIds.map((id) => (
-          <Link key={id} className="hover:underline" href={`/accounts/${id}`}>
-            {getAccountById(id)?.name}
-          </Link>
-        ))}
+        triggerSubTitle={flow(
+          map(getAccountById),
+          map(get("name"))
+        )(accountIds)}
       >
-        {accoundIds.map((id) => (
+        {accountIds.map((id) => (
           <AccountName
             key={id}
             accountId={id}
@@ -71,6 +69,7 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
             removeAccount={onRemoveAccount}
           />
         ))}
+        <div className="mt-4" />
         <AccountSelector
           value=""
           allowCreateAccounts

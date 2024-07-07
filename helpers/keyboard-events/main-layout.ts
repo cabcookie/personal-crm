@@ -10,12 +10,12 @@ export const addKeyDownListener = (
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
       const func = {
-        t: () => router.push("/today"),
-        m: () => router.push("/meetings"),
-        c: () => router.push("/crm-projects"),
-        p: () => router.push("/projects"),
-        a: () => router.push("/accounts"),
-        i: () => router.push("/inbox"),
+        t: () => router.replace("/today"),
+        m: () => router.replace("/meetings"),
+        c: () => router.replace("/crm-projects"),
+        p: () => router.replace("/projects"),
+        a: () => router.replace("/accounts"),
+        i: () => router.replace("/inbox"),
         w: () => setContext("work"),
         h: () => setContext("hobby"),
         f: () => setContext("family"),
@@ -28,6 +28,10 @@ export const addKeyDownListener = (
     if (event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {
       const func = {
         k: toggleNavMenu,
+        p: () => {
+          event.preventDefault();
+          toggleNavMenu();
+        },
       }[event.key.toLowerCase()];
       if (func) {
         func();

@@ -10,6 +10,16 @@ import {
 } from "./useCrmProjects";
 const client = generateClient<Schema>();
 
+export const STAGES_PROBABILITY = [
+  { stage: "Prospect", probability: 0 },
+  { stage: "Qualified", probability: 20 },
+  { stage: "Technical Validation", probability: 40 },
+  { stage: "Business Validation", probability: 60 },
+  { stage: "Committed", probability: 80 },
+  { stage: "Closed Lost", probability: 0 },
+  { stage: "Launched", probability: 100 },
+] as const;
+
 export const CRM_STAGES = [
   "Prospect",
   "Qualified",
@@ -20,7 +30,7 @@ export const CRM_STAGES = [
   "Launched",
 ] as const;
 
-export type TCrmStages = (typeof CRM_STAGES)[number];
+export type TCrmStages = (typeof STAGES_PROBABILITY)[number]["stage"];
 
 export type CrmProjectOnChangeFields = {
   name?: string;

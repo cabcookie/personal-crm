@@ -1,15 +1,11 @@
 import useActivity from "@/api/useActivity";
+import useMeeting from "@/api/useMeeting";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import NotesWriter, {
-  SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
 import DateSelector from "../ui-elements/selectors/date-selector";
-import ProjectSelector from "../ui-elements/selectors/project-selector";
-import MeetingName from "../ui-elements/tokens/meeting-name";
-import ProjectName from "../ui-elements/tokens/project-name";
+import { Accordion } from "../ui/accordion";
 import {
   Tooltip,
   TooltipContent,
@@ -17,8 +13,10 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { useToast } from "../ui/use-toast";
-import { debouncedUpdateNotes, debounedUpdateDate } from "./activity-helper";
-import ActivityMetaData from "./activity-meta-data";
+import { debounedUpdateDate } from "./activity-helper";
+import ActivityMeetingList from "./activity-meeting-list";
+import ActivityNotes from "./activity-notes";
+import ActivityProjectList from "./activity-project-list";
 
 type ActivityComponentProps = {
   activityId: string;
@@ -38,20 +36,17 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
     useActivity(activityId);
+  const { meeting } = useMeeting(activity?.meetingId);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
+  const [accordionValue, setAccordionValue] = useState<string | undefined>(
+    undefined
+  );
   const { toast } = useToast();
 
   useEffect(() => {
     setDate(activity?.finishedOn || new Date());
   }, [activity]);
-
-  const handleNotesUpdate = (serializer: () => SerializerOutput) => {
-    debouncedUpdateNotes({
-      updateNotes,
-      serializer,
-    });
-  };
 
   const handleDateUpdate = async (date: Date) => {
     setDateSaved(false);
@@ -111,38 +106,36 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
         </div>
       )}
 
-      {showProjects && (
-        <div>
-          <strong>On:</strong>
-          {activity?.projectIds.map((id) => (
-            <ProjectName key={id} projectId={id} />
-          ))}
-          {allowAddingProjects && (
-            <ProjectSelector
-              value=""
-              onChange={addProjectToActivity}
-              placeholder="Add project to activity…"
-            />
-          )}
-        </div>
-      )}
-
-      {showMeeting && activity?.meetingId && (
-        <div>
-          <strong>At:</strong>
-          <MeetingName meetingId={activity.meetingId} />
-        </div>
-      )}
-
-      <div>
-        <NotesWriter
-          notes={activity?.notes}
-          saveNotes={handleNotesUpdate}
-          key={activityId}
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        value={accordionValue}
+        onValueChange={(val) =>
+          setAccordionValue(val === accordionValue ? undefined : val)
+        }
+      >
+        <ActivityProjectList
+          projectIds={activity?.projectIds}
+          addProjectToActivity={
+            !allowAddingProjects ? undefined : addProjectToActivity
+          }
+          accordionSelectedValue={accordionValue}
+          showProjects={showProjects}
         />
-      </div>
 
-      <ActivityMetaData activity={activity} />
+        <ActivityMeetingList
+          meeting={meeting}
+          accordionSelectedValue={accordionValue}
+          showMeeting={showMeeting}
+        />
+
+        <ActivityNotes
+          activity={activity}
+          accordionSelectedValue={accordionValue}
+          updateNotes={updateNotes}
+        />
+      </Accordion>
     </div>
   );
 };

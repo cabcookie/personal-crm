@@ -3,8 +3,6 @@ import {
   makeCurrentResponsibilityText,
   useTerritory,
 } from "@/api/useTerritories";
-import { usdCurrency } from "@/helpers/functional";
-import { format } from "date-fns";
 import { FC, useState } from "react";
 import AccountsList from "../accounts/AccountsList";
 import CrmLink from "../crm/CrmLink";
@@ -16,10 +14,15 @@ import TerritoryUpdateForm from "./TerritoryUpdateForm";
 type TerritoryDetailsProps = {
   territoryId: string;
   showResponsibilities?: boolean;
+  updateFormControl?: {
+    open: boolean;
+    setOpen: (val: boolean) => void;
+  };
 };
 
 const TerritoryDetails: FC<TerritoryDetailsProps> = ({
   territoryId,
+  updateFormControl,
   showResponsibilities = true,
 }) => {
   const { territory, deleteResponsibility, updateTerritory } =
@@ -33,28 +36,20 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
     "Loading territory…"
   ) : (
     <>
-      <div className="flex flex-col gap-1 text-sm">
-        <div>
-          {`Name: ${territory.name}`}
-          {territory.crmId && (
-            <CrmLink category="Territory__c" id={territory.crmId} />
-          )}
-        </div>
-        {territory.latestQuota > 0 && (
-          <div>{`Quota: ${usdCurrency.format(territory.latestQuota)}`}</div>
-        )}
-        <div>{`Responsible since: ${format(
-          territory.latestResponsibilityStarted,
-          "PPP"
-        )}`}</div>
+      <div className="ml-2">
         <TerritoryUpdateForm
           territory={territory}
-          onUpdate={({ crmId, name, quota, responsibleSince }) =>
-            updateTerritory({ name, crmId, responsibleSince, quota })
-          }
+          onUpdate={updateTerritory}
+          formControl={updateFormControl}
         />
+        {territory.crmId && (
+          <CrmLink
+            category="Territory__c"
+            id={territory.crmId}
+            className="font-semibold"
+          />
+        )}
       </div>
-      <div className="mt-8" />
 
       <Accordion
         type="single"
@@ -67,7 +62,7 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
         <DefaultAccordionItem
           value="accounts"
           triggerTitle="Accounts"
-          triggerSubTitle={territory.accounts.map((a) => a.name).join(", ")}
+          triggerSubTitle={territory.accounts.map((a) => a.name)}
           accordionSelectedValue={accordionValue}
         >
           {accounts && (

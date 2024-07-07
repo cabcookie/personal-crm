@@ -6,7 +6,6 @@ import { FC, useEffect, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
 import CrmProjectsList from "../crm-project-details/crm-projects-list";
-import SavedState from "../project-notes-form/saved-state";
 import RecordDetails from "../record-details/record-details";
 import NextActions from "./next-actions";
 import ProjectAccountDetails from "./project-account-details";
@@ -40,7 +39,6 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     projectId ? getProjectById(projectId) : undefined
   );
   const [projectContext, setProjectContext] = useState(project?.context);
-  const [detailsSaved, setDetailsSaved] = useState(true);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -56,27 +54,19 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     doneOn?: Date | undefined;
   }) => {
     if (!project) return;
-    setDetailsSaved(false);
-    const data = await saveProjectDates({ projectId: project.id, ...props });
-    if (data) setDetailsSaved(true);
-    return data;
+    return await saveProjectDates({ projectId: project.id, ...props });
   };
 
   const handleSelectAccount = async (accountId: string | null) => {
     if (!project) return;
     if (!accountId) return;
-    setDetailsSaved(false);
-    const data = await addAccountToProject(project.id, accountId);
-    if (data) setDetailsSaved(true);
-    return data;
+    return await addAccountToProject(project.id, accountId);
   };
 
-  const updateContext = async (context: Context) => {
+  const updateContext = (context: Context) => {
     if (!project) return;
-    setDetailsSaved(false);
     setProjectContext(context);
-    const data = await updateProjectContext(project.id, context);
-    if (data) setDetailsSaved(true);
+    updateProjectContext(project.id, context);
   };
 
   return (
@@ -106,7 +96,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           }
         >
           <ProjectAccountDetails
-            accoundIds={project.accountIds}
+            accountIds={project.accountIds}
             onAddAccount={handleSelectAccount}
             accordionSelectedValue={accordionValue}
             isVisible={includeAccounts}
@@ -139,8 +129,6 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             saveFn={(own, others) => saveNextActions(project.id, own, others)}
             accordionSelectedValue={accordionValue}
           />
-
-          <SavedState saved={detailsSaved} />
 
           <ProjectActivities
             accordionSelectedValue={accordionValue}

@@ -24,7 +24,7 @@ const TerritoryListPage = () => {
   const createAndOpenTerritory = async () => {
     const territory = await createTerritory("New Territory");
     if (!territory) return;
-    router.push(`/territories/${territory}`);
+    router.replace(`/territories/${territory}`);
   };
 
   return (

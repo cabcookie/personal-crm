@@ -3,9 +3,11 @@ import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow } from "lodash";
+import { map, sortBy } from "lodash/fp";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { Activity, mapActivity } from "./useActivity";
 const client = generateClient<Schema>();
 
 export type Meeting = {
@@ -14,7 +16,7 @@ export type Meeting = {
   context?: Context;
   meetingOn: Date;
   participantIds: string[];
-  activityIds: string[];
+  activities: Activity[];
 };
 
 export const meetingSelectionSet = [
@@ -25,8 +27,14 @@ export const meetingSelectionSet = [
   "createdAt",
   "participants.person.id",
   "activities.id",
+  "activities.notes",
+  "activities.formatVersion",
+  "activities.notesJson",
+  "activities.meetingActivitiesId",
   "activities.finishedOn",
   "activities.createdAt",
+  "activities.updatedAt",
+  "activities.forProjects.projectsId",
 ] as const;
 
 type MeetingData = SelectionSet<
@@ -48,13 +56,10 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   meetingOn: new Date(meetingOn || createdAt),
   context: context || undefined,
   participantIds: participants.map(({ person: { id } }) => id),
-  activityIds: activities
-    .map(({ id, finishedOn, createdAt }) => ({
-      id,
-      finishedOn: new Date(finishedOn || createdAt),
-    }))
-    .sort((a, b) => a.finishedOn.getTime() - b.finishedOn.getTime())
-    .map(({ id }) => id),
+  activities: flow(
+    map(mapActivity),
+    sortBy((a) => -a.finishedOn.getTime())
+  )(activities),
 });
 
 type FetchMeetingsWithTokenFunction = (props: {
@@ -154,7 +159,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       topic,
       meetingOn: new Date(),
       participantIds: [],
-      activityIds: [],
+      activities: [],
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
