@@ -1,10 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
+import { flatMap, flow, sortBy } from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
 const selectionSet = [
   "meeting.activities.id",
+  "meeting.activities.createdAt",
+  "meeting.activities.finishedOn",
   "meeting.activities.forProjects.projects.id",
 ] as const;
 
@@ -15,12 +18,14 @@ type ActivityData = SelectionSet<
 
 export type PersonActivity = {
   id: string;
+  finishedOn: Date;
   projectIds: string[];
 };
 
 const mapActivity = ({ meeting }: ActivityData): PersonActivity[] =>
-  meeting.activities.map(({ id, forProjects }) => ({
+  meeting.activities.map(({ id, finishedOn, createdAt, forProjects }) => ({
     id,
+    finishedOn: new Date(finishedOn || createdAt),
     projectIds: forProjects.map((p) => p.projects.id),
   }));
 
@@ -38,7 +43,10 @@ const fetchPersonActivities = (personId?: string) => async () => {
   if (errors) throw errors;
   if (!data)
     throw new Error(`Reading meeting data for person ${personId} failed`);
-  return data.flatMap(mapActivity);
+  return flow(
+    flatMap(mapActivity),
+    sortBy((a) => -a.finishedOn.getTime())
+  )(data);
 };
 
 const usePersonActivities = (personId?: string) => {

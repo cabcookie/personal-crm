@@ -4,7 +4,9 @@
 - Bei Notizen zu Personen, Meetings und Accounts sind die Notizen nun auch in einem Accordion Eintrag hinterlegt und dieser zeigt eine kurze Zusammenfassung der Notizen (außer bei Accounts).
 - Details zu Personen ermöglichen (Account-Zugehörigkeit, Kontaktdetails).
 - Point-in-time recovery für alle DynamoDB Tabellen aktiviert.
+- Sortierung von Aktivitäten in Notizen einer Person korrigiert.
 
 In Arbeit:
 
 - Details zu Personen ermöglichen (Gelerntes zur Person).
+- Details zu Personen ermöglichen (Geschenkideen, Gebetsanliegen, Beziehung zu anderen Personen).
