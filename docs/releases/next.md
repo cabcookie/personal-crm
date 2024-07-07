@@ -7,16 +7,4 @@
 
 In Arbeit:
 
-- Details zu Personen ermöglichen (Geschenkideen, Gebetsanliegen, Gelerntes zur Person, Beziehung zu anderen Personen).
-
-Später:
-
-- Ein Meeting soll eine feste Struktur haben:
-  - Name des Meetings
-  - Datum/Uhrzeit
-  - Teilnehmer
-  - Agenda
-  - Notizen zu jedem Agendapunkt, inkl. Vereinbarungen und wer diese verantwortet
-- Ein Meeting soll nur ein einziges Notizfeld haben, in dem alle Infos bearbeitet werden können.
-- Meetingzusammenfassung mithilfe von Bedrock erstellen lassen
-- Unterstützung für Bilder in Notizen ermöglichen.
+- Details zu Personen ermöglichen (Gelerntes zur Person).
