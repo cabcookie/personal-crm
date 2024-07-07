@@ -7,12 +7,13 @@ import { useState } from "react";
 const PersonDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { person } = usePerson(Array.isArray(id) ? id[0] : id);
+  const personId = Array.isArray(id) ? id[0] : id;
+  const { person } = usePerson(personId);
   const [formOpen, setFormOpen] = useState(false);
 
   return (
     <MainLayout
-      title={`${person?.name}${
+      title={`${person?.name || "Loading…"}${
         !person?.howToSay ? "" : ` (say: ${person.howToSay})`
       }`}
       recordName={person?.name}

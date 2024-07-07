@@ -26,7 +26,7 @@ const AccountDetailPage = () => {
 
   return (
     <MainLayout
-      title={`${account?.name}${
+      title={`${account?.name || "Loading…"}${
         !account?.controller ? "" : ` (Parent: ${account.controller.name})`
       }`}
       recordName={account?.name}

@@ -1,4 +1,6 @@
-import usePersonActivities from "@/api/usePersonActivities";
+import { useProjectsContext } from "@/api/ContextProjects";
+import usePersonActivities, { PersonActivity } from "@/api/usePersonActivities";
+import { flatMap, flow } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -14,19 +16,26 @@ const PersonNotes: FC<PersonNotesProps> = ({
   accordionSelectedValue,
   personId,
 }) => {
-  const { activityIds } = usePersonActivities(personId);
+  const { activities } = usePersonActivities(personId);
+  const { getProjectNamesByIds } = useProjectsContext();
 
   return (
     <DefaultAccordionItem
-      value="Notes"
+      value="notes"
       triggerTitle="Notes"
+      triggerSubTitle={[
+        flow(
+          flatMap((a: PersonActivity) => a.projectIds),
+          getProjectNamesByIds
+        )(activities),
+      ]}
       isVisible={!!showNotes}
       accordionSelectedValue={accordionSelectedValue}
     >
-      {activityIds?.map((a) => (
+      {activities?.map((a) => (
         <ActivityComponent
-          key={a}
-          activityId={a}
+          key={a.id}
+          activityId={a.id}
           showDates
           showMeeting
           showProjects

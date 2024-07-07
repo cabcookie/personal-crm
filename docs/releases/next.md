@@ -1,8 +1,10 @@
-# Eine neue Struktur für Meetings schaffen (Version :VERSION)
+# Mehr Details zu Personen dokumentieren (Version :VERSION)
 
-- Packages (inkl. Amplify) auf die neueste Version ohne Breaking Changes aktualisiert.
-- Das Cmd+K Menü reagiert auch auf Cmd+P.
-- Aus dem Cmk+K Menü sollen auch neue Einträge für Meetings, Projekte und Personen erstellt werden können.
-- Visualisierung der Informationen zu Accounts optimiert. Eigene Accordions für Territories und AWS Payer Accounts, so dass der Header ordentlicher ist.
-- Details zu Personen ermöglichen (Geburtstag, Todestag, Aussprache des Namens, Notizen aus Meetings).
-- Die Meetingsliste ist nun aufgeräumter und Meetinginformationen werden einheitlicher dargestellt bei Accounts, Personen und Meetings.
+- Bei Meetings, Personen und Accounts den Titel korrigiert, so dass nicht "undefined" angezeigt wird, wenn die Daten noch geladen werden.
+- Bei Notizen zu Personen, Meetings und Accounts sind die Notizen nun auch in einem Accordion Eintrag hinterlegt und dieser zeigt eine kurze Zusammenfassung der Notizen (außer bei Accounts).
+- Details zu Personen ermöglichen (Account-Zugehörigkeit, Kontaktdetails).
+- Point-in-time recovery für alle DynamoDB Tabellen aktiviert.
+
+In Arbeit:
+
+- Details zu Personen ermöglichen (Gelerntes zur Person).

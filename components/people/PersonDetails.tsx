@@ -4,6 +4,9 @@ import { Accordion } from "../ui/accordion";
 import PersonDates from "./PersonDates";
 import PersonNotes from "./PersonNotes";
 import PersonUpdateForm from "./PersonUpdateForm";
+import PersonAccounts from "./PersonAccounts";
+import PersonContactDetails from "./PersonContactDetails";
+import PersonLearnings from "./PersonLearnings";
 
 type PersonDetailsProps = {
   personId: string;
@@ -19,7 +22,16 @@ const PersonDetails: FC<PersonDetailsProps> = ({
   updateFormControl,
   showNotes = true,
 }) => {
-  const { person, updatePerson } = usePerson(personId);
+  const {
+    person,
+    updatePerson,
+    createPersonAccount,
+    deletePersonAccount,
+    updatePersonAccount,
+    createContactDetail,
+    updateContactDetail,
+    deleteContactDetail,
+  } = usePerson(personId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -43,14 +55,35 @@ const PersonDetails: FC<PersonDetailsProps> = ({
             setAccordionValue(val === accordionValue ? undefined : val)
           }
         >
+          <PersonAccounts
+            person={person}
+            accordionSelectedValue={accordionValue}
+            onCreate={createPersonAccount}
+            onDelete={deletePersonAccount}
+            onChange={updatePersonAccount}
+          />
+
+          <PersonContactDetails
+            person={person}
+            accordionSelectedValue={accordionValue}
+            onCreate={createContactDetail}
+            onChange={updateContactDetail}
+            onDelete={deleteContactDetail}
+          />
+
           <PersonDates
             person={person}
             accordionSelectedValue={accordionValue}
           />
 
-          <PersonNotes
+          <PersonLearnings
             accordionSelectedValue={accordionValue}
             personId={person.id}
+          />
+
+          <PersonNotes
+            personId={person.id}
+            accordionSelectedValue={accordionValue}
             showNotes={showNotes}
           />
         </Accordion>

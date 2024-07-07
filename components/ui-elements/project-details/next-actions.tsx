@@ -57,9 +57,7 @@ const NextActions: FC<NextActionsProps> = ({
     value="next-actions"
     triggerTitle="Next Actions"
     accordionSelectedValue={accordionSelectedValue}
-    triggerSubTitle={
-      own && (typeof own === "string" ? own : getTextFromEditorJsonContent(own))
-    }
+    triggerSubTitle={getTextFromEditorJsonContent(own)}
     isVisible
   >
     <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">

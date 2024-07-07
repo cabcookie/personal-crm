@@ -3,9 +3,6 @@ import useMeeting from "@/api/useMeeting";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import NotesWriter, {
-  SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
 import DateSelector from "../ui-elements/selectors/date-selector";
 import { Accordion } from "../ui/accordion";
@@ -16,9 +13,9 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { useToast } from "../ui/use-toast";
-import { debouncedUpdateNotes, debounedUpdateDate } from "./activity-helper";
+import { debounedUpdateDate } from "./activity-helper";
 import ActivityMeetingList from "./activity-meeting-list";
-import ActivityMetaData from "./activity-meta-data";
+import ActivityNotes from "./activity-notes";
 import ActivityProjectList from "./activity-project-list";
 
 type ActivityComponentProps = {
@@ -50,13 +47,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   useEffect(() => {
     setDate(activity?.finishedOn || new Date());
   }, [activity]);
-
-  const handleNotesUpdate = (serializer: () => SerializerOutput) => {
-    debouncedUpdateNotes({
-      updateNotes,
-      serializer,
-    });
-  };
 
   const handleDateUpdate = async (date: Date) => {
     setDateSaved(false);
@@ -139,15 +129,13 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
           accordionSelectedValue={accordionValue}
           showMeeting={showMeeting}
         />
+
+        <ActivityNotes
+          activity={activity}
+          accordionSelectedValue={accordionValue}
+          updateNotes={updateNotes}
+        />
       </Accordion>
-
-      <NotesWriter
-        notes={activity?.notes}
-        saveNotes={handleNotesUpdate}
-        key={activityId}
-      />
-
-      <ActivityMetaData activity={activity} />
     </div>
   );
 };

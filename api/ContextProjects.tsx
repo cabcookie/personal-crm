@@ -9,7 +9,7 @@ import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
-import { filter, flow, map, sortBy } from "lodash/fp";
+import { filter, flow, get, join, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
@@ -62,6 +62,7 @@ interface ProjectsContextType {
     context: Context
   ) => Promise<string | undefined>;
   mutateProjects: KeyedMutator<Project[] | undefined>;
+  getProjectNamesByIds: (projectIds?: string[]) => string;
 }
 
 export type CrmProjectData = {
@@ -472,6 +473,15 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.id;
   };
 
+  const getProjectNamesByIds = (projectIds?: string[]): string =>
+    !projectIds || !projects
+      ? ""
+      : flow(
+          filter((p: Project) => projectIds.includes(p.id)),
+          map(get("project")),
+          join(", ")
+        )(projects);
+
   return (
     <ProjectsContext.Provider
       value={{
@@ -489,6 +499,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         removeAccountFromProject,
         updateProjectContext,
         mutateProjects,
+        getProjectNamesByIds,
       }}
     >
       {children}
