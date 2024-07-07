@@ -47,6 +47,18 @@ const personSchmema = {
       detail: a.string().required(),
     })
     .authorization((allow) => [allow.owner()]),
+  PersonLearning: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      learnedOn: a.datetime(),
+      personId: a.id().required(),
+      person: a.belongsTo("Person", "personId"),
+      learning: a.json(),
+    })
+    .secondaryIndexes((index) => [index("personId")])
+    .authorization((allow) => [allow.owner()]),
   Person: a
     .model({
       owner: a
@@ -60,6 +72,7 @@ const personSchmema = {
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
       details: a.hasMany("PersonDetail", "personId"),
+      learnings: a.hasMany("PersonLearning", "personId"),
     })
     .authorization((allow) => [allow.owner()]),
 };

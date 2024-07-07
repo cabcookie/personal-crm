@@ -6,6 +6,7 @@ import PersonNotes from "./PersonNotes";
 import PersonUpdateForm from "./PersonUpdateForm";
 import PersonAccounts from "./PersonAccounts";
 import PersonContactDetails from "./PersonContactDetails";
+import PersonLearnings from "./PersonLearnings";
 
 type PersonDetailsProps = {
   personId: string;
@@ -73,6 +74,11 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           <PersonDates
             person={person}
             accordionSelectedValue={accordionValue}
+          />
+
+          <PersonLearnings
+            accordionSelectedValue={accordionValue}
+            personId={person.id}
           />
 
           <PersonNotes

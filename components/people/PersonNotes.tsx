@@ -21,7 +21,7 @@ const PersonNotes: FC<PersonNotesProps> = ({
 
   return (
     <DefaultAccordionItem
-      value="Notes"
+      value="notes"
       triggerTitle="Notes"
       triggerSubTitle={[
         flow(
