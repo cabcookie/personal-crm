@@ -2,7 +2,7 @@ const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
 const { fromIni } = require("@aws-sdk/credential-providers");
 const { loadConfig } = require("./load-config");
 const { getAwsProfile } = require("./get-aws-profile");
-const uuid = require("../../components/import-data/imports-aws-sdk/uuid");
+const uuid = require("./uuid");
 
 const { environmentId, region } = loadConfig();
 const profile = getAwsProfile();

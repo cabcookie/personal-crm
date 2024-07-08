@@ -4,7 +4,7 @@ const {
   createRelation,
   searchValInArrayAndReturnObjKey,
   createAndRemapDayPlans,
-} = require("./import-handler");
+} = require("./helpers/import-handler");
 const env = "newDev";
 const fs = require("fs");
 
@@ -112,6 +112,8 @@ const importData = async () => {
     ({ birtday, ...rest }) => ({ ...rest, birthday: birtday })
   );
 
+  // const personAccounts = await createManyToManyTable(env, "PersonAccount", "_personAccount.json", );
+
   const meetingParticipants = await createManyToManyTable(
     env,
     "MeetingParticipant",
@@ -153,30 +155,6 @@ const importData = async () => {
     "DayPlan",
     "_dayPlans.json",
     (item) => item
-  );
-
-  const dayprojecttasks = await importHandler(
-    env,
-    "DayProjectTask",
-    "_projectTasks.json",
-    ({ dayPlan, project, ...rest }) => ({
-      dayPlanProjectTasksId: dayplans.find(
-        ({ notionId }) => notionId === dayPlan
-      )?.id,
-      projectsDayTasksId: projects.find(({ notionId }) => notionId === project)
-        ?.id,
-      ...rest,
-    })
-  );
-
-  const nonprojecttasks = await importHandler(
-    env,
-    "NonProjectTask",
-    "_nonProjectTasks.json",
-    ({ dayPlan, ...rest }) => ({
-      dayPlanTasksId: dayplans.find(({ notionId }) => notionId === dayPlan)?.id,
-      ...rest,
-    })
   );
 
   return;

@@ -1,5 +1,5 @@
 const AWS = require("aws-sdk");
-const { getTable, userPools } = require("./tables");
+const { getTable, userPools } = require("../import-data/tables");
 const uuid = require("./uuid");
 AWS.config.update({ region: "us-east-1" });
 const docClient = new AWS.DynamoDB.DocumentClient();
