@@ -16,7 +16,10 @@ const PersonName: FC<PersonNameProps> = ({ personId, noLinks, className }) => {
       {noLinks ? (
         person.name
       ) : (
-        <a href={`/people/${personId}`} className="hover:underline">
+        <a
+          href={`/people/${personId}`}
+          className="hover:underline hover:underline-offset-2"
+        >
           {person.name}
         </a>
       )}

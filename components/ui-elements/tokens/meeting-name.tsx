@@ -36,7 +36,10 @@ const MeetingName: FC<MeetingNameProps> = ({ meetingId, noLinks }) => {
       {noLinks ? (
         <NameAndDate topic={meeting.topic} meetingOn={meeting.meetingOn} />
       ) : (
-        <a href={`/meetings/${meeting.id}`} className="hover:underline">
+        <a
+          href={`/meetings/${meeting.id}`}
+          className="hover:underline hover:underline-offset-2"
+        >
           <NameAndDate topic={meeting.topic} meetingOn={meeting.meetingOn} />
         </a>
       )}

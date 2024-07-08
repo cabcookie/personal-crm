@@ -24,7 +24,10 @@ const ProjectName: FC<ProjectNameProps> = ({ projectId, noLinks }) => {
       {noLinks ? (
         project.project
       ) : (
-        <a href={`/projects/${projectId}`} className="hover:underline">
+        <a
+          href={`/projects/${projectId}`}
+          className="hover:underline hover:underline-offset-2"
+        >
           {!project ? "..." : project.project}
         </a>
       )}

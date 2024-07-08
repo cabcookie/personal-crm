@@ -30,7 +30,7 @@ const ListPayerAccounts: FC<ListPayerAccountsProps> = ({
                 <Link
                   href={`https://salesconsole.aws.dev/standalone.html?basePath=accounts&id=${payer}`}
                   target="_blank"
-                  className="text-[--context-color] hover:text-accent-foreground hover:underline"
+                  className="text-[--context-color] hover:text-accent-foreground hover:underline hover:underline-offset-2"
                 >
                   Sales Console
                 </Link>
@@ -39,7 +39,7 @@ const ListPayerAccounts: FC<ListPayerAccountsProps> = ({
                 <Link
                   href={`https://aws-ciw-readonly.amazon.com/cost-management/home?spoofAccountId=${payer}#/`}
                   target="_blank"
-                  className="text-[--context-color] hover:text-accent-foreground hover:underline"
+                  className="text-[--context-color] hover:text-accent-foreground hover:underline hover:underline-offset-2"
                 >
                   Cost Explorer
                 </Link>
