@@ -9,6 +9,7 @@ import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { toast } from "@/components/ui/use-toast";
+import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
 const client = generateClient<Schema>();
 
 export type PersonLearningCreateProps = {
@@ -25,6 +26,7 @@ export type PersonLearning = {
   learning: EditorJsonContent | string;
   learnedOn: Date;
   updatedAt: Date;
+  prayerStatus: TPrayerStatus;
 };
 
 const mapLearning = ({
@@ -33,6 +35,7 @@ const mapLearning = ({
   updatedAt,
   learnedOn,
   learning,
+  prayer,
 }: Schema["PersonLearning"]["type"]): PersonLearning => ({
   id,
   learning: transformNotesVersion({
@@ -41,6 +44,7 @@ const mapLearning = ({
     notesJson: learning,
   }),
   learnedOn: new Date(learnedOn || createdAt),
+  prayerStatus: prayer || "NONE",
   updatedAt: new Date(updatedAt),
 });
 
@@ -71,6 +75,7 @@ const usePersonLearnings = (personId?: string) => {
         id: crypto.randomUUID(),
         learnedOn: new Date(),
         learning: "",
+        prayerStatus: "NONE",
         updatedAt: new Date(),
       },
       ...(learnings || []),
@@ -101,6 +106,23 @@ const usePersonLearnings = (personId?: string) => {
     return data.id;
   };
 
+  const updatePrayerStatus = async (
+    learningId: string,
+    status: TPrayerStatus
+  ) => {
+    const updated: PersonLearning[] | undefined = learnings?.map((l) =>
+      l.id !== learningId ? l : { ...l, prayerStatus: status }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.PersonLearning.update({
+      id: learningId,
+      prayer: status,
+    });
+    if (errors) handleApiErrors(errors, "Updating prayer status failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const updateLearning = async (
     learningId: string,
     learning: EditorJsonContent
@@ -125,7 +147,13 @@ const usePersonLearnings = (personId?: string) => {
     return data?.id;
   };
 
-  return { learnings, createLearning, deleteLearning, updateLearning };
+  return {
+    learnings,
+    createLearning,
+    deleteLearning,
+    updateLearning,
+    updatePrayerStatus,
+  };
 };
 
 export default usePersonLearnings;

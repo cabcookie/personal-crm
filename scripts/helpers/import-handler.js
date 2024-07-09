@@ -25,13 +25,13 @@ const {
   createTableItem,
   stdLog,
   mapNotionIdToId,
+  env,
 } = require("./filter-and-mapping");
 const { getUser } = require("./get-user");
 
 /**
  * Creates records in a many to many relationship table.
  *
- * @param {"dev" | "prod"} env The environment in which the operation should be proceeded ('dev' or 'prod')
  * @param {String} manyToManyTableName The name of the DynamoDB table where you would like to create the many to many relationship
  * @param {String} sourceJsonFileName The name of the JSON file that holds the original data with the link information
  * @param {Array} sourceArray The source array containing the original data.
@@ -43,7 +43,6 @@ const { getUser } = require("./get-user");
  * @returns the imported data
  */
 const createManyToManyTable = async (
-  env,
   manyToManyTableName,
   sourceJsonFileName,
   sourceArray,
@@ -113,7 +112,6 @@ const createManyToManyTable = async (
 /**
  * Updates records in a DynamoDB table to link to another DynamoDB table.
  *
- * @param {"dev" | "prod"} env The environment in which the operation should be proceeded ('dev' or 'prod')
  * @param {String} tableName The name of the DynamoDB table where you would like to update the records to link to another table
  * @param {String} sourceJsonFileName The name of the JSON file that holds the original data with the link information (notionIDs but no IDs)
  * @param {Array} sourceArray The source array containing the original data (with a notionId and an ID).
@@ -123,7 +121,6 @@ const createManyToManyTable = async (
  * @returns the updated data
  */
 const createRelation = async (
-  env,
   tableName,
   sourceJsonFileName,
   sourceArray,
@@ -169,7 +166,6 @@ const createRelation = async (
 /**
  * For an existing record create a detail record in another table that links to the original record.
  *
- * @param {"dev" | "prod"} env The environment in which the operation should be proceeded ('dev' or 'prod')
  * @param {String} tableName The name of the DynamoDB table where you would like to create the detail records
  * @param {String} jsonFileName The name of the JSON file that holds the original data with the link information
  * @param {Array} sourceArray The source array containing the original data (with a notionId and an ID).
@@ -179,7 +175,6 @@ const createRelation = async (
  * @returns the new record created
  */
 const createDetailRecord = async (
-  env,
   tableName,
   jsonFileName,
   sourceArray,
@@ -233,13 +228,12 @@ const createDetailRecord = async (
 /**
  * Imports data from a JSON file into the desired DynamoDB table in dev or prod environment.
  *
- * @param {"dev" | "prod"} env The environment in which the operation should be proceeded ('dev' or 'prod')
  * @param {String} tableName The name of the DynamoDB table to which the data should be imported
  * @param {String} jsonFileName The name of the JSON file that holds the data to be imported
  * @param {Function} mapArrayToDdb A function to map the fields from the import data to the schema of the DynamoDB table
  * @returns the imported data
  */
-const importHandler = async (env, tableName, jsonFileName, mapArrayToDdb) => {
+const importHandler = async (tableName, jsonFileName, mapArrayToDdb) => {
   const TableName = getTable(tableName, env);
   const log = stdLog(`[${TableName}] [IMPORT DATA] [${jsonFileName}]:`);
   log("start import");

@@ -39,8 +39,13 @@ const PersonLearnings: FC<PersonLearningsProps> = ({
   personId,
   accordionSelectedValue,
 }) => {
-  const { learnings, createLearning, deleteLearning, updateLearning } =
-    usePersonLearnings(personId);
+  const {
+    learnings,
+    createLearning,
+    deleteLearning,
+    updateLearning,
+    updatePrayerStatus,
+  } = usePersonLearnings(personId);
   const [editId, setEditId] = useState<string | null>(null);
 
   const handleCreate = async () => {
@@ -86,6 +91,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({
           }
           onDelete={() => deleteLearning(learning.id)}
           onChange={handleLearningUpdate(learning.id)}
+          onStatusChange={(val) => updatePrayerStatus(learning.id, val)}
         />
       ))}
     </DefaultAccordionItem>

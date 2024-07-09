@@ -3,6 +3,8 @@ const { mapObjectToDdb } = require("./map-ddb-object");
 const uuid = require("./uuid");
 const { createWriteStream } = require("fs");
 const { format } = require("util");
+const { environmentId } = require("../import-data/tables");
+const env = "dev";
 
 const skipExistingRecord = (targetArray, newFieldName, item) =>
   targetArray.some((target) => target.id === item.id && !!target[newFieldName]);
@@ -109,7 +111,9 @@ const itemsWithLinks = (linkFieldName) => (item) =>
   !!item[linkFieldName] &&
   (!Array.isArray(item[linkFieldName]) || item[linkFieldName].length > 0);
 
-const logFile = createWriteStream("import-data/logs.log", { flags: "a" });
+const logFile = createWriteStream(`import-data/${environmentId[env]}.log`, {
+  flags: "a",
+});
 
 const _writeLog = (...args) => {
   console.log(...args);
@@ -148,4 +152,5 @@ module.exports = {
   mapMeetingIdForActivity,
   mapNotionIdToId,
   stdLog,
+  env,
 };

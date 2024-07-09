@@ -7,6 +7,7 @@ import NotesWriter, {
 import { Button } from "../ui/button";
 import { Check, Edit, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PrayerStatus, { TPrayerStatus } from "../prayer/PrayerStatus";
 
 type LearningComponentProps = {
   learning: PersonLearning;
@@ -14,6 +15,7 @@ type LearningComponentProps = {
   onMakeEditable?: () => void;
   onDelete?: () => void;
   onChange: (serializer: () => SerializerOutput) => void;
+  onStatusChange: (val: TPrayerStatus) => void;
 };
 
 const LearningComponent: FC<LearningComponentProps> = ({
@@ -22,6 +24,7 @@ const LearningComponent: FC<LearningComponentProps> = ({
   onMakeEditable,
   onDelete,
   onChange,
+  onStatusChange,
 }) => (
   <div className="py-2 space-y-1">
     <h3 className="text-base md:text-lg font-bold tracking-tight flex items-center gap-2">
@@ -52,6 +55,11 @@ const LearningComponent: FC<LearningComponentProps> = ({
         </Button>
       )}
     </h3>
+    <PrayerStatus
+      status={learning.prayerStatus}
+      onChange={onStatusChange}
+      editable={!!editable}
+    />
     <div className={cn(!editable && "-mx-2")}>
       <NotesWriter
         readonly={!editable}
