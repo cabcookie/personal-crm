@@ -16,6 +16,7 @@ In Arbeit:
 - Bei Accounts sollten nun auch Personen angezeigt werden können, die damit in Beziehung stehen.
 - Bei Accounts sollte im Accordion für Projekte eine Vorschau für offene Projekte existieren. (???)
 - Bei Kontaktdetails Links hinzufügen (E-Mail schreiben, PhoneTool, Slack Message, Profil öffnen)
+- Die UI für Meetings auf Mobiltelefonen kompakter machen.
 
 Später:
 

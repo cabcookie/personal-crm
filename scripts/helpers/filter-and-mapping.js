@@ -20,7 +20,7 @@ const createTableItem = async (
     ...item,
     __typename: tableName,
     id,
-    owner: owner,
+    owner,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });

@@ -3,11 +3,11 @@ const {
   UpdateItemCommand,
 } = require("@aws-sdk/client-dynamodb");
 const { fromIni } = require("@aws-sdk/credential-providers");
-const { getTable, userPools } = require("../import-data/tables");
+const { getTable } = require("../import-data/tables");
 const { getAwsProfile } = require("./get-aws-profile");
 const { mapDdbToObject } = require("./map-ddb-object");
 const { flow, map, filter, flatMap, get } = require("lodash/fp");
-const region = "us-east-1";
+const region = "eu-west-1";
 const profile = getAwsProfile();
 const client = new DynamoDBClient({
   region,
@@ -26,6 +26,7 @@ const {
   stdLog,
   mapNotionIdToId,
 } = require("./filter-and-mapping");
+const { getUser } = require("./get-user");
 
 /**
  * Creates records in a many to many relationship table.
@@ -56,7 +57,7 @@ const createManyToManyTable = async (
     `[${TableName}] [CREATE N:N RELATION] [${sourceJsonFileName}]:`
   );
   log("start import");
-  const owner = userPools[env].ownerId;
+  const owner = await getUser(env, region);
   const ddbData = await getExistingRecords(TableName, owner, client);
   const count = ddbData.Count;
   log(`Items in table: ${count}`);
@@ -187,7 +188,7 @@ const createDetailRecord = async (
   compareFieldName
 ) => {
   const TableName = getTable(tableName, env);
-  const owner = userPools[env].ownerId;
+  const owner = await getUser(env, region);
   const log = stdLog(`[${TableName}] [IMPORT DATA] [${jsonFileName}]:`);
   log("start import");
   const ddbData = await getExistingRecords(TableName, owner, client);
@@ -250,7 +251,7 @@ const importHandler = async (env, tableName, jsonFileName, mapArrayToDdb) => {
   const jsonData = JSON.parse(
     fs.readFileSync(`import-data/${jsonFileName}`, "utf8")
   );
-  const owner = userPools[env].ownerId;
+  const owner = await getUser(env, region);
   const ddbData = await getExistingRecords(TableName, owner, client);
   const count = ddbData.Count;
   log(`Items in table: ${count}`);
