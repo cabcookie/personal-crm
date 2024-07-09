@@ -3,9 +3,12 @@ import {
   EditorJsonContent,
   transformNotesVersion,
 } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { toISODateString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
+import { toast } from "@/components/ui/use-toast";
 const client = generateClient<Schema>();
 
 export type PersonLearningCreateProps = {
@@ -56,12 +59,73 @@ const fetchLearnings = (personId?: string) => async () => {
 };
 
 const usePersonLearnings = (personId?: string) => {
-  const { data: learnings } = useSWR(
+  const { data: learnings, mutate } = useSWR(
     `/api/people/${personId}/learnings`,
     fetchLearnings(personId)
   );
 
-  return { learnings };
+  const createLearning = async () => {
+    if (!personId) return;
+    const updated: PersonLearning[] = [
+      {
+        id: crypto.randomUUID(),
+        learnedOn: new Date(),
+        learning: "",
+        updatedAt: new Date(),
+      },
+      ...(learnings || []),
+    ];
+    mutate(updated, false);
+    const { data, errors } = await client.models.PersonLearning.create({
+      personId,
+      learnedOn: toISODateString(new Date()),
+      prayer: "NONE",
+    });
+    if (errors) handleApiErrors(errors, "Creating learning on person failed");
+    mutate(updated);
+    return data?.id;
+  };
+
+  const deleteLearning = async (learningId: string) => {
+    const updated: PersonLearning[] | undefined = learnings?.filter(
+      (l) => l.id !== learningId
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.PersonLearning.delete({
+      id: learningId,
+    });
+    if (errors) handleApiErrors(errors, "Deleting learning failed");
+    if (updated) mutate(updated);
+    if (!data) return;
+    toast({ title: "Learning about person deleted" });
+    return data.id;
+  };
+
+  const updateLearning = async (
+    learningId: string,
+    learning: EditorJsonContent
+  ) => {
+    if (!learnings) return;
+    const updated: PersonLearning[] = learnings.map((l) =>
+      l.id !== learningId
+        ? l
+        : {
+            ...l,
+            learning,
+            updatedAt: new Date(),
+          }
+    );
+    mutate(updated, false);
+    const { data, errors } = await client.models.PersonLearning.update({
+      id: learningId,
+      learning: JSON.stringify(learning),
+    });
+    if (errors) handleApiErrors(errors, "Error updating learning about person");
+    mutate(updated);
+    return data?.id;
+  };
+
+  return { learnings, createLearning, deleteLearning, updateLearning };
 };
 
 export default usePersonLearnings;

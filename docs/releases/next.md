@@ -2,15 +2,16 @@
 
 - Bei Meetings, Personen und Accounts den Titel korrigiert, so dass nicht "undefined" angezeigt wird, wenn die Daten noch geladen werden.
 - Bei Notizen zu Personen, Meetings und Accounts sind die Notizen nun auch in einem Accordion Eintrag hinterlegt und dieser zeigt eine kurze Zusammenfassung der Notizen (außer bei Accounts).
-- Details zu Personen ermöglichen (Account-Zugehörigkeit, Kontaktdetails).
+- Details zu Personen ermöglichen (Account-Zugehörigkeit, Kontaktdetails, Gelerntes zu einer Person).
 - Point-in-time recovery für alle DynamoDB Tabellen aktiviert.
 - Sortierung von Aktivitäten in Notizen einer Person korrigiert.
 - Import-Skripte angepasst, so dass bestehende Daten für Personen importiert werden können.
 
 In Arbeit:
 
-- Details zu Personen ermöglichen (Gelerntes zur Person).
-- Details zu Personen ermöglichen (Geschenkideen, Gebetsanliegen, Beziehung zu anderen Personen).
+- Details zu Personen ermöglichen (Gebetsanliegen).
+
+- Details zu Personen ermöglichen (Geschenkideen, Beziehung zu anderen Personen).
 - Ein Meetng sollte mehr Details zu einer Person anzeigen können (Accordions).
 - In der Meeting Liste ist das Accordion für Teilnehmer nicht korrekt implementiert. Es fehlt der Kopf.
 - Bei Accounts sollten nun auch Personen angezeigt werden können, die damit in Beziehung stehen.

@@ -53,10 +53,11 @@ const personSchmema = {
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      learnedOn: a.datetime(),
+      learnedOn: a.date(),
       personId: a.id().required(),
       person: a.belongsTo("Person", "personId"),
       learning: a.json(),
+      prayer: a.ref("PrayerStatus"),
     })
     .secondaryIndexes((index) => [index("personId")])
     .authorization((allow) => [allow.owner()]),

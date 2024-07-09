@@ -8,7 +8,7 @@ With Personal CRM you can cover your work and family life as well as your hobbie
 
 ## Setup Instructions
 
-### Environment Configuration
+### Environment Configuration (WIP)
 
 In sandbox environments you can create seed data with `npm run create-seed`.
 To run the script, you need to provide environment-specific configuration details. This information should be stored in a `env.json` file located in the `scripts/seed-data` directory.

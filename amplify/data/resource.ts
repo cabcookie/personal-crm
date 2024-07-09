@@ -5,6 +5,7 @@ import contextSchema from "./context-schema";
 import dayPlanSchema from "./dayplan-schema";
 import personSchmema from "./person-schema";
 import projectSchema from "./project-schema";
+import prayerSchema from "./prayer-schema";
 
 const schema = a.schema({
   ...accountSchema,
@@ -13,6 +14,7 @@ const schema = a.schema({
   ...dayPlanSchema,
   ...personSchmema,
   ...projectSchema,
+  ...prayerSchema,
   Inbox: a
     .model({
       owner: a
