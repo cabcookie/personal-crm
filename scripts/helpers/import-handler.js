@@ -218,13 +218,8 @@ const createDetailRecord = async (
       if (
         existingRecords.some(
           (r) =>
-            r.id === item.id &&
-            r[sourceFieldName] &&
-            r[
-              sourceFieldName.some(
-                (s) => s[compareFieldName] === item[compareFieldName]
-              )
-            ]
+            r[targetFieldName] === item[targetFieldName] &&
+            r[compareFieldName] === item[compareFieldName]
         )
       )
         return item;

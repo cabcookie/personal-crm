@@ -8,6 +8,7 @@ const {
 const env = "dev";
 
 const importData = async () => {
+  // Account
   const accounts = await importHandler(
     env,
     "Account",
@@ -18,6 +19,7 @@ const importData = async () => {
     })
   );
 
+  // Account: subsidiaries and parent accounts
   await createRelation(
     env,
     "Account",
@@ -28,6 +30,7 @@ const importData = async () => {
     "accountSubsidiariesId"
   );
 
+  // SixWeekCycle
   const sixweekcycle = await importHandler(
     env,
     "SixWeekCycle",
@@ -35,8 +38,8 @@ const importData = async () => {
     (item) => item
   );
 
+  // SixWeekBatch
   const sixWeekCycleBatchesId = sixweekcycle[0].id;
-
   const batches = await importHandler(
     env,
     "SixWeekBatch",
@@ -44,6 +47,7 @@ const importData = async () => {
     (item) => ({ ...item, status: "inprogress", sixWeekCycleBatchesId })
   );
 
+  // Meeting
   const meetings = await importHandler(
     env,
     "Meeting",
@@ -51,6 +55,7 @@ const importData = async () => {
     ({ participants, timeInvested, ...item }) => item
   );
 
+  // Projects
   const projects = await importHandler(
     env,
     "Projects",
@@ -68,6 +73,7 @@ const importData = async () => {
     })
   );
 
+  // AccountProjects: relationship between accounts and projects
   await createManyToManyTable(
     env,
     "AccountProjects",
@@ -79,6 +85,7 @@ const importData = async () => {
     "accountId"
   );
 
+  // SixWeekBatchProjects: relationship between 6-week batches and projects
   await createManyToManyTable(
     env,
     "SixWeekBatchProjects",
@@ -90,6 +97,7 @@ const importData = async () => {
     "sixWeekBatchId"
   );
 
+  // People
   const people = await importHandler(
     env,
     "Person",
@@ -97,6 +105,7 @@ const importData = async () => {
     ({ account, details, ...item }) => item
   );
 
+  // PersonAccount: relationship between people and accounts
   await createManyToManyTable(
     env,
     "PersonAccount",
@@ -108,6 +117,7 @@ const importData = async () => {
     "accountId"
   );
 
+  // PersonDetail: details like email, phone numbers etc.
   await createDetailRecord(
     env,
     "PersonDetail",
@@ -118,6 +128,7 @@ const importData = async () => {
     "label"
   );
 
+  // MeetingParticipant: participants of meetings
   await createManyToManyTable(
     env,
     "MeetingParticipant",
@@ -129,6 +140,7 @@ const importData = async () => {
     "personId"
   );
 
+  // Activity: notes on meetings and projects
   const activities = await importHandler(
     env,
     "Activity",
@@ -139,6 +151,7 @@ const importData = async () => {
     })
   );
 
+  // ProjectActivity: relationship between activities and projects
   await createManyToManyTable(
     env,
     "ProjectActivity",
@@ -148,6 +161,17 @@ const importData = async () => {
     "forProjects",
     "activityId",
     "projectsId"
+  );
+
+  // PersonLearning: things I learned about a person
+  await importHandler(
+    env,
+    "PersonLearning",
+    "_learnings.json",
+    ({ personId, ...item }) => ({
+      ...item,
+      personId: people.find((p) => p.notionId === personId)?.id,
+    })
   );
 };
 
