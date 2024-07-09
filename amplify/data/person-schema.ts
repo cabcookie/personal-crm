@@ -9,6 +9,7 @@ const personSchmema = {
     "emailWork",
     "salesforce",
     "instagram",
+    "amazonalias",
   ]),
   MeetingParticipant: a
     .model({

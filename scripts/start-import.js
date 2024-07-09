@@ -1,12 +1,11 @@
+const { mapMeetingIdForActivity } = require("./helpers/filter-and-mapping");
 const {
   importHandler,
   createManyToManyTable,
   createRelation,
-  searchValInArrayAndReturnObjKey,
-  createAndRemapDayPlans,
+  createDetailRecord,
 } = require("./helpers/import-handler");
-const env = "newDev";
-const fs = require("fs");
+const env = "dev";
 
 const importData = async () => {
   const accounts = await importHandler(
@@ -19,15 +18,14 @@ const importData = async () => {
     })
   );
 
-  const updates = await createRelation(
+  await createRelation(
     env,
     "Account",
     "_accounts.json",
     accounts,
     accounts,
     "controllerId",
-    "accountSubsidiariesId",
-    (mappedAccounts, controllerId) => mappedAccounts[controllerId]
+    "accountSubsidiariesId"
   );
 
   const sixweekcycle = await importHandler(
@@ -50,7 +48,7 @@ const importData = async () => {
     env,
     "Meeting",
     "_meetings.json",
-    ({ participants, projectsDiscussed, newProjects, ...item }) => item
+    ({ participants, timeInvested, ...item }) => item
   );
 
   const projects = await importHandler(
@@ -70,60 +68,65 @@ const importData = async () => {
     })
   );
 
-  const projectUpdates = await createRelation(
-    env,
-    "Projects",
-    "_meetings.json",
-    projects,
-    meetings,
-    "newProjects",
-    "meetingNewProjectsId",
-    searchValInArrayAndReturnObjKey
-  );
-
-  const accountProjects = await createManyToManyTable(
+  await createManyToManyTable(
     env,
     "AccountProjects",
     "_projects.json",
-    accounts,
     projects,
+    accounts,
     "customerIds",
-    "accountId",
     "projectsId",
-    (item) => item
+    "accountId"
   );
 
-  const batchProjects = await createManyToManyTable(
+  await createManyToManyTable(
     env,
     "SixWeekBatchProjects",
     "_projects.json",
-    batches,
     projects,
+    batches,
     "commitmentIds",
-    "sixWeekBatchId",
     "projectsId",
-    (item) => item
+    "sixWeekBatchId"
   );
 
   const people = await importHandler(
     env,
     "Person",
     "_people.json",
-    ({ birtday, ...rest }) => ({ ...rest, birthday: birtday })
+    ({ account, details, ...item }) => item
   );
 
-  // const personAccounts = await createManyToManyTable(env, "PersonAccount", "_personAccount.json", );
+  await createManyToManyTable(
+    env,
+    "PersonAccount",
+    "_people.json",
+    people,
+    accounts,
+    "account",
+    "personId",
+    "accountId"
+  );
 
-  const meetingParticipants = await createManyToManyTable(
+  await createDetailRecord(
+    env,
+    "PersonDetail",
+    "_people.json",
+    people,
+    "details",
+    "personId",
+    "label"
+  );
+
+  await createManyToManyTable(
     env,
     "MeetingParticipant",
     "_meetings.json",
-    people,
     meetings,
+    people,
     "participants",
-    "personId",
     "meetingId",
-    (item) => item
+    "personId"
   );
 
   const activities = await importHandler(
@@ -132,63 +135,20 @@ const importData = async () => {
     "_activities.json",
     ({ fromMeeting, forProjects, ...item }) => ({
       ...item,
-      meetingActivitiesId: meetings.find(
-        ({ notionId }) => notionId === fromMeeting
-      )?.id,
+      ...mapMeetingIdForActivity(fromMeeting, meetings),
     })
   );
 
-  const projectActivities = await createManyToManyTable(
+  await createManyToManyTable(
     env,
     "ProjectActivity",
     "_activities.json",
-    projects,
     activities,
+    projects,
     "forProjects",
-    "projectsId",
     "activityId",
-    (item) => item
+    "projectsId"
   );
-
-  const dayplans = await importHandler(
-    env,
-    "DayPlan",
-    "_dayPlans.json",
-    (item) => item
-  );
-
-  return;
-
-  // DONE:
-  // Account
-  // AccountProjects
-  // Activity
-  // DayPlan
-  // DayProjectTask
-  // Meeting
-  // MeetingParticipant
-  // NonProjectTask
-  // Person
-  // ProjectActivity
-  // Projects
-  // SixWeekCycle
-  // SixWeekBatch
-  // SixWeekBatchProjects
-
-  // WIP:
-
-  // TODO:
-
-  // LATER/OUT-OF-SCOPE:
-  // MeetingDiscussedProject
-  // PersonAccount
 };
 
-const applyContext = async () => {
-  console.log("Apply context to day plans...");
-  await createAndRemapDayPlans(env);
-};
-
-// importData();
-
-// applyContext();
+importData();

@@ -10,6 +10,7 @@ import PersonAccountForm from "./PersonAccountForm";
 import { format } from "date-fns";
 import { Trash2 } from "lucide-react";
 import { filter, flatMap, flow } from "lodash/fp";
+import Link from "next/link";
 
 type PersonAccountsProps = {
   person: Person;
@@ -48,7 +49,14 @@ const PersonAccounts: FC<PersonAccountsProps> = ({
         <div className="flex flex-row gap-2 items-center">
           <div>
             <span>{pa.position}</span>
-            <span className="ml-2 font-semibold">{pa.accountName}</span>
+            <span className="ml-2 font-semibold">
+              <Link
+                href={`/accounts/${pa.accountId}`}
+                className="hover:underline hover:underline-offset-2"
+              >
+                {pa.accountName}
+              </Link>
+            </span>
           </div>
           <PersonAccountForm
             personName={person.name}

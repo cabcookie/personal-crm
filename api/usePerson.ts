@@ -13,6 +13,7 @@ import {
   Linkedin,
   Instagram,
   ExternalLink,
+  AtSign,
 } from "lucide-react";
 const client = generateClient<Schema>();
 
@@ -47,12 +48,13 @@ export type TDetailLabel =
   | "emailPrivate"
   | "emailWork"
   | "salesforce"
-  | "instagram";
+  | "instagram"
+  | "amazonalias";
 
 export type TPersonDetailTypes = {
   fieldLabel: TDetailLabel;
   formLabel: string;
-  type: "url" | "phone" | "email";
+  type: "url" | "phone" | "email" | "string";
   Icon: typeof Phone;
 };
 
@@ -98,6 +100,12 @@ export const personDetailsLabels: TPersonDetailTypes[] = [
     formLabel: "Instagram profile",
     type: "url",
     Icon: Instagram,
+  },
+  {
+    fieldLabel: "amazonalias",
+    formLabel: "Amazon Alias",
+    type: "string",
+    Icon: AtSign,
   },
 ] as const;
 
@@ -177,7 +185,7 @@ export const mapPerson = ({
         startDate: !a.startDate ? undefined : new Date(a.startDate),
         endDate: !a.endDate ? undefined : new Date(a.endDate),
         position: a.position || undefined,
-        isCurrent: !a.endDate || isFuture(a.endDate),
+        isCurrent: !a.endDate || isFuture(new Date(a.endDate)),
       })
     ),
     sortBy((a) => -(a.startDate?.getTime() || 0))
