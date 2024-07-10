@@ -5,30 +5,32 @@ const {
 } = require("@aws-sdk/client-cognito-identity-provider");
 const { fromIni } = require("@aws-sdk/credential-providers");
 const { generatePassword } = require("./generate-pwd");
+const { getAwsProfile } = require("./get-aws-profile");
+const { getUserEmail } = require("./get-user-email");
+const { getEnvironment } = require("../import-data/environments");
 
 /**
- * Creates a new user in the specified user pool.
+ * Gets the current user with the specified Email address. If the user doesn't exist, the user will be created
  *
- * @param {string} userPoolId The Cognito User Pool ID for the user pool.
- * @param {string} userEmail The email address of the user to be created.
- * @param {string} awsProfile The AWS profile to use for authentication.
- * @param {string} awsRegion The AWS region to use for the Cognito Identity Provider client.
- *
- * @returns {string} The ID of the created user.
+ * @returns {string} The ID of the user.
  * @throws Error if the user could not be created.
  *
  * @example
  * const userId = createUser('user-pool-id');
  */
-const createUser = async (userPoolId, userEmail, awsProfile, awsRegion) => {
+const getUser = async () => {
+  const userPoolId = getEnvironment().userPoolId;
+  const awsProfile = getAwsProfile();
+  const userEmail = getUserEmail();
+
   const client = new CognitoIdentityProviderClient({
-    region: awsRegion,
+    region: getEnvironment().region,
     credentials: fromIni({ profile: awsProfile }),
   });
 
   const existingUsers = await client.send(
     new ListUsersCommand({
-      UserPoolId: userPoolId,
+      UserPoolId: getEnvironment().userPoolId,
       Limit: 10,
     })
   );
@@ -36,7 +38,7 @@ const createUser = async (userPoolId, userEmail, awsProfile, awsRegion) => {
   const existingUser = existingUsers.Users.find((u) =>
     u.Attributes.some((a) => a.Name === "email" && a.Value === userEmail)
   );
-  if (existingUser) return existingUser.Username;
+  if (existingUser) return `${existingUser.Username}::${existingUser.Username}`;
 
   const createdUser = await client.send(
     new AdminCreateUserCommand({
@@ -49,9 +51,9 @@ const createUser = async (userPoolId, userEmail, awsProfile, awsRegion) => {
   if (!createdUser.User) throw "No User has been returned";
   if (!createdUser.User.Username) throw "No Username has been returned";
 
-  return createdUser.User.Username;
+  return `${createdUser.User.Username}::${createdUser.User.Username}`;
 };
 
 module.exports = {
-  createUser,
+  getUser,
 };

@@ -13,7 +13,7 @@ const RenderTerritory: FC<RenderTerritoryProps> = ({ territory }) =>
     <div className="flex flex-row gap-1 text-sm items-center text-muted-foreground">
       <Link
         href={`/territories/${territory.id}`}
-        className="hover:text-primary hover:underline"
+        className="hover:text-primary hover:underline hover:underline-offset-2"
       >
         {territory.name}
         {territory.latestQuota === 0

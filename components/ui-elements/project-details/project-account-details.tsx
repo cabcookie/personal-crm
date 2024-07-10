@@ -19,7 +19,10 @@ const AccountName: FC<AccountNameProps> = ({
   removeAccount,
 }) => (
   <div className="flex flex-row gap-2 items-center">
-    <Link href={`/accounts/${accountId}`} className="hover:underline">
+    <Link
+      href={`/accounts/${accountId}`}
+      className="hover:underline hover:underline-offset-2"
+    >
       {accountName}
     </Link>
     {removeAccount && accountName && (

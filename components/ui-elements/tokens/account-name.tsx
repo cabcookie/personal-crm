@@ -21,7 +21,10 @@ const AccountName: FC<AccountNameProps> = ({ accountId, noLinks }) => {
       {noLinks ? (
         account.name
       ) : (
-        <a href={`/accounts/${accountId}`} className="hover:underline">
+        <a
+          href={`/accounts/${accountId}`}
+          className="hover:underline hover:underline-offset-2"
+        >
           {account.name}
         </a>
       )}

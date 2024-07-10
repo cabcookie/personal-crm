@@ -1,48 +1,26 @@
-function compareJSON(obj1, obj2, path = "") {
-  const result = {
-    deleted: [],
-    updated: [],
-    added: [],
-  };
+const { writeFileSync } = require("fs");
+const compareJSON = require("./helpers/compare-json");
+const readFileAndParseJson = require("./helpers/read-file-and-parse-json");
 
-  for (const key in obj1) {
-    const currentPath = path ? `${path}.${key}` : key;
-    if (!(key in obj2)) {
-      result.deleted.push(currentPath);
-    } else if (
-      typeof obj1[key] === "object" &&
-      obj1[key] !== null &&
-      typeof obj2[key] === "object" &&
-      obj2[key] !== null
-    ) {
-      const subResult = compareJSON(obj1[key], obj2[key], currentPath);
-      result.deleted.push(...subResult.deleted);
-      result.updated.push(...subResult.updated);
-      result.added.push(...subResult.added);
-    } else if (obj1[key] !== obj2[key]) {
-      result.updated.push(`${currentPath}: "${obj1[key]}" to "${obj2[key]}"`);
-    }
-  }
-
-  for (const key in obj2) {
-    const currentPath = path ? `${path}.${key}` : key;
-    if (!(key in obj1)) {
-      result.added.push(`${currentPath}: "${obj2[key]}"`);
-    }
-  }
-
-  return result;
+if (process.argv.length !== 4) {
+  console.error("Usage: node compareJsonFiles.js <file1> <file2>");
+  process.exit(1);
 }
+const fileName1 = process.argv[2];
+const fileName2 = process.argv[3];
 
-// Example usage
-const execution1 = require("./temp/execution1.json");
-const execution2 = require("./temp/execution2.json");
+const file1 = readFileAndParseJson(fileName1);
+const file2 = readFileAndParseJson(fileName2);
 
-const differences = compareJSON(execution1, execution2);
+const differences = compareJSON(file1, file2);
 
-console.log("# Deleted:");
-differences.deleted.forEach((d) => console.log(`- ${d}`));
-console.log("# Updated:");
-differences.updated.forEach((u) => console.log(`- ${u}`));
-console.log("# Added:");
-differences.added.forEach((a) => console.log(`- ${a}`));
+const result = [
+  "# Deleted:",
+  ...differences.deleted.map((i) => `- ${i}`),
+  "# Updated:",
+  ...differences.updated.map((i) => `- ${i}`),
+  "# Added:",
+  ...differences.added.map((i) => `- ${i}`),
+].join("\n");
+
+writeFileSync("import-data/compare-json-result.txt", result);

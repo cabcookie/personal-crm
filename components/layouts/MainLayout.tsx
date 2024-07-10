@@ -59,7 +59,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
         <NavigationMenu />
         <main className="w-full xl:w-[64rem]">
           <div className="flex flex-col pb-0">
-            <div className="px-3 md:px-8 lg:px-16">
+            <div className="px-2 md:px-8 lg:px-16 mb-4 md:mb-8">
               <div className="relative flex flex-col flex-1">
                 <CategoryTitle {...(categoryTitleProps || {})} />
                 <div className="flex flex-col flex-1 relative">{children}</div>

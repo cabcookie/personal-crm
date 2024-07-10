@@ -125,12 +125,18 @@ const NotesWriter: FC<NotesWriterProps> = ({
 
   useEffect(() => {
     if (!editor) return;
+    editor.setEditable(!readonly);
+  }, [editor, readonly]);
+
+  useEffect(() => {
+    if (!editor) return;
     editor.setOptions({
       editorProps: {
         attributes: {
           class: cn(
             "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",
             showSaveStatus &&
+              !readonly &&
               !isUpToDate(notes, editor.getJSON()) &&
               "bg-destructive/10"
           ),

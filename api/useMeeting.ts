@@ -7,7 +7,7 @@ import { handleApiErrors } from "./globals";
 import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
 const client = generateClient<Schema>();
 
-type MeetingUpdateProps = {
+export type MeetingUpdateProps = {
   meetingOn: Date;
   title: string;
 };

@@ -49,7 +49,7 @@ const ComboBox: FC<ComboBoxProps> = ({
           variant="outline"
           role="combobox"
           className={cn(
-            "w-full justify-between",
+            "px-2 md:px-4 w-full justify-between",
             !currentValue && "text-muted-foreground"
           )}
         >
