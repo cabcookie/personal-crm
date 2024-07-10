@@ -10,8 +10,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "prepare": "node .husky/install.mjs",
-    "sandbox": "npx ampx sandbox --profile impulso",
-    "create-seed": "node scripts/create-seed-data.js --profile impulso"
+    "sandbox": "npx ampx sandbox --profile impulso"
   },
   "husky": {
     "hooks": {
@@ -51,6 +50,8 @@
     "@tiptap/extension-highlight": "^2.4.0",
     "@tiptap/extension-link": "^2.4.0",
     "@tiptap/extension-placeholder": "^2.4.0",
+    "@tiptap/extension-task-item": "^2.4.0",
+    "@tiptap/extension-task-list": "^2.4.0",
     "@tiptap/pm": "^2.4.0",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",
