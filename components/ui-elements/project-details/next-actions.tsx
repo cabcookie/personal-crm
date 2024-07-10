@@ -1,10 +1,11 @@
+import {
+  EditorJsonContent,
+  getTextFromEditorJsonContent,
+  SerializerOutput,
+} from "@/helpers/ui-notes-writer";
 import { FC, ReactNode } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
-import NotesWriter, {
-  EditorJsonContent,
-  SerializerOutput,
-  getTextFromEditorJsonContent,
-} from "../notes-writer/NotesWriter";
+import NotesWriter from "../notes-writer/NotesWriter";
 import RecordDetails from "../record-details/record-details";
 import { debouncedUpdateActions } from "./project-updates-helpers";
 

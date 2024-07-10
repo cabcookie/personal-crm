@@ -1,75 +1,14 @@
+import {
+  EditorJsonContent,
+  getTasksData,
+  isUpToDate,
+  MyExtensions,
+  SerializerOutput,
+} from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
-import { JSONContent } from "@tiptap/core";
-import Highlight from "@tiptap/extension-highlight";
-import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, generateText, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
-import styles from "./NotesWriter.module.css";
-
-export type EditorJsonContent = JSONContent;
-export type SerializerOutput = {
-  json: EditorJsonContent;
-};
-
-type TransformNotesVersionType = {
-  version?: number | null;
-  notes?: string | null;
-  notesJson?: any;
-};
-
-type GenericObject = { [key: string]: any };
-
-const MyExtensions = [StarterKit, Highlight, Link];
-
-export const getTextFromEditorJsonContent = (
-  json?: EditorJsonContent | string
-) =>
-  !json
-    ? ""
-    : typeof json === "string"
-    ? json
-    : generateText(json, MyExtensions);
-
-const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
-  for (const key in obj1) {
-    const val1 = obj1[key];
-    if (!(key in obj2) && !!val1) return false;
-    else {
-      const val2 = obj2[key];
-      if (
-        typeof val1 === "object" &&
-        val1 !== null &&
-        typeof val2 === "object" &&
-        val2 !== null
-      ) {
-        if (!compareNotes(val1, val2)) return false;
-      } else {
-        if (val1 !== val2) return false;
-      }
-    }
-  }
-  for (const key in obj2) if (!(key in obj1) && !!obj2[key]) return false;
-  return true;
-};
-
-const isUpToDate = (
-  notes: EditorJsonContent | string | undefined,
-  editorJson: EditorJsonContent | undefined
-) => {
-  if (!notes) return false;
-  if (!editorJson) return false;
-  if (typeof notes === "string") return false;
-  return compareNotes(notes, editorJson);
-};
-
-export const transformNotesVersion = ({
-  version,
-  notes,
-  notesJson,
-}: TransformNotesVersionType) =>
-  version === 2 ? (notesJson ? JSON.parse(notesJson) : "") : notes || undefined;
 
 type NotesWriterProps = {
   notes?: EditorJsonContent | string;
@@ -85,16 +24,19 @@ const NotesWriter: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
   autoFocus,
-  placeholder = "Start taking notes...",
   onSubmit,
   readonly,
   showSaveStatus = true,
+  placeholder = "Start taking notes...",
 }) => {
   const editor = useEditor({
     extensions: [
       ...MyExtensions,
       Placeholder.configure({
-        emptyEditorClass: styles.emptyEditor,
+        // emptyNodeClass:
+        //   "text-muted-foreground relative before:content-['/_for_menu,_@_for_mentions'] before:absolute before:left-0",
+        emptyEditorClass:
+          "relative text-muted-foreground before:content-[attr(data-placeholder)] before:absolute before:left-0",
         placeholder,
       }),
     ],
@@ -114,7 +56,8 @@ const NotesWriter: FC<NotesWriterProps> = ({
     content: notes,
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;
-      saveNotes(() => ({ json: editor.getJSON() }));
+      const jsonContent = editor.getJSON();
+      saveNotes(() => ({ json: jsonContent, ...getTasksData(jsonContent) }));
     },
   });
 

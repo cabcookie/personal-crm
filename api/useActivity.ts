@@ -1,9 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
+import { useToast } from "@/components/ui/use-toast";
 import {
   EditorJsonContent,
   transformNotesVersion,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
-import { useToast } from "@/components/ui/use-toast";
+} from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";

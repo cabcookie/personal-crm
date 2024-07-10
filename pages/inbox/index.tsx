@@ -4,11 +4,8 @@ import WorkFlowItem from "@/components/inbox/WorkflowItem";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
 import ToProcessItem from "@/components/ui-elements/list-items/to-process-item";
-import {
-  EditorJsonContent,
-  SerializerOutput,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { Button } from "@/components/ui/button";
+import { EditorJsonContent, SerializerOutput } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
 import { Plus } from "lucide-react";
 import { GrCycle } from "react-icons/gr";

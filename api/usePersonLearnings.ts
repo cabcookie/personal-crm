@@ -1,15 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
+import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
+import { toast } from "@/components/ui/use-toast";
+import { toISODateString } from "@/helpers/functional";
 import {
   EditorJsonContent,
   transformNotesVersion,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
-import { toISODateString } from "@/helpers/functional";
+} from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { toast } from "@/components/ui/use-toast";
-import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
 const client = generateClient<Schema>();
 
 export type PersonLearning = {

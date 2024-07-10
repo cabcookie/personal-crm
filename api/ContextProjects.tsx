@@ -1,12 +1,12 @@
 import { type Schema } from "@/amplify/data/resource";
-import {
-  EditorJsonContent,
-  transformNotesVersion,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
+import {
+  EditorJsonContent,
+  transformNotesVersion,
+} from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import { filter, flow, get, join, map, sortBy } from "lodash/fp";

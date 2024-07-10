@@ -1,6 +1,0 @@
-.emptyEditor:first-child::before {
-  color: hsl(var(--muted-foreground));
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-}
