@@ -6,26 +6,7 @@
 - Point-in-time recovery für alle DynamoDB Tabellen aktiviert.
 - Sortierung von Aktivitäten in Notizen einer Person korrigiert.
 - Import-Skripte angepasst, so dass bestehende Daten für Personen importiert werden können.
-
-In Arbeit:
-
-- Ein Meeting sollte mehr Details zu einer Person anzeigen können (Accordions).
-- Die UI für Meetings auf Mobiltelefonen kompakter machen.
-
-- Details zu Personen ermöglichen (Geschenkideen, Beziehung zu anderen Personen).
-- In der Meeting Liste ist das Accordion für Teilnehmer nicht korrekt implementiert. Es fehlt der Kopf.
-- Bei Accounts sollten nun auch Personen angezeigt werden können, die damit in Beziehung stehen.
-- Bei Accounts sollte im Accordion für Projekte eine Vorschau für offene Projekte existieren. (???)
-- Bei Kontaktdetails Links hinzufügen (E-Mail schreiben, PhoneTool, Slack Message, Profil öffnen)
-
-Später:
-
-- Ein Meeting soll eine feste Struktur haben:
-  - Name des Meetings
-  - Datum/Uhrzeit
-  - Teilnehmer
-  - Agenda
-  - Notizen zu jedem Agendapunkt, inkl. Vereinbarungen und wer diese verantwortet
-- Ein Meeting soll nur ein einziges Notizfeld haben, in dem alle Infos bearbeitet werden können.
-- Meetingzusammenfassung mithilfe von Bedrock erstellen lassen
-- Unterstützung für Bilder in Notizen ermöglichen.
+- In der Meeting Liste ist nun für die Teilnehmer ein korrekter Kopf implementiert.
+- In der Meeting Detailansicht, werden die Teilnehmer nun in einem Accordion angezeigt und somit können die Details zur Person eingesehen werden.
+- Die UI ist etwas mehr für Mobiltelefone optimiert. Ränder sind etwas reduziert worden und abhängig von der Bildschrimgröße, so dass sie insgesamt etwas kompakter wird.
+- Bei Accounts werden nun auch Personen angezeigt, die damit in Beziehung stehen.

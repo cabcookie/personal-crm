@@ -36,6 +36,7 @@ const personSchmema = {
       endDate: a.date(),
       position: a.string(),
     })
+    .secondaryIndexes((index) => [index("accountId")])
     .authorization((allow) => [allow.owner()]),
   PersonDetail: a
     .model({

@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 export const sortResponsibility = (r: Responsibility): number =>
   -r.startDate.getTime();
 
-export type ResponsibilityData = {
+type ResponsibilityData = {
   id: string;
   startDate: string;
   endDate?: string | null;
@@ -24,7 +24,7 @@ export type Responsibility = {
   quota?: number;
 };
 
-export const addEndDates = (
+const addEndDates = (
   prev: Responsibility[],
   curr: Responsibility
 ): Responsibility[] => {
@@ -51,7 +51,7 @@ export const mapResponsibilities: (
     reduce(addEndDates, [])
   );
 
-export const mapResponsibility =
+const mapResponsibility =
   (parentId: string, parentTitle: string) =>
   ({ id, startDate, quota }: ResponsibilityData): Responsibility => ({
     id,

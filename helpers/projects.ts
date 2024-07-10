@@ -26,7 +26,7 @@ interface ProjectProps {
   crmProjects: CrmDataProps[];
 }
 
-export interface ICalcRevenueTwoYears {
+interface ICalcRevenueTwoYears {
   arr: number;
   tcv: number;
   closeDate: Date;
@@ -34,13 +34,13 @@ export interface ICalcRevenueTwoYears {
   stage: TCrmStages;
 }
 
-export const calcProjectOrder =
+const calcProjectOrder =
   (pipeline: number) => (accountQuota: number | undefined) =>
     calcOrder(accountQuota || 0, pipeline);
 
 const maxOfArray = (val: number[]): number => max(val) || 0;
 
-export const getProbability = (stage: string): number =>
+const getProbability = (stage: string): number =>
   (STAGES_PROBABILITY.find((s) => s.stage === stage)?.probability || 0) / 100;
 
 export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
@@ -73,7 +73,7 @@ export const calcPipeline = (projects: CalcPipelineProps[]): number =>
     Math.floor
   )(projects);
 
-export const updateProjectOrder =
+const updateProjectOrder =
   (accounts: Account[] | undefined) =>
   (project: Project): Project => ({
     ...project,
@@ -91,7 +91,7 @@ export const make2YearsRevenueText = (revenue: number) =>
 export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
   make2YearsRevenueText(flow(map(calcRevenueTwoYears), sum)(projects));
 
-export const filterByProjectStatus =
+const filterByProjectStatus =
   (accountId: string | undefined, projectFilter: ProjectFilters | undefined) =>
   ({ accountIds, done, onHoldTill }: Project) =>
     accountId

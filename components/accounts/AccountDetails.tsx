@@ -21,6 +21,7 @@ import AccountsList from "./AccountsList";
 import ListPayerAccounts from "./ListPayerAccounts";
 import ListTerritories from "./ListTerritories";
 import ProjectList from "./ProjectList";
+import AccountPeople from "./AccountPeople";
 
 type AccountDetailsProps = {
   account: Account;
@@ -145,14 +146,11 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           <ProjectList accountId={account.id} />
         </DefaultAccordionItem>
 
-        <DefaultAccordionItem
-          value="Contacts"
-          triggerTitle="Contacts"
+        <AccountPeople
+          accountId={account.id}
           isVisible={!!showContacts}
           accordionSelectedValue={accordionValue}
-        >
-          WORK IN PROGRESS
-        </DefaultAccordionItem>
+        />
 
         <AccountNotes
           accountId={account.id}

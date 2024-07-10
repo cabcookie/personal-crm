@@ -12,15 +12,6 @@ import { toast } from "@/components/ui/use-toast";
 import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
 const client = generateClient<Schema>();
 
-export type PersonLearningCreateProps = {
-  learning?: EditorJsonContent | string;
-  learnedOn?: Date;
-};
-
-export type PersonLearningUpdateProps = PersonLearningCreateProps & {
-  personLearningId: string;
-};
-
 export type PersonLearning = {
   id: string;
   learning: EditorJsonContent | string;
