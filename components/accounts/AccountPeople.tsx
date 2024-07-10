@@ -1,8 +1,7 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import useAccountPeople from "@/api/useAccountPeople";
-import { Accordion } from "../ui/accordion";
-import PersonDetails from "../people/PersonDetails";
+import PeopleList from "../people/PeopleList";
 
 type AccountPeopleProps = {
   accountId: string;
@@ -16,9 +15,6 @@ const AccountPeople: FC<AccountPeopleProps> = ({
   isVisible = true,
 }) => {
   const { people } = useAccountPeople(accountId);
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return (
     <DefaultAccordionItem
@@ -28,18 +24,7 @@ const AccountPeople: FC<AccountPeopleProps> = ({
       isVisible={isVisible}
       accordionSelectedValue={accordionSelectedValue}
     >
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
-        {people?.map(({ id: personId }) => (
-          <PersonDetails personId={personId} key={personId} />
-        ))}
-      </Accordion>
+      <PeopleList personIds={people?.map((p) => p.id)} />
     </DefaultAccordionItem>
   );
 };

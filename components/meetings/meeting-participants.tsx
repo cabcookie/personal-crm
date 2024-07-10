@@ -1,9 +1,8 @@
 import usePeople from "@/api/usePeople";
-import { FC, useState } from "react";
-import PersonDetails from "../people/PersonDetails";
+import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { Accordion } from "../ui/accordion";
 import PeopleSelector from "../ui-elements/selectors/people-selector";
+import PeopleList from "../people/PeopleList";
 
 type MeetingParticipantsProps = {
   participantIds: string[];
@@ -17,9 +16,6 @@ const MeetingParticipants: FC<MeetingParticipantsProps> = ({
   addParticipant,
 }) => {
   const { getNamesByIds } = usePeople();
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return (
     participantIds.length > 0 && (
@@ -39,22 +35,7 @@ const MeetingParticipants: FC<MeetingParticipantsProps> = ({
         )}
         <div className="my-2" />
 
-        <Accordion
-          type="single"
-          collapsible
-          value={accordionValue}
-          onValueChange={(val) =>
-            setAccordionValue(val === accordionValue ? undefined : val)
-          }
-        >
-          {participantIds?.map((personId) => (
-            <PersonDetails
-              personId={personId}
-              key={personId}
-              showNotes={false}
-            />
-          ))}
-        </Accordion>
+        <PeopleList personIds={participantIds} showNotes={false} />
       </DefaultAccordionItem>
     )
   );
