@@ -1,6 +1,6 @@
 {
   "name": "personal-crm",
-  "version": "1.22.1",
+  "version": "1.23.0",
   "private": true,
   "scripts": {
     "install-dependencies": "npm i",
