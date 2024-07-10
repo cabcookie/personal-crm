@@ -31,6 +31,7 @@ const AccountsListPage = () => {
         <div>
           <AccountsList
             showProjects
+            showContacts
             accounts={accounts.filter(
               (a) => !a.controller && a.latestQuota > 0
             )}
@@ -43,6 +44,8 @@ const AccountsListPage = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <AccountsList
+                  showProjects
+                  showContacts
                   accounts={accounts.filter(
                     (a) => !a.controller && a.latestQuota === 0
                   )}
