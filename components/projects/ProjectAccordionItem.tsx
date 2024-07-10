@@ -8,48 +8,50 @@ import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem"
 import ProjectDetails from "../ui-elements/project-details/project-details";
 
 type ProjectAccordionItemProps = {
-  project: Project;
+  project?: Project;
   accordionSelectedValue?: string;
   showNotes?: boolean;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
-  project: {
-    id: projectId,
-    project,
-    doneOn,
-    dueOn,
-    onHoldTill,
-    accountIds,
-    crmProjects,
-  },
+  project,
   accordionSelectedValue,
   showNotes = true,
 }) => {
   const { getAccountById } = useAccountsContext();
 
   return (
-    <DefaultAccordionItem
-      value={projectId}
-      triggerTitle={project}
-      className="tracking-tight"
-      accordionSelectedValue={accordionSelectedValue}
-      link={`/projects/${projectId}`}
-      triggerSubTitle={[
-        doneOn && `Done on: ${format(doneOn, "PPP")}`,
-        onHoldTill && !doneOn && `On hold till: ${format(onHoldTill, "PPP")}`,
-        flow(map(calcRevenueTwoYears), sum, make2YearsRevenueText)(crmProjects),
-        dueOn && !doneOn && `Due on: ${format(dueOn, "PPP")}`,
-        ...flow(map(getAccountById), map(get("name")))(accountIds),
-      ]}
-    >
-      <ProjectDetails
-        projectId={projectId}
-        showCrmDetails
-        includeAccounts
-        showNotes={showNotes}
-      />
-    </DefaultAccordionItem>
+    project && (
+      <DefaultAccordionItem
+        value={project.id}
+        triggerTitle={project.project}
+        className="tracking-tight"
+        accordionSelectedValue={accordionSelectedValue}
+        link={`/projects/${project.id}`}
+        triggerSubTitle={[
+          project.doneOn && `Done on: ${format(project.doneOn, "PPP")}`,
+          project.onHoldTill &&
+            !project.doneOn &&
+            `On hold till: ${format(project.onHoldTill, "PPP")}`,
+          flow(
+            map(calcRevenueTwoYears),
+            sum,
+            make2YearsRevenueText
+          )(project.crmProjects),
+          project.dueOn &&
+            !project.doneOn &&
+            `Due on: ${format(project.dueOn, "PPP")}`,
+          ...flow(map(getAccountById), map(get("name")))(project.accountIds),
+        ]}
+      >
+        <ProjectDetails
+          projectId={project.id}
+          showCrmDetails
+          includeAccounts
+          showNotes={showNotes}
+        />
+      </DefaultAccordionItem>
+    )
   );
 };
 

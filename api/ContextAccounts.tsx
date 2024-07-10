@@ -98,10 +98,7 @@ const selectionSet = [
   "payerAccounts.awsAccountNumber",
 ] as const;
 
-export type AccountData = SelectionSet<
-  Schema["Account"]["type"],
-  typeof selectionSet
->;
+type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
 export type SubsidiaryData = AccountData["subsidiaries"][number];
 export type TerritoryData = AccountData["territories"][number];
 export type AccountProjectData = AccountData["projects"][number];

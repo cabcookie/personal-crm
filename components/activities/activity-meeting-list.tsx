@@ -24,40 +24,40 @@ const ActivityMeetingList: FC<ActivityMeetingListProps> = ({
     undefined
   );
 
-  return !meeting ? (
-    "Loading…"
-  ) : (
-    <DefaultAccordionItem
-      value="meetings"
-      triggerTitle="For meeting"
-      triggerSubTitle={[
-        meeting?.topic,
-        meeting?.meetingOn && `On: ${format(meeting?.meetingOn, "PPp")}`,
-        ...flow(
-          filter(
-            (person: Person) => !!meeting?.participantIds.includes(person.id)
-          ),
-          map((p) => p.name)
-        )(people),
-      ]}
-      className="tracking-tight"
-      accordionSelectedValue={accordionSelectedValue}
-      isVisible={showMeeting && !!meeting}
-    >
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
+  return (
+    meeting && (
+      <DefaultAccordionItem
+        value="meetings"
+        triggerTitle="For meeting"
+        triggerSubTitle={[
+          meeting?.topic,
+          meeting?.meetingOn && `On: ${format(meeting?.meetingOn, "PPp")}`,
+          ...flow(
+            filter(
+              (person: Person) => !!meeting?.participantIds.includes(person.id)
+            ),
+            map((p) => p.name)
+          )(people),
+        ]}
+        className="tracking-tight"
+        accordionSelectedValue={accordionSelectedValue}
+        isVisible={showMeeting && !!meeting}
       >
-        <MeetingAccordionItem
-          meeting={meeting}
-          accordionSelectedValue={accordionValue}
-        />
-      </Accordion>
-    </DefaultAccordionItem>
+        <Accordion
+          type="single"
+          collapsible
+          value={accordionValue}
+          onValueChange={(val) =>
+            setAccordionValue(val === accordionValue ? undefined : val)
+          }
+        >
+          <MeetingAccordionItem
+            meeting={meeting}
+            accordionSelectedValue={accordionValue}
+          />
+        </Accordion>
+      </DefaultAccordionItem>
+    )
   );
 };
 

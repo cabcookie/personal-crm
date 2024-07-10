@@ -7,6 +7,7 @@ import PersonUpdateForm from "./PersonUpdateForm";
 import PersonAccounts from "./PersonAccounts";
 import PersonContactDetails from "./PersonContactDetails";
 import PersonLearnings from "./PersonLearnings";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
 type PersonDetailsProps = {
   personId: string;
@@ -38,7 +39,13 @@ const PersonDetails: FC<PersonDetailsProps> = ({
 
   return (
     person && (
-      <>
+      <DefaultAccordionItem
+        value={person.id}
+        triggerTitle={person.name}
+        triggerSubTitle={person.accounts
+          .filter((a) => a.isCurrent)
+          .flatMap((a) => [a.position, a.accountName])}
+      >
         <div className="ml-2">
           <PersonUpdateForm
             person={person}
@@ -87,7 +94,7 @@ const PersonDetails: FC<PersonDetailsProps> = ({
             showNotes={showNotes}
           />
         </Accordion>
-      </>
+      </DefaultAccordionItem>
     )
   );
 };

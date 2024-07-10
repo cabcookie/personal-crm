@@ -44,6 +44,7 @@ const AccountDetailPage = () => {
           account={account}
           showIntroduction
           showProjects
+          showContacts
           showAwsAccounts
           showTerritories
           updateFormControl={{

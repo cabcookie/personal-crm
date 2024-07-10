@@ -6,12 +6,14 @@ type PeopleSelectorProps = {
   value: string;
   onChange: (personId: string | null) => void;
   allowNewPerson?: boolean;
+  placeholder?: string;
 };
 
 const PeopleSelector: FC<PeopleSelectorProps> = ({
   value,
   onChange,
   allowNewPerson,
+  placeholder = "Search person…",
 }) => {
   const { people, createPerson } = usePeople();
 
@@ -23,7 +25,7 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
   return (
     <ComboBox
       currentValue={value}
-      placeholder="Search person…"
+      placeholder={placeholder}
       noSearchResultMsg="No person found."
       onChange={onChange}
       onCreate={allowNewPerson ? onCreate : undefined}

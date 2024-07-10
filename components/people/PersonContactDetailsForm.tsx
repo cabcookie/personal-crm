@@ -43,6 +43,7 @@ const phoneValidation = z
   .string()
   .regex(/^\+?[\d\s-]{10,15}$/, "Please enter a valid phone number");
 const emailValidation = z.string().email("Please enter a valid email address");
+const stringValidation = z.string().min(2);
 
 type TValidationSchemaMap = {
   [key in TDetailLabel]: typeof FormSchema;
@@ -58,7 +59,9 @@ const validationSchemaMap: TValidationSchemaMap = personDetailsLabels.reduce(
           ? makeUrlValidation(rest.formLabel)
           : rest.type === "email"
           ? emailValidation
-          : phoneValidation,
+          : rest.type === "phone"
+          ? phoneValidation
+          : stringValidation,
     }),
   }),
   {} as TValidationSchemaMap

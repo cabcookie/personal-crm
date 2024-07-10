@@ -18,7 +18,7 @@ const CrmLink: FC<CrmLinkProps> = ({ category, id, className }) =>
         href={makeCrmLink(category, id)}
         target="_blank"
         className={cn(
-          "text-[--context-color] hover:text-accent-foreground hover:underline",
+          "text-[--context-color] hover:text-accent-foreground hover:underline hover:underline-offset-2",
           className
         )}
       >
