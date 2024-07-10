@@ -3,11 +3,11 @@ const {
   UpdateItemCommand,
 } = require("@aws-sdk/client-dynamodb");
 const { fromIni } = require("@aws-sdk/credential-providers");
-const { getTable } = require("../import-data/tables");
+const { getTable, getEnvironment } = require("../import-data/environments");
 const { getAwsProfile } = require("./get-aws-profile");
 const { mapDdbToObject } = require("./map-ddb-object");
 const { flow, map, filter, flatMap, get } = require("lodash/fp");
-const region = "eu-west-1";
+const region = getEnvironment().region;
 const profile = getAwsProfile();
 const client = new DynamoDBClient({
   region,
@@ -25,7 +25,6 @@ const {
   createTableItem,
   stdLog,
   mapNotionIdToId,
-  env,
 } = require("./filter-and-mapping");
 const { getUser } = require("./get-user");
 
@@ -51,12 +50,12 @@ const createManyToManyTable = async (
   sourceFieldName,
   targetFieldName
 ) => {
-  const TableName = getTable(manyToManyTableName, env);
+  const TableName = getTable(manyToManyTableName);
   const log = stdLog(
     `[${TableName}] [CREATE N:N RELATION] [${sourceJsonFileName}]:`
   );
   log("start import");
-  const owner = await getUser(env, region);
+  const owner = await getUser();
   const ddbData = await getExistingRecords(TableName, owner, client);
   const count = ddbData.Count;
   log(`Items in table: ${count}`);
@@ -128,7 +127,7 @@ const createRelation = async (
   linkFieldName,
   newFieldName
 ) => {
-  const TableName = getTable(tableName, env);
+  const TableName = getTable(tableName);
   const log = stdLog(`[${TableName}] [CREATE RELATION]:`);
   log(`create relationship between "${linkFieldName}" and "${newFieldName}"`);
   const changeSets = flow(
@@ -182,8 +181,8 @@ const createDetailRecord = async (
   targetFieldName,
   compareFieldName
 ) => {
-  const TableName = getTable(tableName, env);
-  const owner = await getUser(env, region);
+  const TableName = getTable(tableName);
+  const owner = await getUser();
   const log = stdLog(`[${TableName}] [IMPORT DATA] [${jsonFileName}]:`);
   log("start import");
   const ddbData = await getExistingRecords(TableName, owner, client);
@@ -234,13 +233,13 @@ const createDetailRecord = async (
  * @returns the imported data
  */
 const importHandler = async (tableName, jsonFileName, mapArrayToDdb) => {
-  const TableName = getTable(tableName, env);
+  const TableName = getTable(tableName);
   const log = stdLog(`[${TableName}] [IMPORT DATA] [${jsonFileName}]:`);
   log("start import");
   const jsonData = JSON.parse(
     fs.readFileSync(`import-data/${jsonFileName}`, "utf8")
   );
-  const owner = await getUser(env, region);
+  const owner = await getUser();
   const ddbData = await getExistingRecords(TableName, owner, client);
   const count = ddbData.Count;
   log(`Items in table: ${count}`);

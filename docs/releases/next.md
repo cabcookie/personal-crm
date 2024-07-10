@@ -10,3 +10,4 @@
 - In der Meeting Detailansicht, werden die Teilnehmer nun in einem Accordion angezeigt und somit können die Details zur Person eingesehen werden.
 - Die UI ist etwas mehr für Mobiltelefone optimiert. Ränder sind etwas reduziert worden und abhängig von der Bildschrimgröße, so dass sie insgesamt etwas kompakter wird.
 - Bei Accounts werden nun auch Personen angezeigt, die damit in Beziehung stehen.
+- Der Import von Daten wird nun besser in der README.md beschrieben und die Umgebungsdaten werden nicht mehr in GitHub geteilt.

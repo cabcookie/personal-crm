@@ -10,17 +10,32 @@ With Personal CRM you can cover your work and family life as well as your hobbie
 
 ### Environment Configuration (WIP)
 
-In sandbox environments you can create seed data with `npm run create-seed`.
-To run the script, you need to provide environment-specific configuration details. This information should be stored in a `env.json` file located in the `scripts/seed-data` directory.
+In sandbox environments you can create seed data with `node scripts/start-import.js --environment [ENVIRONMENT-NAME] --email info@example.com`.
+To run the script, you need to provide environment-specific configuration details. This information should be stored in a `env.json` file located in the `scripts` directory.
 
-1. Create a file named `env.json` in the `scripts/seed-data` directory.
+1. Create a file named `env.json` in the `scripts` directory.
 2. Add the following content to the `env.json` file, replacing the placeholders with your actual values:
 
    ```json
    {
-     "environmentId": "your-environment-id",
-     "userPoolId": "your-user-pool-id",
-     "userEmail": "example@example.com"
+     "staging": {
+       "tables": "your-environment-id",
+       "userPoolId": "your-user-pool-id",
+       "profile": "the-aws-profile-from-your-config",
+       "region": "your-aws-region"
+     },
+     "prod": {
+       "tables": "your-environment-id",
+       "userPoolId": "your-user-pool-id",
+       "profile": "the-aws-profile-from-your-config",
+       "region": "your-aws-region"
+     },
+     "dev": {
+       "tables": "your-environment-id",
+       "userPoolId": "your-user-pool-id",
+       "profile": "the-aws-profile-from-your-config",
+       "region": "your-aws-region"
+     }
    }
    ```
 

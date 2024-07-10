@@ -1,10 +1,30 @@
-const { ScanCommand, PutItemCommand } = require("@aws-sdk/client-dynamodb");
+const {
+  ScanCommand,
+  PutItemCommand,
+  DynamoDBClient,
+  ListTablesCommand,
+} = require("@aws-sdk/client-dynamodb");
 const { mapObjectToDdb } = require("./map-ddb-object");
 const uuid = require("./uuid");
 const { createWriteStream } = require("fs");
 const { format } = require("util");
-const { environmentId } = require("../import-data/tables");
-const env = "dev";
+const { getEnvironment } = require("../import-data/environments");
+const { getAwsProfile } = require("./get-aws-profile");
+const { fromIni } = require("@aws-sdk/credential-providers");
+
+const logTables = async () => {
+  const log = stdLog("logTables");
+  log("Start…");
+  const region = getEnvironment().region;
+  const profile = getAwsProfile();
+  const client = new DynamoDBClient({
+    region,
+    credentials: fromIni({ profile }),
+  });
+  log("environment", { region, profile });
+  const result = await client.send(new ListTablesCommand({}));
+  log("TableNames", result.TableNames);
+};
 
 const skipExistingRecord = (targetArray, newFieldName, item) =>
   targetArray.some((target) => target.id === item.id && !!target[newFieldName]);
@@ -111,9 +131,12 @@ const itemsWithLinks = (linkFieldName) => (item) =>
   !!item[linkFieldName] &&
   (!Array.isArray(item[linkFieldName]) || item[linkFieldName].length > 0);
 
-const logFile = createWriteStream(`import-data/${environmentId[env]}.log`, {
-  flags: "a",
-});
+const logFile = createWriteStream(
+  `import-data/${getEnvironment().tables}.log`,
+  {
+    flags: "a",
+  }
+);
 
 const _writeLog = (...args) => {
   console.log(...args);
@@ -152,5 +175,5 @@ module.exports = {
   mapMeetingIdForActivity,
   mapNotionIdToId,
   stdLog,
-  env,
+  logTables,
 };

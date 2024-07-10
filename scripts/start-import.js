@@ -1,4 +1,7 @@
-const { mapMeetingIdForActivity } = require("./helpers/filter-and-mapping");
+const {
+  mapMeetingIdForActivity,
+  logTables,
+} = require("./helpers/filter-and-mapping");
 const {
   importHandler,
   createManyToManyTable,
@@ -160,3 +163,5 @@ const importData = async () => {
 };
 
 importData();
+
+// logTables();

@@ -7,13 +7,10 @@ const { fromIni } = require("@aws-sdk/credential-providers");
 const { generatePassword } = require("./generate-pwd");
 const { getAwsProfile } = require("./get-aws-profile");
 const { getUserEmail } = require("./get-user-email");
-const { userPools } = require("../import-data/tables");
+const { getEnvironment } = require("../import-data/environments");
 
 /**
  * Gets the current user with the specified Email address. If the user doesn't exist, the user will be created
- *
- * @param {"dev" | "prod"} env The environment in which the operation should be proceeded ('dev' or 'prod')
- * @param {string} awsRegion The AWS region to use for the Cognito Identity Provider client.
  *
  * @returns {string} The ID of the user.
  * @throws Error if the user could not be created.
@@ -21,19 +18,19 @@ const { userPools } = require("../import-data/tables");
  * @example
  * const userId = createUser('user-pool-id');
  */
-const getUser = async (env, awsRegion) => {
-  const userPoolId = userPools[env].Id;
+const getUser = async () => {
+  const userPoolId = getEnvironment().userPoolId;
   const awsProfile = getAwsProfile();
   const userEmail = getUserEmail();
 
   const client = new CognitoIdentityProviderClient({
-    region: awsRegion,
+    region: getEnvironment().region,
     credentials: fromIni({ profile: awsProfile }),
   });
 
   const existingUsers = await client.send(
     new ListUsersCommand({
-      UserPoolId: userPoolId,
+      UserPoolId: getEnvironment().userPoolId,
       Limit: 10,
     })
   );
