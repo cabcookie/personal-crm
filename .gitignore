@@ -41,3 +41,4 @@ amplifyconfiguration*
 amplify_outputs.json
 scripts/import-data/*
 scripts/seed-data/env.json
+scripts/env.json
