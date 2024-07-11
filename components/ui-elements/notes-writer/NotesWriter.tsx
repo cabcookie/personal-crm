@@ -1,3 +1,6 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
+import usePeople from "@/api/usePeople";
+import { PersonAccount } from "@/api/usePerson";
 import {
   EditorJsonContent,
   getTasksData,
@@ -5,9 +8,12 @@ import {
   MyExtensions,
   SerializerOutput,
 } from "@/helpers/ui-notes-writer";
+import { atMentionSuggestions } from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
+import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
+import { flow, map } from "lodash/fp";
 import { FC, useEffect } from "react";
 
 type NotesWriterProps = {
@@ -24,14 +30,31 @@ const NotesWriter: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
   autoFocus,
-  onSubmit,
+  // onSubmit,
   readonly,
   showSaveStatus = true,
   placeholder = "Start taking notes...",
 }) => {
+  const { people } = usePeople();
+  const { getAccountNamesByIds } = useAccountsContext();
+
   const editor = useEditor({
     extensions: [
       ...MyExtensions,
+      Mention.configure({
+        suggestion: atMentionSuggestions({
+          items: people?.map(({ id, name, accounts }) => ({
+            category: "person",
+            id,
+            label: name,
+            information: flow(
+              map((pa: PersonAccount) => pa.accountId),
+              getAccountNamesByIds
+            )(accounts),
+          })),
+        }),
+      }),
+
       Placeholder.configure({
         // emptyNodeClass:
         //   "text-muted-foreground relative before:content-['/_for_menu,_@_for_mentions'] before:absolute before:left-0",
@@ -42,17 +65,17 @@ const NotesWriter: FC<NotesWriterProps> = ({
     ],
     autofocus: autoFocus,
     editable: !readonly,
-    editorProps: {
-      handleKeyDown: (view, event) => {
-        if (!onSubmit) return false;
-        if (event.metaKey && event.key === "Enter") {
-          event.preventDefault();
-          onSubmit(view.state.doc.toJSON());
-          return true;
-        }
-        return false;
-      },
-    },
+    // editorProps: {
+    //   handleKeyDown: (view, event) => {
+    //     if (!onSubmit) return false;
+    //     if (event.metaKey && event.key === "Enter") {
+    //       event.preventDefault();
+    //       onSubmit(view.state.doc.toJSON());
+    //       return true;
+    //     }
+    //     return false;
+    //   },
+    // },
     content: notes,
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;

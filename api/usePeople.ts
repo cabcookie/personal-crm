@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
-import { filter, flow, join, map } from "lodash/fp";
+import { filter, flow, join, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Person, mapPerson, selectionSet } from "./usePerson";
@@ -12,7 +12,10 @@ const fetchPeople = async () => {
     selectionSet,
   });
   if (errors) throw errors;
-  return data.map(mapPerson);
+  return flow(
+    map(mapPerson),
+    sortBy((p) => -p.updatedAt.getTime())
+  )(data);
 };
 
 const usePeople = () => {
@@ -27,6 +30,7 @@ const usePeople = () => {
     const newPerson: Person = {
       id: crypto.randomUUID(),
       name,
+      updatedAt: new Date(),
       details: [],
       accounts: [],
     };
