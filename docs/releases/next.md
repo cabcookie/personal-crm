@@ -1,7 +1,4 @@
 # Bilder unterstützen (Version :VERSION)
 
 - Der Anwender kann nun ein Profilbild hochladen.
-
-In Arbeit:
-
-- Bilder in den Notizen einfügen.
+- In den Notizen lassen sich nun Bilder einfügen.
