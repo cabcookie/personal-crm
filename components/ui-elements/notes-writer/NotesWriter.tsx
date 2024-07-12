@@ -135,28 +135,50 @@ const NotesWriter: FC<NotesWriterProps> = ({
     },
   });
 
-  const dispatchImage = (view: EditorView, pos: number, url: string) => {
+  const dispatchImage = (view: EditorView, url: string, fileName: string) => {
     const { schema } = view.state;
-    const node = schema.nodes.s3image.create({
-      src: url,
-    });
-    const transaction = view.state.tr.insert(pos, node);
-    view.dispatch(transaction);
+    const { tr } = view.state;
+    const pos = view.state.selection.from;
+    tr.insert(pos, schema.nodes.hardBreak.create());
+    tr.insert(pos + 1, schema.nodes.paragraph.create());
+    tr.insert(
+      pos + 2,
+      schema.nodes.s3image.create({
+        src: url,
+        fileKey: fileName,
+      })
+    );
+    view.dispatch(tr);
   };
 
   const updateImageSrc = (
     view: EditorView,
-    pos: number,
     url: string,
     s3Key: string,
-    expiresAt: string
+    expiresAt: string,
+    fileName: string
   ) => {
-    const transaction = view.state.tr.setNodeMarkup(pos, undefined, {
-      src: url,
-      s3Key,
-      expiresAt,
+    const { state, dispatch } = view;
+    const { tr, doc } = state;
+    let pos: number | null = null;
+
+    doc.descendants((node, nodePos) => {
+      if (node.type.name === "s3image" && node.attrs.fileKey === fileName) {
+        pos = nodePos;
+        return false;
+      }
+      return true;
     });
-    view.dispatch(transaction);
+
+    if (pos !== null) {
+      const transaction = tr.setNodeMarkup(pos, undefined, {
+        src: url,
+        s3Key,
+        expiresAt,
+        fileKey: fileName,
+      });
+      dispatch(transaction);
+    }
   };
 
   const handlePastingImage = async (
@@ -165,11 +187,10 @@ const NotesWriter: FC<NotesWriterProps> = ({
   ) => {
     const file = item.getAsFile();
     if (!file) return false;
-
-    const pos = view.state.selection.from;
-    dispatchImage(view, pos - 1, URL.createObjectURL(file));
-
     const fileName = `${crypto.randomUUID()}-${file.name}`;
+
+    dispatchImage(view, URL.createObjectURL(file), fileName);
+
     const { path: s3Path } = await uploadData({
       path: ({ identityId }) => `user-files/${identityId}/${fileName}`,
       data: file,
@@ -179,7 +200,13 @@ const NotesWriter: FC<NotesWriterProps> = ({
     }).result;
 
     const { url, expiresAt } = await getUrl({ path: s3Path });
-    updateImageSrc(view, pos, url.toString(), s3Path, expiresAt.toISOString());
+    updateImageSrc(
+      view,
+      url.toString(),
+      s3Path,
+      expiresAt.toISOString(),
+      fileName
+    );
     return true;
   };
 
