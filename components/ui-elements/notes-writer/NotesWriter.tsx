@@ -4,12 +4,12 @@ import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Typography from "@tiptap/extension-typography";
+import { EditorView } from "@tiptap/pm/view";
 import { EditorContent, generateText, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { getUrl, uploadData } from "aws-amplify/storage";
 import { FC, useEffect } from "react";
 import styles from "./NotesWriter.module.css";
-import { EditorView } from "@tiptap/pm/view";
-import { getUrl, uploadData } from "aws-amplify/storage";
 import S3ImageExtension from "./S3ImageExtension";
 
 export type EditorJsonContent = JSONContent;
@@ -34,7 +34,10 @@ export const getTextFromEditorJsonContent = (
     ? ""
     : typeof json === "string"
     ? json
-    : generateText(json, MyExtensions);
+    : generateText(
+        { ...json, content: json.content?.filter((c) => c.type !== "s3image") },
+        MyExtensions
+      );
 
 const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
   for (const key in obj1) {
