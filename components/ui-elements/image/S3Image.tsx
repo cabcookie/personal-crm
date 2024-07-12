@@ -1,8 +1,9 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { getUrl } from "aws-amplify/storage";
+import { StorageImage } from "@aws-amplify/ui-react-storage";
+// import "@aws-amplify/ui-react/styles.css";
 import Image from "next/image";
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 
 type S3ImageProps = {
   imgKey?: string;
@@ -22,31 +23,8 @@ const S3Image: FC<S3ImageProps> = ({
   noImagePlaceholder = "No image provided.",
   width = 200,
   height = 200,
-}) => {
-  const [imageUrl, setImgUrl] = useState<string | undefined>(tempUrl);
-
-  useEffect(() => {
-    if (!tempUrl) return;
-    setImgUrl(tempUrl);
-  }, [tempUrl]);
-
-  const setCurrentImgUrl = async (
-    key: string | undefined,
-    setUrl: (url: string | undefined) => void
-  ) => {
-    if (!key) {
-      setUrl(undefined);
-      return;
-    }
-    const { url } = await getUrl({ path: key });
-    setUrl(url.toString());
-  };
-
-  useEffect(() => {
-    setCurrentImgUrl(imgKey, setImgUrl);
-  }, [imgKey]);
-
-  return hasNoImage ? (
+}) =>
+  hasNoImage ? (
     <div
       className={cn(
         `w-[${width}px] h-[${height}px]`,
@@ -55,17 +33,22 @@ const S3Image: FC<S3ImageProps> = ({
     >
       {noImagePlaceholder}
     </div>
-  ) : !imageUrl ? (
-    <Skeleton className={cn(`w-[${width}px] h-[${height}px]`, "rounded-xl")} />
+  ) : !tempUrl ? (
+    !imgKey ? (
+      <Skeleton
+        className={cn(`w-[${width}px] h-[${height}px]`, "rounded-xl")}
+      />
+    ) : (
+      <StorageImage path={imgKey} width={width} height={height} alt={alt} />
+    )
   ) : (
     <Image
-      src={imageUrl}
+      src={tempUrl}
       alt={alt}
       width={width}
       height={height}
       className={cn(tempUrl && "animate-pulseOpacity")}
     />
   );
-};
 
 export default S3Image;
