@@ -3,10 +3,14 @@ import { JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import Typography from "@tiptap/extension-typography";
+import { EditorView } from "@tiptap/pm/view";
 import { EditorContent, generateText, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { getUrl, uploadData } from "aws-amplify/storage";
 import { FC, useEffect } from "react";
 import styles from "./NotesWriter.module.css";
+import S3ImageExtension from "./S3ImageExtension";
 
 export type EditorJsonContent = JSONContent;
 export type SerializerOutput = {
@@ -21,7 +25,7 @@ type TransformNotesVersionType = {
 
 type GenericObject = { [key: string]: any };
 
-const MyExtensions = [StarterKit, Highlight, Link];
+const MyExtensions = [StarterKit, Highlight, Link, Typography];
 
 export const getTextFromEditorJsonContent = (
   json?: EditorJsonContent | string
@@ -30,7 +34,10 @@ export const getTextFromEditorJsonContent = (
     ? ""
     : typeof json === "string"
     ? json
-    : generateText(json, MyExtensions);
+    : generateText(
+        { ...json, content: json.content?.filter((c) => c.type !== "s3image") },
+        MyExtensions
+      );
 
 const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
   for (const key in obj1) {
@@ -93,6 +100,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
   const editor = useEditor({
     extensions: [
       ...MyExtensions,
+      S3ImageExtension,
       Placeholder.configure({
         emptyEditorClass: styles.emptyEditor,
         placeholder,
@@ -110,6 +118,18 @@ const NotesWriter: FC<NotesWriterProps> = ({
         }
         return false;
       },
+      handlePaste: (view, event) => {
+        if (!event.clipboardData) return false;
+        const { items } = event.clipboardData;
+
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf("image") !== -1) {
+            handlePastingImage(items[i], view);
+            return true;
+          }
+        }
+        return false;
+      },
     },
     content: notes,
     onUpdate: ({ editor }) => {
@@ -117,6 +137,81 @@ const NotesWriter: FC<NotesWriterProps> = ({
       saveNotes(() => ({ json: editor.getJSON() }));
     },
   });
+
+  const dispatchImage = (view: EditorView, url: string, fileName: string) => {
+    const { schema } = view.state;
+    const { tr } = view.state;
+    const pos = view.state.selection.from;
+    tr.insert(pos, schema.nodes.hardBreak.create());
+    tr.insert(pos + 1, schema.nodes.paragraph.create());
+    tr.insert(
+      pos + 2,
+      schema.nodes.s3image.create({
+        src: url,
+        fileKey: fileName,
+      })
+    );
+    view.dispatch(tr);
+  };
+
+  const updateImageSrc = (
+    view: EditorView,
+    url: string,
+    s3Key: string,
+    expiresAt: string,
+    fileName: string
+  ) => {
+    const { state, dispatch } = view;
+    const { tr, doc } = state;
+    let pos: number | null = null;
+
+    doc.descendants((node, nodePos) => {
+      if (node.type.name === "s3image" && node.attrs.fileKey === fileName) {
+        pos = nodePos;
+        return false;
+      }
+      return true;
+    });
+
+    if (pos !== null) {
+      const transaction = tr.setNodeMarkup(pos, undefined, {
+        src: url,
+        s3Key,
+        expiresAt,
+        fileKey: fileName,
+      });
+      dispatch(transaction);
+    }
+  };
+
+  const handlePastingImage = async (
+    item: DataTransferItem,
+    view: EditorView
+  ) => {
+    const file = item.getAsFile();
+    if (!file) return false;
+    const fileName = `${crypto.randomUUID()}-${file.name}`;
+
+    dispatchImage(view, URL.createObjectURL(file), fileName);
+
+    const { path: s3Path } = await uploadData({
+      path: ({ identityId }) => `user-files/${identityId}/${fileName}`,
+      data: file,
+      options: {
+        contentType: file.type,
+      },
+    }).result;
+
+    const { url, expiresAt } = await getUrl({ path: s3Path });
+    updateImageSrc(
+      view,
+      url.toString(),
+      s3Path,
+      expiresAt.toISOString(),
+      fileName
+    );
+    return true;
+  };
 
   useEffect(() => {
     if (!editor) return;

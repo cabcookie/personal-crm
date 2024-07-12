@@ -62,6 +62,15 @@ const personSchmema = {
     })
     .secondaryIndexes((index) => [index("personId")])
     .authorization((allow) => [allow.owner()]),
+  User: a
+    .model({
+      profileId: a.string().required(),
+      email: a.string(),
+      name: a.string(),
+      profilePicture: a.string(),
+    })
+    .identifier(["profileId"])
+    .authorization((allow) => [allow.ownerDefinedIn("profileId")]),
   Person: a
     .model({
       owner: a
