@@ -11,9 +11,9 @@
     "lint:fix": "next lint --fix",
     "prepare": "node .husky/install.mjs",
     "sandbox": "npx ampx sandbox --profile impulso",
-    "import-data-dev": "node scripts/start-import -env dev",
-    "import-data-staging": "node scripts/start-import -env staging",
-    "import-data-prod": "node scripts/start-import -env prod",
+    "import-data-dev": "cd scripts && node start-import -env dev",
+    "import-data-staging": "cd scripts && node start-import -env staging",
+    "import-data-prod": "cd scripts && node start-import -env prod",
     "create-post-confirmation-code": "npx ampx generate graphql-client-code --out amplify/auth/post-confirmation/graphql --profile impulso"
   },
   "husky": {
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.2",
+    "@aws-amplify/ui-react-storage": "^3.1.4",
     "@aws-sdk/client-cognito-identity": "^3.600.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.600.0",
     "@aws-sdk/client-dynamodb": "^3.602.0",
@@ -46,6 +47,7 @@
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-scroll-area": "^1.0.5",
     "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
@@ -57,7 +59,7 @@
     "@tiptap/pm": "^2.4.0",
     "@tiptap/react": "^2.4.0",
     "@tiptap/starter-kit": "^2.4.0",
-    "aws-amplify": "^6.0.16",
+    "aws-amplify": "^6.4.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

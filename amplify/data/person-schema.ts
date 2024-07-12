@@ -67,6 +67,7 @@ const personSchmema = {
       profileId: a.string().required(),
       email: a.string(),
       name: a.string(),
+      profilePicture: a.string(),
     })
     .identifier(["profileId"])
     .authorization((allow) => [allow.ownerDefinedIn("profileId")]),

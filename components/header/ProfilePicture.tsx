@@ -13,26 +13,44 @@ import Version from "../version/version";
 import useCurrentUser from "@/api/useUser";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { getUrl } from "aws-amplify/storage";
 
 const ProfilePicture = () => {
   const { user, createProfile } = useCurrentUser();
   const [open, setOpen] = useState(false);
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+  const [imageUrl, setImgUrl] = useState<string | undefined>(undefined);
   const router = useRouter();
 
+  const setCurrentImgUrl = async (
+    key: string | undefined,
+    setUrl: (url: string | undefined) => void
+  ) => {
+    if (!key) {
+      setUrl(undefined);
+      return;
+    }
+    const { url } = await getUrl({ path: key });
+    setUrl(url.toString());
+  };
+
   useEffect(() => {
+    setCurrentImgUrl(user?.profilePicture, setImgUrl);
+  }, [user?.profilePicture]);
+
+  useEffect(() => {
+    if (!open) return;
     if (isCreatingProfile) return;
-    if (!user) return;
-    if (!user.hasNoProfile) return;
+    if (!user?.hasNoProfile) return;
     setIsCreatingProfile(true);
     createProfile(() => setIsCreatingProfile(false));
-  }, [createProfile, isCreatingProfile, user]);
+  }, [createProfile, isCreatingProfile, open, user]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src="/images/profile-pic.jpeg" />
+          <AvatarImage src={imageUrl} />
           <AvatarFallback>CK</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>

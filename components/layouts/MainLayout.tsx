@@ -16,7 +16,7 @@ import CreateInboxItemDialog, {
 } from "../inbox/CreateInboxItemDialog";
 import { Toaster } from "../ui/toaster";
 
-type MainLayoutProps = CategoryTitleProps & {
+export type MainLayoutProps = CategoryTitleProps & {
   context?: Context;
   recordName?: string;
   sectionName: string;
