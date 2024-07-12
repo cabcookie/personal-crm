@@ -84,7 +84,7 @@ const useCurrentUser = () => {
       path: ({ identityId }) => `profile-images/${identityId}/${fileName}`,
       data: file,
       options: {
-        contentType: "image/*",
+        contentType: file.type,
       },
     }).result;
     const updated: User = { ...user, profilePicture: s3FileKey.path };
