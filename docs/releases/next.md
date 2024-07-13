@@ -6,6 +6,7 @@
 
 - At-Mentions ermöglichen, um den Verantwortlichen einer Aufgabe zu bestimmen (Standard ist der User selbst).
 - Zu Notizen können Aufgaben hinzugefügt werden.
+- Normalen formatierten Text aus der Zwischenablage einzufügen, funktioniert nicht mehr. Wird immer als Bild eingefügt
 
 ## Später
 
