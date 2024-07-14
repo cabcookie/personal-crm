@@ -27,6 +27,7 @@ const AddPayerAccountDialog: FC<AddPayerAccountDialogProps> = ({
     } else {
       setValue(value.replace(/\D/g, ""));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return (

@@ -2,19 +2,19 @@ import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
+import { isFuture } from "date-fns";
+import { flow, map, sortBy } from "lodash/fp";
+import {
+  AtSign,
+  Building,
+  ExternalLink,
+  Instagram,
+  Linkedin,
+  Mail,
+  Phone,
+} from "lucide-react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { flow, map, sortBy } from "lodash/fp";
-import { isFuture } from "date-fns";
-import {
-  Phone,
-  Building,
-  Mail,
-  Linkedin,
-  Instagram,
-  ExternalLink,
-  AtSign,
-} from "lucide-react";
 const client = generateClient<Schema>();
 
 interface UpdatePersonProps {
@@ -30,6 +30,7 @@ export const selectionSet = [
   "howToSay",
   "birthday",
   "dateOfDeath",
+  "updatedAt",
   "accounts.id",
   "accounts.startDate",
   "accounts.endDate",
@@ -159,6 +160,7 @@ export type Person = {
   dateOfDeath?: Date;
   details: PersonDetail[];
   accounts: PersonAccount[];
+  updatedAt: Date;
 };
 
 export const mapPerson = ({
@@ -169,6 +171,7 @@ export const mapPerson = ({
   birthday,
   accounts,
   details,
+  updatedAt,
 }: PersonData): Person => ({
   id,
   name,
@@ -176,6 +179,7 @@ export const mapPerson = ({
   dateOfBirth: !birthday ? undefined : new Date(birthday),
   dateOfDeath: !dateOfDeath ? undefined : new Date(dateOfDeath),
   details,
+  updatedAt: new Date(updatedAt),
   accounts: flow(
     map(
       (a: AccountData): PersonAccount => ({
@@ -226,6 +230,7 @@ const usePerson = (personId?: string) => {
       howToSay: howToSay || person.howToSay,
       dateOfBirth: dateOfBirth || person.dateOfBirth,
       dateOfDeath: dateOfDeath || person.dateOfDeath,
+      updatedAt: new Date(),
       details: [],
       accounts: [],
     };

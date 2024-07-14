@@ -1,13 +1,12 @@
 import { PersonLearning } from "@/api/usePersonLearnings";
-import { FC } from "react";
-import { format } from "date-fns";
-import NotesWriter, {
-  SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
-import { Button } from "../ui/button";
-import { Check, Edit, Trash2 } from "lucide-react";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Check, Edit, Trash2 } from "lucide-react";
+import { FC } from "react";
 import PrayerStatus, { TPrayerStatus } from "../prayer/PrayerStatus";
+import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import { Button } from "../ui/button";
 
 type LearningComponentProps = {
   learning: PersonLearning;

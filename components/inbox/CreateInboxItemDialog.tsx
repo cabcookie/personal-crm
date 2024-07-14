@@ -1,8 +1,7 @@
 import useInbox from "@/api/useInbox";
+import { EditorJsonContent } from "@/helpers/ui-notes-writer";
 import { FC, ReactNode, createContext, useContext, useState } from "react";
-import NotesWriter, {
-  EditorJsonContent,
-} from "../ui-elements/notes-writer/NotesWriter";
+import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
 import {
   Dialog,

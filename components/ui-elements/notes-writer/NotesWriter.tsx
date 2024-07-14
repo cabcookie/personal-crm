@@ -1,82 +1,31 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
+import usePeople from "@/api/usePeople";
+import { Person, PersonAccount } from "@/api/usePerson";
+import {
+  EditorJsonContent,
+  getTasksData,
+  isUpToDate,
+  MyExtensions,
+  SerializerOutput,
+} from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
-import { JSONContent } from "@tiptap/core";
-import Highlight from "@tiptap/extension-highlight";
-import Link from "@tiptap/extension-link";
+import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
-import Typography from "@tiptap/extension-typography";
 import { EditorView } from "@tiptap/pm/view";
-import { EditorContent, generateText, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+import { EditorContent, ReactRenderer, useEditor } from "@tiptap/react";
 import { getUrl, uploadData } from "aws-amplify/storage";
-import { FC, useEffect } from "react";
-import styles from "./NotesWriter.module.css";
+import { filter, flow, get, includes, map, toLower } from "lodash/fp";
+import {
+  FC,
+  JSXElementConstructor,
+  ReactElement,
+  RefAttributes,
+  useEffect,
+} from "react";
+import tippy, { Instance, Props } from "tippy.js";
+import { AtMentionSuggestionsProps } from "./AtMentionSuggestions";
+import MentionList from "./MentionList";
 import S3ImageExtension from "./S3ImageExtension";
-
-export type EditorJsonContent = JSONContent;
-export type SerializerOutput = {
-  json: EditorJsonContent;
-};
-
-type TransformNotesVersionType = {
-  version?: number | null;
-  notes?: string | null;
-  notesJson?: any;
-};
-
-type GenericObject = { [key: string]: any };
-
-const MyExtensions = [StarterKit, Highlight, Link, Typography];
-
-export const getTextFromEditorJsonContent = (
-  json?: EditorJsonContent | string
-) =>
-  !json
-    ? ""
-    : typeof json === "string"
-    ? json
-    : generateText(
-        { ...json, content: json.content?.filter((c) => c.type !== "s3image") },
-        MyExtensions
-      );
-
-const compareNotes = (obj1: GenericObject, obj2: GenericObject): boolean => {
-  for (const key in obj1) {
-    const val1 = obj1[key];
-    if (!(key in obj2) && !!val1) return false;
-    else {
-      const val2 = obj2[key];
-      if (
-        typeof val1 === "object" &&
-        val1 !== null &&
-        typeof val2 === "object" &&
-        val2 !== null
-      ) {
-        if (!compareNotes(val1, val2)) return false;
-      } else {
-        if (val1 !== val2) return false;
-      }
-    }
-  }
-  for (const key in obj2) if (!(key in obj1) && !!obj2[key]) return false;
-  return true;
-};
-
-const isUpToDate = (
-  notes: EditorJsonContent | string | undefined,
-  editorJson: EditorJsonContent | undefined
-) => {
-  if (!notes) return false;
-  if (!editorJson) return false;
-  if (typeof notes === "string") return false;
-  return compareNotes(notes, editorJson);
-};
-
-export const transformNotesVersion = ({
-  version,
-  notes,
-  notesJson,
-}: TransformNotesVersionType) =>
-  version === 2 ? (notesJson ? JSON.parse(notesJson) : "") : notes || undefined;
 
 type NotesWriterProps = {
   notes?: EditorJsonContent | string;
@@ -92,32 +41,113 @@ const NotesWriter: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
   autoFocus,
-  placeholder = "Start taking notes...",
-  onSubmit,
+  // onSubmit,
   readonly,
   showSaveStatus = true,
+  placeholder = "Start taking notes...",
 }) => {
+  const { people } = usePeople();
+  const { getAccountNamesByIds } = useAccountsContext();
+
   const editor = useEditor({
     extensions: [
       ...MyExtensions,
+      Mention.configure({
+        HTMLAttributes: { class: "text-blue-400" },
+        suggestion: {
+          items: ({ query }) =>
+            flow(
+              map(({ id, name, accounts }: Person) => ({
+                category: "person",
+                id,
+                label: name,
+                information: flow(
+                  map((pa: PersonAccount) => pa.accountId),
+                  getAccountNamesByIds
+                )(accounts),
+              })),
+              filter(
+                flow(get("label"), toLower, includes(query.toLowerCase()))
+              ),
+              (r) => r.slice(0, 6)
+            )(people),
+
+          render: () => {
+            let component: ReactRenderer<
+              ReactElement<any, string | JSXElementConstructor<any>>,
+              AtMentionSuggestionsProps &
+                RefAttributes<
+                  ReactElement<any, string | JSXElementConstructor<any>>
+                >
+            >;
+            let popup: Instance<Props>[] & Instance<Props>;
+
+            return {
+              onStart: (props) => {
+                component = new ReactRenderer(MentionList, {
+                  props,
+                  editor: props.editor,
+                });
+                if (!props.clientRect) return;
+                popup = tippy("#at-mention-tippy", {
+                  getReferenceClientRect: props.clientRect,
+                  appendTo: () => document.body,
+                  content: component.element,
+                  showOnCreate: true,
+                  placement: "bottom",
+                  animation: "shift-away-subtle",
+                  interactive: true,
+                  trigger: "manual",
+                });
+              },
+
+              onUpdate: (props) => {
+                component.updateProps(props);
+                if (!popup) return;
+                if (!props.clientRect) return;
+                popup[0].setProps({
+                  getReferenceClientRect: () =>
+                    props.clientRect?.() ?? new DOMRect(0, 0, 0, 0),
+                });
+              },
+
+              onKeyDown: (props) => {
+                if (popup && props.event.key === "Escape") {
+                  popup[0].hide();
+                  return true;
+                }
+                return component.ref?.onKeyDown(props);
+              },
+
+              onExit: () => {
+                if (popup) popup[0].destroy();
+                if (component) component.destroy();
+              },
+            };
+          },
+        },
+      }),
       S3ImageExtension,
       Placeholder.configure({
-        emptyEditorClass: styles.emptyEditor,
+        // emptyNodeClass:
+        //   "text-muted-foreground relative before:content-['/_for_menu,_@_for_mentions'] before:absolute before:left-0",
+        emptyEditorClass:
+          "relative text-muted-foreground before:content-[attr(data-placeholder)] before:absolute before:left-0",
         placeholder,
       }),
     ],
     autofocus: autoFocus,
     editable: !readonly,
     editorProps: {
-      handleKeyDown: (view, event) => {
-        if (!onSubmit) return false;
-        if (event.metaKey && event.key === "Enter") {
-          event.preventDefault();
-          onSubmit(view.state.doc.toJSON());
-          return true;
-        }
-        return false;
-      },
+      // handleKeyDown: (view, event) => {
+      //   if (!onSubmit) return false;
+      //   if (event.metaKey && event.key === "Enter") {
+      //     event.preventDefault();
+      //     onSubmit(view.state.doc.toJSON());
+      //     return true;
+      //   }
+      //   return false;
+      // },
       handlePaste: (view, event) => {
         if (!event.clipboardData) return false;
         const { items } = event.clipboardData;
@@ -134,7 +164,8 @@ const NotesWriter: FC<NotesWriterProps> = ({
     content: notes,
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;
-      saveNotes(() => ({ json: editor.getJSON() }));
+      const jsonContent = editor.getJSON();
+      saveNotes(() => ({ json: jsonContent, ...getTasksData(jsonContent) }));
     },
   });
 
@@ -246,7 +277,12 @@ const NotesWriter: FC<NotesWriterProps> = ({
       editor.commands.focus();
   }, [editor?.commands, editor?.isActive, editor?.isFocused, autoFocus]);
 
-  return <EditorContent editor={editor} />;
+  return (
+    <>
+      <EditorContent editor={editor} />
+      <div id="at-mention-tippy" />
+    </>
+  );
 };
 
 export default NotesWriter;

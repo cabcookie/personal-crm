@@ -1,10 +1,10 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
+import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
 import { filter, flow, get, map } from "lodash/fp";
 import { FC, useState } from "react";
 import ActivityComponent from "../activities/activity";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { getTextFromEditorJsonContent } from "../ui-elements/notes-writer/NotesWriter";
 import { Accordion } from "../ui/accordion";
 
 type MeetingActivityListProps = {

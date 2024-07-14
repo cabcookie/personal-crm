@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { EditorJsonContent } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
