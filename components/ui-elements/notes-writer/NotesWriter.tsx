@@ -8,23 +8,15 @@ import {
   MyExtensions,
   SerializerOutput,
 } from "@/helpers/ui-notes-writer";
+import { atMentionSuggestions } from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorView } from "@tiptap/pm/view";
-import { EditorContent, ReactRenderer, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import { getUrl, uploadData } from "aws-amplify/storage";
-import { filter, flow, get, includes, map, toLower } from "lodash/fp";
-import {
-  FC,
-  JSXElementConstructor,
-  ReactElement,
-  RefAttributes,
-  useEffect,
-} from "react";
-import tippy, { Instance, Props } from "tippy.js";
-import { AtMentionSuggestionsProps } from "./AtMentionSuggestions";
-import MentionList from "./MentionList";
+import { flow, map } from "lodash/fp";
+import { FC, useEffect } from "react";
 import S3ImageExtension from "./S3ImageExtension";
 
 type NotesWriterProps = {
@@ -54,78 +46,17 @@ const NotesWriter: FC<NotesWriterProps> = ({
       ...MyExtensions,
       Mention.configure({
         HTMLAttributes: { class: "text-blue-400" },
-        suggestion: {
-          items: ({ query }) =>
-            flow(
-              map(({ id, name, accounts }: Person) => ({
-                category: "person",
-                id,
-                label: name,
-                information: flow(
-                  map((pa: PersonAccount) => pa.accountId),
-                  getAccountNamesByIds
-                )(accounts),
-              })),
-              filter(
-                flow(get("label"), toLower, includes(query.toLowerCase()))
-              ),
-              (r) => r.slice(0, 6)
-            )(people),
-
-          render: () => {
-            let component: ReactRenderer<
-              ReactElement<any, string | JSXElementConstructor<any>>,
-              AtMentionSuggestionsProps &
-                RefAttributes<
-                  ReactElement<any, string | JSXElementConstructor<any>>
-                >
-            >;
-            let popup: Instance<Props>[] & Instance<Props>;
-
-            return {
-              onStart: (props) => {
-                component = new ReactRenderer(MentionList, {
-                  props,
-                  editor: props.editor,
-                });
-                if (!props.clientRect) return;
-                popup = tippy("#at-mention-tippy", {
-                  getReferenceClientRect: props.clientRect,
-                  appendTo: () => document.body,
-                  content: component.element,
-                  showOnCreate: true,
-                  placement: "bottom",
-                  animation: "shift-away-subtle",
-                  interactive: true,
-                  trigger: "manual",
-                });
-              },
-
-              onUpdate: (props) => {
-                component.updateProps(props);
-                if (!popup) return;
-                if (!props.clientRect) return;
-                popup[0].setProps({
-                  getReferenceClientRect: () =>
-                    props.clientRect?.() ?? new DOMRect(0, 0, 0, 0),
-                });
-              },
-
-              onKeyDown: (props) => {
-                if (popup && props.event.key === "Escape") {
-                  popup[0].hide();
-                  return true;
-                }
-                return component.ref?.onKeyDown(props);
-              },
-
-              onExit: () => {
-                if (popup) popup[0].destroy();
-                if (component) component.destroy();
-              },
-            };
-          },
-        },
+        suggestion: atMentionSuggestions({
+          items: people?.map(({ id, name, accounts }: Person) => ({
+            category: "person",
+            id,
+            label: name,
+            information: flow(
+              map((pa: PersonAccount) => pa.accountId),
+              getAccountNamesByIds
+            )(accounts),
+          })),
+        }),
       }),
       S3ImageExtension,
       Placeholder.configure({

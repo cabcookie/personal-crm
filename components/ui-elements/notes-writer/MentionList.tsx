@@ -1,16 +1,13 @@
 import { SuggestionItem } from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
 import { SuggestionKeyDownProps, SuggestionProps } from "@tiptap/suggestion";
-import {
-  forwardRef,
-  ReactElement,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
-// import "./MentionList.scss";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
-const MentionList = forwardRef<ReactElement, SuggestionProps<SuggestionItem>>(
+export interface MentionListRef {
+  onKeyDown: (props: SuggestionKeyDownProps) => boolean;
+}
+
+const MentionList = forwardRef<MentionListRef, SuggestionProps<SuggestionItem>>(
   (props, ref) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -64,13 +61,13 @@ const MentionList = forwardRef<ReactElement, SuggestionProps<SuggestionItem>>(
 
     return (
       props.items && (
-        <div className="rounded-sm border border-solid flex flex-col bg-white">
+        <div className="rounded-sm shadow-md border border-solid flex flex-col bg-white overflow-auto relative">
           {props.items.length ? (
             props.items.map((item, index) => (
               <button
                 className={cn(
-                  index === selectedIndex && "bg-accent",
-                  "py-1 px-4 text-left"
+                  "items-center bg-transparent py-1 px-2 flex text-left w-full min-w-36 hover:bg-accent",
+                  index === selectedIndex && "bg-accent"
                 )}
                 key={index}
                 onClick={() => selectItem(index)}

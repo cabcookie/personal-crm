@@ -139,7 +139,7 @@ export const getTasksData = (jsonContent?: EditorJsonContent): TasksOutPut => {
     .flatMap((t) => t.content)
     .filter((t) => !!t);
   return {
-    hasOpenTasks: !!tasks?.filter((t) => !t?.attrs?.checked)?.length,
+    hasOpenTasks: tasks?.some((t) => !t?.attrs?.checked) ?? false,
     openTasks: tasks?.filter((t) => !t.attrs?.checked) || [],
     closedTasks: tasks?.filter((t) => t.attrs?.checked) || [],
   };
