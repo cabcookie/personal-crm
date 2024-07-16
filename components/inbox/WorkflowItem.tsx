@@ -50,12 +50,7 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({ inboxItemId, forwardUrl }) => {
     if (!inboxItem) return;
     if (!response.nextStep) return;
     if (projectId) {
-      const result = await moveInboxItemToProject(projectId, {
-        json: inboxItem.note,
-        hasOpenTasks: inboxItem.hasOpenTasks,
-        openTasks: inboxItem.openTasks || [],
-        closedTasks: inboxItem.closedTasks || [],
-      });
+      const result = await moveInboxItemToProject(projectId);
       if (!result) return;
     } else {
       const result = await updateStatus(inboxItemId, response.nextStep.status);

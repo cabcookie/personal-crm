@@ -96,7 +96,7 @@ const CreateInboxItemDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <NotesWriter
-          notes={editorContent || emptyDocument}
+          notes={editorContent?.json || emptyDocument}
           placeholder="What's on your mind?"
           saveNotes={(serializer) => setEditorContent(serializer())}
           showSaveStatus={false}
