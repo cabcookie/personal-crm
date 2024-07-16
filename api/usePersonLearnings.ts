@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import {
   EditorJsonContent,
+  emptyDocument,
   transformNotesVersion,
 } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
@@ -14,7 +15,7 @@ const client = generateClient<Schema>();
 
 export type PersonLearning = {
   id: string;
-  learning: EditorJsonContent | string;
+  learning: EditorJsonContent;
   learnedOn: Date;
   updatedAt: Date;
   prayerStatus: TPrayerStatus;
@@ -65,7 +66,7 @@ const usePersonLearnings = (personId?: string) => {
       {
         id: crypto.randomUUID(),
         learnedOn: new Date(),
-        learning: "",
+        learning: emptyDocument,
         prayerStatus: "NONE",
         updatedAt: new Date(),
       },

@@ -52,7 +52,13 @@ const usePeople = () => {
       join(", ")
     )(people);
 
-  return { people, errorPeople, loadingPeople, createPerson, getNamesByIds };
+  return {
+    people,
+    errorPeople,
+    loadingPeople,
+    createPerson,
+    getNamesByIds,
+  };
 };
 
 export default usePeople;

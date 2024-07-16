@@ -1,6 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
+import { emptyDocument } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -67,8 +68,11 @@ const useMeeting = (meetingId?: string) => {
     const { data: activity, errors: errorsActivity } =
       await client.models.Activity.create({
         meetingActivitiesId: meetingId,
-        notes: null,
+        notes: JSON.stringify(emptyDocument),
         formatVersion: 2,
+        hasOpenTasks: "false",
+        openTasks: JSON.stringify([]),
+        closedTasks: JSON.stringify([]),
       });
     if (errorsActivity)
       return handleApiErrors(

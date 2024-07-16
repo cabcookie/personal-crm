@@ -22,11 +22,15 @@ const activitySchema = {
       notes: a.string(),
       formatVersion: a.integer().default(1),
       notesJson: a.json(),
+      hasOpenTasks: a.string().required(),
+      openTasks: a.json(),
+      closedTasks: a.json(),
       forProjects: a.hasMany("ProjectActivity", "activityId"),
       meetingActivitiesId: a.id(),
       forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
       finishedOn: a.datetime(),
     })
+    .secondaryIndexes((index) => [index("hasOpenTasks")])
     .authorization((allow) => [allow.owner()]),
 };
 

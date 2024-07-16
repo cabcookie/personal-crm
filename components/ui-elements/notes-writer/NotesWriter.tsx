@@ -1,6 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import usePeople from "@/api/usePeople";
-import { Person, PersonAccount } from "@/api/usePerson";
+import { Person } from "@/api/usePerson";
 import {
   EditorJsonContent,
   getTasksData,
@@ -8,19 +8,24 @@ import {
   MyExtensions,
   SerializerOutput,
 } from "@/helpers/ui-notes-writer";
-import { atMentionSuggestions } from "@/helpers/ui-notes-writer/suggestions";
+import { handlePastingImage } from "@/helpers/ui-notes-writer/image-handling";
+import {
+  filterPersonByQuery,
+  limitItems,
+  mapPersonToSuggestion,
+  renderer,
+} from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorView } from "@tiptap/pm/view";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { getUrl, uploadData } from "aws-amplify/storage";
-import { flow, map } from "lodash/fp";
+import { filter, flow, map } from "lodash/fp";
 import { FC, useEffect } from "react";
 import S3ImageExtension from "./S3ImageExtension";
 
 type NotesWriterProps = {
-  notes?: EditorJsonContent | string;
+  people: Person[];
+  notes: EditorJsonContent;
   saveNotes?: (serializer: () => SerializerOutput) => void;
   autoFocus?: boolean;
   placeholder?: string;
@@ -29,7 +34,8 @@ type NotesWriterProps = {
   showSaveStatus?: boolean;
 };
 
-const NotesWriter: FC<NotesWriterProps> = ({
+const NotesWriterInner: FC<NotesWriterProps> = ({
+  people,
   notes,
   saveNotes,
   autoFocus,
@@ -38,7 +44,6 @@ const NotesWriter: FC<NotesWriterProps> = ({
   showSaveStatus = true,
   placeholder = "Start taking notes...",
 }) => {
-  const { people } = usePeople();
   const { getAccountNamesByIds } = useAccountsContext();
 
   const editor = useEditor({
@@ -46,17 +51,15 @@ const NotesWriter: FC<NotesWriterProps> = ({
       ...MyExtensions,
       Mention.configure({
         HTMLAttributes: { class: "text-blue-400" },
-        suggestion: atMentionSuggestions({
-          items: people?.map(({ id, name, accounts }: Person) => ({
-            category: "person",
-            id,
-            label: name,
-            information: flow(
-              map((pa: PersonAccount) => pa.accountId),
-              getAccountNamesByIds
-            )(accounts),
-          })),
-        }),
+        suggestion: {
+          items: ({ query }) =>
+            flow(
+              filter(filterPersonByQuery(query)),
+              map(mapPersonToSuggestion(getAccountNamesByIds)),
+              limitItems(5)
+            )(people),
+          render: renderer,
+        },
       }),
       S3ImageExtension,
       Placeholder.configure({
@@ -100,81 +103,6 @@ const NotesWriter: FC<NotesWriterProps> = ({
     },
   });
 
-  const dispatchImage = (view: EditorView, url: string, fileName: string) => {
-    const { schema } = view.state;
-    const { tr } = view.state;
-    const pos = view.state.selection.from;
-    tr.insert(pos, schema.nodes.hardBreak.create());
-    tr.insert(pos + 1, schema.nodes.paragraph.create());
-    tr.insert(
-      pos + 2,
-      schema.nodes.s3image.create({
-        src: url,
-        fileKey: fileName,
-      })
-    );
-    view.dispatch(tr);
-  };
-
-  const updateImageSrc = (
-    view: EditorView,
-    url: string,
-    s3Key: string,
-    expiresAt: string,
-    fileName: string
-  ) => {
-    const { state, dispatch } = view;
-    const { tr, doc } = state;
-    let pos: number | null = null;
-
-    doc.descendants((node, nodePos) => {
-      if (node.type.name === "s3image" && node.attrs.fileKey === fileName) {
-        pos = nodePos;
-        return false;
-      }
-      return true;
-    });
-
-    if (pos !== null) {
-      const transaction = tr.setNodeMarkup(pos, undefined, {
-        src: url,
-        s3Key,
-        expiresAt,
-        fileKey: fileName,
-      });
-      dispatch(transaction);
-    }
-  };
-
-  const handlePastingImage = async (
-    item: DataTransferItem,
-    view: EditorView
-  ) => {
-    const file = item.getAsFile();
-    if (!file) return false;
-    const fileName = `${crypto.randomUUID()}-${file.name}`;
-
-    dispatchImage(view, URL.createObjectURL(file), fileName);
-
-    const { path: s3Path } = await uploadData({
-      path: ({ identityId }) => `user-files/${identityId}/${fileName}`,
-      data: file,
-      options: {
-        contentType: file.type,
-      },
-    }).result;
-
-    const { url, expiresAt } = await getUrl({ path: s3Path });
-    updateImageSrc(
-      view,
-      url.toString(),
-      s3Path,
-      expiresAt.toISOString(),
-      fileName
-    );
-    return true;
-  };
-
   useEffect(() => {
     if (!editor) return;
     if (editor.getText() === "" && notes) editor.commands.setContent(notes);
@@ -214,6 +142,12 @@ const NotesWriter: FC<NotesWriterProps> = ({
       <div id="at-mention-tippy" />
     </>
   );
+};
+
+const NotesWriter: FC<Omit<NotesWriterProps, "people">> = (props) => {
+  const { people } = usePeople();
+
+  return people && <NotesWriterInner {...props} people={people} />;
 };
 
 export default NotesWriter;

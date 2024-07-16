@@ -1,6 +1,5 @@
 import { Activity } from "@/api/useActivity";
 import {
-  EditorJsonContent,
   getTextFromEditorJsonContent,
   SerializerOutput,
 } from "@/helpers/ui-notes-writer";
@@ -13,7 +12,9 @@ import ActivityMetaData from "./activity-meta-data";
 type ActivityNotesProps = {
   activity?: Activity;
   accordionSelectedValue?: string;
-  updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
+  updateNotes: (
+    serializedOutput: SerializerOutput
+  ) => Promise<string | undefined>;
 };
 
 const ActivityNotes: FC<ActivityNotesProps> = ({

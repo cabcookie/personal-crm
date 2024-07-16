@@ -7,6 +7,7 @@ import {
 } from "@/helpers/accounts";
 import {
   EditorJsonContent,
+  emptyDocument,
   transformNotesVersion,
 } from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
@@ -57,7 +58,7 @@ export type Account = {
   id: string;
   name: string;
   crmId?: string;
-  introduction?: EditorJsonContent | string;
+  introduction: EditorJsonContent;
   controller?: {
     id: string;
     name: string;
@@ -213,6 +214,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount: Account = {
       id: crypto.randomUUID(),
       name: accountName,
+      introduction: emptyDocument,
       order: 0,
       latestQuota: 0,
       pipeline: 0,

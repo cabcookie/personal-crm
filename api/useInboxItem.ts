@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/helpers/ui-notes-writer";
+import { EditorJsonContent, SerializerOutput } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -36,7 +36,10 @@ const useInboxItem = (itemId?: string) => {
     return data.id;
   };
 
-  const moveInboxItemToProject = async (projectId: string) => {
+  const moveInboxItemToProject = async (
+    projectId: string,
+    { json: notes, hasOpenTasks, openTasks, closedTasks }: SerializerOutput
+  ) => {
     if (!inboxItem) return;
 
     const { data: activity, errors: activityErrors } =
@@ -44,7 +47,10 @@ const useInboxItem = (itemId?: string) => {
         finishedOn: inboxItem.createdAt.toISOString(),
         formatVersion: 2,
         notes: null,
-        notesJson: JSON.stringify(inboxItem.note),
+        notesJson: JSON.stringify(notes),
+        hasOpenTasks: hasOpenTasks ? "true" : "false",
+        openTasks: JSON.stringify(openTasks),
+        closedTasks: JSON.stringify(closedTasks),
       });
     if (activityErrors)
       return handleApiErrors(

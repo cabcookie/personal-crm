@@ -1,7 +1,7 @@
 import { defineBackend } from "@aws-amplify/backend";
+import { RemovalPolicy } from "aws-cdk-lib";
 import { auth } from "./auth/resource";
 import { data } from "./data/resource";
-import { RemovalPolicy } from "aws-cdk-lib";
 import { storage } from "./storage/resource";
 
 const backend = defineBackend({
@@ -19,8 +19,3 @@ Object.values(dataResources.cfnResources.amplifyDynamoDbTables).forEach(
     table.applyRemovalPolicy(RemovalPolicy.RETAIN);
   }
 );
-
-Object.values(dataResources.cfnResources.cfnTables).forEach((table) => {
-  table.addMetadata("app", "impulso");
-  table.addMetadata("env", process.env.NODE_ENV);
-});

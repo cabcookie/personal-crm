@@ -2,7 +2,9 @@ import { type Schema } from "@/amplify/data/resource";
 import { useToast } from "@/components/ui/use-toast";
 import {
   EditorJsonContent,
+  SerializerOutput,
   transformNotesVersion,
+  transformTasks,
 } from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import useSWR from "swr";
@@ -11,7 +13,10 @@ const client = generateClient<Schema>();
 
 export type Activity = {
   id: string;
-  notes?: EditorJsonContent | string;
+  notes: EditorJsonContent;
+  hasOpenTasks: boolean;
+  openTasks?: EditorJsonContent[];
+  closedTasks?: EditorJsonContent[];
   meetingId?: string;
   finishedOn: Date;
   updatedAt: Date;
@@ -23,6 +28,9 @@ const selectionSet = [
   "notes",
   "formatVersion",
   "notesJson",
+  "hasOpenTasks",
+  "openTasks",
+  "closedTasks",
   "meetingActivitiesId",
   "finishedOn",
   "createdAt",
@@ -40,6 +48,9 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   notes,
   formatVersion,
   notesJson,
+  hasOpenTasks,
+  openTasks,
+  closedTasks,
   meetingActivitiesId,
   finishedOn,
   createdAt,
@@ -52,6 +63,9 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
     notes,
     notesJson,
   }),
+  hasOpenTasks: hasOpenTasks === "true",
+  openTasks: transformTasks(openTasks),
+  closedTasks: transformTasks(closedTasks),
   meetingId: meetingActivitiesId || undefined,
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),
@@ -96,15 +110,30 @@ const useActivity = (activityId?: string) => {
     return data?.id;
   };
 
-  const updateNotes = async (notes: EditorJsonContent) => {
+  const updateNotes = async ({
+    json: notes,
+    closedTasks,
+    hasOpenTasks,
+    openTasks,
+  }: SerializerOutput) => {
     if (!activity?.id) return;
-    const updated: Activity = { ...activity, notes, updatedAt: new Date() };
+    const updated: Activity = {
+      ...activity,
+      notes,
+      hasOpenTasks,
+      closedTasks,
+      openTasks,
+      updatedAt: new Date(),
+    };
     mutateActivity(updated, false);
     const { data, errors } = await client.models.Activity.update({
       id: activity.id,
       notes: null,
+      hasOpenTasks: hasOpenTasks ? "true" : "false",
       formatVersion: 2,
       notesJson: JSON.stringify(notes),
+      openTasks: JSON.stringify(openTasks),
+      closedTasks: JSON.stringify(closedTasks),
     });
     if (errors) handleApiErrors(errors, "Error updating activity notes");
     mutateActivity(updated);

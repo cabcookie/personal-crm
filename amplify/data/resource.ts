@@ -1,12 +1,12 @@
 import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
+import { postConfirmation } from "../auth/post-confirmation/resource";
 import accountSchema from "./account-schema";
 import activitySchema from "./activity-schema";
 import contextSchema from "./context-schema";
 import dayPlanSchema from "./dayplan-schema";
 import personSchmema from "./person-schema";
-import projectSchema from "./project-schema";
 import prayerSchema from "./prayer-schema";
-import { postConfirmation } from "../auth/post-confirmation/resource";
+import projectSchema from "./project-schema";
 
 const schema = a
   .schema({
@@ -25,6 +25,9 @@ const schema = a
         note: a.string(),
         formatVersion: a.integer().default(1),
         noteJson: a.json(),
+        hasOpenTasks: a.string().required(),
+        openTasks: a.json(),
+        closedTasks: a.json(),
         status: a.id().required(),
         movedToActivityId: a.string(),
       })

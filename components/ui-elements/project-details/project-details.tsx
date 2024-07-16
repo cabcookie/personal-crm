@@ -29,7 +29,6 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 }) => {
   const {
     getProjectById,
-    saveNextActions,
     saveProjectDates,
     addAccountToProject,
     updateProjectContext,
@@ -124,9 +123,9 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           />
 
           <NextActions
+            projectId={project.id}
             own={project.myNextActions}
             others={project.othersNextActions}
-            saveFn={(own, others) => saveNextActions(project.id, own, others)}
             accordionSelectedValue={accordionValue}
           />
 

@@ -5,6 +5,7 @@ import { addDaysToDate, toISODateString } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import {
   EditorJsonContent,
+  emptyDocument,
   transformNotesVersion,
 } from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
@@ -281,14 +282,14 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   const getProjectById = (projectId: string) =>
     projects?.find((project) => project.id === projectId);
 
-  const createProjectActivity = async (
-    projectId: string,
-    notes?: EditorJsonContent
-  ) => {
+  const createProjectActivity = async (projectId: string) => {
     const { data: activity, errors: errorsActivity } =
       await client.models.Activity.create({
-        notesJson: JSON.stringify(notes),
+        notesJson: JSON.stringify(emptyDocument),
         formatVersion: 2,
+        hasOpenTasks: "false",
+        openTasks: JSON.stringify([]),
+        closedTasks: JSON.stringify([]),
       });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");

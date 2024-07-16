@@ -137,6 +137,9 @@ const importData = async () => {
     ({ fromMeeting, forProjects, ...item }) => ({
       ...item,
       ...mapMeetingIdForActivity(fromMeeting, meetings),
+      hasOpenTasks: "false",
+      openTasks: JSON.stringify([]),
+      closedTasks: JSON.stringify([]),
     })
   );
 
