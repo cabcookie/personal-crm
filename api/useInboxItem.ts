@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/NotesWriter";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -22,12 +22,18 @@ const useInboxItem = (itemId?: string) => {
     mutate,
   } = useSWR(`/api/inbox/${itemId}`, fetchInboxItem(itemId));
 
-  const updateNote = async (id: string, note: EditorJsonContent) => {
+  const updateNote = async (
+    id: string,
+    { json: note, hasOpenTasks, openTasks, closedTasks }: SerializerOutput
+  ) => {
     const { data, errors } = await client.models.Inbox.update({
       id,
       note: null,
       formatVersion: 2,
       noteJson: JSON.stringify(note),
+      hasOpenTasks: hasOpenTasks ? "true" : "false",
+      openTasks: JSON.stringify(openTasks),
+      closedTasks: JSON.stringify(closedTasks),
     });
     if (errors) handleApiErrors(errors, "Error updating inbox item");
     if (!data) return;
@@ -45,6 +51,9 @@ const useInboxItem = (itemId?: string) => {
         formatVersion: 2,
         notes: null,
         notesJson: JSON.stringify(inboxItem.note),
+        hasOpenTasks: inboxItem.hasOpenTasks ? "true" : "false",
+        openTasks: JSON.stringify(inboxItem.openTasks),
+        closedTasks: JSON.stringify(inboxItem.closedTasks),
       });
     if (activityErrors)
       return handleApiErrors(

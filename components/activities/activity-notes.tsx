@@ -1,18 +1,20 @@
 import { Activity } from "@/api/useActivity";
-import { FC } from "react";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import NotesWriter, {
-  EditorJsonContent,
+import {
   getTextFromEditorJsonContent,
   SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
+} from "@/helpers/ui-notes-writer";
+import { FC } from "react";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { debouncedUpdateNotes } from "./activity-helper";
 import ActivityMetaData from "./activity-meta-data";
 
 type ActivityNotesProps = {
   activity?: Activity;
   accordionSelectedValue?: string;
-  updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
+  updateNotes: (
+    serializedOutput: SerializerOutput
+  ) => Promise<string | undefined>;
 };
 
 const ActivityNotes: FC<ActivityNotesProps> = ({

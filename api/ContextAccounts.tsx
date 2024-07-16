@@ -1,14 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
-import {
-  EditorJsonContent,
-  transformNotesVersion,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { toast } from "@/components/ui/use-toast";
 import {
   calcAccountAndSubsidariesPipeline,
   calcOrder,
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
+import {
+  EditorJsonContent,
+  emptyDocument,
+  transformNotesVersion,
+} from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { filter, flow, get, join, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
@@ -57,7 +58,7 @@ export type Account = {
   id: string;
   name: string;
   crmId?: string;
-  introduction?: EditorJsonContent | string;
+  introduction: EditorJsonContent;
   controller?: {
     id: string;
     name: string;
@@ -213,6 +214,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount: Account = {
       id: crypto.randomUUID(),
       name: accountName,
+      introduction: emptyDocument,
       order: 0,
       latestQuota: 0,
       pipeline: 0,

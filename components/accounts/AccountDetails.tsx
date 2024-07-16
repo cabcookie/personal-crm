@@ -6,22 +6,21 @@ import {
   calcPipelineByAccountId,
   make2YearsRevenueText,
 } from "@/helpers/projects";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { filter, flow, get, map } from "lodash/fp";
 import { FC, useState } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { debouncedUpdateAccountDetails } from "../ui-elements/account-details/account-updates-helpers";
-import NotesWriter, {
-  SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
+import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Accordion } from "../ui/accordion";
 import AccountNotes from "./AccountNotes";
+import AccountPeople from "./AccountPeople";
 import AccountUpdateForm from "./AccountUpdateForm";
 import AccountsList from "./AccountsList";
 import ListPayerAccounts from "./ListPayerAccounts";
 import ListTerritories from "./ListTerritories";
 import ProjectList from "./ProjectList";
-import AccountPeople from "./AccountPeople";
 
 type AccountDetailsProps = {
   account: Account;

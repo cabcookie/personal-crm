@@ -1,20 +1,21 @@
 import { type Schema } from "@/amplify/data/resource";
+import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
+import { toast } from "@/components/ui/use-toast";
+import { toISODateString } from "@/helpers/functional";
 import {
   EditorJsonContent,
+  emptyDocument,
   transformNotesVersion,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
-import { toISODateString } from "@/helpers/functional";
+} from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { toast } from "@/components/ui/use-toast";
-import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
 const client = generateClient<Schema>();
 
 export type PersonLearning = {
   id: string;
-  learning: EditorJsonContent | string;
+  learning: EditorJsonContent;
   learnedOn: Date;
   updatedAt: Date;
   prayerStatus: TPrayerStatus;
@@ -65,7 +66,7 @@ const usePersonLearnings = (personId?: string) => {
       {
         id: crypto.randomUUID(),
         learnedOn: new Date(),
-        learning: "",
+        learning: emptyDocument,
         prayerStatus: "NONE",
         updatedAt: new Date(),
       },
