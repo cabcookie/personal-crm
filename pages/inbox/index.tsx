@@ -4,17 +4,17 @@ import WorkFlowItem from "@/components/inbox/WorkflowItem";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
 import ToProcessItem from "@/components/ui-elements/list-items/to-process-item";
-import {
-  EditorJsonContent,
-  SerializerOutput,
-} from "@/components/ui-elements/notes-writer/NotesWriter";
 import { Button } from "@/components/ui/button";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
 import { Plus } from "lucide-react";
 import { GrCycle } from "react-icons/gr";
 
 type ApiResponse = Promise<string | undefined>;
-type UpdateInboxFn = (id: string, note: EditorJsonContent) => ApiResponse;
+type UpdateInboxFn = (
+  id: string,
+  editorContent: SerializerOutput
+) => ApiResponse;
 
 export const debouncedOnChangeInboxNote = debounce(
   async (
@@ -22,8 +22,8 @@ export const debouncedOnChangeInboxNote = debounce(
     serializer: () => SerializerOutput,
     updateNote: UpdateInboxFn
   ) => {
-    const { json: note } = serializer();
-    const data = await updateNote(id, note);
+    const serializedOutput = serializer();
+    const data = await updateNote(id, serializedOutput);
     if (!data) return;
   },
   1500

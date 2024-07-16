@@ -1,5 +1,6 @@
 import config from "@/amplify_outputs.json";
 import { AccountsContextProvider } from "@/api/ContextAccounts";
+import { OpenTasksContextProvider } from "@/api/ContextOpenTasks";
 import { ProjectsContextProvider } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import {
@@ -44,7 +45,9 @@ const ProjectsContext = ({ Component, pageProps }: AppProps) => {
   return (
     <ProjectsContextProvider context={context}>
       <AccountsContextProvider>
-        <Component {...pageProps} />
+        <OpenTasksContextProvider>
+          <Component {...pageProps} />
+        </OpenTasksContextProvider>
       </AccountsContextProvider>
     </ProjectsContextProvider>
   );

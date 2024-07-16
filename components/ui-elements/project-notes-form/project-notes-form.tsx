@@ -1,11 +1,12 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
+import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";
 import ActivityMetaData from "../../activities/activity-meta-data";
-import NotesWriter, { SerializerOutput } from "../notes-writer/NotesWriter";
-import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
+import NotesWriter from "../notes-writer/NotesWriter";
 
 type ProjectNotesFormProps = {
   className?: string;

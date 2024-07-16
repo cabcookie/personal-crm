@@ -2,11 +2,11 @@ import { useProjectsContext } from "@/api/ContextProjects";
 import { Activity } from "@/api/useActivity";
 import { Meeting } from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
+import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
 import { format } from "date-fns";
 import { flatMap, flow, get, map } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { getTextFromEditorJsonContent } from "../ui-elements/notes-writer/NotesWriter";
 import MeetingRecord from "./meeting";
 
 type MeetingAccordionItemProps = {

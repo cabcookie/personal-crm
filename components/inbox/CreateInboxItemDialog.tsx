@@ -1,8 +1,7 @@
 import useInbox from "@/api/useInbox";
-import { FC, ReactNode, createContext, useContext, useState } from "react";
-import NotesWriter, {
-  EditorJsonContent,
-} from "../ui-elements/notes-writer/NotesWriter";
+import { emptyDocument, SerializerOutput } from "@/helpers/ui-notes-writer";
+import { createContext, FC, ReactNode, useContext, useState } from "react";
+import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -18,8 +17,8 @@ interface CreateInboxItemContextType {
   state: boolean;
   open: () => void;
   close: () => void;
-  inboxItemText: EditorJsonContent | undefined;
-  setInboxItemText: (val: { json: EditorJsonContent } | undefined) => void;
+  editorContent: SerializerOutput | undefined;
+  setEditorContent: (val: SerializerOutput | undefined) => void;
   createInboxItem: () => Promise<string | undefined>;
 }
 
@@ -32,17 +31,17 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { createInboxItem } = useInbox();
-  const [inboxItemText, setInboxItemText] = useState<
-    EditorJsonContent | undefined
+  const [editorContent, setEditorContent] = useState<
+    SerializerOutput | undefined
   >();
 
-  const handleUpdate = (val: { json: EditorJsonContent } | undefined) =>
-    val && setInboxItemText(val.json);
+  const handleUpdate = (val: SerializerOutput | undefined) =>
+    val && setEditorContent(val);
 
   const handleCreateInboxItem = async () => {
-    if (!inboxItemText) return;
-    const result = await createInboxItem(inboxItemText);
-    setInboxItemText(undefined);
+    if (!editorContent) return;
+    const result = await createInboxItem(editorContent);
+    setEditorContent(undefined);
     setIsOpen(false);
     return result;
   };
@@ -53,8 +52,8 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
         state: isOpen,
         open: () => setIsOpen(true),
         close: () => setIsOpen(false),
-        inboxItemText,
-        setInboxItemText: handleUpdate,
+        editorContent,
+        setEditorContent: handleUpdate,
         createInboxItem: handleCreateInboxItem,
       }}
     >
@@ -81,8 +80,8 @@ const CreateInboxItemDialog = () => {
     state,
     open,
     close,
-    inboxItemText,
-    setInboxItemText,
+    editorContent,
+    setEditorContent,
     createInboxItem,
   } = useCreateInboxItemContext();
 
@@ -97,9 +96,9 @@ const CreateInboxItemDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <NotesWriter
-          notes={inboxItemText || ""}
+          notes={editorContent?.json || emptyDocument}
           placeholder="What's on your mind?"
-          saveNotes={(serializer) => setInboxItemText(serializer())}
+          saveNotes={(serializer) => setEditorContent(serializer())}
           showSaveStatus={false}
           autoFocus
         />

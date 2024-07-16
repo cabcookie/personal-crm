@@ -1,10 +1,9 @@
 import useInboxItem from "@/api/useInboxItem";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { debouncedOnChangeInboxNote } from "@/pages/inbox";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
-import NotesWriter, {
-  SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
+import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
 import {
   WorkflowStepResponse,
@@ -48,6 +47,7 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({ inboxItemId, forwardUrl }) => {
     response: WorkflowStepResponse,
     projectId?: string
   ) => {
+    if (!inboxItem) return;
     if (!response.nextStep) return;
     if (projectId) {
       const result = await moveInboxItemToProject(projectId);

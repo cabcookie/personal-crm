@@ -1,16 +1,16 @@
 import usePersonLearnings from "@/api/usePersonLearnings";
-import { FC, useState } from "react";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { Button } from "../ui/button";
-import { PlusCircle } from "lucide-react";
-import LearningComponent from "../learnings/LearningComponent";
-import { flow, map, get } from "lodash/fp";
 import {
   EditorJsonContent,
   getTextFromEditorJsonContent,
   SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
+} from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
+import { flow, get, map } from "lodash/fp";
+import { PlusCircle } from "lucide-react";
+import { FC, useState } from "react";
+import LearningComponent from "../learnings/LearningComponent";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import { Button } from "../ui/button";
 
 type DebouncedUpdateLearningsProps = {
   learningId: string;

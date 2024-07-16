@@ -6,17 +6,12 @@ import {
   TDetailLabel,
 } from "@/api/usePerson";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Edit, PlusCircle } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import ComboBox from "../combo-box/combo-box";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogClose,
@@ -27,10 +22,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Edit, PlusCircle } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import { Input } from "../ui/input";
-import ComboBox from "../combo-box/combo-box";
 
 const FormSchema = z.object({
   label: z.string(),
@@ -118,6 +118,7 @@ const PersonContactDetailsForm: FC<PersonContactDetailsFormProps> = ({
           }
         : { label: "", detail: "" }
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formOpen]);
 
   useEffect(() => {
@@ -127,6 +128,7 @@ const PersonContactDetailsForm: FC<PersonContactDetailsFormProps> = ({
         : FormSchema
     );
     form.reset({ ...form.getValues() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLabel]);
 
   const handleCreate = (data: z.infer<typeof FormSchema>) =>

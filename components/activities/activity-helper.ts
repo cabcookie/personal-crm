@@ -1,20 +1,19 @@
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
-import {
-  EditorJsonContent,
-  SerializerOutput,
-} from "../ui-elements/notes-writer/NotesWriter";
 
 type DebouncedUpdateNotesProps = {
   serializer: () => SerializerOutput;
-  updateNotes: (notes: EditorJsonContent) => Promise<string | undefined>;
+  updateNotes: (
+    serializedOutput: SerializerOutput
+  ) => Promise<string | undefined>;
 };
 
 export const debouncedUpdateNotes = debounce(
   async ({ serializer, updateNotes }: DebouncedUpdateNotesProps) => {
-    const { json: notes } = serializer();
-    await updateNotes(notes);
+    const serializedOutput = serializer();
+    await updateNotes(serializedOutput);
   },
-  1000
+  1500
 );
 
 type DebounceUpdateDateProps = {
