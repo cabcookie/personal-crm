@@ -87,7 +87,7 @@ const useActivity = (activityId?: string) => {
   const {
     data: activity,
     error: errorActivity,
-    isLoading: loadingActivity,
+    isLoading: isLoadingActivity,
     mutate: mutateActivity,
   } = useSWR(`/api/activities/${activityId}`, fetchActivity(activityId));
   const { toast } = useToast();
@@ -160,7 +160,7 @@ const useActivity = (activityId?: string) => {
 
   return {
     activity,
-    loadingActivity,
+    isLoadingActivity,
     errorActivity,
     updateNotes,
     updateDate,

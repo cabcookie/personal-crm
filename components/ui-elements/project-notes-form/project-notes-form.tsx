@@ -2,10 +2,14 @@ import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
+import { Alert, AlertTitle } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SerializerOutput } from "@/helpers/ui-notes-writer";
+import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";
 import ActivityMetaData from "../../activities/activity-meta-data";
+import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
 import NotesWriter from "../notes-writer/NotesWriter";
 
 type ProjectNotesFormProps = {
@@ -18,7 +22,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   className,
 }) => {
   const { getProjectById } = useProjectsContext();
-  const { activity, updateNotes } = useActivity(activityId);
+  const { activity, updateNotes, isLoadingActivity } = useActivity(activityId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
@@ -31,9 +35,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
     });
   };
 
-  return !activity ? (
-    "Loading…"
-  ) : (
+  return (
     <div className={className}>
       <Accordion
         type="single"
@@ -43,25 +45,44 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
           setAccordionValue(val === accordionValue ? undefined : val)
         }
       >
-        {activity.projectIds.map((id) => (
-          <ProjectAccordionItem
-            key={id}
-            project={getProjectById(id)}
-            accordionSelectedValue={accordionValue}
-          />
-        ))}
+        {isLoadingActivity ? (
+          <LoadingAccordionItem value="loading-project" withSubtitle />
+        ) : !activity ? (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Failed to load activities.</AlertTitle>
+          </Alert>
+        ) : (
+          activity.projectIds.map((id) => (
+            <ProjectAccordionItem
+              key={id}
+              project={getProjectById(id)}
+              accordionSelectedValue={accordionValue}
+            />
+          ))
+        )}
       </Accordion>
 
-      <div className="mx-0 md:mx-2">
-        <NotesWriter
-          notes={activity?.notes || ""}
-          saveNotes={handleNotesUpdate}
-        />
-      </div>
-
-      <div className="mx-2 md:mx-4">
-        <ActivityMetaData activity={activity} />
-      </div>
+      {isLoadingActivity ? (
+        <div className="my-2 space-y-4 mx-0 md:mx-2">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+      ) : (
+        activity && (
+          <>
+            <div className="mx-0 md:mx-2">
+              <NotesWriter
+                notes={activity.notes}
+                saveNotes={handleNotesUpdate}
+              />
+            </div>
+            <div className="mx-2 md:mx-4">
+              <ActivityMetaData activity={activity} />
+            </div>
+          </>
+        )
+      )}
     </div>
   );
 };

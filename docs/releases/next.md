@@ -1,6 +1,7 @@
-# Notizenmodul um Aufgabenfunktionen erweitern (Version :VERSION)
+# Meetings werden wieder angezeigt (Version :VERSION)
 
-- Im Notizeditor können nun mit `[]`, `[ ]` oder `[x]` Aufgaben hinzugefügt werden. Die Aufgaben werden bei den Aktivitäten in eigenen Feldern gespeichert, so dass sie leichter gefunden werden können.
-- Mit dem @ Symbol können nun Personen in den Notizen hervorgehoben werden. Das ist vor allem dann interessant, wenn man einen Verantwortlichen für eine Aufgabe bestimmen möchte. Der Verweis ist noch nicht verlinkt und bietet auch keine weiterführenden Informationen zu der Person.
-- Die Aufgaben werden bei Projekten in der Next Actions Kategorie angezeigt. Jede Aufgabe ist ein eigener Accordion Eintrag, der aufgeklappt werden kann und dort die Aktivität anzeigt, so dass die Aufgabe editiert werden kann.
-- User Profil eingeführt. Beim Anlegen eines Users wird automatisch ein Profil angelegt.
+- Wenn einem Meeting ein Abschnitt für Notizen zu einem Projekt hinzugefügt wird, wird nun in der Visualisierung einer klarer "Ladestatus" angezeigt, der andeutet, wie der Bereich aussieht, bevor die Daten tatsächlich erscheinen. Das ist besser, als nur den Text "Loading…" anzuzeigen.
+
+## In Arbeit
+
+- In Meetings können nun einzelne Notizen zu Projekten gelöscht werden oder auch nur die Verlinkung zu einem Projekt. Es wird eine Warnung angezeigt, wenn versehentlich die ganze Notiz gelöscht wird.
