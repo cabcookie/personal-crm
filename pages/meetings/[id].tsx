@@ -9,7 +9,8 @@ const MeetingDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const meetingId: string | undefined = Array.isArray(id) ? id[0] : id;
-  const { meeting, updateMeeting } = useMeeting(meetingId);
+  const { meeting, updateMeeting, deleteMeetingActivity } =
+    useMeeting(meetingId);
 
   const handleBackBtnClick = () => {
     router.replace("/meetings");
@@ -46,7 +47,11 @@ const MeetingDetailPage = () => {
             Meeting notes
           </h3>
           {meeting.activities.map((a) => (
-            <ProjectNotesForm key={a.id} activityId={a.id} />
+            <ProjectNotesForm
+              key={a.id}
+              activityId={a.id}
+              deleteActivity={() => deleteMeetingActivity(a.id)}
+            />
           ))}
         </div>
       )}

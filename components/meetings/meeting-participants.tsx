@@ -1,8 +1,8 @@
 import usePeople from "@/api/usePeople";
 import { FC } from "react";
+import PeopleList from "../people/PeopleList";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import PeopleSelector from "../ui-elements/selectors/people-selector";
-import PeopleList from "../people/PeopleList";
 
 type MeetingParticipantsProps = {
   participantIds: string[];
