@@ -19,7 +19,10 @@ const fetchMeeting = (meetingId?: string) => async () => {
     { id: meetingId },
     { selectionSet: meetingSelectionSet }
   );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading meeting");
+    throw errors;
+  }
   if (!data) throw new Error("fetchMeeting didn't retrieve data");
   return mapMeeting(data);
 };

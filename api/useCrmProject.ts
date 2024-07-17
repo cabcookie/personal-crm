@@ -48,7 +48,10 @@ const fetchCrmProject = (projectId?: string) => async () => {
     { id: projectId },
     { selectionSet: selectionSetCrmProject }
   );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading CRM project");
+    throw errors;
+  }
   if (!data) throw new Error("fetchCrmProject didn't retrieve data");
   return mapCrmProject(data);
 };

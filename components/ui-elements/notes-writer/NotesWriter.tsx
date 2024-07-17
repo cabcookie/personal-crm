@@ -3,10 +3,8 @@ import usePeople from "@/api/usePeople";
 import { Person } from "@/api/usePerson";
 import {
   EditorJsonContent,
-  getTasksData,
   isUpToDate,
   MyExtensions,
-  SerializerOutput,
 } from "@/helpers/ui-notes-writer";
 import { handlePastingImage } from "@/helpers/ui-notes-writer/image-handling";
 import {
@@ -16,9 +14,10 @@ import {
   renderer,
 } from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
+import { Editor } from "@tiptap/core";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, mergeAttributes, useEditor } from "@tiptap/react";
 import { filter, flow, map } from "lodash/fp";
 import { FC, useEffect } from "react";
 import S3ImageExtension from "./S3ImageExtension";
@@ -26,10 +25,9 @@ import S3ImageExtension from "./S3ImageExtension";
 type NotesWriterProps = {
   people: Person[];
   notes: EditorJsonContent;
-  saveNotes?: (serializer: () => SerializerOutput) => void;
+  saveNotes?: (editor: Editor) => void;
   autoFocus?: boolean;
   placeholder?: string;
-  onSubmit?: (item: EditorJsonContent) => void;
   readonly?: boolean;
   showSaveStatus?: boolean;
 };
@@ -39,7 +37,6 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
   autoFocus,
-  // onSubmit,
   readonly,
   showSaveStatus = true,
   placeholder = "Start taking notes...",
@@ -50,7 +47,18 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
     extensions: [
       ...MyExtensions,
       Mention.configure({
-        HTMLAttributes: { class: "text-blue-400" },
+        HTMLAttributes: {
+          class:
+            "text-blue-400 no-underline hover:underline underline-offset-2",
+        },
+        renderHTML: ({ options, node }) => [
+          "a",
+          mergeAttributes(
+            { href: `/people/${node.attrs.id}` },
+            options.HTMLAttributes
+          ),
+          `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
+        ],
         suggestion: {
           items: ({ query }) =>
             flow(
@@ -73,15 +81,6 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
     autofocus: autoFocus,
     editable: !readonly,
     editorProps: {
-      // handleKeyDown: (view, event) => {
-      //   if (!onSubmit) return false;
-      //   if (event.metaKey && event.key === "Enter") {
-      //     event.preventDefault();
-      //     onSubmit(view.state.doc.toJSON());
-      //     return true;
-      //   }
-      //   return false;
-      // },
       handlePaste: (view, event) => {
         if (!event.clipboardData) return false;
         const { items } = event.clipboardData;
@@ -98,8 +97,7 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
     content: notes,
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;
-      const jsonContent = editor.getJSON();
-      saveNotes(() => ({ json: jsonContent, ...getTasksData(jsonContent) }));
+      saveNotes(editor);
     },
   });
 

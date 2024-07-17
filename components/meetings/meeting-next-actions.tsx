@@ -1,8 +1,6 @@
 import { OpenTask, useOpenTasksContext } from "@/api/ContextOpenTasks";
-import { Activity } from "@/api/useActivity";
 import { Meeting } from "@/api/useMeetings";
 import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
-import { flatMap, flow, map, uniqBy } from "lodash/fp";
 import { FC, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import NextAction from "../ui-elements/project-details/next-action";
@@ -10,20 +8,20 @@ import { Accordion } from "../ui/accordion";
 
 type MeetingNextActionsProps = {
   meeting: Meeting;
+  accordionSelectedValue?: string;
 };
 
-const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
-  const { openTasksByProjectId } = useOpenTasksContext();
+const MeetingNextActions: FC<MeetingNextActionsProps> = ({
+  meeting,
+  accordionSelectedValue,
+}) => {
+  const { openTasks } = useOpenTasksContext();
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
 
   const getOpenTasksFromMeetingActivities = () =>
-    flow(
-      flatMap((activity: Activity) => activity.projectIds),
-      flatMap(openTasksByProjectId),
-      uniqBy(({ activityId, index }) => `${activityId}-${index}`)
-    )(meeting.activities);
+    openTasks?.filter((task) => task.meetingId === meeting.id);
 
   const getTasksText = ({ openTask }: OpenTask) =>
     getTextFromEditorJsonContent(openTask).trim();
@@ -32,10 +30,8 @@ const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
     <DefaultAccordionItem
       value="next-actions"
       triggerTitle="Agreed Next Actions"
-      triggerSubTitle={flow(
-        getOpenTasksFromMeetingActivities,
-        map(getTasksText)
-      )()}
+      triggerSubTitle={getOpenTasksFromMeetingActivities()?.map(getTasksText)}
+      accordionSelectedValue={accordionSelectedValue}
     >
       <Accordion
         type="single"
@@ -45,17 +41,15 @@ const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
           setAccordionValue(val === accordionValue ? undefined : val)
         }
       >
-        {flow(
-          getOpenTasksFromMeetingActivities,
-          map((openTask) => (
-            <NextAction
-              key={`${openTask.activityId}-${openTask.index}`}
-              openTask={openTask}
-              accordionSelectedValue={accordionValue}
-              showMeeting
-            />
-          ))
-        )()}
+        {!getOpenTasksFromMeetingActivities()?.length && "No open tasks"}
+        {getOpenTasksFromMeetingActivities()?.map((openTask) => (
+          <NextAction
+            key={`${openTask.activityId}-${openTask.index}`}
+            openTask={openTask}
+            accordionSelectedValue={accordionValue}
+            showMeeting
+          />
+        ))}
       </Accordion>
     </DefaultAccordionItem>
   );

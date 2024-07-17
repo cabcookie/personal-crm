@@ -1,4 +1,4 @@
-import { EditorJsonContent, SerializerOutput } from "@/helpers/ui-notes-writer";
+import { EditorJsonContent } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
 
 type UpdateFnProps = {
@@ -8,7 +8,7 @@ type UpdateFnProps = {
 };
 
 type UpdateAccountDetailsProps = UpdateFnProps & {
-  serializeIntroduction?: () => SerializerOutput;
+  serializeIntroduction?: () => { json: EditorJsonContent };
   updateAccountFn: (props: UpdateFnProps) => Promise<string | undefined>;
   updateSavedState?: (state: boolean) => void;
 };

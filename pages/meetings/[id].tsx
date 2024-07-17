@@ -1,7 +1,6 @@
 import useMeeting from "@/api/useMeeting";
 import MainLayout from "@/components/layouts/MainLayout";
 import MeetingRecord from "@/components/meetings/meeting";
-import ProjectNotesForm from "@/components/ui-elements/project-notes-form/project-notes-form";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { useRouter } from "next/router";
 
@@ -9,8 +8,7 @@ const MeetingDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const meetingId: string | undefined = Array.isArray(id) ? id[0] : id;
-  const { meeting, updateMeeting, deleteMeetingActivity } =
-    useMeeting(meetingId);
+  const { meeting, updateMeeting } = useMeeting(meetingId);
 
   const handleBackBtnClick = () => {
     router.replace("/meetings");
@@ -24,7 +22,7 @@ const MeetingDetailPage = () => {
 
   return (
     <MainLayout
-      title={meeting?.topic || "Loading..."}
+      title={meeting?.topic || "Loading meeting..."}
       recordName={meeting?.topic}
       sectionName="Meetings"
       onBackBtnClick={handleBackBtnClick}
@@ -33,27 +31,13 @@ const MeetingDetailPage = () => {
       {!meeting ? (
         "Load meeting..."
       ) : (
-        <div className="space-y-6">
-          <MeetingRecord
-            meeting={meeting}
-            addParticipants
-            showContext
-            showMeetingDate
-            addProjects
-            hideNotes
-          />
-
-          <h3 className="mx-2 md:mx-4 font-semibold tracking-tight">
-            Meeting notes
-          </h3>
-          {meeting.activities.map((a) => (
-            <ProjectNotesForm
-              key={a.id}
-              activityId={a.id}
-              deleteActivity={() => deleteMeetingActivity(a.id)}
-            />
-          ))}
-        </div>
+        <MeetingRecord
+          meeting={meeting}
+          addParticipants
+          showContext
+          showMeetingDate
+          addProjects
+        />
       )}
     </MainLayout>
   );

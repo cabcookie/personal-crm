@@ -1,5 +1,5 @@
 import { PersonLearning } from "@/api/usePersonLearnings";
-import { SerializerOutput } from "@/helpers/ui-notes-writer";
+import { EditorJsonContent, getEditorContent } from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Check, Edit, Trash2 } from "lucide-react";
@@ -13,7 +13,7 @@ type LearningComponentProps = {
   editable?: boolean;
   onMakeEditable?: () => void;
   onDelete?: () => void;
-  onChange: (serializer: () => SerializerOutput) => void;
+  onChange: (serializer: () => { json: EditorJsonContent }) => void;
   onStatusChange: (val: TPrayerStatus) => void;
 };
 
@@ -64,7 +64,7 @@ const LearningComponent: FC<LearningComponentProps> = ({
         readonly={!editable}
         placeholder="Document what you've learned about the person…"
         notes={learning.learning}
-        saveNotes={onChange}
+        saveNotes={(editor) => onChange(getEditorContent(editor))}
       />
     </div>
   </div>

@@ -1,7 +1,10 @@
+import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { Activity } from "@/api/useActivity";
 import {
+  getEditorContentAndTaskData,
   getTextFromEditorJsonContent,
   SerializerOutput,
+  TWithGetJsonFn,
 } from "@/helpers/ui-notes-writer";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -22,10 +25,14 @@ const ActivityNotes: FC<ActivityNotesProps> = ({
   accordionSelectedValue,
   updateNotes,
 }) => {
-  const handleNotesUpdate = (serializer: () => SerializerOutput) => {
+  const { mutateOpenTasks } = useOpenTasksContext();
+
+  const handleNotesUpdate = (editor: TWithGetJsonFn) => {
     debouncedUpdateNotes({
       updateNotes,
-      serializer,
+      serializer: getEditorContentAndTaskData(editor, (tasks) =>
+        mutateOpenTasks(tasks, activity)
+      ),
     });
   };
 

@@ -1,10 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
+import { toast } from "@/components/ui/use-toast";
 import { AuthUser, getCurrentUser } from "aws-amplify/auth";
+import { generateClient } from "aws-amplify/data";
+import { remove, uploadData } from "aws-amplify/storage";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { toast } from "@/components/ui/use-toast";
-import { remove, uploadData } from "aws-amplify/storage";
 const client = generateClient<Schema>();
 
 export type TUpdateProfileInfo = {
@@ -35,7 +35,10 @@ const fetchUser = async () => {
   const { data, errors } = await client.models.User.get({
     profileId: `${user.username}::${user.username}`,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading user");
+    throw errors;
+  }
   return mapUser(user, data);
 };
 

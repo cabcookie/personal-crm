@@ -2,6 +2,7 @@ import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { flatMap, flow, sortBy } from "lodash/fp";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 const selectionSet = [
@@ -40,7 +41,10 @@ const fetchPersonActivities = (personId?: string) => async () => {
         selectionSet,
       }
     );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading person activities");
+    throw errors;
+  }
   if (!data)
     throw new Error(`Reading meeting data for person ${personId} failed`);
   return flow(

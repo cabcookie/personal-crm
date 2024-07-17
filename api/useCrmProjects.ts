@@ -98,7 +98,10 @@ const fetchCrmProjectsWithToken: FetchCrmProjectsWithTokenFn = async (
     nextToken: token,
     limit: 1000,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading CRM projects");
+    throw errors;
+  }
   if (!nextToken) return data;
   return [...data, ...((await fetchCrmProjectsWithToken(nextToken)) || [])];
 };

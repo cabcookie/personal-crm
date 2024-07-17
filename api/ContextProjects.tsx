@@ -228,7 +228,10 @@ const fetchProjects = (context?: Context) => async () => {
     limit: 5000,
     selectionSet,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading projects");
+    throw errors;
+  }
   return data.map(mapProject);
 };
 
