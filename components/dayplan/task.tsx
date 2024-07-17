@@ -1,6 +1,6 @@
 import { DayPlanTodo } from "@/api/useDayplans";
 import { cn } from "@/lib/utils";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
 import ProjectName from "../ui-elements/tokens/project-name";
 import {
@@ -87,7 +87,7 @@ const Task: FC<TaskProps> = ({
                     />
                     <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
                       <AlertDialogTrigger asChild>
-                        <Trash
+                        <Trash2
                           className="w-4 h-4 mt-1 text-muted-foreground hover:text-primary"
                           onClick={(e) => {
                             e.preventDefault();

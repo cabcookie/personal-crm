@@ -11,11 +11,13 @@ type ProjectAccordionItemProps = {
   project?: Project;
   accordionSelectedValue?: string;
   showNotes?: boolean;
+  onDelete?: () => void;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   project,
   accordionSelectedValue,
+  onDelete,
   showNotes = true,
 }) => {
   const { getAccountById } = useAccountsContext();
@@ -26,6 +28,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         value={project.id}
         triggerTitle={project.project}
         className="tracking-tight"
+        onDelete={onDelete}
         accordionSelectedValue={accordionSelectedValue}
         link={`/projects/${project.id}`}
         triggerSubTitle={[

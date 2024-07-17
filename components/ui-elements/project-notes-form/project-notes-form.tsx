@@ -4,28 +4,37 @@ import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SerializerOutput } from "@/helpers/ui-notes-writer";
+import {
+  getTextFromEditorJsonContent,
+  SerializerOutput,
+} from "@/helpers/ui-notes-writer";
 import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
 import { debouncedUpdateNotes } from "../../activities/activity-helper";
 import ActivityMetaData from "../../activities/activity-meta-data";
 import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
 import NotesWriter from "../notes-writer/NotesWriter";
+import DeleteWarning from "./DeleteWarning";
 
 type ProjectNotesFormProps = {
   className?: string;
   activityId: string;
+  deleteActivity: () => void;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   activityId,
   className,
+  deleteActivity,
 }) => {
   const { getProjectById } = useProjectsContext();
-  const { activity, updateNotes, isLoadingActivity } = useActivity(activityId);
+  const { activity, updateNotes, isLoadingActivity, deleteProjectActivity } =
+    useActivity(activityId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
     undefined
   );
+  const [openDeleteActivityConfirmation, setOpenDeleteActivityConfirmation] =
+    useState(false);
 
   const handleNotesUpdate = (serializer: () => SerializerOutput) => {
     if (!updateNotes) return;
@@ -37,6 +46,32 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
+      <DeleteWarning
+        open={openDeleteActivityConfirmation}
+        onOpenChange={setOpenDeleteActivityConfirmation}
+        confirmText={
+          <>
+            <div>
+              Are you sure you want to delete the activity with the following
+              information?
+            </div>
+            {activity?.projectIds.map((id) => (
+              <div key={id}>
+                <small>Project: {getProjectById(id)?.project}</small>
+              </div>
+            ))}
+            {activity && (
+              <div>
+                <small>
+                  Notes:{" "}
+                  {getTextFromEditorJsonContent(activity?.notes).slice(0, 200)}
+                </small>
+              </div>
+            )}
+          </>
+        }
+        onConfirm={deleteActivity}
+      />
       <Accordion
         type="single"
         collapsible
@@ -53,9 +88,14 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
             <AlertTitle>Failed to load activities.</AlertTitle>
           </Alert>
         ) : (
-          activity.projectIds.map((id) => (
+          activity.projectIds.map((id, index) => (
             <ProjectAccordionItem
               key={id}
+              onDelete={() => {
+                const length = activity.projectActivityIds.length;
+                if (length < 2) setOpenDeleteActivityConfirmation(true);
+                else deleteProjectActivity(activity.projectActivityIds[index]);
+              }}
               project={getProjectById(id)}
               accordionSelectedValue={accordionValue}
             />

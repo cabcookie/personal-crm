@@ -63,6 +63,25 @@ const useMeeting = (meetingId?: string) => {
     return data?.meetingId;
   };
 
+  const deleteMeetingActivity = async (activityId: string) => {
+    if (!meeting) return;
+    const updated: Meeting = {
+      ...meeting,
+      activities: meeting.activities.filter(
+        (activity) => activity.id !== activityId
+      ),
+    };
+    mutateMeeting(updated, false);
+    const { data, errors } = await client.models.Activity.delete({
+      id: activityId,
+    });
+    if (errors) handleApiErrors(errors, "Deleting activity failed");
+    mutateMeeting(updated);
+    if (!data) return;
+    toast({ title: "Activity deleted" });
+    return data.id;
+  };
+
   const createMeetingActivity = async (projectId: string) => {
     if (!meeting) return;
     const { data: activity, errors: errorsActivity } =
@@ -120,6 +139,7 @@ const useMeeting = (meetingId?: string) => {
     createMeetingParticipant,
     createMeetingActivity,
     updateMeetingContext,
+    deleteMeetingActivity,
   };
 };
 
