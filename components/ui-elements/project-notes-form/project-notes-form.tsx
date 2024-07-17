@@ -56,22 +56,22 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
         onOpenChange={setOpenDeleteActivityConfirmation}
         confirmText={
           <>
-            <div>
+            <p>
               Are you sure you want to delete the activity with the following
               information?
-            </div>
+            </p>
             {activity?.projectIds.map((id) => (
-              <div key={id}>
+              <p key={id}>
                 <small>Project: {getProjectById(id)?.project}</small>
-              </div>
+              </p>
             ))}
             {activity && (
-              <div>
+              <p>
                 <small>
                   Notes:{" "}
                   {getTextFromEditorJsonContent(activity?.notes).slice(0, 200)}
                 </small>
-              </div>
+              </p>
             )}
           </>
         }
