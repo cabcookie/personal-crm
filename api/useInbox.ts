@@ -92,7 +92,7 @@ const useInbox = () => {
     id: string,
     { json: note, hasOpenTasks, openTasks, closedTasks }: SerializerOutput
   ) => {
-    const updated = inbox?.map((item) =>
+    const updated: Inbox[] | undefined = inbox?.map((item) =>
       item.id !== id
         ? item
         : { ...item, note, hasOpenTasks, openTasks, closedTasks }

@@ -2,7 +2,6 @@ import usePersonLearnings from "@/api/usePersonLearnings";
 import {
   EditorJsonContent,
   getTextFromEditorJsonContent,
-  SerializerOutput,
 } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
 import { flow, get, map } from "lodash/fp";
@@ -15,7 +14,7 @@ import { Button } from "../ui/button";
 type DebouncedUpdateLearningsProps = {
   learningId: string;
   updateLearning: (learningId: string, learning: EditorJsonContent) => void;
-  serializer: () => SerializerOutput;
+  serializer: () => { json: EditorJsonContent };
 };
 
 const debouncedUpdateLearnings = debounce(
@@ -54,7 +53,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({
   };
 
   const handleLearningUpdate =
-    (learningId: string) => (serializer: () => SerializerOutput) => {
+    (learningId: string) => (serializer: () => { json: EditorJsonContent }) => {
       debouncedUpdateLearnings({
         learningId,
         updateLearning,

@@ -14,8 +14,8 @@ export type EditorJsonContent = JSONContent;
 export type SerializerOutput = {
   json: EditorJsonContent;
   hasOpenTasks: boolean;
-  openTasks: EditorJsonContent[];
-  closedTasks: EditorJsonContent[];
+  openTasks?: EditorJsonContent[];
+  closedTasks?: EditorJsonContent[];
 };
 
 export const emptyDocument: EditorJsonContent = {
@@ -166,3 +166,21 @@ export const getTasksData = (
     closedTasks: tasks?.filter((t) => t.attrs?.checked) || [],
   };
 };
+
+export type TWithGetJsonFn = { getJSON: () => EditorJsonContent };
+
+export const getEditorContent = (editor: TWithGetJsonFn) => () => ({
+  json: editor.getJSON(),
+});
+
+export const getEditorContentAndTaskData =
+  (
+    editor: TWithGetJsonFn,
+    mutateOpenTasks: (updatedOpenTasks?: EditorJsonContent[]) => void
+  ) =>
+  () => {
+    const json = editor.getJSON();
+    const taskData = getTasksData(json);
+    mutateOpenTasks(taskData.openTasks);
+    return { json, ...taskData };
+  };

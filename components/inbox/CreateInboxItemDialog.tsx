@@ -1,5 +1,9 @@
 import useInbox from "@/api/useInbox";
-import { emptyDocument, SerializerOutput } from "@/helpers/ui-notes-writer";
+import {
+  emptyDocument,
+  getEditorContentAndTaskData,
+  SerializerOutput,
+} from "@/helpers/ui-notes-writer";
 import { createContext, FC, ReactNode, useContext, useState } from "react";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
@@ -17,8 +21,8 @@ interface CreateInboxItemContextType {
   state: boolean;
   open: () => void;
   close: () => void;
-  editorContent: SerializerOutput | undefined;
-  setEditorContent: (val: SerializerOutput | undefined) => void;
+  editorContent: SerializerOutput;
+  setEditorContent: (val: SerializerOutput) => void;
   createInboxItem: () => Promise<string | undefined>;
 }
 
@@ -26,22 +30,25 @@ interface CreateInobxItemProviderProps {
   children: ReactNode;
 }
 
+const emptyEditorContent = {
+  json: emptyDocument,
+  hasOpenTasks: false,
+};
+
 export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { createInboxItem } = useInbox();
-  const [editorContent, setEditorContent] = useState<
-    SerializerOutput | undefined
-  >();
+  const [editorContent, setEditorContent] =
+    useState<SerializerOutput>(emptyEditorContent);
 
-  const handleUpdate = (val: SerializerOutput | undefined) =>
-    val && setEditorContent(val);
+  const handleUpdate = (val: SerializerOutput) => setEditorContent(val);
 
   const handleCreateInboxItem = async () => {
     if (!editorContent) return;
     const result = await createInboxItem(editorContent);
-    setEditorContent(undefined);
+    setEditorContent(emptyEditorContent);
     setIsOpen(false);
     return result;
   };
@@ -96,9 +103,11 @@ const CreateInboxItemDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <NotesWriter
-          notes={editorContent?.json || emptyDocument}
+          notes={editorContent.json}
           placeholder="What's on your mind?"
-          saveNotes={(serializer) => setEditorContent(serializer())}
+          saveNotes={(editor) => {
+            setEditorContent(getEditorContentAndTaskData(editor, () => {})());
+          }}
           showSaveStatus={false}
           autoFocus
         />

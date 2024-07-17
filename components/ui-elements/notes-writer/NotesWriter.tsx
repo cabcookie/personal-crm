@@ -3,10 +3,8 @@ import usePeople from "@/api/usePeople";
 import { Person } from "@/api/usePerson";
 import {
   EditorJsonContent,
-  getTasksData,
   isUpToDate,
   MyExtensions,
-  SerializerOutput,
 } from "@/helpers/ui-notes-writer";
 import { handlePastingImage } from "@/helpers/ui-notes-writer/image-handling";
 import {
@@ -16,6 +14,7 @@ import {
   renderer,
 } from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
+import { Editor } from "@tiptap/core";
 import Mention from "@tiptap/extension-mention";
 import Placeholder from "@tiptap/extension-placeholder";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -26,7 +25,7 @@ import S3ImageExtension from "./S3ImageExtension";
 type NotesWriterProps = {
   people: Person[];
   notes: EditorJsonContent;
-  saveNotes?: (serializer: () => SerializerOutput) => void;
+  saveNotes?: (editor: Editor) => void;
   autoFocus?: boolean;
   placeholder?: string;
   onSubmit?: (item: EditorJsonContent) => void;
@@ -98,8 +97,7 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
     content: notes,
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;
-      const jsonContent = editor.getJSON();
-      saveNotes(() => ({ json: jsonContent, ...getTasksData(jsonContent) }));
+      saveNotes(editor);
     },
   });
 

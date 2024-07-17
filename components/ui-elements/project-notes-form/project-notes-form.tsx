@@ -1,3 +1,4 @@
+import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
@@ -5,8 +6,9 @@ import { Accordion } from "@/components/ui/accordion";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  getEditorContentAndTaskData,
   getTextFromEditorJsonContent,
-  SerializerOutput,
+  TWithGetJsonFn,
 } from "@/helpers/ui-notes-writer";
 import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
@@ -28,6 +30,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   deleteActivity,
 }) => {
   const { getProjectById } = useProjectsContext();
+  const { mutateOpenTasks } = useOpenTasksContext();
   const { activity, updateNotes, isLoadingActivity, deleteProjectActivity } =
     useActivity(activityId);
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
@@ -36,10 +39,12 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   const [openDeleteActivityConfirmation, setOpenDeleteActivityConfirmation] =
     useState(false);
 
-  const handleNotesUpdate = (serializer: () => SerializerOutput) => {
+  const handleNotesUpdate = (editor: TWithGetJsonFn) => {
     if (!updateNotes) return;
     debouncedUpdateNotes({
-      serializer,
+      serializer: getEditorContentAndTaskData(editor, (tasks) =>
+        mutateOpenTasks(tasks, activity)
+      ),
       updateNotes,
     });
   };

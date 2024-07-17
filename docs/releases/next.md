@@ -1,6 +1,5 @@
-# Meetings werden wieder angezeigt (Version :VERSION)
+# Vereinbarungen aus Meetings optimieren (Version :VERSION)
 
-- Wenn einem Meeting ein Abschnitt für Notizen zu einem Projekt hinzugefügt wird, wird nun in der Visualisierung einer klarer "Ladestatus" angezeigt, der andeutet, wie der Bereich aussieht, bevor die Daten tatsächlich erscheinen. Das ist besser, als nur den Text "Loading…" anzuzeigen.
-- In Meetings können nun einzelne Notizen zu Projekten gelöscht werden oder auch nur die Verlinkung zu einem Projekt. Es wird eine Warnung angezeigt, wenn versehentlich die ganze Notiz gelöscht wird.
-- Ein Skript erstellt, um nachträglich das Feld "hasOpenTasks" zu bestehenden Aktivitäten hinzuzufügen. Somit werden die Aktivitäten dann auch wieder korrekt angezeigt.
-- In Meetings wird nun auch eine Zusammenfassung der vereinbarten nächsten Schritte angezeigt.
+- Nun werden nur noch die offenen Aufgaben aus dem Meeting in der Zusammenfassung des Meetings angezeigt.
+- Das Meeting zeigt an, ob es unerledigte Aufgaben hat oder alle Aufgaben erledigt sind.
+- Fehler beim Laden von Daten werden jetzt in der Oberfläche mit angezeigt. Sie wurden bisher einfach verschluckt.

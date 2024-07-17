@@ -6,7 +6,7 @@ import {
   calcPipelineByAccountId,
   make2YearsRevenueText,
 } from "@/helpers/projects";
-import { SerializerOutput } from "@/helpers/ui-notes-writer";
+import { getEditorContent, TWithGetJsonFn } from "@/helpers/ui-notes-writer";
 import { filter, flow, get, map } from "lodash/fp";
 import { FC, useState } from "react";
 import CrmLink from "../crm/CrmLink";
@@ -58,11 +58,11 @@ const AccountDetails: FC<AccountDetailsProps> = ({
     undefined
   );
 
-  const handleUpdateIntroduction = (serializer: () => SerializerOutput) => {
+  const handleUpdateIntroduction = (editor: TWithGetJsonFn) => {
     if (!account) return;
     debouncedUpdateAccountDetails({
       id: account.id,
-      serializeIntroduction: serializer,
+      serializeIntroduction: getEditorContent(editor),
       updateAccountFn: updateAccount,
     });
   };
