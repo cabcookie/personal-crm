@@ -1,4 +1,5 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
+import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { Project } from "@/api/ContextProjects";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { format } from "date-fns";
@@ -21,6 +22,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   showNotes = true,
 }) => {
   const { getAccountById } = useAccountsContext();
+  const { openTasksByProjectId } = useOpenTasksContext();
 
   return (
     project && (
@@ -31,6 +33,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         onDelete={onDelete}
         accordionSelectedValue={accordionSelectedValue}
         link={`/projects/${project.id}`}
+        hasOpenTasks={openTasksByProjectId(project.id).length > 0}
         triggerSubTitle={[
           project.doneOn && `Done on: ${format(project.doneOn, "PPP")}`,
           project.onHoldTill &&

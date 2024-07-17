@@ -2,6 +2,7 @@ import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { flow, get, map, max, sortBy, uniq } from "lodash/fp";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 const selectionSet = [
@@ -65,7 +66,10 @@ const fetchPeople = (accountId?: string) => async () => {
         selectionSet,
       }
     );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading people");
+    throw errors;
+  }
   return flow(sortBy(getLatestUpdate), map(mapPersonId), uniq)(data);
 };
 

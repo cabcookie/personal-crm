@@ -1,8 +1,11 @@
+import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import useMeeting from "@/api/useMeeting";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import ProjectNotesForm from "../ui-elements/project-notes-form/project-notes-form";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
 import DateSelector from "../ui-elements/selectors/date-selector";
 import { Accordion } from "../ui/accordion";
@@ -25,6 +28,8 @@ type ActivityComponentProps = {
   showMeeting?: boolean;
   autoFocus?: boolean;
   allowAddingProjects?: boolean;
+  notesNotInAccordion?: boolean;
+  accordionSelectedValue?: string;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -33,10 +38,13 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showMeeting,
   showProjects,
   allowAddingProjects,
+  notesNotInAccordion,
+  accordionSelectedValue,
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
     useActivity(activityId);
-  const { meeting } = useMeeting(activity?.meetingId);
+  const { getProjectNamesByIds } = useProjectsContext();
+  const { meeting, deleteMeetingActivity } = useMeeting(activity?.meetingId);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
   const [accordionValue, setAccordionValue] = useState<string | undefined>(
@@ -74,7 +82,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
     }
   };
 
-  return (
+  return !notesNotInAccordion ? (
     <div className="pb-8 space-y-4">
       {showDates && (
         <div className="flex flex-row gap-2">
@@ -137,6 +145,20 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
         />
       </Accordion>
     </div>
+  ) : (
+    <DefaultAccordionItem
+      value={activityId}
+      accordionSelectedValue={accordionSelectedValue}
+      triggerTitle="Meeting notes"
+      triggerSubTitle={`Projects: ${getProjectNamesByIds(
+        activity?.projectIds
+      )}`}
+    >
+      <ProjectNotesForm
+        activityId={activityId}
+        deleteActivity={() => deleteMeetingActivity(activityId)}
+      />
+    </DefaultAccordionItem>
   );
 };
 

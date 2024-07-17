@@ -46,7 +46,10 @@ const fetchLearnings = (personId?: string) => async () => {
     await client.models.PersonLearning.listPersonLearningByPersonId({
       personId,
     });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading person learnings");
+    throw errors;
+  }
   if (!data) return;
   return flow(
     map(mapLearning),

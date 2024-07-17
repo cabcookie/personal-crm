@@ -132,7 +132,10 @@ const fetchDayPlansWithToken: FetchDayPlansWithTokenFn = async (
     selectionSet: dayplanSelectionSet,
     nextToken: token,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading day plans");
+    throw errors;
+  }
   if (!nextToken) return data;
   return [
     ...data,

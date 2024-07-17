@@ -22,7 +22,6 @@ type MeetingRecordProps = {
   showContext?: boolean;
   showMeetingDate?: boolean;
   addProjects?: boolean;
-  hideNotes?: boolean;
 };
 
 const MeetingRecord: FC<MeetingRecordProps> = ({
@@ -31,7 +30,6 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   showContext,
   showMeetingDate,
   addProjects,
-  hideNotes,
 }) => {
   const [meetingContext, setMeetingContext] = useState(meeting?.context);
   const {
@@ -143,14 +141,15 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           addParticipant={!addParticipants ? undefined : addParticipant}
         />
 
-        <MeetingNextActions meeting={meeting} />
+        <MeetingNextActions
+          meeting={meeting}
+          accordionSelectedValue={accordionValue}
+        />
 
-        {!hideNotes && (
-          <MeetingActivityList
-            meeting={meeting}
-            accordionSelectedValue={accordionValue}
-          />
-        )}
+        <MeetingActivityList
+          meeting={meeting}
+          accordionSelectedValue={accordionValue}
+        />
       </Accordion>
     </div>
   );

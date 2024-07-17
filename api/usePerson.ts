@@ -204,7 +204,10 @@ const fetchPerson = (personId?: string) => async () => {
       selectionSet,
     }
   );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading person");
+    throw errors;
+  }
   if (!data) throw new Error("fetchPerson returns no data");
   return mapPerson(data);
 };

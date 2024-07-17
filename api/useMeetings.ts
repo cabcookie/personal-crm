@@ -121,7 +121,10 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
     nextToken: token,
     limit: 1000,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading meetings");
+    throw errors;
+  }
   if (!nextToken) return data;
   return [
     ...data,

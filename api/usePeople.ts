@@ -11,7 +11,10 @@ const fetchPeople = async () => {
     limit: 2000,
     selectionSet,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading people");
+    throw errors;
+  }
   return flow(
     map(mapPerson),
     sortBy((p) => -p.updatedAt.getTime())

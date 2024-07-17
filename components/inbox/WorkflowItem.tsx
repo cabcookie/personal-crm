@@ -1,15 +1,18 @@
 import useInboxItem from "@/api/useInboxItem";
-import { SerializerOutput } from "@/helpers/ui-notes-writer";
+import {
+  getEditorContentAndTaskData,
+  TWithGetJsonFn,
+} from "@/helpers/ui-notes-writer";
 import { debouncedOnChangeInboxNote } from "@/pages/inbox";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
 import {
-  WorkflowStepResponse,
   getPreviousStatusByStatus,
   getWorkflowStepByStatus,
   workflow,
+  WorkflowStepResponse,
 } from "./workflow";
 
 type WorkFlowItemProps = {
@@ -34,8 +37,12 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({ inboxItemId, forwardUrl }) => {
     setPrevStatus(getPreviousStatusByStatus(workflow, inboxItem.status));
   }, [inboxItem]);
 
-  const handleUpdate = (serializer: () => SerializerOutput) => {
-    debouncedOnChangeInboxNote(inboxItemId, serializer, updateNote);
+  const handleUpdate = (editor: TWithGetJsonFn) => {
+    debouncedOnChangeInboxNote(
+      inboxItemId,
+      getEditorContentAndTaskData(editor, () => {}),
+      updateNote
+    );
   };
 
   const goBack = async () => {

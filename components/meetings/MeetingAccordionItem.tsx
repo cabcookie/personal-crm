@@ -28,6 +28,8 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({
       className="tracking-tight"
       accordionSelectedValue={accordionSelectedValue}
       link={`/meetings/${meeting.id}`}
+      hasOpenTasks={meeting.activities.some((a) => a.hasOpenTasks)}
+      hasClosedTasks={meeting.activities.some((a) => a.closedTasks?.length)}
       triggerSubTitle={[
         meeting.participantIds.length > 0 &&
           `Participants: ${getNamesByIds(meeting.participantIds)}`,
