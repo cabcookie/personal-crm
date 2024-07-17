@@ -21,6 +21,7 @@ export type Activity = {
   finishedOn: Date;
   updatedAt: Date;
   projectIds: string[];
+  projectActivityIds: string[];
 };
 
 const selectionSet = [
@@ -35,6 +36,7 @@ const selectionSet = [
   "finishedOn",
   "createdAt",
   "updatedAt",
+  "forProjects.id",
   "forProjects.projectsId",
 ] as const;
 
@@ -70,6 +72,7 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),
   projectIds: forProjects.map(({ projectsId }) => projectsId),
+  projectActivityIds: forProjects.map(({ id }) => id),
 });
 
 const fetchActivity = (activityId?: string) => async () => {
@@ -87,7 +90,7 @@ const useActivity = (activityId?: string) => {
   const {
     data: activity,
     error: errorActivity,
-    isLoading: loadingActivity,
+    isLoading: isLoadingActivity,
     mutate: mutateActivity,
   } = useSWR(`/api/activities/${activityId}`, fetchActivity(activityId));
   const { toast } = useToast();
@@ -158,13 +161,33 @@ const useActivity = (activityId?: string) => {
     return data?.id;
   };
 
+  const deleteProjectActivity = async (projectActivityId: string) => {
+    if (!activity) return;
+    const updated: Activity = {
+      ...activity,
+      projectActivityIds: activity.projectActivityIds.filter(
+        (id) => id !== projectActivityId
+      ),
+    };
+    mutateActivity(updated, false);
+    const { data, errors } = await client.models.ProjectActivity.delete({
+      id: projectActivityId,
+    });
+    if (errors) handleApiErrors(errors, "Deleting notes on project failed");
+    mutateActivity(updated);
+    if (!data) return;
+    toast({ title: "Deleted project notes" });
+    return data.id;
+  };
+
   return {
     activity,
-    loadingActivity,
+    isLoadingActivity,
     errorActivity,
     updateNotes,
     updateDate,
     addProjectToActivity,
+    deleteProjectActivity,
   };
 };
 

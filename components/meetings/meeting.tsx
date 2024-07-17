@@ -1,19 +1,20 @@
-import { Meeting } from "@/api/useMeetings";
-import { FC, useEffect, useState } from "react";
-import { Accordion } from "../ui/accordion";
-import MeetingActivityList from "./meeting-activity-list";
-import MeetingParticipants from "./meeting-participants";
 import useMeeting from "@/api/useMeeting";
-import ProjectSelector from "../ui-elements/selectors/project-selector";
+import { Meeting } from "@/api/useMeetings";
 import { Context } from "@/contexts/ContextContext";
-import ButtonGroup from "../ui-elements/btn-group/btn-group";
-import { contexts } from "../navigation-menu/ContextSwitcher";
-import ContextWarning from "../ui-elements/context-warning/context-warning";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
+import { FC, useEffect, useState } from "react";
+import { contexts } from "../navigation-menu/ContextSwitcher";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import ButtonGroup from "../ui-elements/btn-group/btn-group";
+import ContextWarning from "../ui-elements/context-warning/context-warning";
 import DateSelector from "../ui-elements/selectors/date-selector";
 import PeopleSelector from "../ui-elements/selectors/people-selector";
-import { debouncedUpdateMeeting } from "@/helpers/meetings";
+import ProjectSelector from "../ui-elements/selectors/project-selector";
+import { Accordion } from "../ui/accordion";
+import MeetingActivityList from "./meeting-activity-list";
+import MeetingNextActions from "./meeting-next-actions";
+import MeetingParticipants from "./meeting-participants";
 
 type MeetingRecordProps = {
   meeting: Meeting;
@@ -141,6 +142,8 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           accordionSelectedValue={accordionValue}
           addParticipant={!addParticipants ? undefined : addParticipant}
         />
+
+        <MeetingNextActions meeting={meeting} />
 
         {!hideNotes && (
           <MeetingActivityList

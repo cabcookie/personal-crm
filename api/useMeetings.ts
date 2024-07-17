@@ -37,6 +37,7 @@ export const meetingSelectionSet = [
   "activities.finishedOn",
   "activities.createdAt",
   "activities.updatedAt",
+  "activities.forProjects.id",
   "activities.forProjects.projectsId",
 ] as const;
 
