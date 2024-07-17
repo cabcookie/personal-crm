@@ -81,7 +81,10 @@ const fetchActivity = (activityId?: string) => async () => {
     { id: activityId },
     { selectionSet }
   );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading activity");
+    throw errors;
+  }
   if (!data) throw new Error("fetchActivity didn't retrieve data");
   return mapActivity(data);
 };

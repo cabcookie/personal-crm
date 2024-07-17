@@ -4,6 +4,7 @@ import { SelectionSet, generateClient } from "aws-amplify/data";
 import { filter, flatMap, flow } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 interface OpenTasksContextType {
@@ -58,7 +59,10 @@ const fetchOpenTasks = async () => {
       }
     );
 
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading open tasks");
+    throw errors;
+  }
   return flow(
     flatMap(mapOpenTasks),
     filter((t) => !!t)

@@ -9,7 +9,10 @@ const client = generateClient<Schema>();
 const fetchInboxItem = (itemId?: string) => async () => {
   if (!itemId) return;
   const { data, errors } = await client.models.Inbox.get({ id: itemId });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading inbox item");
+    throw errors;
+  }
   if (!data) throw new Error("fetchInboxItem didn't retrieve data");
   return mapInbox(data);
 };

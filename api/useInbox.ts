@@ -71,7 +71,10 @@ const fetchInbox = async () => {
   const { data, errors } = await client.models.Inbox.listInboxByStatus({
     status: "new",
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading inbox items");
+    throw errors;
+  }
   return data
     .map(mapInbox)
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());

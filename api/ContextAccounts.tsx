@@ -184,7 +184,10 @@ const fetchAccounts = async () => {
     limit: 500,
     selectionSet,
   });
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading accounts");
+    throw errors;
+  }
   return flow(
     map(mapAccount),
     addOrderNumberToAccounts,

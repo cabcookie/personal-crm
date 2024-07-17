@@ -2,6 +2,7 @@ import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { filter, flatMap, flow, get, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 const selectionSet = [
@@ -40,7 +41,10 @@ const fetchAccountActivities = (accountId?: string) => async () => {
         selectionSet,
       }
     );
-  if (errors) throw errors;
+  if (errors) {
+    handleApiErrors(errors, "Error loading account activities");
+    throw errors;
+  }
   if (!data)
     throw new Error(`Receive account activities failed for ${accountId}`);
   return flow(
