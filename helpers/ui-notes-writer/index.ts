@@ -92,6 +92,15 @@ const transformTasksToText = (json: EditorJsonContent): EditorJsonContent =>
             }),
       };
 
+const filterS3ImageNodes = (nodes: EditorJsonContent[]): EditorJsonContent[] =>
+  flow(
+    filter((node: EditorJsonContent) => node.type !== "s3image"),
+    map((node) => ({
+      ...node,
+      content: !node.content ? undefined : filterS3ImageNodes(node.content),
+    }))
+  )(nodes);
+
 export const getTextFromEditorJsonContent = (
   json?: EditorJsonContent | string
 ) =>
@@ -104,7 +113,7 @@ export const getTextFromEditorJsonContent = (
           ...json,
           content: flow(
             get("content"),
-            filter((c: EditorJsonContent) => c.type !== "s3image"),
+            filterS3ImageNodes,
             map(transformMentionsToText),
             map(transformTasksToText)
           )(json),
