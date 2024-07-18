@@ -38,9 +38,6 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     projectId ? getProjectById(projectId) : undefined
   );
   const [projectContext, setProjectContext] = useState(project?.context);
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   useEffect(() => {
     setProject(getProjectById(projectId));
@@ -85,19 +82,10 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           </RecordDetails>
         )}
 
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full"
-          value={accordionValue}
-          onValueChange={(val) =>
-            setAccordionValue(val === accordionValue ? undefined : val)
-          }
-        >
+        <Accordion type="single" collapsible>
           <ProjectAccountDetails
             accountIds={project.accountIds}
             onAddAccount={handleSelectAccount}
-            accordionSelectedValue={accordionValue}
             isVisible={includeAccounts}
             onRemoveAccount={(accountId, accountName) =>
               removeAccountFromProject(
@@ -112,28 +100,18 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           <CrmProjectsList
             crmProjects={project.crmProjects}
             isVisible={showCrmDetails}
-            accordionSelectedValue={accordionValue}
             projectId={project.id}
           />
 
-          <ProjectDates
-            project={project}
-            updateDatesFn={handleDateChange}
-            accordionSelectedValue={accordionValue}
-          />
+          <ProjectDates project={project} updateDatesFn={handleDateChange} />
 
           <NextActions
             projectId={project.id}
             own={project.myNextActions}
             others={project.othersNextActions}
-            accordionSelectedValue={accordionValue}
           />
 
-          <ProjectActivities
-            accordionSelectedValue={accordionValue}
-            isVisible={showNotes}
-            project={project}
-          />
+          <ProjectActivities isVisible={showNotes} project={project} />
         </Accordion>
       </div>
     )

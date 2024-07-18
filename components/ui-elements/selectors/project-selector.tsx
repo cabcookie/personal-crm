@@ -8,12 +8,14 @@ type ProjectSelectorProps = {
   allowCreateProjects?: boolean;
   onChange: (projectId: string | null) => void;
   placeholder?: string;
+  disabled?: boolean;
 };
 
 const ProjectSelector: FC<ProjectSelectorProps> = ({
   allowCreateProjects,
   value,
   onChange,
+  disabled,
   placeholder = "Search project…",
 }) => {
   const { projects, createProject } = useProjectsContext();
@@ -46,6 +48,7 @@ const ProjectSelector: FC<ProjectSelectorProps> = ({
       noSearchResultMsg="No project found."
       onChange={onChange}
       onCreate={allowCreateProjects ? onCreate : undefined}
+      disabled={disabled}
     />
   );
 };

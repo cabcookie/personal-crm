@@ -1,10 +1,10 @@
-import { FC, useState } from "react";
-import { Accordion } from "../ui/accordion";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import usePeople from "@/api/usePeople";
-import PersonDetails from "./PersonDetails";
-import { filter, find, flatMap, flow, get } from "lodash/fp";
 import { Person, PersonAccount } from "@/api/usePerson";
+import { filter, find, flatMap, flow, get } from "lodash/fp";
+import { FC } from "react";
+import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import { Accordion } from "../ui/accordion";
+import PersonDetails from "./PersonDetails";
 
 type PeopleListProps = {
   personIds?: string[];
@@ -12,20 +12,10 @@ type PeopleListProps = {
 };
 
 const PeopleList: FC<PeopleListProps> = ({ personIds, showNotes }) => {
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
   const { people } = usePeople();
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      value={accordionValue}
-      onValueChange={(val) =>
-        setAccordionValue(val === accordionValue ? undefined : val)
-      }
-    >
+    <Accordion type="single" collapsible>
       {personIds?.map((personId) => (
         <DefaultAccordionItem
           key={personId}

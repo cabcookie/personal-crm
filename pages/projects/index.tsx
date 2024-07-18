@@ -17,7 +17,7 @@ const ProjectListPage = () => {
   const createAndOpenNewProject = async () => {
     const project = await createProject("New Project");
     if (!project) return;
-    router.replace(`/projects/${project.id}`);
+    router.push(`/projects/${project.id}`);
   };
 
   const onFilterChange = (newFilter: string) =>

@@ -29,7 +29,6 @@ type ActivityComponentProps = {
   autoFocus?: boolean;
   allowAddingProjects?: boolean;
   notesNotInAccordion?: boolean;
-  accordionSelectedValue?: string;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -39,7 +38,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showProjects,
   allowAddingProjects,
   notesNotInAccordion,
-  accordionSelectedValue,
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
     useActivity(activityId);
@@ -47,9 +45,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   const { meeting, deleteMeetingActivity } = useMeeting(activity?.meetingId);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
   const { toast } = useToast();
 
   useEffect(() => {
@@ -114,41 +109,23 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
         </div>
       )}
 
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full"
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
+      <Accordion type="single" collapsible>
         <ActivityProjectList
           projectIds={activity?.projectIds}
           addProjectToActivity={
             !allowAddingProjects ? undefined : addProjectToActivity
           }
-          accordionSelectedValue={accordionValue}
           showProjects={showProjects}
         />
 
-        <ActivityMeetingList
-          meeting={meeting}
-          accordionSelectedValue={accordionValue}
-          showMeeting={showMeeting}
-        />
+        <ActivityMeetingList meeting={meeting} showMeeting={showMeeting} />
 
-        <ActivityNotes
-          activity={activity}
-          accordionSelectedValue={accordionValue}
-          updateNotes={updateNotes}
-        />
+        <ActivityNotes activity={activity} updateNotes={updateNotes} />
       </Accordion>
     </div>
   ) : (
     <DefaultAccordionItem
       value={activityId}
-      accordionSelectedValue={accordionSelectedValue}
       triggerTitle="Meeting notes"
       triggerSubTitle={`Projects: ${getProjectNamesByIds(
         activity?.projectIds

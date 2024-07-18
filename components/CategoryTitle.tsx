@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 export type CategoryTitleProps = {
   title?: string;
@@ -63,7 +64,9 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
             </Button>
           </div>
         )}
-        {title && (
+        {!title ? (
+          <Skeleton className="text-left md:text-center flex-1 h-6 md:h-8 p-0 mt-1 mb-2 md:mt-0" />
+        ) : (
           <div className="text-left md:text-center flex-1 text-2xl md:text-3xl font-bold leading-8 p-0 mt-0 tracking-tight">
             {props.saveTitle && isEditing ? (
               <textarea

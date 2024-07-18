@@ -7,22 +7,30 @@ export const addKeyDownListener = (
   toggleNavMenu: () => void,
   openCreateInboxItemDialog: () => void
 ) => {
+  const routeToUrl = (url: string) => (isMetaKeyPressed: boolean) => {
+    if (isMetaKeyPressed) window.open(url, "_blank");
+    else router.push(url);
+  };
+
+  const switchContext = (context: Context) => (isMetaKeyPressed: boolean) =>
+    !isMetaKeyPressed && setContext(context);
+
   const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {
-      const func = {
-        t: () => router.replace("/today"),
-        m: () => router.replace("/meetings"),
-        c: () => router.replace("/crm-projects"),
-        p: () => router.replace("/projects"),
-        a: () => router.replace("/accounts"),
-        i: () => router.replace("/inbox"),
-        w: () => setContext("work"),
-        h: () => setContext("hobby"),
-        f: () => setContext("family"),
+    if (event.ctrlKey && !event.altKey && !event.shiftKey) {
+      const func: ((isMetaKeyPressed: boolean) => void) | undefined = {
+        t: routeToUrl("/today"),
+        m: routeToUrl("/meetings"),
+        c: routeToUrl("/crm-projects"),
+        p: routeToUrl("/projects"),
+        a: routeToUrl("/accounts"),
+        i: routeToUrl("/inbox"),
+        w: switchContext("work"),
+        h: switchContext("hobby"),
+        f: switchContext("family"),
         "+": openCreateInboxItemDialog,
       }[event.key.toLowerCase()];
       if (func) {
-        func();
+        func(event.metaKey);
       }
     }
     if (event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) {

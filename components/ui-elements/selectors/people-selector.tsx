@@ -7,12 +7,14 @@ type PeopleSelectorProps = {
   onChange: (personId: string | null) => void;
   allowNewPerson?: boolean;
   placeholder?: string;
+  disabled?: boolean;
 };
 
 const PeopleSelector: FC<PeopleSelectorProps> = ({
   value,
   onChange,
   allowNewPerson,
+  disabled,
   placeholder = "Search person…",
 }) => {
   const { people, createPerson } = usePeople();
@@ -33,6 +35,7 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
         value: id,
         label: name,
       }))}
+      disabled={disabled}
     />
   );
 };

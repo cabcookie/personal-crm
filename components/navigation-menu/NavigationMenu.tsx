@@ -1,12 +1,13 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
-import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import useMeetings from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
 import { useNavMenuContext } from "@/contexts/NavMenuContext";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
+import { KeyboardEventHandler, useState } from "react";
 import { BiConversation } from "react-icons/bi";
 import { GoTasklist } from "react-icons/go";
 import { IconType } from "react-icons/lib";
@@ -22,10 +23,9 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "../ui/command";
-import Version from "../version/version";
+import { DialogDescription, DialogTitle } from "../ui/dialog";
 import ContextSwitcher from "./ContextSwitcher";
 import SearchableDataGroup from "./SearchableDataGroup";
-import { DialogDescription, DialogTitle } from "../ui/dialog";
 
 type UrlNavigationItem = {
   url: string;
@@ -53,6 +53,7 @@ const NavigationMenu = () => {
   const { accounts } = useAccountsContext();
   const { people, createPerson } = usePeople();
   const { createMeeting } = useMeetings({ context });
+  const [metaPressed, setMetaPressed] = useState(false);
   const router = useRouter();
 
   const mainNavigation: NavigationItem[] = [
@@ -91,19 +92,19 @@ const NavigationMenu = () => {
   const createAndOpenMeeting = async () => {
     const meetingId = await createMeeting("New Meeting", context);
     if (!meetingId) return;
-    router.replace(`/meetings/${meetingId}`);
+    router.push(`/meetings/${meetingId}`);
   };
 
   const createAndOpenPerson = async () => {
     const personId = await createPerson("New Person");
     if (!personId) return;
-    router.replace(`/people/${personId}`);
+    router.push(`/people/${personId}`);
   };
 
   const createAndOpenProject = async () => {
     const project = await createProject("New Project");
     if (!project) return;
-    router.replace(`/projects/${project.id}`);
+    router.push(`/projects/${project.id}`);
     toggleMenu();
   };
 
@@ -118,6 +119,20 @@ const NavigationMenu = () => {
     { label: "Project", action: createAndOpenProject },
   ];
 
+  const keyboardEventHandler: KeyboardEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    if (event.metaKey && !event.altKey && !event.shiftKey) setMetaPressed(true);
+    else if (event.key === "Enter") return;
+    else setMetaPressed(false);
+  };
+
+  const routeToUrl = (url?: string) => () => {
+    if (!url) return;
+    if (metaPressed) window.open(url, "_blank");
+    else router.push(url);
+  };
+
   return (
     <CommandDialog open={menuIsOpen} onOpenChange={toggleMenu}>
       <VisuallyHidden.Root asChild>
@@ -129,7 +144,11 @@ const NavigationMenu = () => {
           meetings, people, accounts, and projects.
         </DialogDescription>
       </VisuallyHidden.Root>
-      <CommandInput placeholder="Type a command or search…" />
+      <CommandInput
+        placeholder="Type a command or search…"
+        onKeyDown={keyboardEventHandler}
+        onKeyUp={keyboardEventHandler}
+      />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandSeparator />
@@ -139,13 +158,7 @@ const NavigationMenu = () => {
         <CommandSeparator />
         <CommandGroup heading="Suggestions">
           {mainNavigation.map(({ label, Icon, url, shortcut }, index) => (
-            <CommandItem
-              key={index}
-              onSelect={() => {
-                if (!url) return;
-                router.replace(url);
-              }}
-            >
+            <CommandItem key={index} onSelect={routeToUrl(url)}>
               {Icon && <Icon className="mr-2 h-4 w-4" />}
               <span>{label}</span>
               {shortcut && <CommandShortcut>{shortcut}</CommandShortcut>}
@@ -155,13 +168,7 @@ const NavigationMenu = () => {
         <CommandSeparator />
         <CommandGroup heading="Others">
           {otherNavigation.map(({ label, Icon, url, shortcut }, index) => (
-            <CommandItem
-              key={index}
-              onSelect={() => {
-                if (!url) return;
-                router.replace(url);
-              }}
-            >
+            <CommandItem key={index} onSelect={routeToUrl(url)}>
               {Icon && <Icon className="mr-2 h-4 w-4" />}
               <span>{label}</span>
               {shortcut && <CommandShortcut>{shortcut}</CommandShortcut>}
@@ -170,6 +177,7 @@ const NavigationMenu = () => {
         </CommandGroup>
         <SearchableDataGroup
           heading="Accounts"
+          metaPressed={metaPressed}
           items={accounts?.map(({ id, name }) => ({
             id,
             value: name,
@@ -178,6 +186,7 @@ const NavigationMenu = () => {
         />
         <SearchableDataGroup
           heading="People"
+          metaPressed={metaPressed}
           items={people?.map(({ id, name }) => ({
             id,
             value: name,
@@ -186,6 +195,7 @@ const NavigationMenu = () => {
         />
         <SearchableDataGroup
           heading="Projects"
+          metaPressed={metaPressed}
           items={projects
             ?.filter((p) => !p.done)
             .map(({ id, project, accountIds }) => ({
@@ -203,11 +213,6 @@ const NavigationMenu = () => {
             <span>Create {label}</span>
           </CommandItem>
         ))}
-        <CommandItem onSelect={() => {}}>
-          <div className="px-2 text-muted-foreground text-xs">
-            <Version />
-          </div>
-        </CommandItem>
       </CommandList>
     </CommandDialog>
   );

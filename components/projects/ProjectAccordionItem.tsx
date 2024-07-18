@@ -10,14 +10,12 @@ import ProjectDetails from "../ui-elements/project-details/project-details";
 
 type ProjectAccordionItemProps = {
   project?: Project;
-  accordionSelectedValue?: string;
   showNotes?: boolean;
   onDelete?: () => void;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   project,
-  accordionSelectedValue,
   onDelete,
   showNotes = true,
 }) => {
@@ -31,7 +29,6 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         triggerTitle={project.project}
         className="tracking-tight"
         onDelete={onDelete}
-        accordionSelectedValue={accordionSelectedValue}
         link={`/projects/${project.id}`}
         hasOpenTasks={openTasksByProjectId(project.id).length > 0}
         triggerSubTitle={[

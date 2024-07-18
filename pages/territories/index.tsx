@@ -8,23 +8,15 @@ import {
 } from "@/components/ui/accordion";
 import { AccordionItem } from "@radix-ui/react-accordion";
 import { useRouter } from "next/router";
-import { useState } from "react";
 
 const TerritoryListPage = () => {
   const { territories, createTerritory } = useTerritories();
-  const [validSelectedTerritory, setValidSelectedTerritory] = useState<
-    string | undefined
-  >(undefined);
-  const [invalidSelectedTerritory, setInvalidSelectedTerritory] = useState<
-    string | undefined
-  >(undefined);
-
   const router = useRouter();
 
   const createAndOpenTerritory = async () => {
     const territory = await createTerritory("New Territory");
     if (!territory) return;
-    router.replace(`/territories/${territory}`);
+    router.push(`/territories/${territory}`);
   };
 
   return (
@@ -37,21 +29,8 @@ const TerritoryListPage = () => {
         "Loading territories…"
       ) : (
         <div>
-          <Accordion
-            type="single"
-            collapsible
-            value={validSelectedTerritory}
-            onValueChange={(val) =>
-              setValidSelectedTerritory(
-                val === validSelectedTerritory ? undefined : val
-              )
-            }
-          >
-            <TerritoryList
-              territories={territories}
-              showCurrentOnly
-              selectedAccordionItem={validSelectedTerritory}
-            />
+          <Accordion type="single" collapsible>
+            <TerritoryList territories={territories} showCurrentOnly />
           </Accordion>
           <div className="mt-8" />
           <Accordion type="single" collapsible>
@@ -60,21 +39,8 @@ const TerritoryListPage = () => {
                 Show territories with no current responsibility
               </AccordionTrigger>
               <AccordionContent>
-                <Accordion
-                  type="single"
-                  collapsible
-                  value={invalidSelectedTerritory}
-                  onValueChange={(val) =>
-                    setInvalidSelectedTerritory(
-                      val === invalidSelectedTerritory ? undefined : val
-                    )
-                  }
-                >
-                  <TerritoryList
-                    territories={territories}
-                    showInvalidOnly
-                    selectedAccordionItem={invalidSelectedTerritory}
-                  />
+                <Accordion type="single" collapsible>
+                  <TerritoryList territories={territories} showInvalidOnly />
                 </Accordion>
               </AccordionContent>
             </AccordionItem>

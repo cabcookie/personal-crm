@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { FC, useEffect, useState } from "react";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import ButtonGroup from "../ui-elements/btn-group/btn-group";
 import ContextWarning from "../ui-elements/context-warning/context-warning";
 import DateSelector from "../ui-elements/selectors/date-selector";
@@ -17,7 +18,7 @@ import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
 
 type MeetingRecordProps = {
-  meeting: Meeting;
+  meeting?: Meeting;
   addParticipants?: boolean;
   showContext?: boolean;
   showMeetingDate?: boolean;
@@ -37,12 +38,9 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     updateMeetingContext,
     updateMeeting,
     createMeetingParticipant,
-  } = useMeeting(meeting.id);
+  } = useMeeting(meeting?.id);
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
-  );
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
   );
 
   useEffect(() => {
@@ -82,16 +80,19 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           <h3 className="mx-2 md:mx-4 font-semibold tracking-tight">Context</h3>
           <ButtonGroup
             values={contexts}
-            selectedValue={meetingContext || "family"}
+            selectedValue={!meeting ? "" : meetingContext || "family"}
             onSelect={(val: string) => {
               if (!contexts.includes(val as Context)) return;
               updateContext(val as Context);
             }}
+            disabled={!meeting}
           />
-          <ContextWarning
-            recordContext={meetingContext}
-            className="mx-2 md:mx-4"
-          />
+          {meeting && (
+            <ContextWarning
+              recordContext={meetingContext}
+              className="mx-2 md:mx-4"
+            />
+          )}
         </div>
       )}
 
@@ -101,6 +102,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           value=""
           onChange={addParticipant}
           allowNewPerson
+          disabled={!meeting}
         />
       )}
 
@@ -110,46 +112,44 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           onChange={handleSelectProject}
           allowCreateProjects
           placeholder="Add a project…"
+          disabled={!meeting}
         />
       )}
 
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
-        {showMeetingDate && (
-          <DefaultAccordionItem
-            value="meeting-date"
-            triggerTitle="Meeting on"
-            triggerSubTitle={format(meeting.meetingOn, "PPp")}
-          >
-            <DateSelector
-              date={meetingDate}
-              setDate={handleDateChange}
-              selectHours
+      <Accordion type="single" collapsible>
+        {showMeetingDate &&
+          (!meeting ? (
+            <LoadingAccordionItem
+              value="loading-date"
+              widthTitleRem={6}
+              widthSubTitleRem={10}
             />
-          </DefaultAccordionItem>
+          ) : (
+            <DefaultAccordionItem
+              value="meeting-date"
+              triggerTitle="Meeting on"
+              triggerSubTitle={meeting && format(meeting.meetingOn, "PPp")}
+            >
+              <DateSelector
+                date={meetingDate}
+                setDate={handleDateChange}
+                selectHours
+              />
+            </DefaultAccordionItem>
+          ))}
+
+        {meeting && (
+          <>
+            <MeetingParticipants
+              participantIds={meeting.participantIds}
+              addParticipant={!addParticipants ? undefined : addParticipant}
+            />
+
+            <MeetingNextActions meeting={meeting} />
+
+            <MeetingActivityList meeting={meeting} />
+          </>
         )}
-
-        <MeetingParticipants
-          participantIds={meeting.participantIds}
-          accordionSelectedValue={accordionValue}
-          addParticipant={!addParticipants ? undefined : addParticipant}
-        />
-
-        <MeetingNextActions
-          meeting={meeting}
-          accordionSelectedValue={accordionValue}
-        />
-
-        <MeetingActivityList
-          meeting={meeting}
-          accordionSelectedValue={accordionValue}
-        />
       </Accordion>
     </div>
   );

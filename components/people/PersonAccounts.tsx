@@ -4,17 +4,16 @@ import {
   PersonAccountCreateProps,
   PersonAccountUpdateProps,
 } from "@/api/usePerson";
+import { format } from "date-fns";
+import { filter, flatMap, flow } from "lodash/fp";
+import { Trash2 } from "lucide-react";
+import Link from "next/link";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import PersonAccountForm from "./PersonAccountForm";
-import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
-import { filter, flatMap, flow } from "lodash/fp";
-import Link from "next/link";
 
 type PersonAccountsProps = {
   person: Person;
-  accordionSelectedValue?: string;
   onCreate: (data: PersonAccountCreateProps) => Promise<string | undefined>;
   onChange: (data: PersonAccountUpdateProps) => Promise<string | undefined>;
   onDelete: (personAccountId: string) => Promise<string | undefined>;
@@ -22,7 +21,6 @@ type PersonAccountsProps = {
 
 const PersonAccounts: FC<PersonAccountsProps> = ({
   person,
-  accordionSelectedValue,
   onCreate,
   onChange,
   onDelete,
@@ -38,7 +36,6 @@ const PersonAccounts: FC<PersonAccountsProps> = ({
         pa.startDate && `since ${format(pa.startDate, "PP")}`,
       ])
     )(person.accounts)}
-    accordionSelectedValue={accordionSelectedValue}
   >
     <PersonAccountForm personName={person.name} onCreate={onCreate} />
 

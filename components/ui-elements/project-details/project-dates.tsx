@@ -30,18 +30,15 @@ type ProjectDatesProps = {
     onHoldTill?: Date;
     doneOn?: Date;
   }) => Promise<string | undefined>;
-  accordionSelectedValue?: string;
 };
 
 const ProjectDates: FC<ProjectDatesProps> = ({
   project: { dueOn, doneOn, onHoldTill },
   updateDatesFn,
-  accordionSelectedValue,
 }) => (
   <DefaultAccordionItem
     value="project-dates"
     triggerTitle="Project Dates"
-    accordionSelectedValue={accordionSelectedValue}
     isVisible
     triggerSubTitle={[
       doneOn && `Done on: ${format(doneOn, "PPP")}`,

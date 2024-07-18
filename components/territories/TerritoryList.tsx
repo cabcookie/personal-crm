@@ -17,7 +17,6 @@ type ShowCurrentOrInvalid = ShowInvalidOnly | ShowCurrentOnly;
 
 type TerritoryListProps = ShowCurrentOrInvalid & {
   territories: Territory[];
-  selectedAccordionItem?: string;
 };
 
 const filterCurrentOrInvalid =
@@ -33,7 +32,6 @@ const TerritoryList: FC<TerritoryListProps> = ({
   showCurrentOnly,
   showInvalidOnly,
   territories,
-  selectedAccordionItem,
 }) => {
   return territories.filter(
     filterCurrentOrInvalid(showCurrentOnly, showInvalidOnly)
@@ -51,7 +49,6 @@ const TerritoryList: FC<TerritoryListProps> = ({
               ...t.accounts.map((a) => a.name),
               makeCurrentResponsibilityText(t),
             ]}
-            accordionSelectedValue={selectedAccordionItem}
           >
             <TerritoryDetails territoryId={t.id} />
           </DefaultAccordionItem>

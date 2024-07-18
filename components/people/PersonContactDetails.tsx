@@ -6,12 +6,11 @@ import {
 } from "@/api/usePerson";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import PersonContactDetailsForm from "./PersonContactDetailsForm";
 import PersonContactDetail from "./PersonContactDetail";
+import PersonContactDetailsForm from "./PersonContactDetailsForm";
 
 type PersonContactDetailsProps = {
   person: Person;
-  accordionSelectedValue?: string;
   onCreate: (data: PersonContactDetailsCreateProps) => void;
   onChange: (data: PersonContactDetailsUpdateProps) => void;
   onDelete: (personDetailId: string) => void;
@@ -19,7 +18,6 @@ type PersonContactDetailsProps = {
 
 const PersonContactDetails: FC<PersonContactDetailsProps> = ({
   person,
-  accordionSelectedValue,
   onCreate,
   onChange,
   onDelete,
@@ -33,7 +31,6 @@ const PersonContactDetails: FC<PersonContactDetailsProps> = ({
           personDetailsLabels.find((l) => l.fieldLabel === d.label)?.formLabel
         }: ${d.detail}`
     )}
-    accordionSelectedValue={accordionSelectedValue}
   >
     <PersonContactDetailsForm personName={person.name} onCreate={onCreate} />
 

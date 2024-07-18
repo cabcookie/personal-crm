@@ -1,12 +1,12 @@
 import usePerson from "@/api/usePerson";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Accordion } from "../ui/accordion";
-import PersonDates from "./PersonDates";
-import PersonNotes from "./PersonNotes";
-import PersonUpdateForm from "./PersonUpdateForm";
 import PersonAccounts from "./PersonAccounts";
 import PersonContactDetails from "./PersonContactDetails";
+import PersonDates from "./PersonDates";
 import PersonLearnings from "./PersonLearnings";
+import PersonNotes from "./PersonNotes";
+import PersonUpdateForm from "./PersonUpdateForm";
 
 type PersonDetailsProps = {
   personId: string;
@@ -32,9 +32,6 @@ const PersonDetails: FC<PersonDetailsProps> = ({
     updateContactDetail,
     deleteContactDetail,
   } = usePerson(personId);
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return (
     person && (
@@ -47,17 +44,9 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           />
         </div>
 
-        <Accordion
-          type="single"
-          collapsible
-          value={accordionValue}
-          onValueChange={(val) =>
-            setAccordionValue(val === accordionValue ? undefined : val)
-          }
-        >
+        <Accordion type="single" collapsible>
           <PersonAccounts
             person={person}
-            accordionSelectedValue={accordionValue}
             onCreate={createPersonAccount}
             onDelete={deletePersonAccount}
             onChange={updatePersonAccount}
@@ -65,27 +54,16 @@ const PersonDetails: FC<PersonDetailsProps> = ({
 
           <PersonContactDetails
             person={person}
-            accordionSelectedValue={accordionValue}
             onCreate={createContactDetail}
             onChange={updateContactDetail}
             onDelete={deleteContactDetail}
           />
 
-          <PersonDates
-            person={person}
-            accordionSelectedValue={accordionValue}
-          />
+          <PersonDates person={person} />
 
-          <PersonLearnings
-            accordionSelectedValue={accordionValue}
-            personId={person.id}
-          />
+          <PersonLearnings personId={person.id} />
 
-          <PersonNotes
-            personId={person.id}
-            accordionSelectedValue={accordionValue}
-            showNotes={showNotes}
-          />
+          <PersonNotes personId={person.id} showNotes={showNotes} />
         </Accordion>
       </>
     )

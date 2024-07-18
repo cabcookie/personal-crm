@@ -5,21 +5,13 @@ import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem"
 
 type AccountNotesProps = {
   accountId: string;
-  accordionSelectedValue?: string;
 };
 
-const AccountNotes: FC<AccountNotesProps> = ({
-  accountId,
-  accordionSelectedValue,
-}) => {
+const AccountNotes: FC<AccountNotesProps> = ({ accountId }) => {
   const { activities } = useAccountActivities(accountId);
 
   return (
-    <DefaultAccordionItem
-      value="notes"
-      triggerTitle="Notes"
-      accordionSelectedValue={accordionSelectedValue}
-    >
+    <DefaultAccordionItem value="notes" triggerTitle="Notes">
       {activities?.map((a) => (
         <ActivityComponent
           key={a.id}

@@ -1,4 +1,3 @@
-import { useNavMenuContext } from "@/contexts/NavMenuContext";
 import { useCommandState } from "cmdk";
 import { useRouter } from "next/router";
 import { FC } from "react";
@@ -6,6 +5,7 @@ import { CommandGroup, CommandItem } from "../ui/command";
 
 type SearchableDataGroupProps = {
   heading: string;
+  metaPressed?: boolean;
   items?: {
     id: string;
     value: string;
@@ -16,10 +16,16 @@ type SearchableDataGroupProps = {
 const SearchableDataGroup: FC<SearchableDataGroupProps> = ({
   heading,
   items,
+  metaPressed,
 }) => {
-  const router = useRouter();
-  const { toggleMenu } = useNavMenuContext();
   const search = useCommandState((state) => state.search);
+  const router = useRouter();
+
+  const routeToUrl = (url?: string) => () => {
+    if (!url) return;
+    if (metaPressed) window.open(url, "_blank");
+    else router.push(url);
+  };
 
   return (
     search &&
@@ -27,13 +33,7 @@ const SearchableDataGroup: FC<SearchableDataGroupProps> = ({
     items && (
       <CommandGroup heading={heading}>
         {items.map(({ id, value, link }) => (
-          <CommandItem
-            key={id}
-            onSelect={() => {
-              router.replace(link);
-              toggleMenu();
-            }}
-          >
+          <CommandItem key={id} onSelect={routeToUrl(link)}>
             {value}
           </CommandItem>
         ))}

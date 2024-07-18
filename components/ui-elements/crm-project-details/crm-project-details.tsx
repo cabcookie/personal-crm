@@ -9,13 +9,9 @@ import CrmProjectForm from "./CrmProjectForm";
 
 type CrmProjectDetailsProps = {
   crmProjectId: string;
-  accordionSelectedValue?: string;
 };
 
-const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
-  crmProjectId,
-  accordionSelectedValue,
-}) => {
+const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({ crmProjectId }) => {
   const { crmProject, updateCrmProject } = useCrmProject(crmProjectId);
 
   return !crmProject ? (
@@ -23,7 +19,6 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
   ) : (
     <DefaultAccordionItem
       value={crmProject.id}
-      accordionSelectedValue={accordionSelectedValue}
       triggerTitle={crmProject.name}
       link={
         crmProject.crmId && crmProject.crmId.length > 6

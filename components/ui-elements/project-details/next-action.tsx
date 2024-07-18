@@ -7,14 +7,12 @@ import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 
 type NextActionProps = {
   openTask: OpenTask;
-  accordionSelectedValue?: string;
   showProjects?: boolean;
   showMeeting?: boolean;
 };
 
 const NextAction: FC<NextActionProps> = ({
   openTask: { activityId, index, openTask, projectIds },
-  accordionSelectedValue,
   showMeeting,
   showProjects,
 }) => {
@@ -27,7 +25,6 @@ const NextAction: FC<NextActionProps> = ({
       triggerSubTitle={
         showProjects && projectIds && getProjectNamesByIds(projectIds)
       }
-      accordionSelectedValue={accordionSelectedValue}
     >
       <ActivityComponent
         activityId={activityId}

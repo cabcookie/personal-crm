@@ -3,6 +3,8 @@ import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { emptyDocument } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
+import { format } from "date-fns";
+import { useRouter } from "next/router";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
@@ -34,6 +36,7 @@ const useMeeting = (meetingId?: string) => {
     isLoading: loadingMeeting,
     mutate: mutateMeeting,
   } = useSWR(`/api/meetings/${meetingId}`, fetchMeeting(meetingId));
+  const router = useRouter();
 
   const updateMeeting = async ({ meetingOn, title }: MeetingUpdateProps) => {
     if (!meeting) return;
@@ -134,6 +137,23 @@ const useMeeting = (meetingId?: string) => {
     return data?.id;
   };
 
+  const deleteMeeting = async () => {
+    if (!meeting) return;
+    const { data, errors } = await client.models.Meeting.delete({
+      id: meeting.id,
+    });
+    if (errors) handleApiErrors(errors, "Deleting meeting failed");
+    if (data)
+      toast({
+        title: "Meeting deleted",
+        description: `Meeting: ${data.topic} (on ${format(
+          data.meetingOn || data.createdAt,
+          "PPp"
+        )})`,
+      });
+    router.replace("/meetings");
+  };
+
   return {
     meeting,
     errorMeeting,
@@ -143,6 +163,7 @@ const useMeeting = (meetingId?: string) => {
     createMeetingActivity,
     updateMeetingContext,
     deleteMeetingActivity,
+    deleteMeeting,
   };
 };
 

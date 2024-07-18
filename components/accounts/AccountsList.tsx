@@ -1,5 +1,5 @@
 import { Account } from "@/api/ContextAccounts";
-import { FC, useState } from "react";
+import { FC } from "react";
 import { Accordion } from "../ui/accordion";
 import AccountRecord from "./account-record";
 
@@ -19,12 +19,8 @@ const AccountsList: FC<AccountsListProps> = ({
   showIntroduction,
   showProjects,
   showSubsidaries = true,
-}) => {
-  const [selectedAccount, setSelectedAccount] = useState<string | undefined>(
-    undefined
-  );
-
-  return !accounts ? (
+}) =>
+  !accounts ? (
     "Loading accounts…"
   ) : accounts.filter(
       ({ controller }) =>
@@ -36,14 +32,7 @@ const AccountsList: FC<AccountsListProps> = ({
       "No subsidiaries"
     )
   ) : (
-    <Accordion
-      type="single"
-      collapsible
-      value={selectedAccount}
-      onValueChange={(val) =>
-        setSelectedAccount(val === selectedAccount ? undefined : val)
-      }
-    >
+    <Accordion type="single" collapsible>
       {accounts
         .filter(
           ({ controller }) =>
@@ -53,7 +42,6 @@ const AccountsList: FC<AccountsListProps> = ({
           <AccountRecord
             key={account.id}
             account={account}
-            selectedAccordionItem={selectedAccount}
             showContacts={showContacts}
             showIntroduction={showIntroduction}
             showProjects={showProjects}
@@ -62,6 +50,5 @@ const AccountsList: FC<AccountsListProps> = ({
         ))}
     </Accordion>
   );
-};
 
 export default AccountsList;

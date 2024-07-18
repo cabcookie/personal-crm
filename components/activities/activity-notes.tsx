@@ -14,17 +14,12 @@ import ActivityMetaData from "./activity-meta-data";
 
 type ActivityNotesProps = {
   activity?: Activity;
-  accordionSelectedValue?: string;
   updateNotes: (
     serializedOutput: SerializerOutput
   ) => Promise<string | undefined>;
 };
 
-const ActivityNotes: FC<ActivityNotesProps> = ({
-  activity,
-  accordionSelectedValue,
-  updateNotes,
-}) => {
+const ActivityNotes: FC<ActivityNotesProps> = ({ activity, updateNotes }) => {
   const { mutateOpenTasks } = useOpenTasksContext();
 
   const handleNotesUpdate = (editor: TWithGetJsonFn) => {
@@ -44,7 +39,6 @@ const ActivityNotes: FC<ActivityNotesProps> = ({
       triggerTitle="Notes"
       triggerSubTitle={getTextFromEditorJsonContent(activity.notes)}
       className="tracking-tight"
-      accordionSelectedValue={accordionSelectedValue}
     >
       <NotesWriter
         notes={activity.notes}
