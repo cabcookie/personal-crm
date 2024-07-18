@@ -1,7 +1,7 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { filter, flow, map } from "lodash/fp";
-import { FC, useState } from "react";
+import { FC } from "react";
 import ProjectAccordionItem from "../projects/ProjectAccordionItem";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
@@ -12,21 +12,16 @@ type ActivityProjectListProps = {
   addProjectToActivity?: (
     projectId: string | null
   ) => Promise<string | undefined>;
-  accordionSelectedValue?: string;
   showProjects?: boolean;
 };
 
 const ActivityProjectList: FC<ActivityProjectListProps> = ({
   projectIds,
   addProjectToActivity,
-  accordionSelectedValue,
   showProjects,
 }) => {
   const { projects } = useProjectsContext();
   const { getAccountNamesByIds } = useAccountsContext();
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return !projectIds || !projects ? (
     "Loading…"
@@ -44,7 +39,6 @@ const ActivityProjectList: FC<ActivityProjectListProps> = ({
         )
       )(projects)}
       className="tracking-tight"
-      accordionSelectedValue={accordionSelectedValue}
       isVisible={showProjects}
     >
       {addProjectToActivity && (
@@ -55,21 +49,13 @@ const ActivityProjectList: FC<ActivityProjectListProps> = ({
         />
       )}
 
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
+      <Accordion type="single" collapsible>
         {flow(
           filter((p: Project) => projectIds.includes(p.id)),
           map((project) => (
             <ProjectAccordionItem
               key={project.id}
               project={project}
-              accordionSelectedValue={accordionValue}
               showNotes={false}
             />
           ))

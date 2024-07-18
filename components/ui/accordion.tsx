@@ -4,17 +4,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const Accordion = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Root
-    ref={ref}
-    className={cn("w-full", className)}
-    {...props}
-  />
-));
-Accordion.displayName = "Accordion";
+const Accordion = AccordionPrimitive.Root;
 
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
@@ -32,31 +22,30 @@ const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
-  <AccordionPrimitive.Header className="flex flex-row items-center justify-between hover:bg-muted px-2 md:px-4 py-4 w-full">
+  <AccordionPrimitive.Header className="flex hover:bg-muted w-full">
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "font-bold truncate transition-all [&[data-state=open]>svg]:rotate-180 w-full",
+        "font-bold truncate transition-all w-full flex items-center justify-between px-1 md:px-2 py-4 group",
+        "[&[data-state=open]>svg]:rotate-180",
         className
       )}
       {...props}
     >
-      {children}
+      <div className="flex flex-col flex-1 overflow-hidden">{children}</div>
+      <ChevronDown className="h-4 w-4 ml-2 flex-shrink-0 transition-transform duration-200" />
     </AccordionPrimitive.Trigger>
-    <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
   </AccordionPrimitive.Header>
 ));
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
 const AccordionTriggerTitle: React.FC<{
   children: React.ReactNode;
-  isOpen?: boolean;
   className?: string;
-}> = ({ children, className, isOpen }) => (
+}> = ({ children, className }) => (
   <div
     className={cn(
-      !isOpen && "flex flex-row gap-2 truncate",
-      isOpen && "flex flex-row gap-2 text-wrap text-left",
+      "flex flex-row gap-2 pr-2 truncate group-data-[state=open]:text-wrap group-data-[state=open]:text-left",
       className
     )}
   >
@@ -66,14 +55,18 @@ const AccordionTriggerTitle: React.FC<{
 
 const AccordionTriggerSubTitle: React.FC<{
   children: React.ReactNode;
-  isOpen?: boolean;
   className?: string;
-}> = ({ children, isOpen, className }) =>
-  isOpen && (
-    <div className={cn("text-sm flex flex-row gap-2 truncate", className)}>
-      {children}
-    </div>
-  );
+}> = ({ children, className }) => (
+  <div
+    className={cn(
+      "font-normal text-sm flex flex-row gap-2 truncate",
+      "group-data-[state=open]:hidden",
+      className
+    )}
+  >
+    {children}
+  </div>
+);
 
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
@@ -81,7 +74,7 @@ const AccordionContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="px-2 md:px-4 py-2 space-y-2 overflow-hidden transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
     <div className={cn("pb-4 pt-0", className)}>{children}</div>

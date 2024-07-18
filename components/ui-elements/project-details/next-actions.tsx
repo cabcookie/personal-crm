@@ -24,45 +24,26 @@ type NextActionsProps = {
   projectId: string;
   own?: EditorJsonContent | string;
   others?: EditorJsonContent | string;
-  accordionSelectedValue?: string;
 };
 
-const NextActions: FC<NextActionsProps> = ({
-  projectId,
-  own,
-  others,
-  accordionSelectedValue,
-}) => {
+const NextActions: FC<NextActionsProps> = ({ projectId, own, others }) => {
   const { openTasksByProjectId } = useOpenTasksContext();
   const [openTasks] = useState(openTasksByProjectId(projectId));
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return (
     <DefaultAccordionItem
       value="next-actions"
       triggerTitle="Next Actions"
-      accordionSelectedValue={accordionSelectedValue}
       triggerSubTitle={openTasks.map(({ openTask }) =>
         getTextFromEditorJsonContent(openTask)
       )}
       isVisible
     >
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full"
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
+      <Accordion type="single" collapsible>
         {openTasks?.map((openTask) => (
           <NextAction
             key={`${openTask.activityId}-${openTask.index}`}
             openTask={openTask}
-            accordionSelectedValue={accordionValue}
             showMeeting
           />
         ))}

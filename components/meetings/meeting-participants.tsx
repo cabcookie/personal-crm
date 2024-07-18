@@ -6,12 +6,10 @@ import PeopleSelector from "../ui-elements/selectors/people-selector";
 
 type MeetingParticipantsProps = {
   participantIds: string[];
-  accordionSelectedValue?: string;
   addParticipant?: (personId: string | null) => void;
 };
 
 const MeetingParticipants: FC<MeetingParticipantsProps> = ({
-  accordionSelectedValue,
   participantIds,
   addParticipant,
 }) => {
@@ -23,7 +21,6 @@ const MeetingParticipants: FC<MeetingParticipantsProps> = ({
         value="participants"
         triggerTitle="Participants"
         triggerSubTitle={getNamesByIds(participantIds)}
-        accordionSelectedValue={accordionSelectedValue}
       >
         {addParticipant && (
           <PeopleSelector

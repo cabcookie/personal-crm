@@ -27,6 +27,7 @@ type ComboBoxProps = {
   onChange?: (selectedValue: string | null) => void;
   onCreate?: (newLabel: string) => void;
   createItemLabel?: string;
+  disabled?: boolean;
 };
 
 const ComboBox: FC<ComboBoxProps> = ({
@@ -34,6 +35,7 @@ const ComboBox: FC<ComboBoxProps> = ({
   currentValue,
   onChange,
   onCreate,
+  disabled,
   placeholder = "Search for entry…",
   noSearchResultMsg = "No entry found.",
   loadingResultsMsg = "Loading results…",
@@ -52,6 +54,7 @@ const ComboBox: FC<ComboBoxProps> = ({
             "px-2 md:px-4 w-full justify-between",
             !currentValue && "text-muted-foreground"
           )}
+          disabled={disabled}
         >
           {options?.find((o) => o.value === currentValue)?.label || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
 import { filter, flow, join } from "lodash/fp";
 import { CheckCircle2, Circle, Trash2 } from "lucide-react";
@@ -19,7 +18,6 @@ interface DefaultAccordionItemProps extends AccordionItemProps {
   triggerTitle: ReactNode;
   link?: string;
   triggerSubTitle?: string | boolean | (string | undefined | boolean)[];
-  accordionSelectedValue?: string;
   isVisible?: boolean;
   onDelete?: () => void;
   hasOpenTasks?: boolean;
@@ -36,7 +34,6 @@ const DefaultAccordionItem = forwardRef<
       triggerTitle,
       link,
       triggerSubTitle,
-      accordionSelectedValue,
       className,
       children,
       onDelete,
@@ -50,13 +47,10 @@ const DefaultAccordionItem = forwardRef<
     isVisible && (
       <AccordionItem value={value} ref={ref} {...props}>
         <AccordionTrigger className={className}>
-          <AccordionTriggerTitle
-            className="pr-2"
-            isOpen={accordionSelectedValue === value}
-          >
+          <AccordionTriggerTitle>
             {hasOpenTasks && (
               <>
-                <Circle className="md:hidden bg-destructive rounded-full text-destructive-foreground" />
+                <Circle className="mt-[0.2rem] w-4 h-4 md:hidden bg-destructive rounded-full text-destructive-foreground" />
                 <Badge variant="destructive" className="hidden md:block">
                   Open
                 </Badge>
@@ -64,15 +58,13 @@ const DefaultAccordionItem = forwardRef<
             )}
             {!hasOpenTasks && hasClosedTasks && (
               <>
-                <CheckCircle2 className="md:hidden rounded-full bg-constructive text-constructive-foreground" />
+                <CheckCircle2 className="mt-[0.2rem] w-4 h-4 md:hidden rounded-full bg-constructive text-constructive-foreground" />
                 <Badge className="hidden md:block bg-constructive text-constructive-foreground">
                   Done
                 </Badge>
               </>
             )}
-            <div className={cn(accordionSelectedValue !== value && "truncate")}>
-              {triggerTitle}
-            </div>
+            {triggerTitle}
             {link && (
               <Link
                 href={link}
@@ -98,10 +90,7 @@ const DefaultAccordionItem = forwardRef<
               </Button>
             )}
           </AccordionTriggerTitle>
-          <AccordionTriggerSubTitle
-            isOpen={!!triggerSubTitle && accordionSelectedValue !== value}
-            className="font-normal"
-          >
+          <AccordionTriggerSubTitle>
             {typeof triggerSubTitle === "string"
               ? triggerSubTitle
               : typeof triggerSubTitle === "boolean"
@@ -115,7 +104,7 @@ const DefaultAccordionItem = forwardRef<
                 )(triggerSubTitle)}
           </AccordionTriggerSubTitle>
         </AccordionTrigger>
-        <AccordionContent>{children}</AccordionContent>
+        <AccordionContent className="my-2">{children}</AccordionContent>
       </AccordionItem>
     )
 );

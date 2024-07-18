@@ -11,13 +11,9 @@ import MeetingRecord from "./meeting";
 
 type MeetingAccordionItemProps = {
   meeting: Meeting;
-  accordionSelectedValue?: string;
 };
 
-const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({
-  meeting,
-  accordionSelectedValue,
-}) => {
+const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
   const { getNamesByIds } = usePeople();
   const { getProjectNamesByIds } = useProjectsContext();
 
@@ -26,7 +22,6 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({
       value={meeting.id}
       triggerTitle={`${meeting.topic} (${format(meeting.meetingOn, "Pp")})`}
       className="tracking-tight"
-      accordionSelectedValue={accordionSelectedValue}
       link={`/meetings/${meeting.id}`}
       hasOpenTasks={meeting.activities.some((a) => a.hasOpenTasks)}
       hasClosedTasks={meeting.activities.some((a) => a.closedTasks?.length)}

@@ -8,7 +8,7 @@ import {
 } from "@/helpers/projects";
 import { getEditorContent, TWithGetJsonFn } from "@/helpers/ui-notes-writer";
 import { filter, flow, get, map } from "lodash/fp";
-import { FC, useState } from "react";
+import { FC } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { debouncedUpdateAccountDetails } from "../ui-elements/account-details/account-updates-helpers";
@@ -54,9 +54,6 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   } = useAccountsContext();
   const { territories } = useTerritories();
   const { projects } = useProjectsContext();
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   const handleUpdateIntroduction = (editor: TWithGetJsonFn) => {
     if (!account) return;
@@ -84,14 +81,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
         )}
       </div>
 
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
+      <Accordion type="single" collapsible>
         {accounts && (
           <DefaultAccordionItem
             value="subsidaries"
@@ -107,7 +97,6 @@ const AccountDetails: FC<AccountDetailsProps> = ({
               )(accounts),
             ]}
             isVisible={!!showSubsidaries}
-            accordionSelectedValue={accordionValue}
           >
             <AccountsList
               accounts={accounts}
@@ -123,7 +112,6 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           value="introduction"
           triggerTitle="Introduction"
           isVisible={!!showIntroduction}
-          accordionSelectedValue={accordionValue}
         >
           <NotesWriter
             notes={account.introduction}
@@ -140,28 +128,19 @@ const AccountDetails: FC<AccountDetailsProps> = ({
             make2YearsRevenueText
           )(projects)}
           isVisible={!!showProjects}
-          accordionSelectedValue={accordionValue}
         >
           <ProjectList accountId={account.id} />
         </DefaultAccordionItem>
 
-        <AccountPeople
-          accountId={account.id}
-          isVisible={!!showContacts}
-          accordionSelectedValue={accordionValue}
-        />
+        <AccountPeople accountId={account.id} isVisible={!!showContacts} />
 
-        <AccountNotes
-          accountId={account.id}
-          accordionSelectedValue={accordionValue}
-        />
+        <AccountNotes accountId={account.id} />
 
         <DefaultAccordionItem
           value="aws-accounts"
           triggerTitle="AWS Payer Accounts"
           triggerSubTitle={account.payerAccounts}
           isVisible={!!showAwsAccounts && account.payerAccounts.length > 0}
-          accordionSelectedValue={accordionValue}
         >
           <ListPayerAccounts
             payerAccounts={account.payerAccounts}
@@ -183,7 +162,6 @@ const AccountDetails: FC<AccountDetailsProps> = ({
             )(territories),
           ]}
           isVisible={!!showTerritories && account.territoryIds.length > 0}
-          accordionSelectedValue={accordionValue}
         >
           <ListTerritories territoryIds={account.territoryIds} />
         </DefaultAccordionItem>

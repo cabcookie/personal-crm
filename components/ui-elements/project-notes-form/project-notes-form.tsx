@@ -33,9 +33,6 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   const { mutateOpenTasks } = useOpenTasksContext();
   const { activity, updateNotes, isLoadingActivity, deleteProjectActivity } =
     useActivity(activityId);
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
   const [openDeleteActivityConfirmation, setOpenDeleteActivityConfirmation] =
     useState(false);
 
@@ -77,16 +74,13 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
         }
         onConfirm={deleteActivity}
       />
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
+      <Accordion type="single" collapsible>
         {isLoadingActivity ? (
-          <LoadingAccordionItem value="loading-project" withSubtitle />
+          <LoadingAccordionItem
+            value="loading-project"
+            widthTitleRem={24}
+            widthSubTitleRem={20}
+          />
         ) : !activity ? (
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -102,7 +96,6 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
                 else deleteProjectActivity(activity.projectActivityIds[index]);
               }}
               project={getProjectById(id)}
-              accordionSelectedValue={accordionValue}
             />
           ))
         )}

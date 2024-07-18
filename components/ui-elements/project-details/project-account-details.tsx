@@ -36,7 +36,6 @@ const AccountName: FC<AccountNameProps> = ({
 
 type ProjectAccountDetailsProps = {
   isVisible?: boolean;
-  accordionSelectedValue?: string;
   accountIds: string[];
   onRemoveAccount: (accountId: string, accountName: string) => void;
   onAddAccount: (accountId: string | null) => void;
@@ -44,7 +43,6 @@ type ProjectAccountDetailsProps = {
 
 const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
   isVisible,
-  accordionSelectedValue,
   accountIds,
   onRemoveAccount,
   onAddAccount,
@@ -58,7 +56,6 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
         isVisible={isVisible}
         value="accounts"
         triggerTitle="Accounts"
-        accordionSelectedValue={accordionSelectedValue}
         triggerSubTitle={flow(
           map(getAccountById),
           map(get("name"))

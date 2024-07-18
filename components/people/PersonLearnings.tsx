@@ -31,13 +31,9 @@ const debouncedUpdateLearnings = debounce(
 
 type PersonLearningsProps = {
   personId?: string;
-  accordionSelectedValue?: string;
 };
 
-const PersonLearnings: FC<PersonLearningsProps> = ({
-  personId,
-  accordionSelectedValue,
-}) => {
+const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
   const {
     learnings,
     createLearning,
@@ -72,7 +68,6 @@ const PersonLearnings: FC<PersonLearningsProps> = ({
           map(getTextFromEditorJsonContent)
         )(learnings)
       }
-      accordionSelectedValue={accordionSelectedValue}
     >
       <div className="mb-2 space-y-2">
         <Button size="sm" className="gap-1" onClick={handleCreate}>

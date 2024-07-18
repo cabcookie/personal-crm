@@ -18,7 +18,6 @@ type AccountRecordProps = {
 
 const AccountRecord: FC<AccountRecordProps> = ({
   account,
-  selectedAccordionItem,
   showContacts,
   showIntroduction,
   showProjects,
@@ -46,7 +45,6 @@ const AccountRecord: FC<AccountRecordProps> = ({
         )(accounts),
       ]}
       link={`/accounts/${account.id}`}
-      accordionSelectedValue={selectedAccordionItem}
     >
       <AccountDetails
         account={account}

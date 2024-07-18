@@ -30,18 +30,15 @@ const PersonDateHelper: FC<PersonDateHelperProps> = ({ id, label, value }) => (
 
 type PersonDatesProps = {
   person: Person;
-  accordionSelectedValue?: string;
 };
 
 const PersonDates: FC<PersonDatesProps> = ({
   person: { dateOfBirth, dateOfDeath },
-  accordionSelectedValue,
 }) => {
   return (
     <DefaultAccordionItem
       value="person-dates"
       triggerTitle="Person's dates"
-      accordionSelectedValue={accordionSelectedValue}
       isVisible
       triggerSubTitle={[
         dateOfBirth && `Date of birth: ${format(dateOfBirth, "PPP")}`,

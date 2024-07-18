@@ -5,28 +5,33 @@ import {
   AccordionTriggerTitle,
 } from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
 import { FC } from "react";
 
 interface LoadingAccordionItemProps extends AccordionItemProps {
   value: string;
-  withSubtitle?: boolean;
+  widthTitleRem: number;
+  widthSubTitleRem?: number;
 }
 
 const LoadingAccordionItem: FC<LoadingAccordionItemProps> = ({
   value,
-  withSubtitle,
+  widthTitleRem,
+  widthSubTitleRem,
 }) => (
   <AccordionItem value={value} disabled>
     <AccordionTrigger>
-      <AccordionTriggerTitle className="pr-2">
+      <AccordionTriggerTitle>
         <div>
-          <Skeleton className="h-5 w-96" />
+          <Skeleton className={cn("h-5", `w-[${widthTitleRem}rem]`)} />
         </div>
       </AccordionTriggerTitle>
-      <AccordionTriggerSubTitle className="font-normal" isOpen={withSubtitle}>
-        <Skeleton className="mt-2 h-4 w-80" />
-      </AccordionTriggerSubTitle>
+      {widthSubTitleRem && (
+        <AccordionTriggerSubTitle>
+          <Skeleton className={cn("mt-2 h-4", `w-[${widthSubTitleRem}rem]`)} />
+        </AccordionTriggerSubTitle>
+      )}
     </AccordionTrigger>
   </AccordionItem>
 );

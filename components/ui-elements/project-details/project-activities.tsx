@@ -6,13 +6,11 @@ import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 
 type ProjectActivitiesProps = {
-  accordionSelectedValue?: string;
   project?: Project;
   isVisible?: boolean;
 };
 
 const ProjectActivities: FC<ProjectActivitiesProps> = ({
-  accordionSelectedValue,
   project,
   isVisible,
 }) => {
@@ -23,7 +21,6 @@ const ProjectActivities: FC<ProjectActivitiesProps> = ({
     <DefaultAccordionItem
       value="activities"
       triggerTitle="Notes"
-      accordionSelectedValue={accordionSelectedValue}
       isVisible={isVisible}
     >
       <div className="space-y-2">

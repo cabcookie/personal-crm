@@ -1,7 +1,7 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
 import { filterAndSortProjects } from "@/helpers/projects";
-import { FC, useState } from "react";
+import { FC } from "react";
 import ProjectAccordionItem from "../projects/ProjectAccordionItem";
 import { Accordion } from "../ui/accordion";
 
@@ -28,9 +28,6 @@ const ProjectList: FC<ProjectListProps> = ({
 }) => {
   const { projects } = useProjectsContext();
   const { accounts } = useAccountsContext();
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return !projects ? (
     "Loading…"
@@ -38,21 +35,10 @@ const ProjectList: FC<ProjectListProps> = ({
       .length === 0 ? (
     "No projects"
   ) : (
-    <Accordion
-      type="single"
-      collapsible
-      value={accordionValue}
-      onValueChange={(val) =>
-        setAccordionValue(val === accordionValue ? undefined : val)
-      }
-    >
+    <Accordion type="single" collapsible>
       {filterAndSortProjects(projects, accountId, projectFilter, accounts).map(
         (project) => (
-          <ProjectAccordionItem
-            key={project.id}
-            project={project}
-            accordionSelectedValue={accordionValue}
-          />
+          <ProjectAccordionItem key={project.id} project={project} />
         )
       )}
     </Accordion>

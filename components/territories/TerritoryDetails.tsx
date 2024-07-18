@@ -3,7 +3,7 @@ import {
   makeCurrentResponsibilityText,
   useTerritory,
 } from "@/api/useTerritories";
-import { FC, useState } from "react";
+import { FC } from "react";
 import AccountsList from "../accounts/AccountsList";
 import CrmLink from "../crm/CrmLink";
 import ResponsibilityDateRangeList from "../responsibility-date-ranges/ResponsibilityDateRangeList";
@@ -28,9 +28,6 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
   const { territory, deleteResponsibility, updateTerritory } =
     useTerritory(territoryId);
   const { accounts } = useAccountsContext();
-  const [accordionValue, setAccordionValue] = useState<string | undefined>(
-    undefined
-  );
 
   return !territory ? (
     "Loading territory…"
@@ -51,19 +48,11 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
         )}
       </div>
 
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={(val) =>
-          setAccordionValue(val === accordionValue ? undefined : val)
-        }
-      >
+      <Accordion type="single" collapsible>
         <DefaultAccordionItem
           value="accounts"
           triggerTitle="Accounts"
           triggerSubTitle={territory.accounts.map((a) => a.name)}
-          accordionSelectedValue={accordionValue}
         >
           {accounts && (
             <AccountsList
@@ -81,7 +70,6 @@ const TerritoryDetails: FC<TerritoryDetailsProps> = ({
           triggerTitle="Responsibilities"
           triggerSubTitle={makeCurrentResponsibilityText(territory)}
           isVisible={!!showResponsibilities}
-          accordionSelectedValue={accordionValue}
         >
           <ResponsibilityDateRangeList
             responsibilities={territory.responsibilities}

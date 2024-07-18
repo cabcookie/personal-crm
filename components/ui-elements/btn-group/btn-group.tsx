@@ -5,12 +5,14 @@ type ButtonGroupProps = {
   values: string[];
   selectedValue: string;
   onSelect: (value: string) => void;
+  disabled?: boolean;
 };
 
 const ButtonGroup: FC<ButtonGroupProps> = ({
   values,
   selectedValue,
   onSelect,
+  disabled,
 }) => (
   <div
     className={`h-10 rounded-md bg-muted p-1 text-muted-foreground w-full flex flex-row justify-between`}
@@ -21,6 +23,7 @@ const ButtonGroup: FC<ButtonGroupProps> = ({
         variant={val === selectedValue ? "contextColor" : "ghost"}
         className="h-8"
         onClick={() => onSelect(val)}
+        disabled={disabled}
       >
         {val.toUpperCase()}
       </Button>
@@ -29,10 +32,3 @@ const ButtonGroup: FC<ButtonGroupProps> = ({
 );
 
 export default ButtonGroup;
-
-/**
- *     role="tablist"
-    aria-orientation="horizontal"
-    className={`h-10 rounded-md bg-muted p-1 text-muted-foreground w-full grid grid-cols-${values.length}`}
-
- */

@@ -8,14 +8,9 @@ import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem"
 type PersonNotesProps = {
   personId: string;
   showNotes?: boolean;
-  accordionSelectedValue?: string;
 };
 
-const PersonNotes: FC<PersonNotesProps> = ({
-  showNotes,
-  accordionSelectedValue,
-  personId,
-}) => {
+const PersonNotes: FC<PersonNotesProps> = ({ showNotes, personId }) => {
   const { activities } = usePersonActivities(personId);
   const { getProjectNamesByIds } = useProjectsContext();
 
@@ -30,7 +25,6 @@ const PersonNotes: FC<PersonNotesProps> = ({
         )(activities),
       ]}
       isVisible={!!showNotes}
-      accordionSelectedValue={accordionSelectedValue}
     >
       {activities?.map((a) => (
         <ActivityComponent
