@@ -1,5 +1,9 @@
+import useCurrentUser from "@/api/useUser";
 import { signOut } from "aws-amplify/auth";
+import { getUrl } from "aws-amplify/storage";
 import { LogOut, UserCircle2 } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
@@ -10,17 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import Version from "../version/version";
-import useCurrentUser from "@/api/useUser";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { getUrl } from "aws-amplify/storage";
 
 const ProfilePicture = () => {
   const { user, createProfile } = useCurrentUser();
   const [open, setOpen] = useState(false);
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const [imageUrl, setImgUrl] = useState<string | undefined>(undefined);
-  const router = useRouter();
 
   const setCurrentImgUrl = async (
     key: string | undefined,
@@ -65,9 +64,11 @@ const ProfilePicture = () => {
           </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => router.replace("/profile")}>
-          <UserCircle2 className="mr-2 h-4 w-4" />
-          <span>Profile</span>
+        <DropdownMenuItem asChild>
+          <Link href="/profile">
+            <UserCircle2 className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />

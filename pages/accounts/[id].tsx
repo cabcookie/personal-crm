@@ -21,7 +21,7 @@ const AccountDetailPage = () => {
   }, [accountId, getAccountById]);
 
   const handleBackBtnClick = () => {
-    router.replace("/accounts");
+    router.push("/accounts");
   };
 
   return (

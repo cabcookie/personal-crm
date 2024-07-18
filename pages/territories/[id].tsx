@@ -12,7 +12,7 @@ const TerritoryDetailPage = () => {
   const [formOpen, setFormOpen] = useState(false);
 
   const handleBackBtnClick = () => {
-    router.replace("/territories");
+    router.push("/territories");
   };
 
   return (

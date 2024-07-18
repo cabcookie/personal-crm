@@ -14,7 +14,7 @@ const MeetingDetailPage = () => {
   const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
 
   const handleBackBtnClick = () => {
-    router.replace("/meetings");
+    router.push("/meetings");
   };
 
   const saveMeetingTitle = (newTitle: string) => {

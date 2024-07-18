@@ -16,7 +16,7 @@ const AccountsListPage = () => {
   const createAndOpenNewAccount = async () => {
     const account = await createAccount("New Account");
     if (!account) return;
-    router.replace(`/accounts/${account.id}`);
+    router.push(`/accounts/${account.id}`);
   };
 
   return (
