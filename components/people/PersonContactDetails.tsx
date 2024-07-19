@@ -6,11 +6,12 @@ import {
 } from "@/api/usePerson";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import PersonContactDetail from "./PersonContactDetail";
 import PersonContactDetailsForm from "./PersonContactDetailsForm";
 
 type PersonContactDetailsProps = {
-  person: Person;
+  person?: Person;
   onCreate: (data: PersonContactDetailsCreateProps) => void;
   onChange: (data: PersonContactDetailsUpdateProps) => void;
   onDelete: (personDetailId: string) => void;
@@ -21,32 +22,41 @@ const PersonContactDetails: FC<PersonContactDetailsProps> = ({
   onCreate,
   onChange,
   onDelete,
-}) => (
-  <DefaultAccordionItem
-    value="person-contact-details"
-    triggerTitle="Contact details"
-    triggerSubTitle={person.details.map(
-      (d) =>
-        `${
-          personDetailsLabels.find((l) => l.fieldLabel === d.label)?.formLabel
-        }: ${d.detail}`
-    )}
-  >
-    <PersonContactDetailsForm personName={person.name} onCreate={onCreate} />
+}) =>
+  !person ? (
+    <LoadingAccordionItem
+      value="loading-contact-details"
+      widthTitleRem={8}
+      widthSubTitleRem={12}
+    />
+  ) : (
+    <DefaultAccordionItem
+      value="person-contact-details"
+      triggerTitle="Contact details"
+      triggerSubTitle={person.details.map(
+        (d) =>
+          `${
+            personDetailsLabels.find((l) => l.fieldLabel === d.label)?.formLabel
+          }: ${d.detail}`
+      )}
+    >
+      <PersonContactDetailsForm personName={person.name} onCreate={onCreate} />
 
-    <div className="mt-4" />
+      <div className="mt-4" />
 
-    {person.details.map((pd) => (
-      <PersonContactDetail
-        key={pd.id}
-        personDetail={pd}
-        personName={person.name}
-        onChange={onChange}
-        onDelete={onDelete}
-        detailType={personDetailsLabels.find((l) => l.fieldLabel === pd.label)}
-      />
-    ))}
-  </DefaultAccordionItem>
-);
+      {person.details.map((pd) => (
+        <PersonContactDetail
+          key={pd.id}
+          personDetail={pd}
+          personName={person.name}
+          onChange={onChange}
+          onDelete={onDelete}
+          detailType={personDetailsLabels.find(
+            (l) => l.fieldLabel === pd.label
+          )}
+        />
+      ))}
+    </DefaultAccordionItem>
+  );
 
 export default PersonContactDetails;

@@ -13,21 +13,21 @@ const PersonDetailPage = () => {
 
   return (
     <MainLayout
-      title={`${person?.name || "Loading…"}${
-        !person?.howToSay ? "" : ` (say: ${person.howToSay})`
-      }`}
+      title={
+        !person
+          ? undefined
+          : `${person.name}${
+              !person.howToSay ? "" : ` (say: ${person.howToSay})`
+            }`
+      }
       recordName={person?.name}
       sectionName="People"
       addButton={{ label: "Edit", onClick: () => setFormOpen(true) }}
     >
-      {!person ? (
-        "Loading person…"
-      ) : (
-        <PersonDetails
-          personId={person.id}
-          updateFormControl={{ open: formOpen, setOpen: setFormOpen }}
-        />
-      )}
+      <PersonDetails
+        personId={person?.id}
+        updateFormControl={{ open: formOpen, setOpen: setFormOpen }}
+      />
     </MainLayout>
   );
 };

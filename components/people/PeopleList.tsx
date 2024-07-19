@@ -27,6 +27,7 @@ const PeopleList: FC<PeopleListProps> = ({ personIds, showNotes }) => {
             filter((a: PersonAccount) => a.isCurrent),
             flatMap((a) => [a.position, a.accountName])
           )(people)}
+          link={`/people/${personId}`}
         >
           <PersonDetails personId={personId} showNotes={showNotes} />
         </DefaultAccordionItem>

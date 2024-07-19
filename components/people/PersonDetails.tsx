@@ -9,7 +9,7 @@ import PersonNotes from "./PersonNotes";
 import PersonUpdateForm from "./PersonUpdateForm";
 
 type PersonDetailsProps = {
-  personId: string;
+  personId?: string;
   updateFormControl?: {
     open: boolean;
     setOpen: (val: boolean) => void;
@@ -34,8 +34,8 @@ const PersonDetails: FC<PersonDetailsProps> = ({
   } = usePerson(personId);
 
   return (
-    person && (
-      <>
+    <>
+      {person && (
         <div className="ml-2">
           <PersonUpdateForm
             person={person}
@@ -43,30 +43,30 @@ const PersonDetails: FC<PersonDetailsProps> = ({
             formControl={updateFormControl}
           />
         </div>
+      )}
 
-        <Accordion type="single" collapsible>
-          <PersonAccounts
-            person={person}
-            onCreate={createPersonAccount}
-            onDelete={deletePersonAccount}
-            onChange={updatePersonAccount}
-          />
+      <Accordion type="single" collapsible>
+        <PersonAccounts
+          person={person}
+          onCreate={createPersonAccount}
+          onDelete={deletePersonAccount}
+          onChange={updatePersonAccount}
+        />
 
-          <PersonContactDetails
-            person={person}
-            onCreate={createContactDetail}
-            onChange={updateContactDetail}
-            onDelete={deleteContactDetail}
-          />
+        <PersonContactDetails
+          person={person}
+          onCreate={createContactDetail}
+          onChange={updateContactDetail}
+          onDelete={deleteContactDetail}
+        />
 
-          <PersonDates person={person} />
+        <PersonDates person={person} />
 
-          <PersonLearnings personId={person.id} />
+        <PersonLearnings personId={person?.id} />
 
-          <PersonNotes personId={person.id} showNotes={showNotes} />
-        </Accordion>
-      </>
-    )
+        <PersonNotes personId={person?.id} showNotes={showNotes} />
+      </Accordion>
+    </>
   );
 };
 
