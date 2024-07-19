@@ -61,8 +61,8 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
   return !personId ? (
     <LoadingAccordionItem
       value="loading-learnings"
-      widthTitleRem={5}
-      widthSubTitleRem={32}
+      sizeTitle="sm"
+      sizeSubtitle="xl"
     />
   ) : (
     <DefaultAccordionItem

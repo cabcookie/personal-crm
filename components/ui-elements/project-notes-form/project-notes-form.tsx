@@ -76,11 +76,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
       />
       <Accordion type="single" collapsible>
         {isLoadingActivity ? (
-          <LoadingAccordionItem
-            value="loading-project"
-            widthTitleRem={24}
-            widthSubTitleRem={20}
-          />
+          <LoadingAccordionItem value="loading-project" sizeTitle="sm" />
         ) : !activity ? (
           <Alert>
             <AlertCircle className="h-4 w-4" />

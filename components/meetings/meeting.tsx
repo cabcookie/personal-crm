@@ -121,8 +121,8 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           (!meeting ? (
             <LoadingAccordionItem
               value="loading-date"
-              widthTitleRem={6}
-              widthSubTitleRem={10}
+              sizeTitle="base"
+              sizeSubtitle="xs"
             />
           ) : (
             <DefaultAccordionItem

@@ -26,8 +26,8 @@ const PersonContactDetails: FC<PersonContactDetailsProps> = ({
   !person ? (
     <LoadingAccordionItem
       value="loading-contact-details"
-      widthTitleRem={8}
-      widthSubTitleRem={12}
+      sizeTitle="xl"
+      sizeSubtitle="xs"
     />
   ) : (
     <DefaultAccordionItem
