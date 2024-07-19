@@ -9,6 +9,7 @@ import { PlusCircle } from "lucide-react";
 import { FC, useState } from "react";
 import LearningComponent from "../learnings/LearningComponent";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import { Button } from "../ui/button";
 
 type DebouncedUpdateLearningsProps = {
@@ -56,7 +57,14 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
         serializer,
       });
     };
-  return (
+
+  return !personId ? (
+    <LoadingAccordionItem
+      value="loading-learnings"
+      widthTitleRem={5}
+      widthSubTitleRem={32}
+    />
+  ) : (
     <DefaultAccordionItem
       value="learnings"
       triggerTitle="Learnings"

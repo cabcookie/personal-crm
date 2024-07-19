@@ -4,9 +4,10 @@ import { flatMap, flow } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 
 type PersonNotesProps = {
-  personId: string;
+  personId?: string;
   showNotes?: boolean;
 };
 
@@ -14,7 +15,13 @@ const PersonNotes: FC<PersonNotesProps> = ({ showNotes, personId }) => {
   const { activities } = usePersonActivities(personId);
   const { getProjectNamesByIds } = useProjectsContext();
 
-  return (
+  return !personId ? (
+    <LoadingAccordionItem
+      value="loading-notes"
+      widthTitleRem={3}
+      widthSubTitleRem={28}
+    />
+  ) : (
     <DefaultAccordionItem
       value="notes"
       triggerTitle="Notes"
