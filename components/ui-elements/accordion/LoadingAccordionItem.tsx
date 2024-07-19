@@ -9,27 +9,47 @@ import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
 import { FC } from "react";
 
+type Sizes = "xl" | "lg" | "base" | "sm" | "xs";
+
 interface LoadingAccordionItemProps extends AccordionItemProps {
   value: string;
-  widthTitleRem: number;
-  widthSubTitleRem?: number;
+  sizeTitle: Sizes;
+  sizeSubtitle?: Sizes;
 }
 
 const LoadingAccordionItem: FC<LoadingAccordionItemProps> = ({
   value,
-  widthTitleRem,
-  widthSubTitleRem,
+  sizeTitle,
+  sizeSubtitle,
 }) => (
   <AccordionItem value={value} disabled>
     <AccordionTrigger>
       <AccordionTriggerTitle>
         <div>
-          <Skeleton className={cn("h-5", `w-[${widthTitleRem}rem]`)} />
+          <Skeleton
+            className={cn(
+              "h-5",
+              sizeTitle === "xl" && "w-32",
+              sizeTitle === "lg" && "w-28",
+              sizeTitle === "base" && "w-24",
+              sizeTitle === "sm" && "w-20",
+              sizeTitle === "xs" && "w-16"
+            )}
+          />
         </div>
       </AccordionTriggerTitle>
-      {widthSubTitleRem && (
+      {sizeSubtitle && (
         <AccordionTriggerSubTitle>
-          <Skeleton className={cn("mt-2 h-4", `w-[${widthSubTitleRem}rem]`)} />
+          <Skeleton
+            className={cn(
+              "mt-2 h-4",
+              sizeTitle === "xl" && "w-[32rem]",
+              sizeTitle === "lg" && "w-[28rem]",
+              sizeTitle === "base" && "w-[24rem]",
+              sizeTitle === "sm" && "w-[20rem]",
+              sizeTitle === "xs" && "w-[16rem]"
+            )}
+          />
         </AccordionTriggerSubTitle>
       )}
     </AccordionTrigger>

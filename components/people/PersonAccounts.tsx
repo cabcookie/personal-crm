@@ -29,8 +29,8 @@ const PersonAccounts: FC<PersonAccountsProps> = ({
   !person ? (
     <LoadingAccordionItem
       value="loading-accounts"
-      widthTitleRem={7}
-      widthSubTitleRem={24}
+      sizeTitle="lg"
+      sizeSubtitle="base"
     />
   ) : (
     <DefaultAccordionItem

@@ -18,8 +18,8 @@ const PersonNotes: FC<PersonNotesProps> = ({ showNotes, personId }) => {
   return !personId ? (
     <LoadingAccordionItem
       value="loading-notes"
-      widthTitleRem={3}
-      widthSubTitleRem={28}
+      sizeTitle="xs"
+      sizeSubtitle="lg"
     />
   ) : (
     <DefaultAccordionItem

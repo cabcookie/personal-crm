@@ -37,8 +37,8 @@ const PersonDates: FC<PersonDatesProps> = ({ person }) =>
   !person ? (
     <LoadingAccordionItem
       value="loading-dates"
-      widthTitleRem={8}
-      widthSubTitleRem={16}
+      sizeTitle="xl"
+      sizeSubtitle="xs"
     />
   ) : (
     <DefaultAccordionItem
