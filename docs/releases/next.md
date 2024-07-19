@@ -1,9 +1,6 @@
-# UI auf weitere Personen vorbereiten (Version :VERSION)
+# Altbestand der Nächsten Aktionen aufräumen (Version :VERSION)
 
-- Bei Meetings wird klarer angezeigt, wenn Daten aus dem Backend geladen werden.
-- Bei Meetings wird nun klar darauf hingewiesen, dass ein Projekt hinzugefügt werden muss, damit Notizen aufgezeichnet werden können.
-- Meetings können gelöscht werden.
-- Verwendung des Accordions vereinfacht, so dass zukünftig weniger Konfiguration dafür vorgenommen werden muss und mehr aus dem Standard kommt (mehr CSS weniger JS).
-- Die Browser-Historie ist wieder sauber.
-- Im Navigationsmenü können nun Einträge auch in einem neuen Tab geöffnet werden.
-- Im Navigationsmenü ist es möglich zu loopen. Wenn man also unten angekommen ist und weiter nach unten geht, landet man wieder am Anfang der Liste und umgekehrt.
+- Der Albestand der Aufgaben wird nur angezeigt, wenn noch welche existieren.
+- Der Altbestand der Aufgaben wird mit voller Formatierung angezeigt (z.B. Links).
+- Wenn für ein Projekt der Altbestand an Aufgaben übertragen wurde, kann dieser mit der Schaltfläche "Delete Legacy" gelöscht werden.
+- Das Accordion "Next Actions" wird nur noch angezeigt, wenn es tatsächlich noch offene Aufgaben gibt.

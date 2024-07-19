@@ -1,34 +1,27 @@
 import { useOpenTasksContext } from "@/api/ContextOpenTasks";
+import { useProjectsContext } from "@/api/ContextProjects";
 import { Accordion } from "@/components/ui/accordion";
-import {
-  EditorJsonContent,
-  getTextFromEditorJsonContent,
-} from "@/helpers/ui-notes-writer";
-import { FC, ReactNode, useState } from "react";
+import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
+import { FC, useEffect, useState } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
-import RecordDetails from "../record-details/record-details";
+import LegacyNextActions from "./legacy-next-actions";
 import NextAction from "./next-action";
-
-type NextActionHelperProps = {
-  title: ReactNode;
-  actions?: EditorJsonContent | string;
-};
-
-const NextActionHelper: FC<NextActionHelperProps> = ({ actions, title }) => (
-  <RecordDetails title={title}>
-    {getTextFromEditorJsonContent(actions)}
-  </RecordDetails>
-);
 
 type NextActionsProps = {
   projectId: string;
-  own?: EditorJsonContent | string;
-  others?: EditorJsonContent | string;
 };
 
-const NextActions: FC<NextActionsProps> = ({ projectId, own, others }) => {
+const NextActions: FC<NextActionsProps> = ({ projectId }) => {
+  const { projects } = useProjectsContext();
   const { openTasksByProjectId } = useOpenTasksContext();
+  const [project, setProject] = useState(
+    projects?.find((p) => p.id === projectId)
+  );
   const [openTasks] = useState(openTasksByProjectId(projectId));
+
+  useEffect(() => {
+    setProject(projects?.find((p) => p.id === projectId));
+  }, [projects, projectId]);
 
   return (
     <DefaultAccordionItem
@@ -37,7 +30,11 @@ const NextActions: FC<NextActionsProps> = ({ projectId, own, others }) => {
       triggerSubTitle={openTasks.map(({ openTask }) =>
         getTextFromEditorJsonContent(openTask)
       )}
-      isVisible
+      isVisible={
+        openTasks.length > 0 ||
+        !!project?.myNextActions ||
+        !!project?.othersNextActions
+      }
     >
       <Accordion type="single" collapsible>
         {openTasks?.map((openTask) => (
@@ -49,13 +46,7 @@ const NextActions: FC<NextActionsProps> = ({ projectId, own, others }) => {
         ))}
       </Accordion>
 
-      <div className="flex flex-col md:flex-row gap-4 w-full p-0 m-0">
-        <NextActionHelper title="My next actions (LEGACY)" actions={own} />
-        <NextActionHelper
-          title="Other's next actions (LEGACY)"
-          actions={others}
-        />
-      </div>
+      <LegacyNextActions projectId={projectId} />
     </DefaultAccordionItem>
   );
 };
