@@ -64,6 +64,7 @@ interface ProjectsContextType {
   ) => Promise<string | undefined>;
   mutateProjects: KeyedMutator<Project[] | undefined>;
   getProjectNamesByIds: (projectIds?: string[]) => string;
+  deleteLegacyNextActions: (projectId: string) => Promise<string | undefined>;
 }
 
 export type CrmProjectData = {
@@ -84,8 +85,8 @@ export type Project = {
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
-  myNextActions?: EditorJsonContent | string;
-  othersNextActions?: EditorJsonContent | string;
+  myNextActions?: EditorJsonContent;
+  othersNextActions?: EditorJsonContent;
   context: Context;
   accountIds: string[];
   activityIds: string[];
@@ -177,16 +178,22 @@ const mapProject: (project: ProjectData) => Project = ({
       onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
         ? new Date(onHoldTill)
         : undefined,
-    myNextActions: transformNotesVersion({
-      version: formatVersion,
-      notes: myNextActions,
-      notesJson: myNextActionsJson,
-    }),
-    othersNextActions: transformNotesVersion({
-      version: formatVersion,
-      notes: othersNextActions,
-      notesJson: othersNextActionsJson,
-    }),
+    myNextActions:
+      !myNextActions && !myNextActionsJson
+        ? undefined
+        : transformNotesVersion({
+            version: formatVersion,
+            notes: myNextActions,
+            notesJson: myNextActionsJson,
+          }),
+    othersNextActions:
+      !othersNextActions && !othersNextActionsJson
+        ? undefined
+        : transformNotesVersion({
+            version: formatVersion,
+            notes: othersNextActions,
+            notesJson: othersNextActionsJson,
+          }),
     context,
     accountIds: flow(
       map((a: (typeof accounts)[number]) => ({
@@ -486,6 +493,29 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
           join(", ")
         )(projects);
 
+  const deleteLegacyNextActions: (
+    projectId: string
+  ) => Promise<string | undefined> = async (projectId) => {
+    const updated: Project[] | undefined = projects?.map((p) =>
+      p.id !== projectId
+        ? p
+        : { ...p, myNextActions: undefined, othersNextActions: undefined }
+    );
+    if (updated) mutateProjects(updated, false);
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      othersNextActions: null,
+      myNextActions: null,
+      othersNextActionsJson: null,
+      myNextActionsJson: null,
+    });
+    if (errors) handleApiErrors(errors, "Deleting Legacy Next Actions failed");
+    if (updated) mutateProjects(updated);
+    if (!data) return;
+    toast({ title: "Legacy Next Actions deleted" });
+    return data.id;
+  };
+
   return (
     <ProjectsContext.Provider
       value={{
@@ -504,6 +534,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         updateProjectContext,
         mutateProjects,
         getProjectNamesByIds,
+        deleteLegacyNextActions,
       }}
     >
       {children}

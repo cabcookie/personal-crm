@@ -105,11 +105,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 
           <ProjectDates project={project} updateDatesFn={handleDateChange} />
 
-          <NextActions
-            projectId={project.id}
-            own={project.myNextActions}
-            others={project.othersNextActions}
-          />
+          <NextActions projectId={project.id} />
 
           <ProjectActivities isVisible={showNotes} project={project} />
         </Accordion>
