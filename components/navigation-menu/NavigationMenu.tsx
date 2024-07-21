@@ -8,10 +8,9 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
 import { KeyboardEventHandler, useState } from "react";
-import { BiConversation } from "react-icons/bi";
+import { BiCalendarWeek, BiConversation } from "react-icons/bi";
 import { GoTasklist } from "react-icons/go";
 import { IconType } from "react-icons/lib";
-import { PiHandFist } from "react-icons/pi";
 import { useCreateInboxItemContext } from "../inbox/CreateInboxItemDialog";
 import {
   CommandDialog,
@@ -70,11 +69,17 @@ const NavigationMenu = () => {
       url: "/meetings",
     },
     {
-      label: "Commitments",
-      shortcut: "^C",
-      Icon: PiHandFist,
-      url: "/commitments",
+      label: "Weekly Planning",
+      shortcut: "^K",
+      Icon: BiCalendarWeek,
+      url: "/planweek",
     },
+    // {
+    //   label: "Commitments",
+    //   shortcut: "^C",
+    //   Icon: PiHandFist,
+    //   url: "/commitments",
+    // },
   ];
 
   const otherNavigation: NavigationItem[] = [
