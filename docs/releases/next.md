@@ -1,1 +1,1 @@
-# Die Ladebalken werden nun zuverlässig angezeigt (Version :VERSION)
+# Der Status von offenen Aufgaben und Meetings wird auf kleineren Bildschirmen klarer dargestellt (Version :VERSION)

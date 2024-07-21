@@ -50,7 +50,7 @@ const DefaultAccordionItem = forwardRef<
           <AccordionTriggerTitle>
             {hasOpenTasks && (
               <>
-                <Circle className="mt-[0.2rem] w-4 h-4 md:hidden bg-destructive rounded-full text-destructive-foreground" />
+                <Circle className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden bg-destructive rounded-full text-destructive-foreground" />
                 <Badge variant="destructive" className="hidden md:block">
                   Open
                 </Badge>
