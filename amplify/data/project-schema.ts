@@ -111,6 +111,7 @@ const projectSchema = {
       dayTasks: a.hasMany("DayProjectTask", "projectsDayTasksId"),
       todos: a.hasMany("DayPlanTodo", "projectsTodosId"),
       crmProjects: a.hasMany("CrmProjectProjects", "projectId"),
+      weekPlans: a.hasMany("WeeklyPlanProject", "projectId"),
     })
     .authorization((allow) => [allow.owner()]),
 };

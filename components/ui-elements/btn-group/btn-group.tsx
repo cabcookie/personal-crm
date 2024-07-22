@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { FC } from "react";
 
 type ButtonGroupProps = {
+  elementId?: string;
   values: string[];
   selectedValue: string;
   onSelect: (value: string) => void;
@@ -9,12 +10,14 @@ type ButtonGroupProps = {
 };
 
 const ButtonGroup: FC<ButtonGroupProps> = ({
+  elementId,
   values,
   selectedValue,
   onSelect,
   disabled,
 }) => (
   <div
+    id={elementId}
     className={`h-10 rounded-md bg-muted p-1 text-muted-foreground w-full flex flex-row justify-between`}
   >
     {values.map((val) => (

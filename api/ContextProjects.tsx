@@ -42,7 +42,7 @@ interface ProjectsContextType {
     projectId: string;
     dueDate?: Date;
     doneOn?: Date;
-    onHoldTill?: Date;
+    onHoldTill?: Date | null;
   }) => Promise<string | undefined>;
   updateProjectState: (
     projectId: string,
@@ -327,7 +327,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     project?: string;
     dueOn?: Date;
     doneOn?: Date | null;
-    onHoldTill?: Date;
+    onHoldTill?: Date | null;
     myNextActions?: EditorJsonContent | string;
     othersNextActions?: EditorJsonContent | string;
     done?: boolean;
@@ -406,7 +406,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     projectId: string;
     dueOn?: Date;
     doneOn?: Date;
-    onHoldTill?: Date;
+    onHoldTill?: Date | null;
   }) => updateProject({ id: projectId, dueOn, onHoldTill, doneOn });
 
   const updateProjectState = (projectId: string, done: boolean) =>

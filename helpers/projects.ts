@@ -73,7 +73,7 @@ export const calcPipeline = (projects: CalcPipelineProps[]): number =>
     Math.floor
   )(projects);
 
-const updateProjectOrder =
+export const updateProjectOrder =
   (accounts: Account[] | undefined) =>
   (project: Project): Project => ({
     ...project,

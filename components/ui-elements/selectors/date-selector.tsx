@@ -12,18 +12,22 @@ import { CalendarIcon } from "lucide-react";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 
 type DateSelectorProps = {
+  elementId?: string;
   selectHours?: boolean;
   date?: Date;
   setDate: (date: Date) => void;
   placeholder?: string;
   bold?: boolean;
+  disabled?: boolean;
 };
 
 const DateSelector: FC<DateSelectorProps> = ({
+  elementId,
   date,
   setDate,
   selectHours,
   bold,
+  disabled,
   placeholder = "Pick a date…",
 }) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -63,10 +67,11 @@ const DateSelector: FC<DateSelectorProps> = ({
   };
 
   return (
-    <div className="flex flex-row gap-2">
+    <div id={elementId} className="flex flex-row gap-2">
       <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
         <PopoverTrigger asChild>
           <Button
+            disabled={disabled}
             variant="outline"
             className={cn(
               "w-[240px] pl-3 text-left",

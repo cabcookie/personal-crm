@@ -5,6 +5,7 @@ import activitySchema from "./activity-schema";
 import contextSchema from "./context-schema";
 import dayPlanSchema from "./dayplan-schema";
 import personSchmema from "./person-schema";
+import planningSchema from "./planning-schema";
 import prayerSchema from "./prayer-schema";
 import projectSchema from "./project-schema";
 
@@ -17,6 +18,7 @@ const schema = a
     ...personSchmema,
     ...projectSchema,
     ...prayerSchema,
+    ...planningSchema,
     Inbox: a
       .model({
         owner: a
