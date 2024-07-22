@@ -37,7 +37,7 @@ export const getQuotaFromTerritoryOrSubsidaries = (
   ]) || 0;
 
 export const calcOrder = (quota: number, pipeline: number): number =>
-  sum([Math.floor(quota / 1000) * 1000, Math.floor(pipeline / 1000)]);
+  sum([Math.floor(pipeline / 1000) * 1000, Math.floor(quota / 1000)]);
 
 const calcSubsidariesPipeline = (
   controllerId: string | undefined,
