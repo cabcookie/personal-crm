@@ -19,6 +19,7 @@ export const addKeyDownListener = (
     if (event.ctrlKey && !event.altKey && !event.shiftKey) {
       const func: ((isMetaKeyPressed: boolean) => void) | undefined = {
         t: routeToUrl("/today"),
+        k: routeToUrl("/planweek"),
         m: routeToUrl("/meetings"),
         c: routeToUrl("/crm-projects"),
         p: routeToUrl("/projects"),

@@ -1,1 +1,6 @@
-# Der Status von offenen Aufgaben und Meetings wird auf kleineren Bildschirmen klarer dargestellt (Version :VERSION)
+# Ersten Schritt in Richtung Wochenplanung umsetzen (Version :VERSION)
+
+- Einen Menüpunkt einführen für Wochenplanung.
+- In der Wochenplanung wähle ich den Tag aus, an dem die Woche startet, die ich planen möchte.
+- Es werden mir alle Projekte angezeigt, die in der Woche aktiv sind und nicht stummgeschaltet sind.
+- Für jedes Projekt entscheide ich, ob ich in dieser Woche plane, an diesem Projekt arbeiten werde oder nicht.

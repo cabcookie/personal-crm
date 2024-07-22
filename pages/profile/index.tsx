@@ -20,11 +20,6 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-export const profileNavItems = [
-  { title: "Profile", href: "/profile" },
-  { title: "Labels", href: "/profile/labels" },
-];
-
 const profileFormSchema = z.object({
   displayName: z.string().min(2, {
     message: "Your name must be at least 2 characters.",
@@ -65,10 +60,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <SettingsLayout
-      title="Profile & Settings"
-      sidebarNavItems={profileNavItems}
-    >
+    <SettingsLayout>
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-medium">Profile</h3>

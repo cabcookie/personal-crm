@@ -1,18 +1,19 @@
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { FC, HTMLAttributes } from "react";
 import { buttonVariants } from "../ui/button";
 
-export interface ISidebarNavItems {
-  title: string;
-  href: string;
-}
+const sidebarNavItems = [
+  { title: "Profile", href: "/profile" },
+  { title: "Planning", href: "/profile/planning" },
+  { title: "Labels", href: "/profile/labels" },
+];
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  items: ISidebarNavItems[];
-}
-
-const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
+const SidebarNav: FC<HTMLAttributes<HTMLElement>> = ({
+  className,
+  ...props
+}) => {
   const pathname = usePathname();
 
   return (
@@ -23,7 +24,7 @@ const SidebarNav = ({ className, items, ...props }: SidebarNavProps) => {
       )}
       {...props}
     >
-      {items.map((item) => (
+      {sidebarNavItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
