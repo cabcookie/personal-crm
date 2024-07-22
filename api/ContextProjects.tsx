@@ -175,7 +175,7 @@ const mapProject: (project: ProjectData) => Project = ({
     doneOn: doneOn ? new Date(doneOn) : undefined,
     dueOn: dueOn ? new Date(dueOn) : undefined,
     onHoldTill:
-      onHoldTill && differenceInDays(onHoldTill, new Date()) > 0
+      onHoldTill && differenceInDays(onHoldTill, new Date()) >= 0
         ? new Date(onHoldTill)
         : undefined,
     myNextActions:

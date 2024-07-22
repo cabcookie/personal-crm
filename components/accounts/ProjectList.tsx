@@ -1,5 +1,5 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
-import { useProjectsContext } from "@/api/ContextProjects";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { filterAndSortProjects } from "@/helpers/projects";
 import { FC } from "react";
 import ProjectAccordionItem from "../projects/ProjectAccordionItem";
@@ -37,7 +37,7 @@ const ProjectList: FC<ProjectListProps> = ({
   ) : (
     <Accordion type="single" collapsible>
       {filterAndSortProjects(projects, accountId, projectFilter, accounts).map(
-        (project) => (
+        (project: Project) => (
           <ProjectAccordionItem key={project.id} project={project} />
         )
       )}

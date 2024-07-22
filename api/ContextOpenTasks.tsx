@@ -87,67 +87,26 @@ export const OpenTasksContextProvider: FC<OpenTasksContextProviderProps> = ({
 }) => {
   const { data: openTasks, mutate } = useSWR("/api/open-tasks", fetchOpenTasks);
 
-  const mapUpdatedOpenTask =
-    (activity: Activity) =>
-    (task: EditorJsonContent, index: number): OpenTask => ({
-      activityId: activity.id,
-      index,
-      projectIds: activity.projectIds,
-      meetingId: activity.meetingId,
-      openTask: task,
-      updatedAt: new Date(),
-    });
-
   const mutateOpenTasks = (
     updatedTasks: EditorJsonContent[] | undefined,
     activity: Activity | undefined
   ) => {
     if (!activity) return;
     if (!updatedTasks) return;
-    if (!openTasks) {
-      mutate(updatedTasks.map(mapUpdatedOpenTask(activity)), false);
-      return;
-    }
-    const newTasks: OpenTask[] = updatedTasks.map(mapUpdatedOpenTask(activity));
-    let hasUpdated = false;
-
-    const taskMap = new Map<string, OpenTask>();
-    openTasks.forEach((task) => {
-      const key = `${task.activityId}-${task.index}`;
-      taskMap.set(key, task);
-    });
-
-    newTasks.forEach((newTask) => {
-      const key = `${newTask.activityId}-${newTask.index}`;
-      const existingTask = taskMap.get(key);
-
-      if (
-        !existingTask ||
-        JSON.stringify(existingTask.openTask) !==
-          JSON.stringify(newTask.openTask)
-      ) {
-        taskMap.set(key, newTask);
-        hasUpdated = true;
-      }
-    });
-
-    openTasks.forEach((task) => {
-      const key = `${task.activityId}-${task.index}`;
-      if (
-        !newTasks.some(
-          (newTask) =>
-            newTask.activityId === task.activityId &&
-            newTask.index === task.index
-        )
-      ) {
-        taskMap.delete(key);
-        hasUpdated = true;
-      }
-    });
-
-    if (hasUpdated) {
-      mutate(Array.from(taskMap.values()), false);
-    }
+    const updated: OpenTask[] | undefined = [
+      ...(openTasks?.filter((t) => t.activityId !== activity.id) || []),
+      ...updatedTasks.map(
+        (task, index): OpenTask => ({
+          activityId: activity.id,
+          index,
+          projectIds: activity.projectIds,
+          updatedAt: new Date(),
+          meetingId: activity.meetingId,
+          openTask: task,
+        })
+      ),
+    ];
+    if (updated) mutate(updated, false);
   };
 
   const openTasksByProjectId: (projectId: string) => OpenTask[] = (projectId) =>
