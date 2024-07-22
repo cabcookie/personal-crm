@@ -31,7 +31,6 @@ const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
             <NextAction
               key={`${openTask.activityId}-${openTask.index}`}
               openTask={openTask}
-              showMeeting
             />
           ))}
         </Accordion>

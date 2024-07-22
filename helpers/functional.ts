@@ -43,3 +43,9 @@ export const formatRevenue = (revenue: number) =>
     : revenue < 500000
     ? `$${(revenue / 1000).toFixed(0)}k`
     : `$${(revenue / 1000000).toFixed(1)}M`;
+export const logFp =
+  (...msg: any[]) =>
+  (data: any) => {
+    console.log(`[${new Date().toISOString()}]`, ...msg, data);
+    return data;
+  };

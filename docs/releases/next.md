@@ -1,6 +1,5 @@
-# Ersten Schritt in Richtung Wochenplanung umsetzen (Version :VERSION)
+# Aktualisierungen von Daten in der Oberfläche (Version :VERSION)
 
-- Einen Menüpunkt einführen für Wochenplanung.
-- In der Wochenplanung wähle ich den Tag aus, an dem die Woche startet, die ich planen möchte.
-- Es werden mir alle Projekte angezeigt, die in der Woche aktiv sind und nicht stummgeschaltet sind.
-- Für jedes Projekt entscheide ich, ob ich in dieser Woche plane, an diesem Projekt arbeiten werde oder nicht.
+- Wenn das On Hold Datum auf den nächsten Tag aktualisiert wurde, aktualisierte sich die Oberfläche nicht.
+- Wenn eine Aufgabe als erledigt markiert wird, wird das zugehörige Meeting oder Projekt zeitnah aktualisiert, ohne dass andere Meetings oder Projekte inkonsistent werden.
+- Zu offenen Aufgaben werden direkter die zugehörigen Notizen angezeigt, so dass diese schneller angepasst und Aufgaben als erledigt markiert werden können.
