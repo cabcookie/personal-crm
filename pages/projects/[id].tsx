@@ -15,7 +15,6 @@ const ProjectDetailPage = () => {
   const [project, setProject] = useState<Project | undefined>(
     projectId ? getProjectById(projectId) : undefined
   );
-  const [autoFocusActivityId, setAutoFocusActivitiyId] = useState("");
   const [projectDetailsSaved, setProjectDetailsSaved] = useState(true);
 
   useEffect(() => {
@@ -23,14 +22,6 @@ const ProjectDetailPage = () => {
       setProject(getProjectById(projectId));
     }
   }, [getProjectById, projectId]);
-
-  useEffect(() => {
-    if (autoFocusActivityId.length > 5) {
-      setTimeout(() => {
-        setAutoFocusActivitiyId("");
-      }, 2000);
-    }
-  }, [autoFocusActivityId]);
 
   const handleBackBtnClick = () => {
     router.push("/projects");

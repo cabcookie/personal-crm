@@ -1,30 +1,10 @@
 import { Project } from "@/api/ContextProjects";
 import useWeekPlan from "@/api/useWeekPlan";
 import { differenceInCalendarDays } from "date-fns";
-import { FC } from "react";
+import { FC, useState } from "react";
 import ProjectAccordionItem from "../projects/ProjectAccordionItem";
-import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-
-type ProjectDecisionButtonProps = {
-  selected: boolean;
-  label: string;
-  makeDecision: () => void;
-};
-
-const ProjectDecisionButton: FC<ProjectDecisionButtonProps> = ({
-  selected,
-  label,
-  makeDecision,
-}) => (
-  <Button
-    size="sm"
-    onClick={makeDecision}
-    variant={selected ? "default" : "outline"}
-  >
-    {label}
-  </Button>
-);
+import DecisionButton from "./DecisionButton";
 
 type MakeProjectDecisionProps = {
   startDate: Date;
@@ -40,6 +20,12 @@ const MakeProjectDecision: FC<MakeProjectDecisionProps> = ({
   saveOnHoldDate,
 }) => {
   const { makeProjectDecision } = useWeekPlan();
+  const [selectedChoice, setSelectedChoice] = useState("");
+
+  const handleDecision = (inFocusThisWeek: boolean, choice: string) => () => {
+    setSelectedChoice(choice);
+    makeProjectDecision({ inFocusThisWeek, project, saveOnHoldDate });
+  };
 
   return (
     <div className="space-y-2">
@@ -51,31 +37,23 @@ const MakeProjectDecision: FC<MakeProjectDecisionProps> = ({
         </Label>
 
         <div id={`${project.id}-decision`} className="space-x-2">
-          <ProjectDecisionButton
+          <DecisionButton
             label="Yes"
             selected={!!isInFocus}
-            makeDecision={() =>
-              makeProjectDecision({
-                inFocusThisWeek: true,
-                project,
-                saveOnHoldDate,
-              })
-            }
+            makeDecision={handleDecision(true, "Yes")}
+            isLoading={selectedChoice === "Yes"}
+            disabled={selectedChoice !== ""}
           />
 
-          <ProjectDecisionButton
+          <DecisionButton
             label="No"
             selected={
               !!project.onHoldTill &&
               differenceInCalendarDays(project.onHoldTill, startDate) >= 7
             }
-            makeDecision={() =>
-              makeProjectDecision({
-                inFocusThisWeek: false,
-                project,
-                saveOnHoldDate,
-              })
-            }
+            makeDecision={handleDecision(false, "No")}
+            isLoading={selectedChoice === "No"}
+            disabled={selectedChoice !== ""}
           />
         </div>
       </div>

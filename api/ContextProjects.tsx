@@ -182,7 +182,7 @@ const mapProject: (project: ProjectData) => Project = ({
       !myNextActions && !myNextActionsJson
         ? undefined
         : transformNotesVersion({
-            version: formatVersion,
+            formatVersion,
             notes: myNextActions,
             notesJson: myNextActionsJson,
           }),
@@ -190,7 +190,7 @@ const mapProject: (project: ProjectData) => Project = ({
       !othersNextActions && !othersNextActionsJson
         ? undefined
         : transformNotesVersion({
-            version: formatVersion,
+            formatVersion,
             notes: othersNextActions,
             notesJson: othersNextActionsJson,
           }),
@@ -298,8 +298,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         notesJson: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
-        openTasks: JSON.stringify([]),
-        closedTasks: JSON.stringify([]),
       });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");

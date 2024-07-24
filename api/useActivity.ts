@@ -2,11 +2,12 @@ import { type Schema } from "@/amplify/data/resource";
 import { useToast } from "@/components/ui/use-toast";
 import {
   EditorJsonContent,
+  getTasksData,
   SerializerOutput,
   transformNotesVersion,
-  transformTasks,
 } from "@/helpers/ui-notes-writer";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { generateClient, SelectionSet } from "aws-amplify/data";
+import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -29,9 +30,6 @@ const selectionSet = [
   "notes",
   "formatVersion",
   "notesJson",
-  "hasOpenTasks",
-  "openTasks",
-  "closedTasks",
   "meetingActivitiesId",
   "finishedOn",
   "createdAt",
@@ -50,9 +48,6 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   notes,
   formatVersion,
   notesJson,
-  hasOpenTasks,
-  openTasks,
-  closedTasks,
   meetingActivitiesId,
   finishedOn,
   createdAt,
@@ -61,13 +56,14 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
 }) => ({
   id,
   notes: transformNotesVersion({
-    version: formatVersion,
+    formatVersion,
     notes,
     notesJson,
   }),
-  hasOpenTasks: hasOpenTasks === "true",
-  openTasks: transformTasks(openTasks),
-  closedTasks: transformTasks(closedTasks),
+  ...flow(
+    transformNotesVersion,
+    getTasksData
+  )({ formatVersion, notes, notesJson }),
   meetingId: meetingActivitiesId || undefined,
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),
@@ -138,8 +134,6 @@ const useActivity = (activityId?: string) => {
       hasOpenTasks: hasOpenTasks ? "true" : "false",
       formatVersion: 2,
       notesJson: JSON.stringify(notes),
-      openTasks: JSON.stringify(openTasks),
-      closedTasks: JSON.stringify(closedTasks),
     });
     if (errors) handleApiErrors(errors, "Error updating activity notes");
     mutateActivity(updated);

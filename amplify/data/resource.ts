@@ -3,7 +3,6 @@ import { postConfirmation } from "../auth/post-confirmation/resource";
 import accountSchema from "./account-schema";
 import activitySchema from "./activity-schema";
 import contextSchema from "./context-schema";
-import dayPlanSchema from "./dayplan-schema";
 import personSchmema from "./person-schema";
 import planningSchema from "./planning-schema";
 import prayerSchema from "./prayer-schema";
@@ -14,7 +13,6 @@ const schema = a
     ...accountSchema,
     ...activitySchema,
     ...contextSchema,
-    ...dayPlanSchema,
     ...personSchmema,
     ...projectSchema,
     ...prayerSchema,
@@ -28,8 +26,6 @@ const schema = a
         formatVersion: a.integer().default(1),
         noteJson: a.json(),
         hasOpenTasks: a.string().required(),
-        openTasks: a.json(),
-        closedTasks: a.json(),
         status: a.id().required(),
         movedToActivityId: a.string(),
       })

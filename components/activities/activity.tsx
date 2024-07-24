@@ -26,7 +26,6 @@ type ActivityComponentProps = {
   showDates?: boolean;
   showProjects?: boolean;
   showMeeting?: boolean;
-  autoFocus?: boolean;
   allowAddingProjects?: boolean;
   notesNotInAccordion?: boolean;
 };

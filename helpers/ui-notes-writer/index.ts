@@ -7,7 +7,7 @@ import Typography from "@tiptap/extension-typography";
 import { generateText } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { isEqual } from "lodash";
-import { filter, flow, get, map } from "lodash/fp";
+import { filter, flatMap, flow, get, map } from "lodash/fp";
 
 export type EditorJsonContent = JSONContent;
 
@@ -121,11 +121,11 @@ export const getTextFromEditorJsonContent = (
         MyExtensions
       );
 
-type TransformNotesVersionType = {
-  version?: number | null;
+interface TransformNotesVersionType {
+  formatVersion?: number | null;
   notes?: string | null;
   notesJson?: any;
-};
+}
 
 export const MyExtensions = [
   StarterKit,
@@ -152,23 +152,61 @@ export const transformTasks = (tasks: any): EditorJsonContent[] | undefined =>
   !tasks ? undefined : JSON.parse(tasks);
 
 export const transformNotesVersion = ({
-  version,
+  formatVersion,
   notes,
   notesJson,
 }: TransformNotesVersionType): EditorJsonContent =>
-  version === 2
+  formatVersion === 2
     ? notesJson
       ? JSON.parse(notesJson)
       : stringToEditorJsonContent("")
     : stringToEditorJsonContent(notes);
 
+export const getAllTasks = (
+  jsonContent?: EditorJsonContent
+): EditorJsonContent[] | undefined =>
+  flow(
+    get("content"),
+    filter((content: EditorJsonContent) => content.type === "taskList"),
+    flatMap((task) => task.content),
+    filter((task) => !!task)
+  )(jsonContent);
+
+export const getTaskByIndex = (
+  notes: EditorJsonContent,
+  index: number
+): EditorJsonContent | undefined => flow(getAllTasks, get(index))(notes);
+
+export const updateTaskStatus = (
+  notes: EditorJsonContent,
+  index: number,
+  finished: boolean
+): EditorJsonContent => ({
+  ...notes,
+  content: notes.content?.map((c) =>
+    c.type !== "taskList"
+      ? c
+      : {
+          ...c,
+          content: c.content?.map((c, idx) =>
+            idx !== index
+              ? c
+              : {
+                  ...c,
+                  attrs: {
+                    ...c.attrs,
+                    checked: finished,
+                  },
+                }
+          ),
+        }
+  ),
+});
+
 export const getTasksData = (
   jsonContent?: EditorJsonContent
 ): Omit<SerializerOutput, "json"> => {
-  const tasks = jsonContent?.content
-    ?.filter((c) => c.type === "taskList")
-    .flatMap((t) => t.content)
-    .filter((t) => !!t);
+  const tasks = getAllTasks(jsonContent);
   return {
     hasOpenTasks: tasks?.some((t) => !t?.attrs?.checked) ?? false,
     openTasks: tasks?.filter((t) => !t.attrs?.checked) || [],

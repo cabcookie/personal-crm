@@ -129,11 +129,6 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.getJSON(), notes]);
 
-  useEffect(() => {
-    if (editor?.isActive && autoFocus && !editor?.isFocused)
-      editor.commands.focus();
-  }, [editor?.commands, editor?.isActive, editor?.isFocused, autoFocus]);
-
   return (
     <>
       <EditorContent editor={editor} />

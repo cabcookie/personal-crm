@@ -2,12 +2,13 @@ import { type Schema } from "@/amplify/data/resource";
 import { useToast } from "@/components/ui/use-toast";
 import {
   EditorJsonContent,
+  getTasksData,
   getTextFromEditorJsonContent,
   SerializerOutput,
   transformNotesVersion,
-  transformTasks,
 } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
+import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -46,9 +47,6 @@ type MapInboxFn = (data: Schema["Inbox"]["type"]) => Inbox;
 export const mapInbox: MapInboxFn = ({
   id,
   note,
-  hasOpenTasks,
-  openTasks,
-  closedTasks,
   createdAt,
   formatVersion,
   status,
@@ -57,13 +55,18 @@ export const mapInbox: MapInboxFn = ({
   id,
   status: mapStatus(status),
   note: transformNotesVersion({
-    version: formatVersion,
+    formatVersion,
     notes: note,
     notesJson: noteJson,
   }),
-  hasOpenTasks: hasOpenTasks === "true",
-  openTasks: transformTasks(openTasks),
-  closedTasks: transformTasks(closedTasks),
+  ...flow(
+    transformNotesVersion,
+    getTasksData
+  )({
+    formatVersion,
+    notes: note,
+    notesJson: noteJson,
+  }),
   createdAt: new Date(createdAt),
 });
 
@@ -104,8 +107,6 @@ const useInbox = () => {
       formatVersion: 2,
       noteJson: JSON.stringify(note),
       hasOpenTasks: hasOpenTasks ? "true" : "false",
-      openTasks: JSON.stringify(openTasks),
-      closedTasks: JSON.stringify(closedTasks),
     });
     if (errors) handleApiErrors(errors, "Error updating inbox item");
     mutate(updated);
@@ -123,8 +124,6 @@ const useInbox = () => {
       note: null,
       formatVersion: 2,
       hasOpenTasks: hasOpenTasks ? "true" : "false",
-      openTasks: JSON.stringify(openTasks),
-      closedTasks: JSON.stringify(closedTasks),
       status: "new",
     });
     if (errors) handleApiErrors(errors, "Error creating inbox item");
