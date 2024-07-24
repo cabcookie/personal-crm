@@ -20,6 +20,7 @@ export const addKeyDownListener = (
       const func: ((isMetaKeyPressed: boolean) => void) | undefined = {
         t: routeToUrl("/today"),
         k: routeToUrl("/planweek"),
+        d: routeToUrl("/planday"),
         m: routeToUrl("/meetings"),
         c: routeToUrl("/crm-projects"),
         p: routeToUrl("/projects"),

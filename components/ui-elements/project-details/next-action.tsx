@@ -11,7 +11,7 @@ type NextActionProps = {
 };
 
 const NextAction: FC<NextActionProps> = ({
-  openTask: { activityId, index, openTask, projectIds },
+  openTask: { activityId, index, task, projectIds },
   showProjects,
 }) => {
   const { getProjectNamesByIds } = useProjectsContext();
@@ -19,12 +19,12 @@ const NextAction: FC<NextActionProps> = ({
   return (
     <DefaultAccordionItem
       value={`${activityId}-${index}`}
-      triggerTitle={`Todo: ${getTextFromEditorJsonContent(openTask)}`}
+      triggerTitle={`Todo: ${getTextFromEditorJsonContent(task)}`}
       triggerSubTitle={
         showProjects && projectIds && getProjectNamesByIds(projectIds)
       }
     >
-      <ProjectNotesForm activityId={activityId} deleteActivity={() => {}} />
+      <ProjectNotesForm activityId={activityId} hideProjects={!showProjects} />
     </DefaultAccordionItem>
   );
 };

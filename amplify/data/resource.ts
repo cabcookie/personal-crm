@@ -3,7 +3,6 @@ import { postConfirmation } from "../auth/post-confirmation/resource";
 import accountSchema from "./account-schema";
 import activitySchema from "./activity-schema";
 import contextSchema from "./context-schema";
-import dayPlanSchema from "./dayplan-schema";
 import personSchmema from "./person-schema";
 import planningSchema from "./planning-schema";
 import prayerSchema from "./prayer-schema";
@@ -14,7 +13,6 @@ const schema = a
     ...accountSchema,
     ...activitySchema,
     ...contextSchema,
-    ...dayPlanSchema,
     ...personSchmema,
     ...projectSchema,
     ...prayerSchema,

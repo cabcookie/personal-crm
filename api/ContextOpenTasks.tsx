@@ -1,5 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent, transformTasks } from "@/helpers/ui-notes-writer";
+import {
+  EditorJsonContent,
+  getAllTasks,
+  transformNotesVersion,
+} from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { filter, flatMap, flow } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
@@ -21,7 +25,8 @@ interface OpenTasksContextType {
 export type OpenTask = {
   activityId: string;
   index: number;
-  openTask?: EditorJsonContent;
+  task: EditorJsonContent;
+  done: boolean;
   meetingId?: string;
   projectIds: string[];
   updatedAt: Date;
@@ -29,7 +34,9 @@ export type OpenTask = {
 
 const selectionSet = [
   "id",
-  "openTasks",
+  "notes",
+  "notesJson",
+  "formatVersion",
   "updatedAt",
   "meetingActivitiesId",
   "forProjects.projectsId",
@@ -42,12 +49,13 @@ type OpenTasksData = SelectionSet<
 
 const mapToOpenTask =
   ({ id, forProjects, updatedAt, meetingActivitiesId }: OpenTasksData) =>
-  (tasks: EditorJsonContent[]) =>
-    tasks.map(
+  (tasks: EditorJsonContent[] | undefined) =>
+    tasks?.map(
       (task, index): OpenTask => ({
         activityId: id,
         index,
-        openTask: task,
+        task,
+        done: task.attrs?.checked,
         meetingId: meetingActivitiesId || undefined,
         projectIds: forProjects.map((p) => p.projectsId),
         updatedAt: new Date(updatedAt),
@@ -56,13 +64,14 @@ const mapToOpenTask =
 
 const mapOpenTasks: (openTasks: OpenTasksData) => OpenTask[] | undefined = (
   data
-) => flow(transformTasks, mapToOpenTask(data))(data.openTasks);
+) => flow(transformNotesVersion, getAllTasks, mapToOpenTask(data))(data);
 
 const fetchOpenTasks = async () => {
   const { data, errors } =
-    await client.models.Activity.listActivityByHasOpenTasks(
+    await client.models.Activity.listActivitiesByOpenTasks(
       { hasOpenTasks: "true" },
       {
+        sortDirection: "DESC",
         limit: 1000,
         selectionSet,
       }
@@ -102,7 +111,8 @@ export const OpenTasksContextProvider: FC<OpenTasksContextProviderProps> = ({
           projectIds: activity.projectIds,
           updatedAt: new Date(),
           meetingId: activity.meetingId,
-          openTask: task,
+          task,
+          done: task.attrs?.checked,
         })
       ),
     ];
@@ -110,10 +120,16 @@ export const OpenTasksContextProvider: FC<OpenTasksContextProviderProps> = ({
   };
 
   const openTasksByProjectId: (projectId: string) => OpenTask[] = (projectId) =>
-    openTasks?.filter((t) => t.projectIds.includes(projectId)) ?? [];
+    flow(
+      filter((t: OpenTask) => !t.done),
+      filter((t: OpenTask) => t.projectIds.includes(projectId))
+    )(openTasks) ?? [];
 
   const openTasksByMeetingId: (meetingId: string) => OpenTask[] = (meetingId) =>
-    openTasks?.filter((t) => t.meetingId === meetingId) ?? [];
+    flow(
+      filter((t: OpenTask) => !t.done),
+      filter((t: OpenTask) => t.meetingId === meetingId)
+    )(openTasks) ?? [];
 
   return (
     <OpenTasksContext.Provider

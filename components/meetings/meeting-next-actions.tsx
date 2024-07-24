@@ -16,8 +16,8 @@ const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
   const getOpenTasksFromMeetingActivities = () =>
     openTasks?.filter((task) => task.meetingId === meeting.id) ?? [];
 
-  const getTasksText = ({ openTask }: OpenTask) =>
-    getTextFromEditorJsonContent(openTask).trim();
+  const getTasksText = ({ task }: OpenTask) =>
+    getTextFromEditorJsonContent(task).trim();
 
   return (
     getOpenTasksFromMeetingActivities().length > 0 && (

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
 import { filter, flow, join } from "lodash/fp";
 import { CheckCircle2, Circle, Trash2 } from "lucide-react";
@@ -46,7 +47,9 @@ const DefaultAccordionItem = forwardRef<
   ) =>
     isVisible && (
       <AccordionItem value={value} ref={ref} {...props}>
-        <AccordionTrigger className={className}>
+        <AccordionTrigger
+          className={cn(props.disabled && "text-muted-foreground", className)}
+        >
           <AccordionTriggerTitle>
             {hasOpenTasks && (
               <>

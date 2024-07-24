@@ -27,8 +27,8 @@ const NextActions: FC<NextActionsProps> = ({ projectId }) => {
     <DefaultAccordionItem
       value="next-actions"
       triggerTitle="Next Actions"
-      triggerSubTitle={openTasks.map(({ openTask }) =>
-        getTextFromEditorJsonContent(openTask)
+      triggerSubTitle={openTasks.map(({ task }) =>
+        getTextFromEditorJsonContent(task)
       )}
       isVisible={
         openTasks.length > 0 ||

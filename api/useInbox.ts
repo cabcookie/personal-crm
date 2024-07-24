@@ -57,7 +57,7 @@ export const mapInbox: MapInboxFn = ({
   id,
   status: mapStatus(status),
   note: transformNotesVersion({
-    version: formatVersion,
+    formatVersion,
     notes: note,
     notesJson: noteJson,
   }),

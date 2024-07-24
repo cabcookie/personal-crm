@@ -132,7 +132,7 @@ const mapAccount: (
   name,
   crmId: crmId || undefined,
   introduction: transformNotesVersion({
-    version: formatVersion,
+    formatVersion,
     notes: introduction,
     notesJson: introductionJson,
   }),

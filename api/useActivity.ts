@@ -61,7 +61,7 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
 }) => ({
   id,
   notes: transformNotesVersion({
-    version: formatVersion,
+    formatVersion,
     notes,
     notesJson,
   }),

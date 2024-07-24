@@ -31,7 +31,7 @@ const mapLearning = ({
 }: Schema["PersonLearning"]["type"]): PersonLearning => ({
   id,
   learning: transformNotesVersion({
-    version: 2,
+    formatVersion: 2,
     notes: "",
     notesJson: learning,
   }),

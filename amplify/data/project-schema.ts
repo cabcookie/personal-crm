@@ -108,8 +108,6 @@ const projectSchema = {
       accounts: a.hasMany("AccountProjects", "projectsId"),
       batches: a.hasMany("SixWeekBatchProjects", "projectsId"),
       activities: a.hasMany("ProjectActivity", "projectsId"),
-      dayTasks: a.hasMany("DayProjectTask", "projectsDayTasksId"),
-      todos: a.hasMany("DayPlanTodo", "projectsTodosId"),
       crmProjects: a.hasMany("CrmProjectProjects", "projectId"),
       weekPlans: a.hasMany("WeeklyPlanProject", "projectId"),
     })

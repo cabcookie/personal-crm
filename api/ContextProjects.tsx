@@ -182,7 +182,7 @@ const mapProject: (project: ProjectData) => Project = ({
       !myNextActions && !myNextActionsJson
         ? undefined
         : transformNotesVersion({
-            version: formatVersion,
+            formatVersion,
             notes: myNextActions,
             notesJson: myNextActionsJson,
           }),
@@ -190,7 +190,7 @@ const mapProject: (project: ProjectData) => Project = ({
       !othersNextActions && !othersNextActionsJson
         ? undefined
         : transformNotesVersion({
-            version: formatVersion,
+            formatVersion,
             notes: othersNextActions,
             notesJson: othersNextActionsJson,
           }),

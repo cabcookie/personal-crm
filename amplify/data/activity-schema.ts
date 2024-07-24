@@ -29,8 +29,13 @@ const activitySchema = {
       meetingActivitiesId: a.id(),
       forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
       finishedOn: a.datetime(),
+      dailyTasks: a.hasMany("DailyPlanTask", "activityId"),
     })
-    .secondaryIndexes((index) => [index("hasOpenTasks")])
+    .secondaryIndexes((index) => [
+      index("hasOpenTasks")
+        .sortKeys(["finishedOn"])
+        .queryField("listActivitiesByOpenTasks"),
+    ])
     .authorization((allow) => [allow.owner()]),
 };
 

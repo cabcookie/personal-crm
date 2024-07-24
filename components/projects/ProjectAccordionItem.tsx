@@ -12,11 +12,13 @@ type ProjectAccordionItemProps = {
   project?: Project;
   showNotes?: boolean;
   onDelete?: () => void;
+  disabled?: boolean;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   project,
   onDelete,
+  disabled,
   showNotes = true,
 }) => {
   const { getAccountById } = useAccountsContext();
@@ -46,6 +48,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
             `Due on: ${format(project.dueOn, "PPP")}`,
           ...flow(map(getAccountById), map(get("name")))(project.accountIds),
         ]}
+        disabled={disabled}
       >
         <ProjectDetails
           projectId={project.id}

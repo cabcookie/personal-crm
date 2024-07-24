@@ -21,13 +21,15 @@ import DeleteWarning from "./DeleteWarning";
 type ProjectNotesFormProps = {
   className?: string;
   activityId: string;
-  deleteActivity: () => void;
+  deleteActivity?: () => void;
+  hideProjects?: boolean;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   activityId,
   className,
   deleteActivity,
+  hideProjects,
 }) => {
   const { getProjectById } = useProjectsContext();
   const { mutateOpenTasks } = useOpenTasksContext();
@@ -48,54 +50,64 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
-      <DeleteWarning
-        open={openDeleteActivityConfirmation}
-        onOpenChange={setOpenDeleteActivityConfirmation}
-        confirmText={
-          <>
-            <p>
-              Are you sure you want to delete the activity with the following
-              information?
-            </p>
-            {activity?.projectIds.map((id) => (
-              <p key={id}>
-                <small>Project: {getProjectById(id)?.project}</small>
-              </p>
-            ))}
-            {activity && (
+      {deleteActivity && (
+        <DeleteWarning
+          open={openDeleteActivityConfirmation}
+          onOpenChange={setOpenDeleteActivityConfirmation}
+          confirmText={
+            <>
               <p>
-                <small>
-                  Notes:{" "}
-                  {getTextFromEditorJsonContent(activity?.notes).slice(0, 200)}
-                </small>
+                Are you sure you want to delete the activity with the following
+                information?
               </p>
-            )}
-          </>
-        }
-        onConfirm={deleteActivity}
-      />
-      <Accordion type="single" collapsible>
-        {isLoadingActivity ? (
-          <LoadingAccordionItem value="loading-project" sizeTitle="sm" />
-        ) : !activity ? (
-          <Alert>
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Failed to load activities.</AlertTitle>
-          </Alert>
-        ) : (
-          activity.projectIds.map((id, index) => (
-            <ProjectAccordionItem
-              key={id}
-              onDelete={() => {
-                const length = activity.projectActivityIds.length;
-                if (length < 2) setOpenDeleteActivityConfirmation(true);
-                else deleteProjectActivity(activity.projectActivityIds[index]);
-              }}
-              project={getProjectById(id)}
-            />
-          ))
-        )}
-      </Accordion>
+              {activity?.projectIds.map((id) => (
+                <p key={id}>
+                  <small>Project: {getProjectById(id)?.project}</small>
+                </p>
+              ))}
+              {activity && (
+                <p>
+                  <small>
+                    Notes:{" "}
+                    {getTextFromEditorJsonContent(activity?.notes).slice(
+                      0,
+                      200
+                    )}
+                  </small>
+                </p>
+              )}
+            </>
+          }
+          onConfirm={deleteActivity}
+        />
+      )}
+
+      {!hideProjects && (
+        <Accordion type="single" collapsible>
+          {isLoadingActivity ? (
+            <LoadingAccordionItem value="loading-project" sizeTitle="sm" />
+          ) : !activity ? (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Failed to load activities.</AlertTitle>
+            </Alert>
+          ) : (
+            activity.projectIds.map((id, index) => (
+              <ProjectAccordionItem
+                key={id}
+                onDelete={() => {
+                  if (!deleteActivity) return;
+                  const length = activity.projectActivityIds.length;
+                  if (length < 2) setOpenDeleteActivityConfirmation(true);
+                  else
+                    deleteProjectActivity(activity.projectActivityIds[index]);
+                }}
+                project={getProjectById(id)}
+              />
+            ))
+          )}
+        </Accordion>
+      )}
 
       {isLoadingActivity ? (
         <div className="my-2 space-y-4 mx-0 md:mx-2">
