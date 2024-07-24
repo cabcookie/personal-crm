@@ -31,8 +31,6 @@ export const meetingSelectionSet = [
   "activities.formatVersion",
   "activities.notesJson",
   "activities.hasOpenTasks",
-  "activities.openTasks",
-  "activities.closedTasks",
   "activities.meetingActivitiesId",
   "activities.finishedOn",
   "activities.createdAt",

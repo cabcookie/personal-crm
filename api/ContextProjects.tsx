@@ -298,8 +298,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         notesJson: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
-        openTasks: JSON.stringify([]),
-        closedTasks: JSON.stringify([]),
       });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");

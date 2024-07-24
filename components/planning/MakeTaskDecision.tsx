@@ -11,7 +11,7 @@ const isSelected = (
 ) =>
   dailyPlan.tasks.find(
     (t) => t.activityId === openTask.activityId && t.index === openTask.index
-  )?.isInFocus === option || false;
+  )?.isInFocus === option;
 
 type MakeTaskDecisionProps = {
   dailyPlan: DailyPlan;
@@ -22,7 +22,7 @@ const MakeTaskDecision: FC<MakeTaskDecisionProps> = ({
   dailyPlan,
   openTask,
 }) => {
-  const { makeTaskDecision } = useDailyPlans();
+  const { makeTaskDecision } = useDailyPlans("PLANNING");
   const [selectedChoice, setSelectedChoice] = useState("");
 
   const handleDecision = (isInFocus: boolean, choice: string) => async () => {

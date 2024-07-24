@@ -96,8 +96,6 @@ const useMeeting = (meetingId?: string) => {
         notes: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
-        openTasks: JSON.stringify([]),
-        closedTasks: JSON.stringify([]),
       });
     if (errorsActivity)
       return handleApiErrors(

@@ -1,10 +1,12 @@
 import { type Schema } from "@/amplify/data/resource";
+import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { toISODateString } from "@/helpers/functional";
 import { EditorJsonContent } from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { format } from "date-fns";
+import { flow, sortBy, union } from "lodash/fp";
 import useSWR from "swr";
 import { OpenTask } from "./ContextOpenTasks";
 import { handleApiErrors } from "./globals";
@@ -214,6 +216,63 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     }
   };
 
+  const handleUndoFinishDailyTaskList =
+    (dailyPlan: DailyPlan, toaster: typeof toast) => async () => {
+      const updated: DailyPlan[] = flow(
+        union([dailyPlan]),
+        sortBy((p) => -p.day.getTime())
+      )(dailyPlans);
+      mutate(updated, false);
+      const { data, errors } = await client.models.DailyPlan.update({
+        id: dailyPlan.id,
+        status: "OPEN",
+      });
+      if (errors)
+        handleApiErrors(errors, "Undoing finishing daily plan's task failed");
+      if (updated) mutate(updated);
+      if (!data) return;
+      toaster({
+        title: "Re-opened Daily task list",
+        description: `Daily task list with title “${
+          dailyPlan.dayGoal
+        }” for ${format(dailyPlan.day, "PP")} is open again.`,
+      });
+      return data.id;
+    };
+
+  const finishDailyTaskList = async (
+    dailyPlanId: string,
+    toaster: typeof toast
+  ) => {
+    const oldDailyPlan = dailyPlans?.find((p) => p.id === dailyPlanId);
+    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
+      p.id !== dailyPlanId ? p : { ...p, status: "DONE" }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlan.update({
+      id: dailyPlanId,
+      status: "DONE",
+    });
+    if (errors) handleApiErrors(errors, "Finishing task list failed");
+    if (updated) mutate(updated);
+    if (!data) return;
+    toaster({
+      title: "Daily task list completed",
+      description: `You completed the daily task list with title “${
+        data.dayGoal
+      }” for ${format(data.day, "PP")}`,
+      action: oldDailyPlan && (
+        <ToastAction
+          altText="Undo finishing task list"
+          onClick={handleUndoFinishDailyTaskList(oldDailyPlan, toaster)}
+        >
+          Undo
+        </ToastAction>
+      ),
+    });
+    return data.id;
+  };
+
   return {
     dailyPlans,
     error,
@@ -221,6 +280,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     createDailyPlan,
     confirmDailyPlanning,
     makeTaskDecision,
+    finishDailyTaskList,
   };
 };
 

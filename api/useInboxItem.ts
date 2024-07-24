@@ -27,7 +27,7 @@ const useInboxItem = (itemId?: string) => {
 
   const updateNote = async (
     id: string,
-    { json: note, hasOpenTasks, openTasks, closedTasks }: SerializerOutput
+    { json: note, hasOpenTasks }: SerializerOutput
   ) => {
     const { data, errors } = await client.models.Inbox.update({
       id,
@@ -35,8 +35,6 @@ const useInboxItem = (itemId?: string) => {
       formatVersion: 2,
       noteJson: JSON.stringify(note),
       hasOpenTasks: hasOpenTasks ? "true" : "false",
-      openTasks: JSON.stringify(openTasks),
-      closedTasks: JSON.stringify(closedTasks),
     });
     if (errors) handleApiErrors(errors, "Error updating inbox item");
     if (!data) return;
@@ -55,8 +53,6 @@ const useInboxItem = (itemId?: string) => {
         notes: null,
         notesJson: JSON.stringify(inboxItem.note),
         hasOpenTasks: inboxItem.hasOpenTasks ? "true" : "false",
-        openTasks: JSON.stringify(inboxItem.openTasks),
-        closedTasks: JSON.stringify(inboxItem.closedTasks),
       });
     if (activityErrors)
       return handleApiErrors(
