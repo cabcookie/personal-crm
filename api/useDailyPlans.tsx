@@ -3,10 +3,16 @@ import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { toISODateString } from "@/helpers/functional";
-import { EditorJsonContent } from "@/helpers/ui-notes-writer";
+import {
+  EditorJsonContent,
+  getTaskByIndex,
+  getTasksData,
+  transformNotesVersion,
+  updateTaskStatus,
+} from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { format } from "date-fns";
-import { flow, sortBy, union } from "lodash/fp";
+import { filter, flow, map, sortBy, union } from "lodash/fp";
 import useSWR from "swr";
 import { OpenTask } from "./ContextOpenTasks";
 import { handleApiErrors } from "./globals";
@@ -48,6 +54,7 @@ type DailyPlanData = SelectionSet<
   Schema["DailyPlan"]["type"],
   typeof selectionSet
 >;
+type TaskData = DailyPlanData["tasks"][number];
 
 const getTask = (task: any): EditorJsonContent => JSON.parse(task);
 
@@ -61,9 +68,9 @@ const mapDailyPlan: (
     dayGoal,
     context: context || "work",
     status,
-    tasks: tasks
-      .filter((t) => dailyPlanStatus === "PLANNING" || t.isInFocus)
-      .map(
+    tasks: flow(
+      filter((t: TaskData) => dailyPlanStatus === "PLANNING" || t.isInFocus),
+      map(
         (task): DailyPlanTodo => ({
           task: getTask(task.task),
           isInFocus: task.isInFocus,
@@ -75,6 +82,8 @@ const mapDailyPlan: (
           updatedAt: new Date(task.activity.updatedAt),
         })
       ),
+      sortBy((t) => (t.done ? 1 : 0))
+    )(tasks),
   });
 
 const fetchDailyPlans =
@@ -273,6 +282,70 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
+  const getActivityNotes = async (activityId: string) => {
+    const { data, errors } = await client.models.Activity.get({
+      id: activityId,
+    });
+    if (errors) handleApiErrors(errors, "Fetching activity with tasks failed");
+    if (!data) return;
+    return transformNotesVersion(data);
+  };
+
+  const finishTask = async (
+    activityId: string,
+    index: number,
+    finished: boolean
+  ) => {
+    const notes = await getActivityNotes(activityId);
+    if (!notes) return;
+    const updated = updateTaskStatus(notes, index, finished);
+    const { hasOpenTasks } = getTasksData(updated);
+    const { data, errors } = await client.models.Activity.update({
+      id: activityId,
+      hasOpenTasks: hasOpenTasks ? "true" : "false",
+      formatVersion: 2,
+      notes: null,
+      notesJson: JSON.stringify(updated),
+    });
+    if (errors) handleApiErrors(errors, "Task status updated");
+    if (!data) return;
+    toast({ title: "Task status updated" });
+    return getTaskByIndex(updated, index);
+  };
+
+  const finishDailyTask = async (
+    dailyPlanId: string,
+    { activityId, index }: DailyPlanTodo,
+    finished: boolean
+  ) => {
+    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
+      p.id !== dailyPlanId
+        ? p
+        : {
+            ...p,
+            tasks: p.tasks.map((t) =>
+              t.activityId !== activityId || t.index !== index
+                ? t
+                : {
+                    ...t,
+                    done: finished,
+                  }
+            ),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const updatedTask = await finishTask(activityId, index, finished);
+    const { data, errors } = await client.models.DailyPlanTask.update({
+      dailyPlanId,
+      activityId: activityId,
+      taskIndex: index,
+      task: JSON.stringify(updatedTask),
+    });
+    if (errors) handleApiErrors(errors, "Updating daily task item failed");
+    if (updated) mutate(updated);
+    return data;
+  };
+
   return {
     dailyPlans,
     error,
@@ -281,6 +354,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     confirmDailyPlanning,
     makeTaskDecision,
     finishDailyTaskList,
+    finishDailyTask,
   };
 };
 

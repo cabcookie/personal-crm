@@ -1,4 +1,5 @@
-import { DailyPlanTodo } from "@/api/useDailyPlans";
+import useDailyPlans, { DailyPlanTodo } from "@/api/useDailyPlans";
+import { CheckedState } from "@radix-ui/react-checkbox";
 import { Loader2 } from "lucide-react";
 import { FC, useState } from "react";
 import ActivityComponent from "../activities/activity";
@@ -8,15 +9,19 @@ import { Accordion } from "../ui/accordion";
 import { Checkbox } from "../ui/checkbox";
 
 type TaskProps = {
+  dailyPlanId: string;
   task: DailyPlanTodo;
 };
 
-const Task: FC<TaskProps> = ({ task }) => {
+const Task: FC<TaskProps> = ({ dailyPlanId, task }) => {
+  const { finishDailyTask } = useDailyPlans("OPEN");
   const [changing, setChanging] = useState(false);
 
-  const handleCheckedChange = () => {
+  const handleCheckedChange = async (checked: CheckedState) => {
+    if (checked === "indeterminate") return;
     setChanging(true);
-    console.log("handleCheckedChange");
+    await finishDailyTask(dailyPlanId, task, checked);
+    setChanging(false);
   };
 
   return (

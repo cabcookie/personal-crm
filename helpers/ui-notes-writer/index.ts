@@ -169,9 +169,39 @@ export const getAllTasks = (
     get("content"),
     filter((content: EditorJsonContent) => content.type === "taskList"),
     flatMap((task) => task.content),
-    filter((task) => !!task),
-    (test) => test
+    filter((task) => !!task)
   )(jsonContent);
+
+export const getTaskByIndex = (
+  notes: EditorJsonContent,
+  index: number
+): EditorJsonContent | undefined => flow(getAllTasks, get(index))(notes);
+
+export const updateTaskStatus = (
+  notes: EditorJsonContent,
+  index: number,
+  finished: boolean
+): EditorJsonContent => ({
+  ...notes,
+  content: notes.content?.map((c) =>
+    c.type !== "taskList"
+      ? c
+      : {
+          ...c,
+          content: c.content?.map((c, idx) =>
+            idx !== index
+              ? c
+              : {
+                  ...c,
+                  attrs: {
+                    ...c.attrs,
+                    checked: finished,
+                  },
+                }
+          ),
+        }
+  ),
+});
 
 export const getTasksData = (
   jsonContent?: EditorJsonContent

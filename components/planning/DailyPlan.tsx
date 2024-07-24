@@ -56,7 +56,11 @@ const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
           filter((task: DailyPlanTodo) => task.isInFocus),
           map(transformTaskType),
           map((task) => (
-            <Task key={`${task.activityId}-${task.index}`} task={task} />
+            <Task
+              key={`${task.activityId}-${task.index}`}
+              task={task}
+              dailyPlanId={dailyPlanId}
+            />
           ))
         )(tasks)}
       </div>
