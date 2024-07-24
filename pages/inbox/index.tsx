@@ -46,24 +46,24 @@ const InboxPage = () => {
 
   return (
     <MainLayout title="Inbox" sectionName="Inbox">
-      <CreateItemButton />
+      <div className="flex flex-col space-y-6">
+        <CreateItemButton />
 
-      <div className="mt-12" />
-      <ContextSwitcher />
-      <div className="mt-12" />
+        <ContextSwitcher />
 
-      {inbox?.map((item) => (
-        <ToProcessItem
-          key={item.id}
-          title={
-            <WorkFlowItem
-              inboxItemId={item.id}
-              forwardUrl={`/inbox/${item.id}`}
-            />
-          }
-          actionStep={<GrCycle />}
-        />
-      ))}
+        {inbox?.map((item) => (
+          <ToProcessItem
+            key={item.id}
+            title={
+              <WorkFlowItem
+                inboxItemId={item.id}
+                forwardUrl={`/inbox/${item.id}`}
+              />
+            }
+            actionStep={<GrCycle />}
+          />
+        ))}
+      </div>
     </MainLayout>
   );
 };
