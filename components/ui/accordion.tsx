@@ -45,7 +45,8 @@ const AccordionTriggerTitle: React.FC<{
 }> = ({ children, className }) => (
   <div
     className={cn(
-      "flex flex-row gap-2 pr-2 truncate group-data-[state=open]:text-wrap group-data-[state=open]:text-left",
+      "flex flex-row gap-2 pr-2 truncate",
+      "group-data-[state=open]:text-wrap group-data-[state=open]:text-left",
       className
     )}
   >

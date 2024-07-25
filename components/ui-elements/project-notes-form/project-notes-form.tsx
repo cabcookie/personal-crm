@@ -23,6 +23,7 @@ type ProjectNotesFormProps = {
   activityId: string;
   deleteActivity?: () => void;
   hideProjects?: boolean;
+  readOnly?: boolean;
 };
 
 const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
@@ -30,6 +31,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   className,
   deleteActivity,
   hideProjects,
+  readOnly,
 }) => {
   const { getProjectById } = useProjectsContext();
   const { mutateOpenTasks } = useOpenTasksContext();
@@ -121,6 +123,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
               <NotesWriter
                 notes={activity.notes}
                 saveNotes={handleNotesUpdate}
+                readonly={readOnly}
               />
             </div>
             <div className="mx-2 md:mx-4">
