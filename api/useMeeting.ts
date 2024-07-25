@@ -96,6 +96,7 @@ const useMeeting = (meetingId?: string) => {
         notes: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
+        finishedOn: new Date().toISOString(),
       });
     if (errorsActivity)
       return handleApiErrors(
