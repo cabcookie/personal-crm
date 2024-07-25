@@ -1,4 +1,4 @@
-import { createInboxItemApi } from "@/api/useInbox";
+import { createInboxItemApi } from "@/api/useInboxWorkflow";
 import {
   emptyDocument,
   getEditorContentAndTaskData,

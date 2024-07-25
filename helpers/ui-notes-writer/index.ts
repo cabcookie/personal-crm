@@ -1,3 +1,5 @@
+import { OpenTask } from "@/api/ContextOpenTasks";
+import { Activity } from "@/api/useActivity";
 import { JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
@@ -171,6 +173,33 @@ export const getAllTasks = (
     flatMap((task) => task.content),
     filter((task) => !!task)
   )(jsonContent);
+
+export const getTasksByActivities = (activities: Activity[]): OpenTask[] =>
+  flow(
+    flatMap(
+      ({
+        id: activityId,
+        notes,
+        closedTasks: _clos,
+        openTasks: _open,
+        hasOpenTasks: _hasO,
+        finishedOn: _fini,
+        projectActivityIds: _proj,
+        ...activity
+      }: Activity) =>
+        getAllTasks(notes)?.map(
+          (task, index): OpenTask => ({
+            ...activity,
+            activityId,
+            done: !!task.attrs?.checked,
+            index,
+            task,
+          })
+        )
+    ),
+    filter((t) => !!t),
+    filter((t) => !t.done)
+  )(activities);
 
 export const getTaskByIndex = (
   notes: EditorJsonContent,

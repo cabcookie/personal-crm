@@ -7,13 +7,4 @@
 - Die Einträge der Inbox wurden nicht korrekt dargestellt, weil das Feld `hasOpenTasks` für alte Einträge nicht gesetzt war.
 - Personeninformationen bereits im Accordion Untertitel anzeigen (Unternehmen und Aussprache des Namens).
 - Die Anzahl der API Aufrufe für Einträge in der Inbox reduziert.
-
-## In Arbeit
-
-- In Meetings werden beim Laden nicht die nächsten Aufgaben korrekt dargestellt. Wenn man eine Notiz bearbeitet und dadurch eine Aufgabe hinzufügt, werden auch die nächsten Aufgaben korrekt dargestellt, nicht aber schon beim Laden.
-
-## Geplant
-
-- In Projekten werden beim Laden nicht die nächsten Aufgaben korrekt dargestellt. Wenn man eine Notiz bearbeitet und dadurch eine Aufgabe hinzufügt, werden auch die nächsten Aufgaben korrekt dargestellt, nicht aber schon beim Laden.
-
-## Nice to have
+- In Meetings und Projekten wurden beim Laden die nächsten Aufgaben nicht korrekt dargestellt. Wenn man eine Notiz bearbeitet und dadurch eine Aufgabe hinzufügt hat, wurden auch die nächsten Aufgaben korrekt dargestellt, nicht aber schon beim Laden.

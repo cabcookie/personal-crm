@@ -1,6 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { useToast } from "@/components/ui/use-toast";
 import {
+  EditorJsonContent,
   getTextFromEditorJsonContent,
   SerializerOutput,
 } from "@/helpers/ui-notes-writer";
@@ -8,6 +9,21 @@ import { generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "./globals";
 import { HandleMutationFn, Inbox, InboxStatus, mapInbox } from "./useInbox";
 const client = generateClient<Schema>();
+
+export const createInboxItemApi = async (
+  note: EditorJsonContent,
+  hasOpenTasks: boolean
+) => {
+  const { data, errors } = await client.models.Inbox.create({
+    noteJson: JSON.stringify(note),
+    note: null,
+    formatVersion: 2,
+    hasOpenTasks: hasOpenTasks ? "true" : "false",
+    status: "new",
+  });
+  if (errors) handleApiErrors(errors, "Error creating inbox item");
+  return data;
+};
 
 const useInboxWorkflow = (mutate: HandleMutationFn) => {
   const { toast } = useToast();
@@ -18,15 +34,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
     openTasks,
     closedTasks,
   }: SerializerOutput) => {
-    const { data, errors } = await client.models.Inbox.create({
-      noteJson: JSON.stringify(note),
-      note: null,
-      formatVersion: 2,
-      hasOpenTasks: hasOpenTasks ? "true" : "false",
-      status: "new",
-    });
-    if (errors) handleApiErrors(errors, "Error creating inbox item");
-
+    const data = await createInboxItemApi(note, hasOpenTasks);
     if (!data) return;
     toast({
       title: "New Inbox Item Created",
