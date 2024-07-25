@@ -28,6 +28,7 @@ type ActivityComponentProps = {
   showMeeting?: boolean;
   allowAddingProjects?: boolean;
   notesNotInAccordion?: boolean;
+  readOnly?: boolean;
 };
 
 const ActivityComponent: FC<ActivityComponentProps> = ({
@@ -37,6 +38,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   showProjects,
   allowAddingProjects,
   notesNotInAccordion,
+  readOnly,
 }) => {
   const { activity, updateNotes, updateDate, addProjectToActivity } =
     useActivity(activityId);
@@ -119,7 +121,11 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 
         <ActivityMeetingList meeting={meeting} showMeeting={showMeeting} />
 
-        <ActivityNotes activity={activity} updateNotes={updateNotes} />
+        <ActivityNotes
+          activity={activity}
+          updateNotes={updateNotes}
+          readOnly={readOnly}
+        />
       </Accordion>
     </div>
   ) : (
@@ -133,6 +139,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
       <ProjectNotesForm
         activityId={activityId}
         deleteActivity={() => deleteMeetingActivity(activityId)}
+        readOnly={readOnly}
       />
     </DefaultAccordionItem>
   );

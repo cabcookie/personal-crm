@@ -17,9 +17,14 @@ type ActivityNotesProps = {
   updateNotes: (
     serializedOutput: SerializerOutput
   ) => Promise<string | undefined>;
+  readOnly?: boolean;
 };
 
-const ActivityNotes: FC<ActivityNotesProps> = ({ activity, updateNotes }) => {
+const ActivityNotes: FC<ActivityNotesProps> = ({
+  activity,
+  updateNotes,
+  readOnly,
+}) => {
   const { mutateOpenTasks } = useOpenTasksContext();
 
   const handleNotesUpdate = (editor: TWithGetJsonFn) => {
@@ -44,6 +49,7 @@ const ActivityNotes: FC<ActivityNotesProps> = ({ activity, updateNotes }) => {
         notes={activity.notes}
         saveNotes={handleNotesUpdate}
         key={activity.id}
+        readonly={readOnly}
       />
 
       <ActivityMetaData activity={activity} />

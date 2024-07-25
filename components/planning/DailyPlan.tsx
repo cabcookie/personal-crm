@@ -26,44 +26,36 @@ const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
   };
 
   return (
-    <div className="items-start flex space-x-2 tracking-tight">
-      {changing && (
-        <Loader2 className="w-4 h-4 md:w-5 md:h-5 md:mt-1 sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent animate-spin text-muted-foreground" />
-      )}
-
-      {!changing && (
-        <Checkbox
-          id={dailyPlanId}
-          checked={status === "DONE"}
-          onCheckedChange={handleCheckedChange}
-          className="mt-[0.1rem] md:mt-[0.3rem] sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent"
-        />
-      )}
-
-      <div className="grid gap-2 leading-none w-full">
-        <label
-          htmlFor={dailyPlanId}
-          className="text-lg md:text-xl font-bold  leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent pb-2 flex gap-2"
-        >
-          {dayGoal} – {format(day, "PPP")}
-        </label>
-
-        {tasks.filter((t) => t.isInFocus && !t.done).length === 0 && (
-          <p className="text-muted-foreground">No open taks</p>
+    <div className="space-y-8">
+      <div className="flex flex-row items-start gap-3 sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent">
+        {changing && (
+          <Loader2 className="mt-[0.3rem] md:mt-[0.2rem] w-4 h-4 min-w-4 md:w-5 md:h-5 md:min-w-5 animate-spin text-muted-foreground" />
         )}
-
-        {flow(
-          filter((task: DailyPlanTodo) => task.isInFocus),
-          map(transformTaskType),
-          map((task) => (
-            <Task
-              key={`${task.activityId}-${task.index}`}
-              task={task}
-              dailyPlanId={dailyPlanId}
-            />
-          ))
-        )(tasks)}
+        {!changing && (
+          <Checkbox
+            checked={status === "DONE"}
+            onCheckedChange={handleCheckedChange}
+            className="mt-[0.3rem] md:mt-[0.4rem]"
+          />
+        )}
+        <div className="text-xl md:text-2xl font-bold tracking-tight">
+          {dayGoal} – {format(day, "PP")}
+        </div>
       </div>
+      {tasks.filter((t) => t.isInFocus && !t.done).length === 0 && (
+        <p className="text-muted-foreground">No open taks</p>
+      )}
+      {flow(
+        filter((task: DailyPlanTodo) => task.isInFocus),
+        map(transformTaskType),
+        map((task) => (
+          <Task
+            key={`${task.activityId}-${task.index}`}
+            task={task}
+            dailyPlanId={dailyPlanId}
+          />
+        ))
+      )(tasks)}
     </div>
   );
 };
