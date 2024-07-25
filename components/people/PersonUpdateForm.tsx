@@ -143,10 +143,10 @@ const PersonUpdateForm: FC<PersonUpdateFormProps> = ({
                           onSelect={field.onChange}
                           defaultMonth={field.value}
                           selected={field.value}
-                          captionLayout="dropdown-buttons"
+                          captionLayout="dropdown"
                           className="w-[17.5rem]"
-                          fromYear={1920}
-                          toYear={new Date().getFullYear()}
+                          startMonth={new Date(1920, 0)}
+                          endMonth={new Date()}
                         />
                       </FormControl>
                       <FormMessage />
@@ -165,10 +165,10 @@ const PersonUpdateForm: FC<PersonUpdateFormProps> = ({
                           onSelect={field.onChange}
                           defaultMonth={field.value}
                           selected={field.value}
-                          captionLayout="dropdown-buttons"
+                          captionLayout="dropdown"
                           className="w-[17.5rem]"
-                          fromYear={1990}
-                          toYear={new Date().getFullYear()}
+                          startMonth={new Date(1990, 0)}
+                          endMonth={new Date()}
                         />
                       </FormControl>
                       <FormMessage />

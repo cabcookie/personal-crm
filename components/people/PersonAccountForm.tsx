@@ -3,18 +3,15 @@ import {
   PersonAccountCreateProps,
   PersonAccountUpdateProps,
 } from "@/api/usePerson";
-import { FC, useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { addYears } from "date-fns";
+import { Edit, PlusCircle } from "lucide-react";
+import { FC, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import AccountSelector from "../ui-elements/selectors/account-selector";
+import { Button } from "../ui/button";
+import { Calendar } from "../ui/calendar";
 import {
   Dialog,
   DialogClose,
@@ -25,13 +22,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Edit, PlusCircle } from "lucide-react";
-import { ScrollArea } from "../ui/scroll-area";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import { Input } from "../ui/input";
-import { addYears } from "date-fns";
-import { Calendar } from "../ui/calendar";
-import AccountSelector from "../ui-elements/selectors/account-selector";
+import { ScrollArea } from "../ui/scroll-area";
 
 const FormSchema = z.object({
   startDate: z.date().optional(),
@@ -164,10 +164,10 @@ const PersonAccountForm: FC<PersonAccountFormProps> = ({
                           onSelect={field.onChange}
                           defaultMonth={field.value}
                           selected={field.value}
-                          captionLayout="dropdown-buttons"
+                          captionLayout="dropdown"
                           className="w-[17.5rem]"
-                          fromYear={addYears(new Date(), -50).getFullYear()}
-                          toYear={addYears(new Date(), 1).getFullYear()}
+                          startMonth={addYears(new Date(), -50)}
+                          endMonth={addYears(new Date(), 1)}
                         />
                       </FormControl>
                       <FormMessage />
@@ -186,10 +186,10 @@ const PersonAccountForm: FC<PersonAccountFormProps> = ({
                           onSelect={field.onChange}
                           defaultMonth={field.value}
                           selected={field.value}
-                          captionLayout="dropdown-buttons"
+                          captionLayout="dropdown"
                           className="w-[17.5rem]"
-                          fromYear={addYears(new Date(), -50).getFullYear()}
-                          toYear={addYears(new Date(), 1).getFullYear()}
+                          startMonth={addYears(new Date(), -50)}
+                          endMonth={addYears(new Date(), 1)}
                         />
                       </FormControl>
                       <FormMessage />
