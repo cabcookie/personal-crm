@@ -18,7 +18,7 @@ const MeetingDateList: FC<MeetingDateListProps> = ({
       {meetingDate.toLocaleDateString()}
     </h1>
 
-    <Accordion type="single" collapsible>
+    <Accordion type="single" collapsible className="mb-8">
       {flow(
         filter(
           (m: Meeting) =>

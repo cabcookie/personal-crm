@@ -1,9 +1,9 @@
-# Tagespläne aus offenen Aufgaben erstellen (Version :VERSION)
+# Aktualisierung von Aufgaben optimieren (Version :VERSION)
 
-- Menüpunkt für Tagesplan erstellt.
-- Landing Page für Tagesplan erstellt (ähnlich wie Wochenplanung). Der Anwender wählt den Tag aus, für den der Plan erstellt werden soll und kann dem Tag ein Motto geben.
-- In der Tagesplanung werden die offenen Aufgaben nach Projekten sortiert dargestellt. Jede Aufgabe kann auf den Tagesplan gesetzt werden. Projekte können auf den nächsten Tag verlegt werden.
-- Unter `/today` kann die Aufgabenliste für den aktuellen Tag eingesehen werden und mit den Aufgaben gearbeitet werden (Notizen einsehen, Projekte einsehen usw.). Eine Aufgabenliste kann erledigt werden und wenn dies aus Versehen geschehen ist, kann die Änderung rückgängig gemacht werden.
-- In den Aktivitäten werden die offenen und erledigten Aufgaben nicht mehr in eigenen Feldern gespeichert, sondern im Rahmen des Ladens einer Aktivität werden diese Informationen aus der Notiz gezogen.
-- Unter `/today` kann eine Aufgabe abgehakt werden und dann wird diese auch in der entsprechenden Aktivität als erledigt markiert.
-- Inbox repariert.
+- Wenn ein Meeting ausschließlich erledigte Aufgaben hatte, verschwand der Hinweis dafür auf kleineren Bildschirmen, wenn der Titel des Meetings zu breit war. Das ist nun nicht mehr der Fall.
+- In der Meetingliste ist nun etwas mehr Platz zwischen den Tagen.
+
+## Geplant
+
+- In Meetings werden beim Laden nicht die nächsten Aufgaben korrekt dargestellt. Wenn man eine Notiz bearbeitet und dadurch eine Aufgabe hinzufügt, werden auch die nächsten Aufgaben korrekt dargestellt, nicht aber schon beim Laden.
+- In Projekten werden beim Laden nicht die nächsten Aufgaben korrekt dargestellt. Wenn man eine Notiz bearbeitet und dadurch eine Aufgabe hinzufügt, werden auch die nächsten Aufgaben korrekt dargestellt, nicht aber schon beim Laden.
