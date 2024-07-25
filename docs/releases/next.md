@@ -5,8 +5,11 @@
 - Informationen zu CRM Projekten auf der Listenseite `/crm-projects` anzeigen.
 - Die App hat stetig den Inbox API Endpunkt aufgerufen, nur damit Anwender einen neuen Eintrag zu der Inbox hinzufügen können. Das passiert nun nicht mehr.
 - Die Einträge der Inbox wurden nicht korrekt dargestellt, weil das Feld `hasOpenTasks` für alte Einträge nicht gesetzt war.
+- Personeninformationen bereits im Accordion Untertitel anzeigen (Unternehmen und Aussprache des Namens).
 
 ## In Arbeit
+
+- Die Anzahl der API Aufrufe für Einträge in der Inbox reduziert.
 
 ## Geplant
 
