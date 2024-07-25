@@ -174,9 +174,57 @@ const importData = async () => {
   );
 };
 
-const addHasOpenTasksField = async () => {
+const fillFinishedOn = async () => {
   const TableName = getTable("Activity");
-  const log = stdLog(`[${TableName}] [UPDATE FIELD]:`);
+  const log = stdLog(`[${TableName}] [UPDATE FIELD finishedOn]:`);
+  log("Start processing…");
+  const region = getEnvironment().region;
+  const profile = getAwsProfile();
+  const client = new DynamoDBClient({
+    region,
+    credentials: fromIni({ profile }),
+  });
+  const existingRecords = await client.send(
+    new ScanCommand({
+      TableName,
+      FilterExpression: "attribute_not_exists(#f)",
+      ExpressionAttributeNames: { "#f": "finishedOn" },
+      Limit: 5000,
+    })
+  );
+  log(
+    "Relevant records:",
+    existingRecords.Items.map(({ id }) => id.S)
+  );
+  await Promise.all(
+    existingRecords.Items.map(async ({ id, createdAt }) => {
+      log("Processing record with ID:", id.S, "and createdAt:", createdAt.S);
+      const params = {
+        TableName,
+        Key: {
+          id,
+        },
+        UpdateExpression: `SET finishedOn = :newValue`,
+        ExpressionAttributeValues: {
+          ":newValue": createdAt,
+        },
+        ReturnValues: "UPDATED_NEW",
+      };
+      const response = await client.send(new UpdateItemCommand(params));
+      log(
+        "Response:",
+        "StatusCode",
+        response.$metadata.httpStatusCode,
+        "Attributes",
+        response.Attributes.finishedOn
+      );
+    })
+  );
+};
+
+const addHasOpenTasksFieldTable = async (tableName) => {
+  const TableName = getTable(tableName);
+  const log = stdLog(`[${TableName}] [UPDATE FIELD hasOpenTasks]:`);
   log("Start processing…");
   const region = getEnvironment().region;
   const profile = getAwsProfile();
@@ -221,6 +269,12 @@ const addHasOpenTasksField = async () => {
   );
 };
 
+const addHasOpenTasksField = async () => {
+  await addHasOpenTasksFieldTable("Activity");
+  await addHasOpenTasksFieldTable("Inbox");
+};
+
 // importData();
 // logTables();
 // addHasOpenTasksField();
+// fillFinishedOn();

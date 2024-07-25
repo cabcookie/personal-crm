@@ -5,7 +5,7 @@ import {
   toISODateString,
 } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow } from "lodash/fp";
+import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { Project, useProjectsContext } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
@@ -63,53 +63,38 @@ type CrmProjectData = SelectionSet<
   typeof selectionSetCrmProject
 >;
 
-type FetchCrmProjectsWithTokenFn = (
-  token?: string
-) => Promise<CrmProjectData[] | undefined>;
-
-const fetchCrmProjectsWithToken: FetchCrmProjectsWithTokenFn = async (
-  token
-) => {
+const fetchCrmProjects = async () => {
   const closed = {
     or: [{ stage: { eq: "Launched" } }, { stage: { eq: "Closed Lost" } }],
   };
-
-  const { data, errors, nextToken } = await client.models.CrmProject.list({
-    filter: {
-      or: [
-        { not: closed },
-        {
-          and: [
-            closed,
-            {
-              closeDate: {
-                ge: flow(
-                  addDaysToDate(-14),
-                  toISODateString,
-                  getDayOfDate
-                )(new Date()),
-              },
+  const filter = {
+    or: [
+      { not: closed },
+      {
+        and: [
+          closed,
+          {
+            closeDate: {
+              ge: flow(addDaysToDate(-14), toISODateString)(new Date()),
             },
-          ],
-        },
-      ],
-    },
+          },
+        ],
+      },
+    ],
+  };
+  const { data, errors } = await client.models.CrmProject.list({
+    filter,
     selectionSet: selectionSetCrmProject,
-    nextToken: token,
     limit: 1000,
   });
   if (errors) {
     handleApiErrors(errors, "Error loading CRM projects");
     throw errors;
   }
-  if (!nextToken) return data;
-  return [...data, ...((await fetchCrmProjectsWithToken(nextToken)) || [])];
-};
-
-const fetchCrmProjects = async () => {
-  return (await fetchCrmProjectsWithToken())
-    ?.map(mapCrmProject)
-    .sort((a, b) => a.closeDate.getTime() - b.closeDate.getTime());
+  return flow(
+    map(mapCrmProject),
+    sortBy((p) => p.closeDate.getTime())
+  )(data);
 };
 
 const useCrmProjects = () => {

@@ -1,4 +1,4 @@
-import useInbox from "@/api/useInbox";
+import { createInboxItemApi } from "@/api/useInboxWorkflow";
 import {
   emptyDocument,
   getEditorContentAndTaskData,
@@ -39,7 +39,6 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { createInboxItem } = useInbox();
   const [editorContent, setEditorContent] =
     useState<SerializerOutput>(emptyEditorContent);
 
@@ -47,10 +46,13 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
 
   const handleCreateInboxItem = async () => {
     if (!editorContent) return;
-    const result = await createInboxItem(editorContent);
+    const result = await createInboxItemApi(
+      editorContent.json,
+      editorContent.hasOpenTasks
+    );
     setEditorContent(emptyEditorContent);
     setIsOpen(false);
-    return result;
+    return result?.id;
   };
 
   return (

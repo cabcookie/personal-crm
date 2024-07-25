@@ -1,6 +1,7 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import usePeople from "@/api/usePeople";
 import { Person } from "@/api/usePerson";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   EditorJsonContent,
   isUpToDate,
@@ -140,7 +141,11 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
 const NotesWriter: FC<Omit<NotesWriterProps, "people">> = (props) => {
   const { people } = usePeople();
 
-  return people && <NotesWriterInner {...props} people={people} />;
+  return !people ? (
+    <Skeleton className="w-full h-8" />
+  ) : (
+    <NotesWriterInner {...props} people={people} />
+  );
 };
 
 export default NotesWriter;

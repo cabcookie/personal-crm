@@ -1,6 +1,7 @@
 import useInbox from "@/api/useInbox";
 import { useCreateInboxItemContext } from "@/components/inbox/CreateInboxItemDialog";
 import WorkFlowItem from "@/components/inbox/WorkflowItem";
+import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
 import ToProcessItem from "@/components/ui-elements/list-items/to-process-item";
@@ -42,11 +43,13 @@ const CreateItemButton = () => {
 };
 
 const InboxPage = () => {
-  const { inbox } = useInbox();
+  const { inbox, error, mutate, isLoading } = useInbox();
 
   return (
     <MainLayout title="Inbox" sectionName="Inbox">
       <div className="flex flex-col space-y-6">
+        <ApiLoadingError error={error} title="Loading Inbox Items Failed" />
+
         <CreateItemButton />
 
         <ContextSwitcher />
@@ -56,8 +59,10 @@ const InboxPage = () => {
             key={item.id}
             title={
               <WorkFlowItem
-                inboxItemId={item.id}
+                inboxItem={item}
                 forwardUrl={`/inbox/${item.id}`}
+                mutate={mutate}
+                isLoading={isLoading}
               />
             }
             actionStep={<GrCycle />}

@@ -7,6 +7,7 @@ import {
   transformNotesVersion,
 } from "@/helpers/ui-notes-writer";
 import { generateClient, SelectionSet } from "aws-amplify/data";
+import { isEqual } from "lodash";
 import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -119,6 +120,7 @@ const useActivity = (activityId?: string) => {
     openTasks,
   }: SerializerOutput) => {
     if (!activity?.id) return;
+    if (isEqual(activity.notes, notes)) return;
     const updated: Activity = {
       ...activity,
       notes,

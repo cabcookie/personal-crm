@@ -1,10 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
-import { useToast } from "@/components/ui/use-toast";
 import {
   EditorJsonContent,
   getTasksData,
-  getTextFromEditorJsonContent,
-  SerializerOutput,
   transformNotesVersion,
 } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
@@ -12,6 +9,8 @@ import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
+
+export type HandleMutationFn = (item: Inbox, callApi?: boolean) => void;
 
 const STATUS_LIST = [
   "new",
@@ -32,7 +31,7 @@ const isValidInboxStatus = (status: string): status is InboxStatus =>
 const mapStatus = (status: string): InboxStatus =>
   isValidInboxStatus(status) ? status : "new";
 
-type Inbox = {
+export type Inbox = {
   id: string;
   note: EditorJsonContent;
   hasOpenTasks: boolean;
@@ -86,72 +85,23 @@ const fetchInbox = async () => {
 const useInbox = () => {
   const {
     data: inbox,
-    error: errorInbox,
+    error,
+    isLoading,
     mutate,
   } = useSWR("/api/inbox", fetchInbox);
-  const { toast } = useToast();
 
-  const updateNote = async (
-    id: string,
-    { json: note, hasOpenTasks, openTasks, closedTasks }: SerializerOutput
-  ) => {
-    const updated: Inbox[] | undefined = inbox?.map((item) =>
-      item.id !== id
-        ? item
-        : { ...item, note, hasOpenTasks, openTasks, closedTasks }
+  const handleMutation: HandleMutationFn = (item, callApi = true) => {
+    const updated: Inbox[] | undefined = inbox?.map((i) =>
+      i.id !== item.id ? i : item
     );
-    mutate(updated, false);
-    const { data, errors } = await client.models.Inbox.update({
-      id,
-      note: null,
-      formatVersion: 2,
-      noteJson: JSON.stringify(note),
-      hasOpenTasks: hasOpenTasks ? "true" : "false",
-    });
-    if (errors) handleApiErrors(errors, "Error updating inbox item");
-    mutate(updated);
-    return data?.id;
-  };
-
-  const createInboxItem = async ({
-    json: note,
-    hasOpenTasks,
-    openTasks,
-    closedTasks,
-  }: SerializerOutput) => {
-    const { data, errors } = await client.models.Inbox.create({
-      noteJson: JSON.stringify(note),
-      note: null,
-      formatVersion: 2,
-      hasOpenTasks: hasOpenTasks ? "true" : "false",
-      status: "new",
-    });
-    if (errors) handleApiErrors(errors, "Error creating inbox item");
-    if (!data) return;
-    toast({
-      title: "New Inbox Item Created",
-      description: getTextFromEditorJsonContent(note),
-    });
-    mutate([
-      ...(inbox || []),
-      {
-        id: crypto.randomUUID(),
-        createdAt: new Date(),
-        status: "new",
-        note,
-        hasOpenTasks,
-        openTasks,
-        closedTasks,
-      },
-    ]);
-    return data.id;
+    if (updated) mutate(updated, callApi);
   };
 
   return {
     inbox,
-    errorInbox,
-    updateNote,
-    createInboxItem,
+    error,
+    isLoading,
+    mutate: handleMutation,
   };
 };
 

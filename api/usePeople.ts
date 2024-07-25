@@ -46,12 +46,21 @@ const usePeople = () => {
     return data?.id;
   };
 
+  const personName = (person?: Person) =>
+    !person
+      ? ""
+      : `${person.name}${!person.howToSay ? "" : ` (say: ${person.howToSay})`}${
+          person.accounts.length === 0
+            ? ""
+            : ` (${person.accounts.map((a) => a.accountName)})`
+        }`;
+
   const getNamesByIds = (personIds?: string[]) =>
     personIds &&
     people &&
     flow(
       filter((p: Person) => personIds.includes(p.id)),
-      map((p) => p.name),
+      map(personName),
       join(", ")
     )(people);
 

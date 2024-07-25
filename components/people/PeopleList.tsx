@@ -14,13 +14,18 @@ type PeopleListProps = {
 const PeopleList: FC<PeopleListProps> = ({ personIds, showNotes }) => {
   const { people } = usePeople();
 
+  const personName = (person?: Person) =>
+    !person
+      ? ""
+      : `${person.name}${!person.howToSay ? "" : ` (say: ${person.howToSay})`}`;
+
   return (
     <Accordion type="single" collapsible>
       {personIds?.map((personId) => (
         <DefaultAccordionItem
           key={personId}
           value={personId}
-          triggerTitle={people?.find((p) => p.id === personId)?.name}
+          triggerTitle={personName(people?.find((p) => p.id === personId))}
           triggerSubTitle={flow(
             find((p: Person) => p.id === personId),
             get("accounts"),
