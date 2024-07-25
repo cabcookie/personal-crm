@@ -83,6 +83,21 @@ const fetchInbox = async () => {
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 };
 
+export const createInboxItemApi = async (
+  note: EditorJsonContent,
+  hasOpenTasks: boolean
+) => {
+  const { data, errors } = await client.models.Inbox.create({
+    noteJson: JSON.stringify(note),
+    note: null,
+    formatVersion: 2,
+    hasOpenTasks: hasOpenTasks ? "true" : "false",
+    status: "new",
+  });
+  if (errors) handleApiErrors(errors, "Error creating inbox item");
+  return data;
+};
+
 const useInbox = () => {
   const {
     data: inbox,
@@ -119,14 +134,7 @@ const useInbox = () => {
     openTasks,
     closedTasks,
   }: SerializerOutput) => {
-    const { data, errors } = await client.models.Inbox.create({
-      noteJson: JSON.stringify(note),
-      note: null,
-      formatVersion: 2,
-      hasOpenTasks: hasOpenTasks ? "true" : "false",
-      status: "new",
-    });
-    if (errors) handleApiErrors(errors, "Error creating inbox item");
+    const data = await createInboxItemApi(note, hasOpenTasks);
     if (!data) return;
     toast({
       title: "New Inbox Item Created",
