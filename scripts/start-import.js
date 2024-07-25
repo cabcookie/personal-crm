@@ -174,8 +174,8 @@ const importData = async () => {
   );
 };
 
-const addHasOpenTasksField = async () => {
-  const TableName = getTable("Activity");
+const addHasOpenTasksFieldTable = async (tableName) => {
+  const TableName = getTable(tableName);
   const log = stdLog(`[${TableName}] [UPDATE FIELD]:`);
   log("Start processing…");
   const region = getEnvironment().region;
@@ -219,6 +219,11 @@ const addHasOpenTasksField = async () => {
       );
     })
   );
+};
+
+const addHasOpenTasksField = async () => {
+  await addHasOpenTasksFieldTable("Activity");
+  await addHasOpenTasksFieldTable("Inbox");
 };
 
 // importData();
