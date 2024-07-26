@@ -56,6 +56,7 @@ const NavigationMenu = () => {
   const { accounts } = useAccountsContext();
   const { people, createPerson } = usePeople();
   const { createMeeting } = useMeetings({ context });
+  const [search, setSearch] = useState("");
   const [metaPressed, setMetaPressed] = useState(false);
   const router = useRouter();
 
@@ -104,30 +105,40 @@ const NavigationMenu = () => {
     { label: "Inbox", url: "/inbox", shortcut: "^I" },
   ];
 
-  const createAndOpenMeeting = async () => {
-    const meetingId = await createMeeting("New Meeting", context);
-    if (!meetingId) return;
-    router.push(`/meetings/${meetingId}`);
+  const createRecordAndOpen = async (
+    category: string,
+    createFn: (name: string) => Promise<string | undefined>,
+    url: string
+  ) => {
+    const id = await createFn(search || `New ${category}`);
+    if (!id) return;
+    routeToUrl(`/${url}/${id}`)();
   };
 
-  const createAndOpenPerson = async () => {
-    const personId = await createPerson("New Person");
-    if (!personId) return;
-    router.push(`/people/${personId}`);
-  };
+  const createAndOpenMeeting = () =>
+    createRecordAndOpen(
+      "Meeting",
+      (name) => createMeeting(name, context),
+      "meetings"
+    );
 
-  const createAndOpenProject = async () => {
-    const project = await createProject("New Project");
-    if (!project) return;
-    router.push(`/projects/${project.id}`);
-    toggleMenu();
-  };
+  const createAndOpenPerson = () =>
+    createRecordAndOpen("Person", createPerson, "people");
+
+  const createAndOpenProject = () =>
+    createRecordAndOpen(
+      "Project",
+      async (name: string) => {
+        const project = await createProject(name);
+        return project?.id;
+      },
+      "projects"
+    );
 
   const createItemsNavigation: NavigationItem[] = [
     {
       label: "Inbox Item",
       action: openCreateInboxItemDialog,
-      forceMount: true,
     },
     { label: "Meeting", action: createAndOpenMeeting },
     { label: "Person", action: createAndOpenPerson },
@@ -146,6 +157,7 @@ const NavigationMenu = () => {
     if (!url) return;
     if (metaPressed) window.open(url, "_blank");
     else router.push(url);
+    toggleMenu();
   };
 
   return (
@@ -161,6 +173,8 @@ const NavigationMenu = () => {
       </VisuallyHidden.Root>
       <CommandInput
         placeholder="Type a command or search…"
+        value={search}
+        onValueChange={setSearch}
         onKeyDown={keyboardEventHandler}
         onKeyUp={keyboardEventHandler}
       />
@@ -222,10 +236,13 @@ const NavigationMenu = () => {
               link: `/projects/${id}`,
             }))}
         />
-        {createItemsNavigation.map(({ label, action, forceMount }, index) => (
-          <CommandItem key={index} forceMount={forceMount} onSelect={action}>
+        {createItemsNavigation.map(({ label, action }, index) => (
+          <CommandItem key={index} forceMount={true} onSelect={action}>
             <Plus className="mr-2 h-4 w-4" />
-            <span>Create {label}</span>
+            <span>
+              Create {label}
+              {search && `: “${search}”`}
+            </span>
           </CommandItem>
         ))}
       </CommandList>
