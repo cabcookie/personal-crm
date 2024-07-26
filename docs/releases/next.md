@@ -1,4 +1,7 @@
-# Visualisierung Aufgabenliste verbessern (Version :VERSION)
+# Sortierung der Aufgabenliste optimieren (Version :VERSION)
 
-- Aufgabenlisten werden nur noch für den jeweiligen Kontext angezeigt.
-- Aufgabenliste etwas übersichtlicher gestaltet. Titel sind hervorgehoben. Zeilenumbrüche funtionieren auf kleineren Bildschirmen. Das Accordion zeigt bereits erste Infos (Projektnamen) im Untertitel.
+- Die Aufgaben sind nach Wichtigkeit der Projekte sortiert.
+
+## In Arbeit
+
+- Startseite sollte die Aufgabenliste sein.
