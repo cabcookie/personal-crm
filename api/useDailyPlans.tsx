@@ -3,6 +3,7 @@ import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { toISODateString } from "@/helpers/functional";
+import { calcPipeline } from "@/helpers/projects";
 import {
   EditorJsonContent,
   getTaskByIndex,
@@ -10,9 +11,17 @@ import {
   transformNotesVersion,
   updateTaskStatus,
 } from "@/helpers/ui-notes-writer";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
-import { filter, flow, map, sortBy, union } from "lodash/fp";
+import {
+  filter,
+  findIndex,
+  flatMap,
+  flow,
+  sortBy,
+  union,
+  uniq,
+} from "lodash/fp";
 import useSWR from "swr";
 import { OpenTask } from "./ContextOpenTasks";
 import { handleApiErrors } from "./globals";
@@ -23,6 +32,7 @@ type DailyPlanStatus = (typeof dailyPlanStatuses)[number];
 
 export type DailyPlanTodo = OpenTask & {
   isInFocus: boolean;
+  order: number;
 };
 
 export type DailyPlan = {
@@ -48,15 +58,55 @@ const selectionSet = [
   "tasks.activity.updatedAt",
   "tasks.activity.meetingActivitiesId",
   "tasks.activity.forProjects.projects.id",
+  "tasks.activity.forProjects.projects.crmProjects.crmProject.id",
+  "tasks.activity.forProjects.projects.crmProjects.crmProject.closeDate",
+  "tasks.activity.forProjects.projects.crmProjects.crmProject.isMarketplace",
+  "tasks.activity.forProjects.projects.crmProjects.crmProject.annualRecurringRevenue",
+  "tasks.activity.forProjects.projects.crmProjects.crmProject.totalContractVolume",
+  "tasks.activity.forProjects.projects.crmProjects.crmProject.stage",
 ] as const;
 
 type DailyPlanData = SelectionSet<
   Schema["DailyPlan"]["type"],
+  // @ts-expect-error TS2344
   typeof selectionSet
 >;
 type TaskData = DailyPlanData["tasks"][number];
 
 const getTask = (task: any): EditorJsonContent => JSON.parse(task);
+
+const calcTaskOrder = (task: TaskData, maxProjectIndex: number): number =>
+  calcPipeline(
+    task.activity.forProjects.map((p) => ({
+      projects: { crmProjects: p.projects.crmProjects },
+    }))
+  ) +
+  maxProjectIndex * 10 +
+  (getTask(task.task).attrs?.checked || false ? 0 : 1);
+
+const getProjectIndex = (tasks: TaskData[], task: TaskData) =>
+  flow(
+    flatMap((task: TaskData) =>
+      task.activity.forProjects.map((p) => p.projects.id)
+    ),
+    uniq,
+    findIndex((projectId) =>
+      task.activity.forProjects.some((p) => p.projects.id === projectId)
+    )
+  )(tasks);
+
+const mapDailyPlanTodos = (tasks: TaskData[]) =>
+  tasks.map((task) => ({
+    task: getTask(task.task),
+    isInFocus: task.isInFocus,
+    done: getTask(task.task).attrs?.checked || false,
+    activityId: task.activity.id,
+    index: task.taskIndex,
+    projectIds: task.activity.forProjects.map((p) => p.projects.id),
+    order: calcTaskOrder(task, getProjectIndex(tasks, task)),
+    meetingId: task.activity.meetingActivitiesId || undefined,
+    updatedAt: new Date(task.activity.updatedAt),
+  }));
 
 const mapDailyPlan: (
   dailyPlanStatus: DailyPlanStatus
@@ -70,33 +120,19 @@ const mapDailyPlan: (
     status,
     tasks: flow(
       filter((t: TaskData) => dailyPlanStatus === "PLANNING" || t.isInFocus),
-      map(
-        (task): DailyPlanTodo => ({
-          task: getTask(task.task),
-          isInFocus: task.isInFocus,
-          done: getTask(task.task).attrs?.checked || false,
-          activityId: task.activity.id,
-          index: task.taskIndex,
-          projectIds: task.activity.forProjects.map((p) => p.projects.id),
-          meetingId: task.activity.meetingActivitiesId || undefined,
-          updatedAt: new Date(task.activity.updatedAt),
-        })
-      ),
-      sortBy((t) => (t.done ? 1 : 0))
+      mapDailyPlanTodos,
+      sortBy((t) => -t.order)
     )(tasks),
   });
 
 const fetchDailyPlans =
   (status: DailyPlanStatus | undefined = "OPEN") =>
-  async () => {
+  async (): Promise<DailyPlan[] | undefined> => {
+    // @ts-expect-error TS2589
     const { data, errors } = await client.models.DailyPlan.listByStatus(
-      {
-        status,
-      },
-      {
-        sortDirection: "DESC",
-        selectionSet,
-      }
+      { status },
+      // @ts-expect-error TS2589
+      { sortDirection: "DESC", selectionSet }
     );
     if (errors) throw errors;
     if (!data) throw new Error("No daily tasks list fetched");
@@ -186,6 +222,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
               {
                 ...openTask,
                 isInFocus,
+                order: 0,
               },
             ],
           }
