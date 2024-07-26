@@ -3,9 +3,10 @@ import {
   PersonDetail,
   TPersonDetailTypes,
 } from "@/api/usePerson";
+import { Trash2 } from "lucide-react";
+import Link from "next/link";
 import { FC } from "react";
 import PersonContactDetailsForm from "./PersonContactDetailsForm";
-import { Trash2 } from "lucide-react";
 
 type PersonContactDetailProps = {
   personDetail: PersonDetail;
@@ -26,7 +27,27 @@ const PersonContactDetail: FC<PersonContactDetailProps> = ({
     <div className="my-2">
       <div className="flex flex-row gap-2 items-center">
         <detailType.Icon className="w-5 h-5" />
-        <div className="font-semibold">{personDetail.detail}</div>
+        {detailType.buildLink ? (
+          <Link
+            href={detailType.buildLink(personDetail.detail)}
+            target={
+              !detailType.buildLink(personDetail.detail).startsWith("mailto:")
+                ? "_blank"
+                : undefined
+            }
+            className="text-blue-600 hover:underline underline-offset-2 font-semibold"
+          >
+            {!detailType.buildLabel
+              ? personDetail.detail
+              : detailType.buildLabel(personDetail.detail)}
+          </Link>
+        ) : (
+          <div className="font-semibold">
+            {!detailType.buildLabel
+              ? personDetail.detail
+              : detailType.buildLabel(personDetail.detail)}
+          </div>
+        )}
         <PersonContactDetailsForm
           personName={personName}
           onChange={onChange}

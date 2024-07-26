@@ -2,6 +2,7 @@ import {
   Person,
   PersonContactDetailsCreateProps,
   PersonContactDetailsUpdateProps,
+  PersonDetail,
   personDetailsLabels,
 } from "@/api/usePerson";
 import { FC } from "react";
@@ -15,6 +16,16 @@ type PersonContactDetailsProps = {
   onCreate: (data: PersonContactDetailsCreateProps) => void;
   onChange: (data: PersonContactDetailsUpdateProps) => void;
   onDelete: (personDetailId: string) => void;
+};
+
+const getPersonDetailLabel = (label: string) =>
+  personDetailsLabels.find((l) => l.fieldLabel === label);
+
+const buildLabel = (personDetail: PersonDetail) => {
+  const pdLabel = getPersonDetailLabel(personDetail.label);
+  return pdLabel?.buildLabel
+    ? pdLabel.buildLabel(personDetail.detail)
+    : personDetail.detail;
 };
 
 const PersonContactDetails: FC<PersonContactDetailsProps> = ({
@@ -33,12 +44,7 @@ const PersonContactDetails: FC<PersonContactDetailsProps> = ({
     <DefaultAccordionItem
       value="person-contact-details"
       triggerTitle="Contact details"
-      triggerSubTitle={person.details.map(
-        (d) =>
-          `${
-            personDetailsLabels.find((l) => l.fieldLabel === d.label)?.formLabel
-          }: ${d.detail}`
-      )}
+      triggerSubTitle={person.details.map(buildLabel)}
     >
       <PersonContactDetailsForm personName={person.name} onCreate={onCreate} />
 
