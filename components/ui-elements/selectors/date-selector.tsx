@@ -8,7 +8,7 @@ import {
 import { toLocaleTimeString } from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 
 type DateSelectorProps = {
@@ -19,6 +19,7 @@ type DateSelectorProps = {
   placeholder?: string;
   bold?: boolean;
   disabled?: boolean;
+  isLoading?: boolean;
 };
 
 const DateSelector: FC<DateSelectorProps> = ({
@@ -28,6 +29,7 @@ const DateSelector: FC<DateSelectorProps> = ({
   selectHours,
   bold,
   disabled,
+  isLoading,
   placeholder = "Pick a date…",
 }) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -71,7 +73,7 @@ const DateSelector: FC<DateSelectorProps> = ({
       <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
         <PopoverTrigger asChild>
           <Button
-            disabled={disabled}
+            disabled={disabled || isLoading}
             variant="outline"
             className={cn(
               "w-[240px] pl-3 text-left",
@@ -80,7 +82,12 @@ const DateSelector: FC<DateSelectorProps> = ({
             )}
           >
             {date ? format(date, "PPP") : <span>{placeholder}</span>}
-            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+            {!isLoading && (
+              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+            )}
+            {isLoading && (
+              <Loader2 className="ml-auto h-4 w-4 opacity-50 animate-spin" />
+            )}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

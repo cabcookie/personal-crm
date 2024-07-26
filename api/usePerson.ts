@@ -56,6 +56,8 @@ export type TPersonDetailTypes = {
   fieldLabel: TDetailLabel;
   formLabel: string;
   type: "url" | "phone" | "email" | "string";
+  buildLabel?: (label: string) => string;
+  buildLink?: (label: string) => string;
   Icon: typeof Phone;
 };
 
@@ -64,30 +66,40 @@ export const personDetailsLabels: TPersonDetailTypes[] = [
     fieldLabel: "linkedIn",
     formLabel: "LinkedIn profile",
     type: "url",
+    buildLabel: (label) =>
+      label.replace(
+        /^(https?:\/\/)?(www\.)?linkedin\.com\/(in\/[a-zA-Z0-9-]+)\/?$/,
+        "$3"
+      ),
+    buildLink: (label) => label,
     Icon: Linkedin,
   },
   {
     fieldLabel: "phonePrivate",
     formLabel: "Phone (private)",
     type: "phone",
+    buildLink: (label) => `tel:${label}`,
     Icon: Phone,
   },
   {
     fieldLabel: "phoneWork",
     formLabel: "Phone (work)",
     type: "phone",
+    buildLink: (label) => `tel:${label}`,
     Icon: Building,
   },
   {
     fieldLabel: "emailPrivate",
     formLabel: "Email (private)",
     type: "email",
+    buildLink: (label) => `mailto:${label}`,
     Icon: Mail,
   },
   {
     fieldLabel: "emailWork",
     formLabel: "Email (Work)",
     type: "email",
+    buildLink: (label) => `mailto:${label.toLowerCase()}`,
     Icon: Building,
   },
   {
@@ -106,6 +118,7 @@ export const personDetailsLabels: TPersonDetailTypes[] = [
     fieldLabel: "amazonalias",
     formLabel: "Amazon Alias",
     type: "string",
+    buildLink: (label) => `https://phonetool.amazon.com/users/${label}`,
     Icon: AtSign,
   },
 ] as const;

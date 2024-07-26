@@ -118,6 +118,20 @@ const usePersonLearnings = (personId?: string) => {
     return data?.id;
   };
 
+  const updateDate = async (learningId: string, date: Date) => {
+    const updated: PersonLearning[] | undefined = learnings?.map((l) =>
+      l.id !== learningId ? l : { ...l, learnedOn: date }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.PersonLearning.update({
+      id: learningId,
+      learnedOn: toISODateString(date),
+    });
+    if (errors) handleApiErrors(errors, "Updating learning's date failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const updateLearning = async (
     learningId: string,
     learning: EditorJsonContent
@@ -147,6 +161,7 @@ const usePersonLearnings = (personId?: string) => {
     createLearning,
     deleteLearning,
     updateLearning,
+    updateDate,
     updatePrayerStatus,
   };
 };

@@ -40,6 +40,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
     createLearning,
     deleteLearning,
     updateLearning,
+    updateDate,
     updatePrayerStatus,
   } = usePersonLearnings(personId);
   const [editId, setEditId] = useState<string | null>(null);
@@ -93,6 +94,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
           }
           onDelete={() => deleteLearning(learning.id)}
           onChange={handleLearningUpdate(learning.id)}
+          onDateChange={(date) => updateDate(learning.id, date)}
           onStatusChange={(val) => updatePrayerStatus(learning.id, val)}
         />
       ))}
