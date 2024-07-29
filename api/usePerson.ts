@@ -3,7 +3,7 @@ import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { isFuture } from "date-fns";
-import { flow, map, sortBy } from "lodash/fp";
+import { flow, map, replace, sortBy } from "lodash/fp";
 import {
   AtSign,
   Building,
@@ -66,11 +66,13 @@ export const personDetailsLabels: TPersonDetailTypes[] = [
     fieldLabel: "linkedIn",
     formLabel: "LinkedIn profile",
     type: "url",
-    buildLabel: (label) =>
-      label.replace(
-        /^(https?:\/\/)?(www\.)?linkedin\.com\/(in\/[a-zA-Z0-9-]+)\/?$/,
+    buildLabel: flow(
+      decodeURIComponent,
+      replace(
+        /^(https?:\/\/)?(www\.)?linkedin\.com\/(in\/[a-zA-Z0-9-öäüÖÄÜß]+)\/?$/,
         "$3"
-      ),
+      )
+    ),
     buildLink: (label) => label,
     Icon: Linkedin,
   },
