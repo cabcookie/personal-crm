@@ -132,6 +132,8 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
     <DefaultAccordionItem
       value={activityId}
       triggerTitle="Meeting notes"
+      hasOpenTasks={activity?.hasOpenTasks}
+      hasClosedTasks={!!activity?.closedTasks?.length}
       triggerSubTitle={`Projects: ${getProjectNamesByIds(
         activity?.projectIds
       )}`}
