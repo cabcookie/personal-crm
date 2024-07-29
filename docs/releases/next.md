@@ -1,3 +1,3 @@
-# Meetingnotizen zeigen offene Aufgaben (Version :VERSION)
+# Offene Accordions visuell hervorheben (Version :VERSION)
 
-- Bei Meetings ist nun auch in den Meetingnotizen anhand eines Badges erkennbar, ob hier noch offene Aufgaben verborgen liegen oder alle dokumentierten Aufgaben erledigt sind.
+- Wenn ein Accordion geöffnet ist, wird es visuell hervorgehoben.
