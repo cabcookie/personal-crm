@@ -38,12 +38,22 @@
     --context-color-family: 55 85% 65%;
     --context-color-hobby: 98 80% 62%;
     --context-color-work: 181 80% 62%;
+    --context-color-family-secondary: 55 85% 90%;
+    --context-color-hobby-secondary: 98 80% 87%;
+    --context-color-work-secondary: 181 80% 87%;
     --context-color: hsl(var(--context-color-family));
+    --context-color-secondary: hsl(var(--context-color-family-secondary));
 
     --context-color-family-hover: 55 68% 65%;
     --context-color-hobby-hover: 98 64% 62%;
     --context-color-work-hover: 181 64% 62%;
+    --context-color-family-hover-secondary: 55 68% 80%;
+    --context-color-hobby-hover-secondary: 98 64% 77%;
+    --context-color-work-hover-secondary: 181 64% 77%;
     --context-color-hover: hsl(var(--context-color-family-hover));
+    --context-color-hover-secondary: hsl(
+      var(--context-color-family-hover-secondary)
+    );
 
     --logo-filter-family: grayscale(100%) sepia(1) hue-rotate(340deg)
       brightness(90%) saturate(400%);

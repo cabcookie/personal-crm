@@ -52,6 +52,14 @@ export const ContextContextProvider: FC<ContextContextProviderProps> = ({
       `hsl(var(--context-color-${context}-hover))`
     );
     document.documentElement.style.setProperty(
+      "--context-color-secondary",
+      `hsl(var(--context-color-${context}-secondary))`
+    );
+    document.documentElement.style.setProperty(
+      "--context-color-hover-secondary",
+      `hsl(var(--context-color-${context}-hover-secondary))`
+    );
+    document.documentElement.style.setProperty(
       "--logo-filter",
       `var(--logo-filter-${context})`
     );
