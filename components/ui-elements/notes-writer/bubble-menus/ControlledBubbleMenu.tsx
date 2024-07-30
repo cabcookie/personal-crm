@@ -48,13 +48,12 @@ const ControlledBubbleMenu: FC<ControlledBubbleMenuProps> = ({
       return rect
         ? {
             top: `${rect.top}px`,
-            left: `${rect.left}px`,
+            left: `${Math.min(rect.left, window.innerWidth - 330)}px`,
             position: "absolute",
             transform: `translateY(${rect.height}px)`,
           }
         : {};
     })();
-
     setPopoverStyles(styles);
   }, [editor]);
 
