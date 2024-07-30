@@ -1,84 +1,30 @@
-import { useAccountsContext } from "@/api/ContextAccounts";
-import usePeople from "@/api/usePeople";
-import { Person } from "@/api/usePerson";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  EditorJsonContent,
-  isUpToDate,
-  MyExtensions,
-} from "@/helpers/ui-notes-writer";
+import { EditorJsonContent, isUpToDate } from "@/helpers/ui-notes-writer";
 import { handlePastingImage } from "@/helpers/ui-notes-writer/image-handling";
-import {
-  filterPersonByQuery,
-  limitItems,
-  mapPersonToSuggestion,
-  renderer,
-} from "@/helpers/ui-notes-writer/suggestions";
 import { cn } from "@/lib/utils";
 import { Editor } from "@tiptap/core";
-import Mention from "@tiptap/extension-mention";
-import Placeholder from "@tiptap/extension-placeholder";
-import { EditorContent, mergeAttributes, useEditor } from "@tiptap/react";
-import { filter, flow, map } from "lodash/fp";
+import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
-import S3ImageExtension from "./S3ImageExtension";
+import LinkBubbleMenu from "./link-bubble-menu/LinkBubbleMenu";
+import useExtensions from "./useExtensions";
 
 type NotesWriterProps = {
-  people: Person[];
   notes: EditorJsonContent;
   saveNotes?: (editor: Editor) => void;
   autoFocus?: boolean;
-  placeholder?: string;
   readonly?: boolean;
   showSaveStatus?: boolean;
 };
 
-const NotesWriterInner: FC<NotesWriterProps> = ({
-  people,
+const NotesWriter: FC<NotesWriterProps> = ({
   notes,
   saveNotes,
   autoFocus,
   readonly,
   showSaveStatus = true,
-  placeholder = "Start taking notes...",
 }) => {
-  const { getAccountNamesByIds } = useAccountsContext();
-
+  const extensions = useExtensions({});
   const editor = useEditor({
-    extensions: [
-      ...MyExtensions,
-      Mention.configure({
-        HTMLAttributes: {
-          class:
-            "text-blue-400 no-underline hover:underline underline-offset-2",
-        },
-        renderHTML: ({ options, node }) => [
-          "a",
-          mergeAttributes(
-            { href: `/people/${node.attrs.id}` },
-            options.HTMLAttributes
-          ),
-          `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
-        ],
-        suggestion: {
-          items: ({ query }) =>
-            flow(
-              filter(filterPersonByQuery(query)),
-              map(mapPersonToSuggestion(getAccountNamesByIds)),
-              limitItems(5)
-            )(people),
-          render: renderer,
-        },
-      }),
-      S3ImageExtension,
-      Placeholder.configure({
-        // emptyNodeClass:
-        //   "text-muted-foreground relative before:content-['/_for_menu,_@_for_mentions'] before:absolute before:left-0",
-        emptyEditorClass:
-          "relative text-muted-foreground before:content-[attr(data-placeholder)] before:absolute before:left-0",
-        placeholder,
-      }),
-    ],
+    extensions,
     autofocus: autoFocus,
     editable: !readonly,
     editorProps: {
@@ -115,6 +61,7 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
   useEffect(() => {
     if (!editor) return;
     editor.setOptions({
+      extensions,
       editorProps: {
         attributes: {
           class: cn(
@@ -128,23 +75,14 @@ const NotesWriterInner: FC<NotesWriterProps> = ({
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor?.getJSON(), notes]);
+  }, [editor?.getJSON(), notes, extensions]);
 
   return (
     <>
       <EditorContent editor={editor} />
+      {editor && <LinkBubbleMenu editor={editor} />}
       <div id="at-mention-tippy" />
     </>
-  );
-};
-
-const NotesWriter: FC<Omit<NotesWriterProps, "people">> = (props) => {
-  const { people } = usePeople();
-
-  return !people ? (
-    <Skeleton className="w-full h-8" />
-  ) : (
-    <NotesWriterInner {...props} people={people} />
   );
 };
 
