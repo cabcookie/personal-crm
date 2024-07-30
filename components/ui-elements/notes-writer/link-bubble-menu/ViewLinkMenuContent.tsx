@@ -4,17 +4,13 @@ import useKeyDown from "@/helpers/keyboard-events/useKeyDown";
 import { Editor, getMarkRange, getMarkType } from "@tiptap/core";
 import { truncate } from "lodash";
 import Link from "next/link";
-import type { FC, ReactNode } from "react";
+import type { FC } from "react";
 
 export type ViewLinkMenuContentProps = {
   editor: Editor;
   onCancel: () => void;
   onEdit: () => void;
   onRemove: () => void;
-  labels?: {
-    viewLinkEditButtonLabel?: ReactNode;
-    viewLinkRemoveButtonLabel?: ReactNode;
-  };
 };
 
 const ViewLinkMenuContent: FC<ViewLinkMenuContentProps> = ({

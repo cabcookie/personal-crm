@@ -1,45 +1,19 @@
-/// <reference types="@tiptap/extension-link" />
-import type { Except } from "type-fest";
-
+import { Editor } from "@tiptap/core";
 import { FC } from "react";
-import ControlledBubbleMenu, {
-  ControlledBubbleMenuProps,
-} from "./ControlledBubbleMenu";
-import EditLinkMenuContent, {
-  EditLinkMenuContentProps,
-} from "./EditLinkMenuContent";
-import {
-  LinkBubbleMenuHandlerStorage,
-  LinkMenuState,
-} from "./LinkBubbleMenuHandler";
-import ViewLinkMenuContent, {
-  ViewLinkMenuContentProps,
-} from "./ViewLinkMenuContent";
+import BubbleMenu, { MenuState } from "../bubble-menus/BubbleMenu";
+import EditLinkMenuContent from "./EditLinkMenuContent";
+import ViewLinkMenuContent from "./ViewLinkMenuContent";
 
-export interface LinkBubbleMenuProps
-  extends Partial<Except<ControlledBubbleMenuProps, "open" | "children">> {
-  labels?: ViewLinkMenuContentProps["labels"] &
-    EditLinkMenuContentProps["labels"];
+export interface LinkBubbleMenuProps {
+  editor: Editor;
 }
 
-const LinkBubbleMenu: FC<LinkBubbleMenuProps> = ({
-  labels,
-  editor,
-  ...controlledBubbleMenuProps
-}) => {
-  if (!editor?.isEditable) return null;
-  if (!("linkBubbleMenuHandler" in editor.storage)) {
-    throw new Error(
-      "You must add the LinkBubbleMenuHandler extension to the useEditor `extensions` array in order to use this component!"
-    );
-  }
-  const handlerStorage = editor.storage
-    .linkBubbleMenuHandler as LinkBubbleMenuHandlerStorage;
-  const menuState = handlerStorage.state;
-
-  const linkMenuContent = (() => {
-    if (menuState === LinkMenuState.VIEW_LINK_DETAILS)
-      return (
+const LinkBubbleMenu: FC<LinkBubbleMenuProps> = ({ editor }) => (
+  <BubbleMenu
+    editor={editor}
+    handlerName="linkBubbleMenuHandler"
+    getMenuContent={(state) =>
+      state === MenuState.VIEW_DETAILS ? (
         <ViewLinkMenuContent
           editor={editor}
           onCancel={editor.commands.closeLinkBubbleMenu}
@@ -52,11 +26,8 @@ const LinkBubbleMenu: FC<LinkBubbleMenuProps> = ({
               .focus()
               .run();
           }}
-          labels={labels}
         />
-      );
-    else if (menuState === LinkMenuState.EDIT_LINK)
-      return (
+      ) : state === MenuState.EDIT_DETAILS ? (
         <EditLinkMenuContent
           editor={editor}
           onCancel={editor.commands.closeLinkBubbleMenu}
@@ -75,18 +46,9 @@ const LinkBubbleMenu: FC<LinkBubbleMenuProps> = ({
             editor.commands.closeLinkBubbleMenu();
           }}
         />
-      );
-  })();
-  return (
-    <ControlledBubbleMenu
-      editor={editor}
-      open={menuState !== LinkMenuState.HIDDEN}
-      {...handlerStorage.bubbleMenuOptions}
-      {...controlledBubbleMenuProps}
-    >
-      <div>{linkMenuContent}</div>
-    </ControlledBubbleMenu>
-  );
-};
+      ) : null
+    }
+  />
+);
 
 export default LinkBubbleMenu;

@@ -2,7 +2,7 @@ import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Editor, isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
-type PopoverStylesProps =
+export type PopoverStylesProps =
   | {
       top: string;
       left: string;
@@ -70,7 +70,7 @@ const ControlledBubbleMenu: FC<ControlledBubbleMenuProps> = ({
     return () => {
       window.removeEventListener("scroll", handleScroll, true);
     };
-  }, []);
+  }, [calculateAnchorRect, open]);
 
   return (
     <Popover open={open}>

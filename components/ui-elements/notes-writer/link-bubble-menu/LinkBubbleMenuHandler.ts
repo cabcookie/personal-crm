@@ -1,5 +1,10 @@
 import { Extension, getAttributes } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+import {
+  BubbleMenuHandlerStorage,
+  generalMenuHandler,
+  MenuState,
+} from "../bubble-menus/BubbleMenu";
 import { LinkBubbleMenuProps } from "./LinkBubbleMenu";
 
 declare module "@tiptap/core" {
@@ -14,29 +19,11 @@ declare module "@tiptap/core" {
   }
 }
 
-export enum LinkMenuState {
-  HIDDEN,
-  VIEW_LINK_DETAILS,
-  EDIT_LINK,
-}
-
-export type LinkBubbleMenuHandlerStorage = {
-  state: LinkMenuState;
-  bubbleMenuOptions: Partial<LinkBubbleMenuProps> | undefined;
-};
-
 const LinkBubbleMenuHandler = Extension.create<
   undefined,
-  LinkBubbleMenuHandlerStorage
+  BubbleMenuHandlerStorage
 >({
   name: "linkBubbleMenuHandler",
-
-  addStorage() {
-    return {
-      state: LinkMenuState.HIDDEN,
-      bubbleMenuOptions: undefined,
-    };
-  },
 
   addCommands() {
     return {
@@ -44,14 +31,14 @@ const LinkBubbleMenuHandler = Extension.create<
         (bubbleMenuOptions = {}) =>
         ({ editor, chain, dispatch }) => {
           const currentMenuState = this.storage.state;
-          let newMenuState: LinkMenuState;
+          let newMenuState: MenuState;
           if (editor.isActive("link")) {
-            if (currentMenuState !== LinkMenuState.VIEW_LINK_DETAILS) {
+            if (currentMenuState !== MenuState.VIEW_DETAILS) {
               chain().extendMarkRange("link").focus().run();
             }
-            newMenuState = LinkMenuState.VIEW_LINK_DETAILS;
+            newMenuState = MenuState.VIEW_DETAILS;
           } else {
-            newMenuState = LinkMenuState.EDIT_LINK;
+            newMenuState = MenuState.EDIT_DETAILS;
           }
           if (dispatch) {
             this.storage.state = newMenuState;
@@ -64,7 +51,7 @@ const LinkBubbleMenuHandler = Extension.create<
         () =>
         ({ dispatch }) => {
           const currentMenuState = this.storage.state;
-          const newMenuState = LinkMenuState.EDIT_LINK;
+          const newMenuState = MenuState.EDIT_DETAILS;
           if (currentMenuState === newMenuState) return false;
           if (dispatch) {
             this.storage.state = newMenuState;
@@ -76,10 +63,10 @@ const LinkBubbleMenuHandler = Extension.create<
         () =>
         ({ commands, dispatch }) => {
           const currentMenuState = this.storage.state;
-          if (currentMenuState === LinkMenuState.HIDDEN) return false;
+          if (currentMenuState === MenuState.HIDDEN) return false;
           commands.focus();
           if (dispatch) {
-            this.storage.state = LinkMenuState.HIDDEN;
+            this.storage.state = MenuState.HIDDEN;
           }
           return true;
         },
@@ -87,10 +74,10 @@ const LinkBubbleMenuHandler = Extension.create<
   },
 
   onSelectionUpdate() {
-    if (this.storage.state === LinkMenuState.EDIT_LINK) {
+    if (this.storage.state === MenuState.EDIT_DETAILS) {
       this.editor.commands.closeLinkBubbleMenu();
     } else if (
-      this.storage.state === LinkMenuState.VIEW_LINK_DETAILS &&
+      this.storage.state === MenuState.VIEW_DETAILS &&
       !this.editor.isActive("link")
     ) {
       this.editor.commands.closeLinkBubbleMenu();
@@ -114,11 +101,7 @@ const LinkBubbleMenuHandler = Extension.create<
           handleClick: (view, pos, event) => {
             const attrs = getAttributes(view.state, "link");
             const link = (event.target as HTMLElement).closest("a");
-            if (
-              link &&
-              attrs.href &&
-              this.storage.state === LinkMenuState.HIDDEN
-            ) {
+            if (link && attrs.href && this.storage.state === MenuState.HIDDEN) {
               this.editor.commands.openLinkBubbleMenu();
             } else {
               this.editor.commands.closeLinkBubbleMenu();
@@ -129,6 +112,8 @@ const LinkBubbleMenuHandler = Extension.create<
       }),
     ];
   },
+
+  ...generalMenuHandler,
 });
 
 export default LinkBubbleMenuHandler;
