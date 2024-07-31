@@ -4,6 +4,7 @@ import useMeeting from "@/api/useMeeting";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
+import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import ProjectNotesForm from "../ui-elements/project-notes-form/project-notes-form";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
@@ -132,8 +133,12 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
     <DefaultAccordionItem
       value={activityId}
       triggerTitle="Meeting notes"
-      hasOpenTasks={activity?.hasOpenTasks}
-      hasClosedTasks={!!activity?.closedTasks?.length}
+      badge={
+        <TaskBadge
+          hasOpenTasks={activity?.hasOpenTasks}
+          hasClosedTasks={!!activity?.closedTasks?.length}
+        />
+      }
       triggerSubTitle={`Projects: ${getProjectNamesByIds(
         activity?.projectIds
       )}`}

@@ -5,12 +5,11 @@ import {
   AccordionTriggerSubTitle,
   AccordionTriggerTitle,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
 import { filter, flow, join } from "lodash/fp";
-import { CheckCircle2, Circle, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { ElementRef, ReactNode, forwardRef } from "react";
 import { BiLinkExternal } from "react-icons/bi";
@@ -21,8 +20,7 @@ interface DefaultAccordionItemProps extends AccordionItemProps {
   triggerSubTitle?: string | boolean | (string | undefined | boolean)[];
   isVisible?: boolean;
   onDelete?: () => void;
-  hasOpenTasks?: boolean;
-  hasClosedTasks?: boolean;
+  badge?: ReactNode;
 }
 
 const DefaultAccordionItem = forwardRef<
@@ -38,8 +36,7 @@ const DefaultAccordionItem = forwardRef<
       className,
       children,
       onDelete,
-      hasOpenTasks,
-      hasClosedTasks,
+      badge,
       isVisible = true,
       ...props
     },
@@ -51,22 +48,7 @@ const DefaultAccordionItem = forwardRef<
           className={cn(props.disabled && "text-muted-foreground", className)}
         >
           <AccordionTriggerTitle>
-            {hasOpenTasks && (
-              <>
-                <Circle className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden bg-destructive rounded-full text-destructive-foreground" />
-                <Badge variant="destructive" className="hidden md:block">
-                  Open
-                </Badge>
-              </>
-            )}
-            {!hasOpenTasks && hasClosedTasks && (
-              <>
-                <CheckCircle2 className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden rounded-full bg-constructive text-constructive-foreground" />
-                <Badge className="hidden md:block bg-constructive text-constructive-foreground">
-                  Done
-                </Badge>
-              </>
-            )}
+            {badge}
             {triggerTitle}
             {link && (
               <Link

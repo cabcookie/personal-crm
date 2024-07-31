@@ -2,15 +2,15 @@
 
 - In der CRM Projekte Listenansicht werden die verlinkten Projekte angezeigt.
 - Es ist möglich, aus der CRM Projekte Listenansicht Projekte zu verlinken.
+- In den Accordions gibt es nun einen generalistischen Badge. Der kann dafür verwendet werden, um anzuzeigen, dass ein Projekt oder Meeting offene Aufgaben hat oder dass ein CRM Projekt kein verlinktes Projekt hat.
 
 ## In Arbeit
 
-- In den Accordions gibt es nun einen generalistischen Badge. Der kann dafür verwendet werden, um anzuzeigen, dass ein Projekt oder Meeting offene Aufgaben hat oder dass ein CRM Projekt kein verlinktes Projekt hat.
+- In der CRM Projekte Listenansicht können Projekte hochgeladen werden, um den Status upzudaten.
 
 ## Geplant
 
 - Es werden CRM Projekte hervorgehoben, die ein Update im CRM System benötigen.
-- In der CRM Projekte Listenansicht können Projekte hochgeladen werden, um den Status upzudaten.
 - Die Historie von Änderungen in CRM Projekten werden gespeichert.
 - Testweise eine eigene Extension bauen, die ich am Anfang jeder Notiz anzeige (ein einfacher Button).
 - Wenn ich für alle Aufgaben eines Projekts eine Entscheidung getroffen habe, brauche ich das Projekt nicht mehr in der Tagesplanung sehen.

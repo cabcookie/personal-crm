@@ -5,6 +5,7 @@ import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { format } from "date-fns";
 import { flow, get, map, sum } from "lodash/fp";
 import { FC } from "react";
+import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import ProjectDetails from "../ui-elements/project-details/project-details";
 
@@ -32,7 +33,12 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         className="tracking-tight"
         onDelete={onDelete}
         link={`/projects/${project.id}`}
-        hasOpenTasks={openTasksByProjectId(project.id).length > 0}
+        badge={
+          <TaskBadge
+            hasOpenTasks={openTasksByProjectId(project.id).length > 0}
+            hasClosedTasks={false}
+          />
+        }
         triggerSubTitle={[
           project.doneOn && `Done on: ${format(project.doneOn, "PPP")}`,
           project.onHoldTill &&
