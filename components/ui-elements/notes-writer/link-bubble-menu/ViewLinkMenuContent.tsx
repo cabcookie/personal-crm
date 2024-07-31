@@ -49,7 +49,7 @@ const ViewLinkMenuContent: FC<ViewLinkMenuContentProps> = ({
         <Button size="sm" onClick={onEdit}>
           Edit
         </Button>
-        <Button variant="outline" size="sm" onClick={onRemove}>
+        <Button variant="destructive" size="sm" onClick={onRemove}>
           Remove
         </Button>
       </div>
