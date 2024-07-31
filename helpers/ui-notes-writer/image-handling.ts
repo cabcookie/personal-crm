@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { EditorView } from "@tiptap/pm/view";
-import { getUrl, uploadData } from "aws-amplify/storage";
+import { uploadFileToS3 } from "../s3/upload-filtes";
 
 const dispatchImage = (view: EditorView, url: string, fileName: string) => {
   const { schema } = view.state;
@@ -55,25 +55,20 @@ export const handlePastingImage = async (
   editor?.chain().focus().setParagraph().run();
   const file = item.getAsFile();
   if (!file) return false;
-  const fileName = `${crypto.randomUUID()}-${file.name}`;
 
-  dispatchImage(editor?.view, URL.createObjectURL(file), fileName);
+  dispatchImage(editor?.view, URL.createObjectURL(file), file.name);
 
-  const { path: s3Path } = await uploadData({
-    path: ({ identityId }) => `user-files/${identityId}/${fileName}`,
-    data: file,
-    options: {
-      contentType: file.type,
-    },
-  }).result;
+  const { url, expiresAt, s3Path } = await uploadFileToS3(
+    file,
+    "user-files/${identityId}/${filename}"
+  );
 
-  const { url, expiresAt } = await getUrl({ path: s3Path });
   updateImageSrc(
     view,
     url.toString(),
     s3Path,
     expiresAt.toISOString(),
-    fileName
+    file.name
   );
   return true;
 };

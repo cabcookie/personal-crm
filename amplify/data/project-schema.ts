@@ -62,6 +62,20 @@ const projectSchema = {
       createdOn: a.datetime(),
     })
     .authorization((allow) => [allow.owner()]),
+  CrmProjectImportStatus: a.enum(["WIP", "DONE"]),
+  CrmProjectImport: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      s3Key: a.string().required(),
+      status: a.ref("CrmProjectImportStatus").required(),
+      createdAt: a.datetime().required(),
+    })
+    .secondaryIndexes((index) => [
+      index("status").sortKeys(["createdAt"]).queryField("listByImportStatus"),
+    ])
+    .authorization((allow) => [allow.owner()]),
   CrmProjectProjects: a
     .model({
       owner: a

@@ -3,10 +3,12 @@
 - In der CRM Projekte Listenansicht werden die verlinkten Projekte angezeigt.
 - Es ist möglich, aus der CRM Projekte Listenansicht Projekte zu verlinken.
 - In den Accordions gibt es nun einen generalistischen Badge. Der kann dafür verwendet werden, um anzuzeigen, dass ein Projekt oder Meeting offene Aufgaben hat oder dass ein CRM Projekt kein verlinktes Projekt hat.
+- CRM Projekte zeigen jetzt übersichtlich an, wenn gerade Daten aus dem Backend geladen werden oder Fehler auftreten.
+- Eine Datei mit CRM Projekten kann nun importiert werden. Sie wird auf S3 hochgeladen und ein Verweis darauf wird in DynamoDB angelegt.
 
 ## In Arbeit
 
-- In der CRM Projekte Listenansicht können Projekte hochgeladen werden, um den Status upzudaten.
+- Der Import muss noch ausgewertet werden.
 
 ## Geplant
 

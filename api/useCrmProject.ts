@@ -60,8 +60,8 @@ const fetchCrmProject = (projectId?: string) => async () => {
 const useCrmProject = (projectId?: string) => {
   const {
     data: crmProject,
-    error: errorCrmProject,
-    isLoading: loadingCrmProject,
+    error,
+    isLoading,
     mutate,
   } = useSWR(`/api/crm-projects/${projectId}`, fetchCrmProject(projectId));
 
@@ -126,8 +126,8 @@ const useCrmProject = (projectId?: string) => {
 
   return {
     crmProject,
-    errorCrmProject,
-    loadingCrmProject,
+    error,
+    isLoading,
     updateCrmProject,
     addProjectToCrmProject,
   };

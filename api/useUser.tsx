@@ -1,8 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
+import { uploadFileToS3 } from "@/helpers/s3/upload-filtes";
 import { AuthUser, getCurrentUser } from "aws-amplify/auth";
 import { generateClient } from "aws-amplify/data";
-import { remove, uploadData } from "aws-amplify/storage";
+import { remove } from "aws-amplify/storage";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -82,19 +83,15 @@ const useCurrentUser = () => {
   const updateProfilePicture = async (file: File, finished: () => void) => {
     if (!user) return;
     const { profilePicture: oldPicture } = await fetchUser();
-    const fileName = `${crypto.randomUUID()}-${file.name}`;
-    const s3FileKey = await uploadData({
-      path: ({ identityId }) => `profile-images/${identityId}/${fileName}`,
-      data: file,
-      options: {
-        contentType: file.type,
-      },
-    }).result;
-    const updated: User = { ...user, profilePicture: s3FileKey.path };
+    const { s3Path } = await uploadFileToS3(
+      file,
+      "profile-images/${identityId}/${filename}"
+    );
+    const updated: User = { ...user, profilePicture: s3Path };
     mutate(updated, false);
     const { data, errors } = await client.models.User.update({
       profileId: `${user.userId}::${user.userId}`,
-      profilePicture: s3FileKey.path,
+      profilePicture: s3Path,
     });
     if (errors) handleApiErrors(errors, "Updating profile image failed");
     mutate(updated);
