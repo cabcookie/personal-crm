@@ -13,6 +13,7 @@ type NotesWriterProps = {
   autoFocus?: boolean;
   readonly?: boolean;
   showSaveStatus?: boolean;
+  placeholder?: string;
 };
 
 const NotesWriter: FC<NotesWriterProps> = ({
@@ -20,9 +21,10 @@ const NotesWriter: FC<NotesWriterProps> = ({
   saveNotes,
   autoFocus,
   readonly,
+  placeholder,
   showSaveStatus = true,
 }) => {
-  const extensions = useExtensions({});
+  const extensions = useExtensions({ placeholder });
   const editor = useEditor({
     extensions,
     autofocus: autoFocus,
