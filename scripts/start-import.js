@@ -172,6 +172,24 @@ const importData = async () => {
       personId: people.find((p) => p.notionId === personId)?.id,
     })
   );
+
+  // CrmProjects: Projects from SFDC
+  const crmProjects = await importHandler(
+    "CrmProject",
+    "_crmProjects.json",
+    ({ projectNotionIds, ...item }) => item
+  );
+
+  // CrmProjectProjects: link CRM Projects with Projects
+  await createManyToManyTable(
+    "CrmProjectProjects",
+    "_crmProjects.json",
+    crmProjects,
+    projects,
+    "projectNotionIds",
+    "crmProjectId",
+    "projectId"
+  );
 };
 
 const fillFinishedOn = async () => {

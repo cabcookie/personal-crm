@@ -1,4 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
+import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
@@ -98,7 +99,38 @@ const useCrmProject = (projectId?: string) => {
     return data?.id;
   };
 
-  return { crmProject, errorCrmProject, loadingCrmProject, updateCrmProject };
+  const addProjectToCrmProject = async (
+    projectId: string,
+    projectName: string
+  ) => {
+    if (!crmProject) return;
+    const updated: CrmProject = {
+      ...crmProject,
+      projectIds: [...crmProject.projectIds, projectId],
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.CrmProjectProjects.create({
+      projectId,
+      crmProjectId: crmProject.id,
+    });
+    if (errors)
+      handleApiErrors(errors, "Linking project to CRM project failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Linked project to CRM project",
+      description: `Project “${projectName}” has been linked to CRM project “${crmProject.name}”.`,
+    });
+    return data.id;
+  };
+
+  return {
+    crmProject,
+    errorCrmProject,
+    loadingCrmProject,
+    updateCrmProject,
+    addProjectToCrmProject,
+  };
 };
 
 export default useCrmProject;
