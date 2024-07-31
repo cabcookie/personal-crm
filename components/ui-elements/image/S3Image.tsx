@@ -1,7 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { StorageImage } from "@aws-amplify/ui-react-storage";
-// import "@aws-amplify/ui-react/styles.css";
 import Image from "next/image";
 import { FC } from "react";
 
