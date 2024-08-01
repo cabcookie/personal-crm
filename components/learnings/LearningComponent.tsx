@@ -32,7 +32,6 @@ const LearningComponent: FC<LearningComponentProps> = ({
 
   const handleDateChange = async (newDate: Date) => {
     setSavingDate(true);
-    console.log({ newDate });
     await onDateChange(newDate);
     setSavingDate(false);
   };

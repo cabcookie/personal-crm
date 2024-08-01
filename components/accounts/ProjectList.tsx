@@ -1,8 +1,11 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { filterAndSortProjects } from "@/helpers/projects";
-import { FC } from "react";
+import { flow, identity, map, times } from "lodash/fp";
+import { FC, useEffect, useState } from "react";
+import ApiLoadingError from "../layouts/ApiLoadingError";
 import ProjectAccordionItem from "../projects/ProjectAccordionItem";
+import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import { Accordion } from "../ui/accordion";
 
 const PROJECT_FILTERS = ["WIP", "On Hold", "Done"] as const;
@@ -26,22 +29,46 @@ const ProjectList: FC<ProjectListProps> = ({
   accountId,
   filter: projectFilter,
 }) => {
-  const { projects } = useProjectsContext();
+  const { projects, loadingProjects, errorProjects } = useProjectsContext();
   const { accounts } = useAccountsContext();
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
 
-  return !projects ? (
-    "Loading…"
-  ) : filterAndSortProjects(projects, accountId, projectFilter, accounts)
-      .length === 0 ? (
-    "No projects"
-  ) : (
-    <Accordion type="single" collapsible>
-      {filterAndSortProjects(projects, accountId, projectFilter, accounts).map(
-        (project: Project) => (
-          <ProjectAccordionItem key={project.id} project={project} />
-        )
+  useEffect(() => {
+    if (!projects) return setFilteredProjects([]);
+    setFilteredProjects(
+      filterAndSortProjects(projects, accountId, projectFilter, accounts)
+    );
+  }, [accountId, accounts, projectFilter, projects]);
+
+  return (
+    <div className="space-y-4">
+      <ApiLoadingError title="Loading projects failed" error={errorProjects} />
+
+      {!loadingProjects && filteredProjects.length === 0 && (
+        <div className="text-muted-foreground text-sm font-semibold">
+          No projects
+        </div>
       )}
-    </Accordion>
+
+      <Accordion type="single" collapsible>
+        {loadingProjects &&
+          flow(
+            times(identity),
+            map((id: number) => (
+              <LoadingAccordionItem
+                key={id}
+                value={`loading-${id}`}
+                sizeTitle="lg"
+                sizeSubtitle="base"
+              />
+            ))
+          )(10)}
+
+        {filteredProjects.map((project) => (
+          <ProjectAccordionItem key={project.id} project={project} />
+        ))}
+      </Accordion>
+    </div>
   );
 };
 

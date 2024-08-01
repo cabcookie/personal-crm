@@ -1,8 +1,4 @@
-import {
-  CRM_STAGES,
-  CrmProjectOnChangeFields,
-  TCrmStages,
-} from "@/api/useCrmProject";
+import { CRM_STAGES, TCrmStages } from "@/api/useCrmProject";
 import { CrmProject } from "@/api/useCrmProjects";
 import CrmLink from "@/components/crm/CrmLink";
 import { Button } from "@/components/ui/button";
@@ -59,14 +55,14 @@ const FormSchema = z.object({
 });
 
 type CreateCrmProjectProps = {
-  onCreate: (props: CrmProjectOnChangeFields) => Promise<string | undefined>;
+  onCreate: (props: Partial<CrmProject>) => Promise<string | undefined>;
   crmProject?: never;
   onChange?: never;
 };
 
 type UpdateCrmProjectProps = {
   crmProject: CrmProject;
-  onChange: (props: CrmProjectOnChangeFields) => Promise<string | undefined>;
+  onChange: (props: Partial<CrmProject>) => Promise<string | undefined>;
   onCreate?: never;
 };
 

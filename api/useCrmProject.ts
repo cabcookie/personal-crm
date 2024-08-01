@@ -2,6 +2,7 @@ import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
+import { isUndefined, omitBy } from "lodash";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import {
@@ -33,16 +34,6 @@ export const CRM_STAGES = [
 
 export type TCrmStages = (typeof STAGES_PROBABILITY)[number]["stage"];
 
-export type CrmProjectOnChangeFields = {
-  name?: string;
-  arr?: number;
-  tcv?: number;
-  isMarketplace?: boolean;
-  stage?: TCrmStages;
-  closeDate?: Date;
-  crmId?: string;
-};
-
 const fetchCrmProject = (projectId?: string) => async () => {
   if (!projectId) return;
   const { data, errors } = await client.models.CrmProject.get(
@@ -69,30 +60,29 @@ const useCrmProject = (projectId?: string) => {
     closeDate,
     arr,
     tcv,
+    stageChangedDate,
+    projectIds: _projectIds,
     ...changedProject
-  }: CrmProjectOnChangeFields) => {
+  }: Partial<CrmProject>) => {
     if (!crmProject) return;
     const updated: CrmProject = {
-      id: crmProject.id,
-      name: changedProject.name || crmProject.name,
-      arr: arr || crmProject.arr,
-      tcv: tcv || crmProject.tcv,
-      closeDate: closeDate || crmProject.closeDate,
-      isMarketplace:
-        changedProject.isMarketplace !== undefined
-          ? changedProject.isMarketplace
-          : crmProject.isMarketplace,
-      crmId: changedProject.crmId || crmProject.crmId,
-      projectIds: crmProject.projectIds,
-      stage: changedProject.stage || crmProject.stage,
+      ...(omitBy(crmProject, isUndefined) as CrmProject),
+      ...omitBy(changedProject, isUndefined),
+      arr: arr ?? crmProject.arr,
+      tcv: tcv ?? crmProject.tcv,
+      closeDate: closeDate ?? crmProject.closeDate,
+      stageChangedDate: stageChangedDate ?? crmProject.stageChangedDate,
     };
     mutate(updated, false);
     const { data, errors } = await client.models.CrmProject.update({
+      ...changedProject,
       id: crmProject.id,
       closeDate: !closeDate ? undefined : toISODateString(closeDate),
       annualRecurringRevenue: arr,
       totalContractVolume: tcv,
-      ...changedProject,
+      stageChangedDate: !stageChangedDate
+        ? undefined
+        : toISODateString(stageChangedDate),
     });
     if (errors) handleApiErrors(errors, "Error updating CRM project");
     mutate(updated);

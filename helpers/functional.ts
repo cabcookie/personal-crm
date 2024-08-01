@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 
 export const getDayOfDate = (date: Date) => date.toISOString().split("T")[0];
 export const addDaysToDate = (days: number) => (date: Date) =>
@@ -54,3 +54,5 @@ export const truncateMiddle = (text: string, length = 20): string => {
   const half = Math.floor(length / 2);
   return `${text.slice(0, half).trim()}…${text.slice(-half).trim()}`;
 };
+export const diffCalDays = (date1: Date) => (date2: Date) =>
+  differenceInCalendarDays(date2, date1);

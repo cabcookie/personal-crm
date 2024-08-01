@@ -1,6 +1,8 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import useCrmProject from "@/api/useCrmProject";
+import CrmData from "@/components/crm/CrmData";
 import { makeCrmLink } from "@/components/crm/CrmLink";
+import LabelData from "@/components/crm/label-data";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
@@ -17,9 +19,13 @@ import CrmProjectForm from "./CrmProjectForm";
 
 type CrmProjectDetailsProps = {
   crmProjectId: string;
+  showProjects?: boolean;
 };
 
-const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({ crmProjectId }) => {
+const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
+  crmProjectId,
+  showProjects,
+}) => {
   const {
     crmProject,
     updateCrmProject,
@@ -64,19 +70,19 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({ crmProjectId }) => {
       >
         <div className="space-y-2">
           <CrmProjectForm crmProject={crmProject} onChange={updateCrmProject} />
-          <div>
-            <div>Stage: {crmProject.stage}</div>
-            {crmProject.arr > 0 && (
-              <div>
-                Annual recurring revenue: {formatUsdCurrency(crmProject.arr)}
-              </div>
-            )}
-            {crmProject.tcv > 0 && (
-              <div>
-                Total contract volume: {formatUsdCurrency(crmProject.tcv)}
-              </div>
-            )}
-            <div>Close date: {format(crmProject.closeDate, "PPP")}</div>
+          <div className="space-y-1">
+            <LabelData label="Stage" data={crmProject.stage} />
+            <LabelData label="ARR" data={formatUsdCurrency(crmProject.arr)} />
+            <LabelData label="TCV" data={formatUsdCurrency(crmProject.tcv)} />
+            <LabelData
+              label="Close date"
+              data={format(crmProject.closeDate, "PP")}
+            />
+            <LabelData label="Account" data={crmProject.accountName} />
+            <LabelData label="Next step" data={crmProject.nextStep} />
+            <LabelData label="Partner" data={crmProject.partnerName} />
+            <LabelData label="Owner" data={crmProject.opportunityOwner} />
+            <CrmData crmId={crmProject.crmId} />
           </div>
 
           {crmProject.projectIds.length === 0 && (
@@ -97,7 +103,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({ crmProjectId }) => {
             </div>
           )}
 
-          {crmProject.projectIds.length > 0 && (
+          {showProjects && crmProject.projectIds.length > 0 && (
             <Accordion type="single" collapsible>
               {crmProject.projectIds.map((id) => (
                 <ProjectAccordionItem key={id} project={getProjectById(id)} />

@@ -100,6 +100,13 @@ const projectSchema = {
       closeDate: a.date().required(),
       projects: a.hasMany("CrmProjectProjects", "crmProjectId"),
       stage: a.string().required(),
+      opportunityOwner: a.string(),
+      nextStep: a.string(),
+      partnerName: a.string(),
+      type: a.string(),
+      stageChangedDate: a.date(),
+      accountName: a.string(),
+      territoryName: a.string(),
     })
     .authorization((allow) => [allow.owner()]),
   Projects: a

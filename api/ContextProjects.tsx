@@ -14,7 +14,7 @@ import { filter, flow, get, join, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
-import { CRM_STAGES, TCrmStages } from "./useCrmProject";
+import { CrmProject, mapCrmProject } from "./useCrmProjects";
 const client = generateClient<Schema>();
 
 interface ProjectsContextType {
@@ -67,15 +67,6 @@ interface ProjectsContextType {
   deleteLegacyNextActions: (projectId: string) => Promise<string | undefined>;
 }
 
-export type CrmProjectData = {
-  id: string;
-  arr: number;
-  tcv: number;
-  closeDate: Date;
-  isMarketPlace: boolean;
-  stage: TCrmStages;
-};
-
 export type Project = {
   id: string;
   project: string;
@@ -90,7 +81,7 @@ export type Project = {
   context: Context;
   accountIds: string[];
   activityIds: string[];
-  crmProjects: CrmProjectData[];
+  crmProjects: CrmProject[];
 };
 
 const selectionSet = [
@@ -112,11 +103,20 @@ const selectionSet = [
   "activities.activity.finishedOn",
   "activities.activity.createdAt",
   "crmProjects.crmProject.id",
-  "crmProjects.crmProject.closeDate",
-  "crmProjects.crmProject.isMarketplace",
+  "crmProjects.crmProject.name",
+  "crmProjects.crmProject.crmId",
   "crmProjects.crmProject.annualRecurringRevenue",
   "crmProjects.crmProject.totalContractVolume",
+  "crmProjects.crmProject.isMarketplace",
+  "crmProjects.crmProject.closeDate",
   "crmProjects.crmProject.stage",
+  "crmProjects.crmProject.opportunityOwner",
+  "crmProjects.crmProject.nextStep",
+  "crmProjects.crmProject.partnerName",
+  "crmProjects.crmProject.type",
+  "crmProjects.crmProject.stageChangedDate",
+  "crmProjects.crmProject.accountName",
+  "crmProjects.crmProject.territoryName",
 ] as const;
 
 type ProjectData = SelectionSet<
@@ -126,22 +126,9 @@ type ProjectData = SelectionSet<
 export type CrmDataProps = ProjectData["crmProjects"][number];
 
 export const mapCrmData = ({
-  crmProject: {
-    id,
-    annualRecurringRevenue,
-    totalContractVolume,
-    closeDate,
-    isMarketplace,
-    stage,
-  },
-}: CrmDataProps): CrmProjectData => ({
-  id,
-  arr: annualRecurringRevenue || 0,
-  tcv: totalContractVolume || 0,
-  isMarketPlace: !!isMarketplace,
-  closeDate: new Date(closeDate),
-  stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
-});
+  crmProject,
+}: CrmDataProps): CrmProject | undefined =>
+  !crmProject ? undefined : mapCrmProject({ ...crmProject, projects: [] });
 
 const mapProject: (project: ProjectData) => Project = ({
   id,
@@ -167,7 +154,6 @@ const mapProject: (project: ProjectData) => Project = ({
       },
     },
   ]);
-
   return {
     id,
     project,
@@ -212,7 +198,10 @@ const mapProject: (project: ProjectData) => Project = ({
       sortBy((a) => -a.finishedOn.getTime()),
       map((a) => a.id)
     )(activities),
-    crmProjects: crmProjects.map(mapCrmData),
+    crmProjects: flow(
+      map(mapCrmData),
+      filter((d) => !!d)
+    )(crmProjects),
     pipeline: pipeline,
     order: pipeline,
   };
