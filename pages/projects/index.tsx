@@ -5,12 +5,11 @@ import ProjectList, {
 } from "@/components/accounts/ProjectList";
 import MainLayout from "@/components/layouts/MainLayout";
 import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
-import { Accordion } from "@/components/ui/accordion";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
 const ProjectListPage = () => {
-  const { projects, createProject } = useProjectsContext();
+  const { createProject } = useProjectsContext();
   const [filter, setFilter] = useState<ProjectFilters>("WIP");
   const router = useRouter();
 
@@ -29,20 +28,17 @@ const ProjectListPage = () => {
       sectionName="Projects"
       addButton={{ label: "New", onClick: createAndOpenNewProject }}
     >
-      <div className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2">
-        <ButtonGroup
-          values={["WIP", "On Hold", "Done"] as ProjectFilters[]}
-          selectedValue={filter}
-          onSelect={onFilterChange}
-        />
+      <div className="space-y-6">
+        <div className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2">
+          <ButtonGroup
+            values={["WIP", "On Hold", "Done"] as ProjectFilters[]}
+            selectedValue={filter}
+            onSelect={onFilterChange}
+          />
+        </div>
+
+        <ProjectList filter={filter} />
       </div>
-      {!projects ? (
-        "Loading projects…"
-      ) : (
-        <Accordion type="single" collapsible>
-          <ProjectList filter={filter} />
-        </Accordion>
-      )}
     </MainLayout>
   );
 };

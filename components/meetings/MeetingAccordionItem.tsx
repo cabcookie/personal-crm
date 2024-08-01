@@ -6,6 +6,7 @@ import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
 import { format } from "date-fns";
 import { flatMap, flow, get, map } from "lodash/fp";
 import { FC } from "react";
+import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import MeetingRecord from "./meeting";
 
@@ -23,8 +24,12 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
       triggerTitle={`${meeting.topic} (${format(meeting.meetingOn, "Pp")})`}
       className="tracking-tight"
       link={`/meetings/${meeting.id}`}
-      hasOpenTasks={meeting.activities.some((a) => a.hasOpenTasks)}
-      hasClosedTasks={meeting.activities.some((a) => a.closedTasks?.length)}
+      badge={
+        <TaskBadge
+          hasOpenTasks={meeting.activities.some((a) => a.hasOpenTasks)}
+          hasClosedTasks={meeting.activities.some((a) => a.closedTasks?.length)}
+        />
+      }
       triggerSubTitle={[
         meeting.participantIds.length > 0 &&
           `Participants: ${getNamesByIds(meeting.participantIds)}`,

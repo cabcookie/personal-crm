@@ -1,6 +1,4 @@
-import { CrmProjectData } from "@/api/ContextProjects";
-import { CrmProjectOnChangeFields } from "@/api/useCrmProject";
-import useCrmProjects from "@/api/useCrmProjects";
+import useCrmProjects, { CrmProject } from "@/api/useCrmProjects";
 import { Accordion } from "@/components/ui/accordion";
 import { useContextContext } from "@/contexts/ContextContext";
 import { getRevenue2Years } from "@/helpers/projects";
@@ -11,7 +9,7 @@ import CrmProjectDetails from "./crm-project-details";
 
 type CrmProjectsListProps = {
   isVisible?: boolean;
-  crmProjects: CrmProjectData[];
+  crmProjects: CrmProject[];
   projectId?: string;
 };
 
@@ -31,7 +29,7 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
     stage,
     tcv,
     crmId,
-  }: CrmProjectOnChangeFields) => {
+  }: Partial<CrmProject>) => {
     if (!projectId) return;
     if (!name) return;
     if (!closeDate) return;

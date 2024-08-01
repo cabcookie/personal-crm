@@ -1,5 +1,5 @@
 import { Account } from "@/api/ContextAccounts";
-import { CrmDataProps, Project, mapCrmData } from "@/api/ContextProjects";
+import { CrmDataProps, Project } from "@/api/ContextProjects";
 import { STAGES_PROBABILITY, TCrmStages } from "@/api/useCrmProject";
 import { ProjectFilters } from "@/components/accounts/ProjectList";
 import { differenceInCalendarMonths } from "date-fns";
@@ -21,9 +21,19 @@ interface CalcPipelineProps {
   projects: ProjectProps;
 }
 
+interface CalcPipelineFields {
+  crmProject: {
+    annualRecurringRevenue: CrmDataProps["crmProject"]["annualRecurringRevenue"];
+    totalContractVolume: CrmDataProps["crmProject"]["totalContractVolume"];
+    closeDate: CrmDataProps["crmProject"]["closeDate"];
+    isMarketplace: CrmDataProps["crmProject"]["isMarketplace"];
+    stage: CrmDataProps["crmProject"]["stage"];
+  } | null;
+}
+
 interface ProjectProps {
   done?: boolean | null;
-  crmProjects: CrmDataProps[];
+  crmProjects: CalcPipelineFields[];
 }
 
 interface ICalcRevenueTwoYears {
@@ -33,6 +43,16 @@ interface ICalcRevenueTwoYears {
   isMarketPlace?: boolean;
   stage: TCrmStages;
 }
+
+const mapPipelineFields = ({
+  crmProject,
+}: CalcPipelineFields): ICalcRevenueTwoYears => ({
+  arr: crmProject?.annualRecurringRevenue ?? 0,
+  tcv: crmProject?.totalContractVolume ?? 0,
+  closeDate: !crmProject ? new Date() : new Date(crmProject.closeDate),
+  stage: !crmProject ? "Prospect" : (crmProject.stage as TCrmStages),
+  isMarketPlace: crmProject?.isMarketplace ?? false,
+});
 
 const calcProjectOrder =
   (pipeline: number) => (accountQuota: number | undefined) =>
@@ -66,7 +86,8 @@ export const calcPipeline = (projects: CalcPipelineProps[]): number =>
     map(get("projects")),
     filter((p: ProjectProps) => !p.done),
     map(get("crmProjects")),
-    flatMap(map(mapCrmData)),
+    flatMap(map(mapPipelineFields)),
+    filter((d) => !!d),
     map(calcRevenueTwoYears),
     sum,
     (val: number | undefined) => val || 0,

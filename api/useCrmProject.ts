@@ -1,6 +1,8 @@
 import { type Schema } from "@/amplify/data/resource";
+import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
+import { isUndefined, omitBy } from "lodash";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import {
@@ -32,16 +34,6 @@ export const CRM_STAGES = [
 
 export type TCrmStages = (typeof STAGES_PROBABILITY)[number]["stage"];
 
-export type CrmProjectOnChangeFields = {
-  name?: string;
-  arr?: number;
-  tcv?: number;
-  isMarketplace?: boolean;
-  stage?: TCrmStages;
-  closeDate?: Date;
-  crmId?: string;
-};
-
 const fetchCrmProject = (projectId?: string) => async () => {
   if (!projectId) return;
   const { data, errors } = await client.models.CrmProject.get(
@@ -59,8 +51,8 @@ const fetchCrmProject = (projectId?: string) => async () => {
 const useCrmProject = (projectId?: string) => {
   const {
     data: crmProject,
-    error: errorCrmProject,
-    isLoading: loadingCrmProject,
+    error,
+    isLoading,
     mutate,
   } = useSWR(`/api/crm-projects/${projectId}`, fetchCrmProject(projectId));
 
@@ -68,37 +60,67 @@ const useCrmProject = (projectId?: string) => {
     closeDate,
     arr,
     tcv,
+    stageChangedDate,
+    projectIds: _projectIds,
     ...changedProject
-  }: CrmProjectOnChangeFields) => {
+  }: Partial<CrmProject>) => {
     if (!crmProject) return;
     const updated: CrmProject = {
-      id: crmProject.id,
-      name: changedProject.name || crmProject.name,
-      arr: arr || crmProject.arr,
-      tcv: tcv || crmProject.tcv,
-      closeDate: closeDate || crmProject.closeDate,
-      isMarketplace:
-        changedProject.isMarketplace !== undefined
-          ? changedProject.isMarketplace
-          : crmProject.isMarketplace,
-      crmId: changedProject.crmId || crmProject.crmId,
-      projectIds: crmProject.projectIds,
-      stage: changedProject.stage || crmProject.stage,
+      ...(omitBy(crmProject, isUndefined) as CrmProject),
+      ...omitBy(changedProject, isUndefined),
+      arr: arr ?? crmProject.arr,
+      tcv: tcv ?? crmProject.tcv,
+      closeDate: closeDate ?? crmProject.closeDate,
+      stageChangedDate: stageChangedDate ?? crmProject.stageChangedDate,
     };
     mutate(updated, false);
     const { data, errors } = await client.models.CrmProject.update({
+      ...changedProject,
       id: crmProject.id,
       closeDate: !closeDate ? undefined : toISODateString(closeDate),
       annualRecurringRevenue: arr,
       totalContractVolume: tcv,
-      ...changedProject,
+      stageChangedDate: !stageChangedDate
+        ? undefined
+        : toISODateString(stageChangedDate),
     });
     if (errors) handleApiErrors(errors, "Error updating CRM project");
     mutate(updated);
     return data?.id;
   };
 
-  return { crmProject, errorCrmProject, loadingCrmProject, updateCrmProject };
+  const addProjectToCrmProject = async (
+    projectId: string,
+    projectName: string
+  ) => {
+    if (!crmProject) return;
+    const updated: CrmProject = {
+      ...crmProject,
+      projectIds: [...crmProject.projectIds, projectId],
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.CrmProjectProjects.create({
+      projectId,
+      crmProjectId: crmProject.id,
+    });
+    if (errors)
+      handleApiErrors(errors, "Linking project to CRM project failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Linked project to CRM project",
+      description: `Project “${projectName}” has been linked to CRM project “${crmProject.name}”.`,
+    });
+    return data.id;
+  };
+
+  return {
+    crmProject,
+    error,
+    isLoading,
+    updateCrmProject,
+    addProjectToCrmProject,
+  };
 };
 
 export default useCrmProject;
