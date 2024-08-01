@@ -1,6 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import {
+  CalcPipelineFields,
+  calcRevenueTwoYears,
+  mapPipelineFields,
+} from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
@@ -26,6 +31,7 @@ export type CrmProject = {
   stageChangedDate?: Date;
   accountName?: string;
   territoryName?: string;
+  pipeline?: number;
 };
 
 export const selectionSetCrmProject = [
@@ -81,6 +87,19 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   type: type ?? undefined,
   accountName: accountName ?? undefined,
   territoryName: territoryName ?? undefined,
+  pipeline:
+    flow(
+      mapPipelineFields,
+      calcRevenueTwoYears
+    )({
+      crmProject: {
+        annualRecurringRevenue,
+        closeDate,
+        isMarketplace,
+        stage,
+        totalContractVolume,
+      },
+    } as CalcPipelineFields) ?? 0,
 });
 
 type CrmProjectData = SelectionSet<
@@ -118,7 +137,7 @@ const fetchCrmProjects = async () => {
   }
   return flow(
     map(mapCrmProject),
-    sortBy((p) => p.closeDate.getTime())
+    sortBy((p) => -(p.pipeline || 0))
   )(data);
 };
 
