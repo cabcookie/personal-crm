@@ -55,7 +55,12 @@ const fetchWeekPlans = async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchWeekPlan didn't retrieve data");
-  return data.map(mapWeekPlan);
+  try {
+    return data.map(mapWeekPlan);
+  } catch (error) {
+    console.error("fetchWeekPlans", { error });
+    throw error;
+  }
 };
 
 const useWeekPlan = () => {

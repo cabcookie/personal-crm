@@ -77,9 +77,14 @@ const fetchInbox = async () => {
     handleApiErrors(errors, "Error loading inbox items");
     throw errors;
   }
-  return data
-    .map(mapInbox)
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  try {
+    return data
+      .map(mapInbox)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  } catch (error) {
+    console.error("fetchInbox", { error });
+    throw error;
+  }
 };
 
 const useInbox = () => {

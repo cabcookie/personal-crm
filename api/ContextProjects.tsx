@@ -228,7 +228,12 @@ const fetchProjects = (context?: Context) => async () => {
     handleApiErrors(errors, "Error loading projects");
     throw errors;
   }
-  return data.map(mapProject);
+  try {
+    return data.map(mapProject);
+  } catch (error) {
+    console.error("fetchProjects", { error });
+    throw error;
+  }
 };
 
 interface ProjectsContextProviderProps {

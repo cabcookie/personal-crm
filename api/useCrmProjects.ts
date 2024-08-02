@@ -135,10 +135,15 @@ const fetchCrmProjects = async () => {
     handleApiErrors(errors, "Error loading CRM projects");
     throw errors;
   }
-  return flow(
-    map(mapCrmProject),
-    sortBy((p) => -(p.pipeline || 0))
-  )(data);
+  try {
+    return flow(
+      map(mapCrmProject),
+      sortBy((p) => -(p.pipeline || 0))
+    )(data);
+  } catch (error) {
+    console.error("fetchCrmProjects", error);
+    throw error;
+  }
 };
 
 const useCrmProjects = () => {

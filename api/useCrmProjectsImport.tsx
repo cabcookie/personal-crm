@@ -55,7 +55,12 @@ const fetchCrmProjectsImport = (status: TImportStatus) => async () => {
     handleApiErrors(errors, "Loading CRM Project's imports failed");
     throw errors;
   }
-  return data.map(mapCrmProjectImport)[0];
+  try {
+    return data.map(mapCrmProjectImport)[0];
+  } catch (error) {
+    console.error("fetchCrmProjectsImport", { error });
+    throw error;
+  }
 };
 
 const useCrmProjectsImport = (status: TImportStatus) => {
@@ -177,25 +182,27 @@ const useCrmProjectsImport = (status: TImportStatus) => {
         return rowObject;
       });
 
-    const result: Omit<CrmProject, "id">[] = jsonResult.map(
-      (obj): Omit<CrmProject, "id"> => ({
-        name: obj.name,
-        crmId: obj.crmId,
-        arr: obj.arr,
-        tcv: 0,
-        isMarketplace: false,
-        closeDate: obj.closeDate,
-        projectIds: [],
-        stage: obj.stage,
-        opportunityOwner: obj.opportunityOwner,
-        nextStep: obj.nextStep,
-        partnerName: obj.partnerName,
-        type: obj.type,
-        stageChangedDate: obj.stageChangedDate,
-        accountName: obj.accountName,
-        territoryName: obj.territoryName,
-      })
-    );
+    const result: Omit<CrmProject, "id">[] = jsonResult
+      .map(
+        (obj): Omit<CrmProject, "id"> => ({
+          name: obj.name,
+          crmId: obj.crmId,
+          arr: obj.arr,
+          tcv: 0,
+          isMarketplace: false,
+          closeDate: obj.closeDate,
+          projectIds: [],
+          stage: obj.stage,
+          opportunityOwner: obj.opportunityOwner,
+          nextStep: obj.nextStep,
+          partnerName: obj.partnerName || undefined,
+          type: obj.type,
+          stageChangedDate: obj.stageChangedDate,
+          accountName: obj.accountName,
+          territoryName: obj.territoryName,
+        })
+      )
+      .sort((a, b) => b.arr - a.arr);
 
     callback(result);
   };

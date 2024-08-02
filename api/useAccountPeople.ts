@@ -70,7 +70,12 @@ const fetchPeople = (accountId?: string) => async () => {
     handleApiErrors(errors, "Error loading people");
     throw errors;
   }
-  return flow(sortBy(getLatestUpdate), map(mapPersonId), uniq)(data);
+  try {
+    return flow(sortBy(getLatestUpdate), map(mapPersonId), uniq)(data);
+  } catch (error) {
+    console.error("fetchPeople", { error });
+    throw error;
+  }
 };
 
 const useAccountPeople = (accountId?: string) => {

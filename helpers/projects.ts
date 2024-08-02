@@ -84,7 +84,7 @@ export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
 export const calcPipeline = (projects: CalcPipelineProps[]): number =>
   flow(
     map(get("projects")),
-    filter((p: ProjectProps) => !p.done),
+    filter((p: ProjectProps) => !p?.done),
     map(get("crmProjects")),
     flatMap(map(mapPipelineFields)),
     filter((d) => !!d),

@@ -51,10 +51,15 @@ const fetchLearnings = (personId?: string) => async () => {
     throw errors;
   }
   if (!data) return;
-  return flow(
-    map(mapLearning),
-    sortBy((l) => -l.learnedOn.getTime())
-  )(data);
+  try {
+    return flow(
+      map(mapLearning),
+      sortBy((l) => -l.learnedOn.getTime())
+    )(data);
+  } catch (error) {
+    console.error("fetchLearnings", { error });
+    throw error;
+  }
 };
 
 const usePersonLearnings = (personId?: string) => {

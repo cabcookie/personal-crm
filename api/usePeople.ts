@@ -15,10 +15,15 @@ const fetchPeople = async () => {
     handleApiErrors(errors, "Error loading people");
     throw errors;
   }
-  return flow(
-    map(mapPerson),
-    sortBy((p) => -p.updatedAt.getTime())
-  )(data);
+  try {
+    return flow(
+      map(mapPerson),
+      sortBy((p) => -p.updatedAt.getTime())
+    )(data);
+  } catch (error) {
+    console.error("fetchPeople", { error });
+    throw error;
+  }
 };
 
 const usePeople = () => {

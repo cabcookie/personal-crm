@@ -45,7 +45,12 @@ const fetchCrmProject = (projectId?: string) => async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchCrmProject didn't retrieve data");
-  return mapCrmProject(data);
+  try {
+    return mapCrmProject(data);
+  } catch (error) {
+    console.error("fetchCrmProject", { error });
+    throw error;
+  }
 };
 
 const useCrmProject = (projectId?: string) => {

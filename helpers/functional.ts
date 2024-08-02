@@ -1,8 +1,8 @@
-import { differenceInCalendarDays, format } from "date-fns";
+import { addDays, differenceInCalendarDays, format } from "date-fns";
 
 export const getDayOfDate = (date: Date) => date.toISOString().split("T")[0];
 export const addDaysToDate = (days: number) => (date: Date) =>
-  new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+  addDays(date, days);
 export const toLocaleTimeString = (date?: Date) =>
   !date
     ? ""

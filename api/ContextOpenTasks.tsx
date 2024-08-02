@@ -81,10 +81,15 @@ const fetchOpenTasks = async () => {
     handleApiErrors(errors, "Error loading open tasks");
     throw errors;
   }
-  return flow(
-    flatMap(mapOpenTasks),
-    filter((t) => !!t)
-  )(data);
+  try {
+    return flow(
+      flatMap(mapOpenTasks),
+      filter((t) => !!t)
+    )(data);
+  } catch (error) {
+    console.error("fetchOpenTasks", { error });
+    throw error;
+  }
 };
 
 interface OpenTasksContextProviderProps {

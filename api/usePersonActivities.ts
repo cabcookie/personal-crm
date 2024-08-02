@@ -47,10 +47,15 @@ const fetchPersonActivities = (personId?: string) => async () => {
   }
   if (!data)
     throw new Error(`Reading meeting data for person ${personId} failed`);
-  return flow(
-    flatMap(mapActivity),
-    sortBy((a) => -a.finishedOn.getTime())
-  )(data);
+  try {
+    return flow(
+      flatMap(mapActivity),
+      sortBy((a) => -a.finishedOn.getTime())
+    )(data);
+  } catch (error) {
+    console.error("fetchPersonActivities", { error });
+    throw error;
+  }
 };
 
 const usePersonActivities = (personId?: string) => {

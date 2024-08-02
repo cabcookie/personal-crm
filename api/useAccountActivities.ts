@@ -47,13 +47,18 @@ const fetchAccountActivities = (accountId?: string) => async () => {
   }
   if (!data)
     throw new Error(`Receive account activities failed for ${accountId}`);
-  return flow(
-    flatMap((d: ActivityData) => d.projects.activities),
-    map(get("activity")),
-    filter((a) => !!a),
-    map(mapActivity),
-    sortBy((a: AccountActivity) => -a.finishedOn.getTime())
-  )(data);
+  try {
+    return flow(
+      flatMap((d: ActivityData) => d.projects.activities),
+      map(get("activity")),
+      filter((a) => !!a),
+      map(mapActivity),
+      sortBy((a: AccountActivity) => -a.finishedOn.getTime())
+    )(data);
+  } catch (error) {
+    console.error("fetchAccountActivities", { error });
+    throw error;
+  }
 };
 
 const useAccountActivities = (accountId: string) => {

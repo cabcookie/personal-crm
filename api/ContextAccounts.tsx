@@ -188,11 +188,16 @@ const fetchAccounts = async () => {
     handleApiErrors(errors, "Error loading accounts");
     throw errors;
   }
-  return flow(
-    map(mapAccount),
-    addOrderNumberToAccounts,
-    sortBy((a) => -a.order)
-  )(data);
+  try {
+    return flow(
+      map(mapAccount),
+      addOrderNumberToAccounts,
+      sortBy((a) => -a.order)
+    )(data);
+  } catch (error) {
+    console.error("fetchAccounts", { error });
+    throw error;
+  }
 };
 
 interface AccountsContextProviderProps {
