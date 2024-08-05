@@ -84,6 +84,7 @@ const useCrmProject = (projectId?: string) => {
       arr: arr ?? crmProject.arr,
       tcv: tcv ?? crmProject.tcv,
       closeDate: closeDate ?? crmProject.closeDate,
+      createdDate: createdDate ?? crmProject.createdDate,
       stageChangedDate: stageChangedDate ?? crmProject.stageChangedDate,
     });
     mutate(updated, false);
