@@ -1,6 +1,7 @@
 import GroupCrmProjects from "@/components/crm/group-projects";
 import ImportProjectData from "@/components/crm/import-project-data";
 import {
+  TProjectFilters,
   useCrmProjectsFilter,
   withCrmProjectsFilter,
 } from "@/components/crm/list-filter-context";
@@ -39,6 +40,20 @@ const CrmProjectsPage = () => {
             )(10)}
 
           <ApiLoadingError title="Loading CRM Projects failed" error={error} />
+
+          {crmProjects &&
+            (
+              [
+                "All",
+                "No Project",
+                "Differenct Account",
+                "Differenct Partner",
+              ] as TProjectFilters[]
+            ).includes(selectedFilter) && (
+              <div className="font-semibold text-sm text-muted-foreground">
+                {crmProjects.length} projects.
+              </div>
+            )}
 
           {selectedFilter === "Update Due" ? (
             <CrmProjectsPipelineHygiene crmProjects={crmProjects} />

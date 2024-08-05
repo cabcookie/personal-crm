@@ -56,3 +56,4 @@ export const truncateMiddle = (text: string, length = 20): string => {
 };
 export const diffCalDays = (date1: Date) => (date2: Date) =>
   differenceInCalendarDays(date2, date1);
+export const invertSign = (value: number) => -value;

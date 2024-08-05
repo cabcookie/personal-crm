@@ -1,9 +1,12 @@
 import { TCrmStages } from "@/api/useCrmProject";
 import { CrmProject } from "@/api/useCrmProjects";
+import { invertSign } from "@/helpers/functional";
 import { differenceInCalendarDays, isFuture } from "date-fns";
-import { filter, flow, get, isFinite, map, split } from "lodash/fp";
+import { filter, flow, get, isFinite, map, sortBy, split } from "lodash/fp";
 import { FC } from "react";
-import CrmProjectsPipelineHygieneCategory from "./pipeline-hygiene-category";
+import CrmProjectsPipelineHygieneCategory, {
+  categoryPipeline,
+} from "./pipeline-hygiene-category";
 
 type FilterFunction = (crm: CrmProject) => boolean;
 
@@ -109,12 +112,15 @@ type CrmProjectsPipelineHygieneProps = {
 const CrmProjectsPipelineHygiene: FC<CrmProjectsPipelineHygieneProps> = ({
   crmProjects,
 }) =>
-  hygieneIssues.map((hygieneCategory) => (
-    <CrmProjectsPipelineHygieneCategory
-      key={hygieneCategory.value}
-      hygieneCategory={hygieneCategory}
-      crmProjects={crmProjects?.filter(hygieneCategory.filterFn)}
-    />
-  ));
+  flow(
+    sortBy(flow(categoryPipeline(crmProjects ?? undefined), invertSign)),
+    map((category) => (
+      <CrmProjectsPipelineHygieneCategory
+        key={category.value}
+        hygieneCategory={category}
+        crmProjects={crmProjects?.filter(category.filterFn)}
+      />
+    ))
+  )(hygieneIssues);
 
 export default CrmProjectsPipelineHygiene;

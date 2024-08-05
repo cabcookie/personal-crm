@@ -84,6 +84,7 @@ const ImportProjectData = () => {
             (p.name !== d.name ||
               p.accountName !== d.accountName ||
               flow(diffCalDays(p.closeDate), Math.abs)(d.closeDate) > 3 ||
+              flow(diffCalDays(p.createdDate), Math.abs)(d.createdDate) > 3 ||
               p.stage !== d.stage ||
               p.arr !== d.arr ||
               p.nextStep !== d.nextStep ||

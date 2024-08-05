@@ -1,16 +1,43 @@
 import { CrmProject } from "@/api/useCrmProjects";
-import { compact, filter, flow, get, map, uniq } from "lodash/fp";
+import { invertSign } from "@/helpers/functional";
+import { make2YearsRevenueText } from "@/helpers/projects";
+import {
+  compact,
+  filter,
+  flow,
+  get,
+  map,
+  size,
+  sortBy,
+  sum,
+  uniq,
+} from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import CrmProjectDetails from "../ui-elements/crm-project-details/crm-project-details";
 import { Accordion } from "../ui/accordion";
 
 type CrmProjectForGrouping = Pick<CrmProject, "accountName" | "partnerName">;
+type ValidAccountPropertyNames = keyof CrmProjectForGrouping;
+
+const getCrmProjectsByAccount = (
+  propertyName: ValidAccountPropertyNames,
+  company: string
+) => filter((p: CrmProject) => get(propertyName)(p) === company);
 
 type GroupCrmProjectsProps = {
   crmProjects: CrmProject[] | null;
-  propertyName: keyof CrmProjectForGrouping;
+  propertyName: ValidAccountPropertyNames;
 };
+
+const companyPipeline =
+  (crmProjects: CrmProject[] | null, propertyName: ValidAccountPropertyNames) =>
+  (company: string) =>
+    flow(
+      filter((crm: CrmProject) => get(propertyName)(crm) === company),
+      map((crm) => crm.pipeline),
+      sum
+    )(crmProjects) ?? 0;
 
 const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
   crmProjects,
@@ -20,15 +47,26 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
     map(get(propertyName)),
     uniq,
     compact,
+    sortBy(flow(companyPipeline(crmProjects, propertyName), invertSign)),
     map((company: string) => (
       <DefaultAccordionItem
         value={`${propertyName}-${company}`}
         triggerTitle={company}
+        triggerSubTitle={[
+          `${flow(
+            getCrmProjectsByAccount(propertyName, company),
+            size
+          )(crmProjects)} projects`,
+          flow(
+            companyPipeline(crmProjects, propertyName),
+            make2YearsRevenueText
+          )(company),
+        ]}
       >
         <Accordion type="single" collapsible>
           {flow(
-            filter((p: CrmProject) => get(propertyName)(p) === company),
-            map(({ id }) => (
+            getCrmProjectsByAccount(propertyName, company),
+            map(({ id }: CrmProject) => (
               <CrmProjectDetails key={id} crmProjectId={id} showProjects />
             ))
           )(crmProjects)}
