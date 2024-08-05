@@ -1,1 +1,1 @@
-# Nächsten Schritt aktualisieren und für CRM kopieren (Version :VERSION)
+# Kleinere Fehlerbehebungen in CRM Projekten (Version :VERSION)

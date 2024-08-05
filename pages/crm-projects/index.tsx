@@ -1,12 +1,12 @@
 import GroupCrmProjects from "@/components/crm/group-projects";
 import ImportProjectData from "@/components/crm/import-project-data";
+import CrmProjectsListFilter from "@/components/crm/list-filters";
+import CrmProjectsPipelineHygiene from "@/components/crm/pipeline-hygiene";
 import {
   TProjectFilters,
   useCrmProjectsFilter,
   withCrmProjectsFilter,
-} from "@/components/crm/list-filter-context";
-import CrmProjectsListFilter from "@/components/crm/list-filters";
-import CrmProjectsPipelineHygiene from "@/components/crm/pipeline-hygiene";
+} from "@/components/crm/useCrmProjectsFilter";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import LoadingAccordionItem from "@/components/ui-elements/accordion/LoadingAccordionItem";

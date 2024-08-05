@@ -1,5 +1,5 @@
 import ButtonGroup from "../ui-elements/btn-group/btn-group";
-import { useCrmProjectsFilter } from "./list-filter-context";
+import { useCrmProjectsFilter } from "./useCrmProjectsFilter";
 
 const CrmProjectsListFilter = () => {
   const { availableFilters, onSelectFilter, selectedFilter } =
