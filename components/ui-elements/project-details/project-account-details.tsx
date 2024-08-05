@@ -37,6 +37,8 @@ const AccountName: FC<AccountNameProps> = ({
 type ProjectAccountDetailsProps = {
   isVisible?: boolean;
   accountIds: string[];
+  title?: string;
+  addAccountPlaceHolder?: string;
   onRemoveAccount: (accountId: string, accountName: string) => void;
   onAddAccount: (accountId: string | null) => void;
 };
@@ -46,6 +48,8 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
   accountIds,
   onRemoveAccount,
   onAddAccount,
+  title = "Accounts",
+  addAccountPlaceHolder = "Add account…",
 }) => {
   const { isWorkContext } = useContextContext();
   const { getAccountById } = useAccountsContext();
@@ -54,8 +58,8 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
     isWorkContext() && (
       <DefaultAccordionItem
         isVisible={isVisible}
-        value="accounts"
-        triggerTitle="Accounts"
+        value={title}
+        triggerTitle={title}
         triggerSubTitle={flow(
           map(getAccountById),
           map(get("name"))
@@ -73,7 +77,7 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
         <AccountSelector
           value=""
           allowCreateAccounts
-          placeholder="Add account…"
+          placeholder={addAccountPlaceHolder}
           onChange={onAddAccount}
         />
       </DefaultAccordionItem>
