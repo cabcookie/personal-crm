@@ -108,6 +108,7 @@ const projectSchema = {
       accountName: a.string(),
       territoryName: a.string(),
     })
+    .secondaryIndexes((index) => [index("partnerName")])
     .authorization((allow) => [allow.owner()]),
   Projects: a
     .model({
@@ -131,6 +132,8 @@ const projectSchema = {
       activities: a.hasMany("ProjectActivity", "projectsId"),
       crmProjects: a.hasMany("CrmProjectProjects", "projectId"),
       weekPlans: a.hasMany("WeeklyPlanProject", "projectId"),
+      partnerId: a.id(),
+      partner: a.belongsTo("Account", "partnerId"),
     })
     .authorization((allow) => [allow.owner()]),
 };

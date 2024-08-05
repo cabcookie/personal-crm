@@ -52,6 +52,10 @@ interface ProjectsContextType {
     projectId: string,
     accountId: string
   ) => Promise<string | undefined>;
+  updatePartnerOfProject: (
+    projectId: string,
+    partnerId: string | null
+  ) => Promise<string | undefined>;
   removeAccountFromProject: (
     projectId: string,
     projectName: string,
@@ -80,6 +84,7 @@ export type Project = {
   othersNextActions?: EditorJsonContent;
   context: Context;
   accountIds: string[];
+  partnerId?: string;
   activityIds: string[];
   crmProjects: CrmProject[];
 };
@@ -99,6 +104,7 @@ const selectionSet = [
   "context",
   "accounts.accountId",
   "accounts.createdAt",
+  "partner.id",
   "activities.activity.id",
   "activities.activity.finishedOn",
   "activities.activity.createdAt",
@@ -146,6 +152,7 @@ const mapProject: (project: ProjectData) => Project = ({
   accounts,
   activities,
   crmProjects,
+  partner,
 }) => {
   const pipeline = calcPipeline([
     {
@@ -204,6 +211,7 @@ const mapProject: (project: ProjectData) => Project = ({
     )(crmProjects),
     pipeline: pipeline,
     order: pipeline,
+    partnerId: partner?.id,
   };
 };
 
@@ -406,20 +414,42 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     updateProject({ id: projectId, done, doneOn: done ? new Date() : null });
 
   const addAccountToProject = async (projectId: string, accountId: string) => {
-    const updated: Project[] =
-      projects?.map((p) =>
-        p.id !== projectId
-          ? p
-          : { ...p, accountIds: [...p.accountIds, accountId] }
-      ) || [];
-    mutateProjects(updated, false);
+    const updated: Project[] | undefined = projects?.map((p) =>
+      p.id !== projectId
+        ? p
+        : { ...p, accountIds: [...p.accountIds, accountId] }
+    );
+    if (updated) mutateProjects(updated, false);
     const { data, errors } = await client.models.AccountProjects.create({
       projectsId: projectId,
       accountId,
     });
     if (errors) handleApiErrors(errors, "Error adding account to project");
-    mutateProjects(updated);
+    if (updated) mutateProjects(updated);
     return data?.id;
+  };
+
+  const updatePartnerOfProject = async (
+    projectId: string,
+    partnerId: string | null
+  ) => {
+    const updated: Project[] | undefined = projects?.map((p) =>
+      p.id !== projectId ? p : { ...p, partnerId: partnerId ?? undefined }
+    );
+    if (updated) mutateProjects(updated, false);
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      partnerId,
+    });
+    if (errors) handleApiErrors(errors, "Error assigning partner to project");
+    if (updated) mutateProjects(updated);
+    if (!data) return;
+    toast({
+      title: `Partner has been ${
+        !partnerId ? "removed from" : "assigned to"
+      } project`,
+    });
+    return data.id;
   };
 
   const removeAccountFromProject = async (
@@ -523,6 +553,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         saveProjectDates,
         updateProjectState,
         addAccountToProject,
+        updatePartnerOfProject,
         removeAccountFromProject,
         updateProjectContext,
         mutateProjects,
@@ -540,10 +571,10 @@ const ProjectsContext = createContext<ProjectsContextType | undefined>(
 );
 
 export const useProjectsContext = () => {
-  const projects = useContext(ProjectsContext);
-  if (!projects)
+  const projectsContext = useContext(ProjectsContext);
+  if (!projectsContext)
     throw new Error(
       "useProjectsContext must be used within ProjectsContextProvider"
     );
-  return projects;
+  return projectsContext;
 };

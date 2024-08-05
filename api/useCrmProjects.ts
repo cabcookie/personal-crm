@@ -7,7 +7,7 @@ import {
   mapPipelineFields,
 } from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow, map, sortBy } from "lodash/fp";
+import { flatMap, flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { Project, useProjectsContext } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
@@ -32,6 +32,8 @@ export type CrmProject = {
   accountName?: string;
   territoryName?: string;
   pipeline?: number;
+  projectAccountNames?: string[];
+  linkedPartnerNames?: string[];
 };
 
 export const selectionSetCrmProject = [
@@ -43,6 +45,7 @@ export const selectionSetCrmProject = [
   "isMarketplace",
   "closeDate",
   "projects.project.id",
+  "projects.project.accounts.account.name",
   "stage",
   "opportunityOwner",
   "nextStep",
@@ -51,7 +54,14 @@ export const selectionSetCrmProject = [
   "stageChangedDate",
   "accountName",
   "territoryName",
+  "projects.project.partner.name",
 ] as const;
+
+type CrmProjectData = SelectionSet<
+  Schema["CrmProject"]["type"],
+  typeof selectionSetCrmProject
+>;
+type CrmProjectProjectData = CrmProjectData["projects"][number];
 
 export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   id,
@@ -84,8 +94,16 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   opportunityOwner: opportunityOwner ?? undefined,
   nextStep: nextStep ?? undefined,
   partnerName: partnerName ?? undefined,
+  linkedPartnerNames: flow(
+    flatMap((p: CrmProjectProjectData) => p.project.partner),
+    map((a) => a?.name)
+  )(projects),
   type: type ?? undefined,
   accountName: accountName ?? undefined,
+  projectAccountNames: flow(
+    flatMap((p: CrmProjectProjectData) => p.project.accounts),
+    map((a) => a.account.name)
+  )(projects),
   territoryName: territoryName ?? undefined,
   pipeline:
     flow(
@@ -101,11 +119,6 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
       },
     } as CalcPipelineFields) ?? 0,
 });
-
-type CrmProjectData = SelectionSet<
-  Schema["CrmProject"]["type"],
-  typeof selectionSetCrmProject
->;
 
 const fetchCrmProjects = async () => {
   const closed = {
@@ -201,6 +214,8 @@ const useCrmProjects = () => {
           arr: _arr,
           tcv: _tcv,
           projectIds: _projectIds,
+          linkedPartnerNames: _linkedPartner,
+          projectAccountNames: _accountNames,
           ...project
         }: CrmProject) => project)(project),
         closeDate: toISODateString(project.closeDate),

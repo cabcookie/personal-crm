@@ -64,6 +64,7 @@ const accountSchema = {
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
       payerAccounts: a.hasMany("PayerAccount", "accountId"),
       people: a.hasMany("PersonAccount", "accountId"),
+      partnerProjects: a.hasMany("Projects", "partnerId"),
     })
     .authorization((allow) => [allow.owner()]),
 };

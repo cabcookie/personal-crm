@@ -31,6 +31,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     getProjectById,
     saveProjectDates,
     addAccountToProject,
+    updatePartnerOfProject,
     updateProjectContext,
     removeAccountFromProject,
   } = useProjectsContext();
@@ -95,6 +96,17 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
                 accountName
               )
             }
+          />
+
+          <ProjectAccountDetails
+            title="Partner"
+            addAccountPlaceHolder="Add partner…"
+            accountIds={!project.partnerId ? [] : [project.partnerId]}
+            onAddAccount={(partnerId) =>
+              updatePartnerOfProject(project.id, partnerId)
+            }
+            isVisible={includeAccounts}
+            onRemoveAccount={() => updatePartnerOfProject(project.id, null)}
           />
 
           <CrmProjectsList

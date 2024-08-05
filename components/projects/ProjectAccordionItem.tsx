@@ -3,7 +3,7 @@ import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { Project } from "@/api/ContextProjects";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { format } from "date-fns";
-import { flow, get, map, sum } from "lodash/fp";
+import { flow, map, sum } from "lodash/fp";
 import { FC } from "react";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -22,7 +22,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   disabled,
   showNotes = true,
 }) => {
-  const { getAccountById } = useAccountsContext();
+  const { getAccountNamesByIds } = useAccountsContext();
   const { openTasksByProjectId } = useOpenTasksContext();
 
   return (
@@ -52,7 +52,9 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
           project.dueOn &&
             !project.doneOn &&
             `Due on: ${format(project.dueOn, "PPP")}`,
-          ...flow(map(getAccountById), map(get("name")))(project.accountIds),
+          getAccountNamesByIds(project.accountIds),
+          project.partnerId &&
+            `Partner: ${getAccountNamesByIds([project.partnerId])}`,
         ]}
         disabled={disabled}
       >

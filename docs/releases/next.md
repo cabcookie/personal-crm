@@ -1,13 +1,19 @@
 # CRM Updates unterstützen (Version :VERSION)
 
 - CRM Projekte werden nun nach Größe der Pipeline absteigend sortiert.
+- Die Listenansicht der CRM Projekte kann nun gefiltert werden nach...
+  - ... allen Projekten,
+  - ... nicht zugeordneten Projekten,
+  - ... abweichendem Kunden,
+  - ... abweichender Verantwortlichkeit,
+  - ... abweichendem Partner,
+  - ... Partnern gruppiert,
+  - ... Kunden gruppiert.
 
 ## In Arbeit
 
-- Filtern nach CRM Projekten ohne Projekt.
-- Filtern nach CRM Projekten bei denen Account Name oder Territory abweichen.
-- Filtern nach Projekten, die dringend ein Update benötigen.
-- Hervorheben von Projekten bei denen ich nicht der Owner bin.
+- Filter bauen nach ...
+  - ... erforderlicher Hygiene (Aktualisierung),
 
 ## Geplant
 
