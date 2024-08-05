@@ -14,7 +14,7 @@ import {
 const client = generateClient<Schema>();
 
 export const STAGES_PROBABILITY = [
-  { stage: "Prospect", probability: 0 },
+  { stage: "Prospect", probability: 10 },
   { stage: "Qualified", probability: 20 },
   { stage: "Technical Validation", probability: 40 },
   { stage: "Business Validation", probability: 60 },
