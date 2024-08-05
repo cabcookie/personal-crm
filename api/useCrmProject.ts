@@ -64,6 +64,7 @@ const useCrmProject = (projectId?: string) => {
 
   const updateCrmProject = async ({
     closeDate,
+    createdDate,
     arr,
     tcv,
     stageChangedDate,
@@ -90,6 +91,7 @@ const useCrmProject = (projectId?: string) => {
       ...changedProject,
       id: crmProject.id,
       closeDate: !closeDate ? undefined : toISODateString(closeDate),
+      createdDate: !createdDate ? undefined : toISODateString(createdDate),
       annualRecurringRevenue: arr,
       totalContractVolume: tcv,
       stageChangedDate: !stageChangedDate
