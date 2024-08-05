@@ -3,6 +3,7 @@ import useCrmProject from "@/api/useCrmProject";
 import CrmData from "@/components/crm/CrmData";
 import { makeCrmLink } from "@/components/crm/CrmLink";
 import LabelData from "@/components/crm/label-data";
+import NextStep from "@/components/crm/next-steps";
 import { hasHygieneIssues } from "@/components/crm/pipeline-hygiene";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
@@ -87,7 +88,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
               data={format(crmProject.closeDate, "PP")}
             />
             <LabelData label="Account" data={crmProject.accountName} />
-            <LabelData label="Next step" data={crmProject.nextStep} />
+            <NextStep crmProject={crmProject} />
             <LabelData label="Partner" data={crmProject.partnerName} />
             <LabelData label="Owner" data={crmProject.opportunityOwner} />
             <CrmData crmId={crmProject.crmId} />
