@@ -26,7 +26,12 @@ const fetchMeeting = (meetingId?: string) => async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchMeeting didn't retrieve data");
-  return mapMeeting(data);
+  try {
+    return mapMeeting(data);
+  } catch (error) {
+    console.error("fetchMeeting", { error });
+    throw error;
+  }
 };
 
 const useMeeting = (meetingId?: string) => {

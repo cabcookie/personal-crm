@@ -85,6 +85,11 @@ const ChangedCrmProject: FC<ChangedCrmProjectProps> = ({
               importedValue={imported.type}
               originalValue={crmProject.type}
             />
+            <CompareCrmData
+              label="Created Date"
+              importedValue={imported.createdDate}
+              originalValue={crmProject.createdDate}
+            />
             <CrmData crmId={imported.crmId} />
           </div>
           <Button disabled={!crmProject} onClick={handleUpdateLocalData}>

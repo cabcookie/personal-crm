@@ -1,8 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import {
+  CalcPipelineFields,
+  calcRevenueTwoYears,
+  mapPipelineFields,
+} from "@/helpers/projects";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow, map, sortBy } from "lodash/fp";
+import { flatMap, flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { Project, useProjectsContext } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
@@ -26,6 +31,10 @@ export type CrmProject = {
   stageChangedDate?: Date;
   accountName?: string;
   territoryName?: string;
+  pipeline?: number;
+  projectAccountNames?: string[];
+  linkedPartnerNames?: string[];
+  createdDate: Date;
 };
 
 export const selectionSetCrmProject = [
@@ -36,7 +45,10 @@ export const selectionSetCrmProject = [
   "totalContractVolume",
   "isMarketplace",
   "closeDate",
+  "createdDate",
+  "createdAt",
   "projects.project.id",
+  "projects.project.accounts.account.name",
   "stage",
   "opportunityOwner",
   "nextStep",
@@ -45,7 +57,14 @@ export const selectionSetCrmProject = [
   "stageChangedDate",
   "accountName",
   "territoryName",
+  "projects.project.partner.name",
 ] as const;
+
+type CrmProjectData = SelectionSet<
+  Schema["CrmProject"]["type"],
+  typeof selectionSetCrmProject
+>;
+type CrmProjectProjectData = CrmProjectData["projects"][number];
 
 export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   id,
@@ -55,6 +74,8 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   totalContractVolume,
   isMarketplace,
   closeDate,
+  createdAt,
+  createdDate,
   projects,
   stage,
   stageChangedDate,
@@ -72,21 +93,38 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   tcv: totalContractVolume || 0,
   isMarketplace: !!isMarketplace,
   closeDate: new Date(closeDate),
+  createdDate: new Date(createdDate || createdAt),
   projectIds: projects.map(({ project: { id } }) => id),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
   stageChangedDate: !stageChangedDate ? undefined : new Date(stageChangedDate),
   opportunityOwner: opportunityOwner ?? undefined,
   nextStep: nextStep ?? undefined,
   partnerName: partnerName ?? undefined,
+  linkedPartnerNames: flow(
+    flatMap((p: CrmProjectProjectData) => p.project.partner),
+    map((a) => a?.name)
+  )(projects),
   type: type ?? undefined,
   accountName: accountName ?? undefined,
+  projectAccountNames: flow(
+    flatMap((p: CrmProjectProjectData) => p.project.accounts),
+    map((a) => a.account.name)
+  )(projects),
   territoryName: territoryName ?? undefined,
+  pipeline:
+    flow(
+      mapPipelineFields,
+      calcRevenueTwoYears
+    )({
+      crmProject: {
+        annualRecurringRevenue,
+        closeDate,
+        isMarketplace,
+        stage,
+        totalContractVolume,
+      },
+    } as CalcPipelineFields) ?? 0,
 });
-
-type CrmProjectData = SelectionSet<
-  Schema["CrmProject"]["type"],
-  typeof selectionSetCrmProject
->;
 
 const fetchCrmProjects = async () => {
   const closed = {
@@ -116,10 +154,15 @@ const fetchCrmProjects = async () => {
     handleApiErrors(errors, "Error loading CRM projects");
     throw errors;
   }
-  return flow(
-    map(mapCrmProject),
-    sortBy((p) => p.closeDate.getTime())
-  )(data);
+  try {
+    return flow(
+      map(mapCrmProject),
+      sortBy((p) => -(p.pipeline || 0))
+    )(data);
+  } catch (error) {
+    console.error("fetchCrmProjects", error);
+    throw error;
+  }
 };
 
 const useCrmProjects = () => {
@@ -177,9 +220,14 @@ const useCrmProjects = () => {
           arr: _arr,
           tcv: _tcv,
           projectIds: _projectIds,
+          linkedPartnerNames: _linkedPartner,
+          projectAccountNames: _accountNames,
           ...project
         }: CrmProject) => project)(project),
         closeDate: toISODateString(project.closeDate),
+        createdDate: !project.createdDate
+          ? null
+          : toISODateString(project.createdDate),
         annualRecurringRevenue: project.arr,
         totalContractVolume: project.tcv,
         stageChangedDate: !project.stageChangedDate

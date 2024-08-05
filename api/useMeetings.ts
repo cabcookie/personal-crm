@@ -133,9 +133,14 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
 
 const fetchMeetings = (page: number, context?: Context) => async () => {
   if (!context) return;
-  return (await fetchMeetingsWithToken({ page, context }))
-    ?.map(mapMeeting)
-    .sort((a, b) => b.meetingOn.getTime() - a.meetingOn.getTime());
+  try {
+    return (await fetchMeetingsWithToken({ page, context }))
+      ?.map(mapMeeting)
+      .sort((a, b) => b.meetingOn.getTime() - a.meetingOn.getTime());
+  } catch (error) {
+    console.error("fetchMeetings", { error });
+    throw error;
+  }
 };
 
 type UseMeetingsProps = {

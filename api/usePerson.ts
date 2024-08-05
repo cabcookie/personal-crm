@@ -224,7 +224,12 @@ const fetchPerson = (personId?: string) => async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchPerson returns no data");
-  return mapPerson(data);
+  try {
+    return mapPerson(data);
+  } catch (error) {
+    console.error("fetchPerson", { error });
+    throw error;
+  }
 };
 
 const usePerson = (personId?: string) => {

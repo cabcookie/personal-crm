@@ -136,7 +136,12 @@ const fetchDailyPlans =
     );
     if (errors) throw errors;
     if (!data) throw new Error("No daily tasks list fetched");
-    return data.map(mapDailyPlan(status));
+    try {
+      return data.map(mapDailyPlan(status));
+    } catch (error) {
+      console.error("fetchDailyPlans", { error });
+      throw error;
+    }
   };
 
 const useDailyPlans = (status?: DailyPlanStatus) => {

@@ -55,7 +55,12 @@ const fetchCrmProjectsImport = (status: TImportStatus) => async () => {
     handleApiErrors(errors, "Loading CRM Project's imports failed");
     throw errors;
   }
-  return data.map(mapCrmProjectImport)[0];
+  try {
+    return data.map(mapCrmProjectImport)[0];
+  } catch (error) {
+    console.error("fetchCrmProjectsImport", { error });
+    throw error;
+  }
 };
 
 const useCrmProjectsImport = (status: TImportStatus) => {
@@ -134,6 +139,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
       "Stage Duration": "stageChangedDate",
       "Account Name": "accountName",
       Territory: "territoryName",
+      "Created Date": "createdDate",
     };
 
     // Iterate through the rows and build the JSON objects
@@ -158,6 +164,11 @@ const useCrmProjectsImport = (status: TImportStatus) => {
               const [month, day, year] = value.split("/");
               value = new Date(year, month - 1, day);
             }
+            // make 'createdDate' a date
+            if (key === "createdDate") {
+              const [month, day, year] = value.split("/");
+              value = new Date(year, month - 1, day);
+            }
             // make "Stage Duration" a date
             if (key === "stageChangedDate") {
               const intVal = parseInt(value.replace(/,/g, ""));
@@ -177,25 +188,28 @@ const useCrmProjectsImport = (status: TImportStatus) => {
         return rowObject;
       });
 
-    const result: Omit<CrmProject, "id">[] = jsonResult.map(
-      (obj): Omit<CrmProject, "id"> => ({
-        name: obj.name,
-        crmId: obj.crmId,
-        arr: obj.arr,
-        tcv: 0,
-        isMarketplace: false,
-        closeDate: obj.closeDate,
-        projectIds: [],
-        stage: obj.stage,
-        opportunityOwner: obj.opportunityOwner,
-        nextStep: obj.nextStep,
-        partnerName: obj.partnerName,
-        type: obj.type,
-        stageChangedDate: obj.stageChangedDate,
-        accountName: obj.accountName,
-        territoryName: obj.territoryName,
-      })
-    );
+    const result: Omit<CrmProject, "id">[] = jsonResult
+      .map(
+        (obj): Omit<CrmProject, "id"> => ({
+          name: obj.name,
+          crmId: obj.crmId,
+          arr: obj.arr,
+          tcv: 0,
+          isMarketplace: false,
+          closeDate: obj.closeDate,
+          createdDate: obj.createdDate,
+          projectIds: [],
+          stage: obj.stage,
+          opportunityOwner: obj.opportunityOwner,
+          nextStep: obj.nextStep,
+          partnerName: obj.partnerName || undefined,
+          type: obj.type,
+          stageChangedDate: obj.stageChangedDate,
+          accountName: obj.accountName,
+          territoryName: obj.territoryName,
+        })
+      )
+      .sort((a, b) => b.arr - a.arr);
 
     callback(result);
   };

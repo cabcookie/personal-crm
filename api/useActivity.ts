@@ -83,7 +83,12 @@ const fetchActivity = (activityId?: string) => async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchActivity didn't retrieve data");
-  return mapActivity(data);
+  try {
+    return mapActivity(data);
+  } catch (error) {
+    console.error("fetchActivity", { error });
+    throw error;
+  }
 };
 
 const useActivity = (activityId?: string) => {

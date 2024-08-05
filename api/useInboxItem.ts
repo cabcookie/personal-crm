@@ -13,7 +13,12 @@ const fetchInboxItem = (itemId?: string) => async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchInboxItem didn't retrieve data");
-  return mapInbox(data);
+  try {
+    return mapInbox(data);
+  } catch (error) {
+    console.error("fetchInboxItem", { error });
+    throw error;
+  }
 };
 
 const useInboxItem = (itemId?: string) => {

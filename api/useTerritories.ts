@@ -114,10 +114,15 @@ const fetchTerritories = async (): Promise<Territory[]> => {
     handleApiErrors(errors, "Error loading territories");
     throw errors;
   }
-  return flow(
-    map(mapTerritory),
-    sortBy((t) => -t.latestQuota)
-  )(data);
+  try {
+    return flow(
+      map(mapTerritory),
+      sortBy((t) => -t.latestQuota)
+    )(data);
+  } catch (error) {
+    console.error("fetchTerritories", { error });
+    throw error;
+  }
 };
 
 const useTerritories = () => {
@@ -166,7 +171,12 @@ const fetchTerritory = (id: string | undefined) => async () => {
     throw errors;
   }
   if (!data) return;
-  return mapTerritory(data);
+  try {
+    return mapTerritory(data);
+  } catch (error) {
+    console.error("fetchTerritory", { error });
+    throw error;
+  }
 };
 
 const useTerritory = (id: string | undefined) => {

@@ -12,7 +12,7 @@ export type TUpdateProfileInfo = {
   displayName: string;
 };
 
-type User = {
+export type User = {
   loginId?: string;
   userId: string;
   userName?: string;
@@ -40,7 +40,12 @@ const fetchUser = async () => {
     handleApiErrors(errors, "Error loading user");
     throw errors;
   }
-  return mapUser(user, data);
+  try {
+    return mapUser(user, data);
+  } catch (error) {
+    console.error("fetchUser", { error });
+    throw error;
+  }
 };
 
 const useCurrentUser = () => {

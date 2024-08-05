@@ -3,6 +3,7 @@ import useCrmProject from "@/api/useCrmProject";
 import CrmData from "@/components/crm/CrmData";
 import { makeCrmLink } from "@/components/crm/CrmLink";
 import LabelData from "@/components/crm/label-data";
+import { hasHygieneIssues } from "@/components/crm/pipeline-hygiene";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
@@ -52,13 +53,20 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
         value={crmProject.id}
         triggerTitle={crmProject.name}
         badge={
-          crmProject.projectIds.length === 0 && (
+          crmProject.projectIds.length === 0 ? (
             <>
               <Circle className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden bg-destructive rounded-full text-destructive-foreground" />
               <Badge variant="destructive" className="hidden md:block">
                 No project
               </Badge>
             </>
+          ) : (
+            hasHygieneIssues(crmProject) && (
+              <>
+                <Circle className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden bg-orange-400 rounded-full text-destructive-foreground" />
+                <Badge className="hidden md:block bg-orange-400">Hygiene</Badge>
+              </>
+            )
           )
         }
         link={
@@ -83,6 +91,10 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
             <LabelData label="Partner" data={crmProject.partnerName} />
             <LabelData label="Owner" data={crmProject.opportunityOwner} />
             <CrmData crmId={crmProject.crmId} />
+            <LabelData
+              label="Created Date"
+              data={format(crmProject.createdDate, "PP")}
+            />
           </div>
 
           {crmProject.projectIds.length === 0 && (

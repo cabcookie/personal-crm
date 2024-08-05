@@ -1,8 +1,13 @@
-# Importieren von CRM Projekten (Version :VERSION)
+# CRM Updates unterstützen (Version :VERSION)
 
-- In der CRM Projekte Listenansicht werden die verlinkten Projekte angezeigt.
-- Es ist möglich, aus der CRM Projekte Listenansicht Projekte zu verlinken.
-- In den Accordions gibt es nun einen generalistischen Badge. Der kann dafür verwendet werden, um anzuzeigen, dass ein Projekt oder Meeting offene Aufgaben hat oder dass ein CRM Projekt kein verlinktes Projekt hat.
-- CRM Projekte zeigen jetzt übersichtlich an, wenn gerade Daten aus dem Backend geladen werden oder Fehler auftreten.
-- Eine Datei mit CRM Projekten kann nun importiert werden. Sie wird auf S3 hochgeladen und ein Verweis darauf wird in DynamoDB angelegt.
-- Es werden neue CRM Projekte angezeigt, hervorgehoben, wenn Projekte fehlen und Projekte bei denen sich Werte geändert haben.
+- CRM Projekte werden nun nach Größe der Pipeline absteigend sortiert.
+- Die Listenansicht der CRM Projekte kann nun gefiltert werden nach...
+  - ... allen Projekten,
+  - ... nicht zugeordneten Projekten,
+  - ... abweichendem Kunden,
+  - ... abweichender Verantwortlichkeit,
+  - ... abweichendem Partner,
+  - ... erforderlicher Hygiene (Aktualisierung),
+  - ... Partnern gruppiert,
+  - ... Kunden gruppiert.
+- In Projektliste und Meetings werden Hinweise gegeben, wenn CRM Projekte Aktualisierungen benötigen.

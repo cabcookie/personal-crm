@@ -292,6 +292,22 @@ const addHasOpenTasksField = async () => {
   await addHasOpenTasksFieldTable("Inbox");
 };
 
+/**
+ * Importing data requires the files mentioned in the importData function to exist.
+ * Like:
+ * - _accounts.json
+ * - _projects.json
+ * - ...
+ *
+ * To start the import run the following command in the root of your project:
+ * npm run import-data-dev -- -e info@example.com
+ *
+ * The email address is being used to create a user and a profile.
+ * You will receive a temporary password in your inbox.
+ *
+ * Make sure your env.json points towards the correct environment.
+ */
+
 // importData();
 // logTables();
 // addHasOpenTasksField();

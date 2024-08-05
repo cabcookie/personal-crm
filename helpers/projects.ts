@@ -21,7 +21,7 @@ interface CalcPipelineProps {
   projects: ProjectProps;
 }
 
-interface CalcPipelineFields {
+export interface CalcPipelineFields {
   crmProject: {
     annualRecurringRevenue: CrmDataProps["crmProject"]["annualRecurringRevenue"];
     totalContractVolume: CrmDataProps["crmProject"]["totalContractVolume"];
@@ -44,7 +44,7 @@ interface ICalcRevenueTwoYears {
   stage: TCrmStages;
 }
 
-const mapPipelineFields = ({
+export const mapPipelineFields = ({
   crmProject,
 }: CalcPipelineFields): ICalcRevenueTwoYears => ({
   arr: crmProject?.annualRecurringRevenue ?? 0,
@@ -84,7 +84,7 @@ export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
 export const calcPipeline = (projects: CalcPipelineProps[]): number =>
   flow(
     map(get("projects")),
-    filter((p: ProjectProps) => !p.done),
+    filter((p: ProjectProps) => !p?.done),
     map(get("crmProjects")),
     flatMap(map(mapPipelineFields)),
     filter((d) => !!d),

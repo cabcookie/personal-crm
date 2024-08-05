@@ -1,6 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
+import { calcRevenueTwoYears } from "@/helpers/projects";
 import { generateClient } from "aws-amplify/data";
 import { isUndefined, omitBy } from "lodash";
 import useSWR from "swr";
@@ -45,7 +46,12 @@ const fetchCrmProject = (projectId?: string) => async () => {
     throw errors;
   }
   if (!data) throw new Error("fetchCrmProject didn't retrieve data");
-  return mapCrmProject(data);
+  try {
+    return mapCrmProject(data);
+  } catch (error) {
+    console.error("fetchCrmProject", { error });
+    throw error;
+  }
 };
 
 const useCrmProject = (projectId?: string) => {
@@ -58,26 +64,34 @@ const useCrmProject = (projectId?: string) => {
 
   const updateCrmProject = async ({
     closeDate,
+    createdDate,
     arr,
     tcv,
     stageChangedDate,
     projectIds: _projectIds,
+    linkedPartnerNames: _linkedPartnerName,
+    projectAccountNames: _projectAccountNames,
+    pipeline: _pipeline,
     ...changedProject
   }: Partial<CrmProject>) => {
     if (!crmProject) return;
-    const updated: CrmProject = {
+    const updated: CrmProject = ((updatedCrm: CrmProject) => ({
+      ...updatedCrm,
+      pipeline: calcRevenueTwoYears(updatedCrm),
+    }))({
       ...(omitBy(crmProject, isUndefined) as CrmProject),
       ...omitBy(changedProject, isUndefined),
       arr: arr ?? crmProject.arr,
       tcv: tcv ?? crmProject.tcv,
       closeDate: closeDate ?? crmProject.closeDate,
       stageChangedDate: stageChangedDate ?? crmProject.stageChangedDate,
-    };
+    });
     mutate(updated, false);
     const { data, errors } = await client.models.CrmProject.update({
       ...changedProject,
       id: crmProject.id,
       closeDate: !closeDate ? undefined : toISODateString(closeDate),
+      createdDate: !createdDate ? undefined : toISODateString(createdDate),
       annualRecurringRevenue: arr,
       totalContractVolume: tcv,
       stageChangedDate: !stageChangedDate
