@@ -160,11 +160,11 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
             "All",
             ...enableNoProjectFilter(crmProjects),
             ...enableDifferentAccountFilter(crmProjects),
-            ...enableOtherOwnerFilter(user, crmProjects),
             ...enableDifferentPartnerFilter(crmProjects),
             ...enableUpdateDueFilter(crmProjects),
             "By Partner",
             "By Account",
+            ...enableOtherOwnerFilter(user, crmProjects),
           ] as TProjectFilters[]
         ).filter((t) => !!t)
       );

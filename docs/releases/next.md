@@ -1,3 +1,4 @@
 # Fehlerbehebungen bei CRM Projekt-Aktualisierungen (Version :VERSION)
 
-- Geschlossene CRM Projekte werden nun noch für 30 Tage angezeigt.
+- CRM Projekte sind nach Größe der Pipeline sortiert, auch wenn nach Kunden, Partnern oder Hygiene-Themen gruppiert wird.
+- Für jeden Filter in der CRM-Projekte Listenansicht werden die Anzahl der Projekte angezeigt.
