@@ -1,7 +1,7 @@
 import useCrmProject from "@/api/useCrmProject";
 import { CrmProject } from "@/api/useCrmProjects";
 import { format } from "date-fns";
-import { Edit, LinkIcon, Loader2 } from "lucide-react";
+import { ClipboardCopy, Edit, Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
@@ -64,7 +64,7 @@ const NextStep: FC<NextStepProps> = ({ crmProject }) => {
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <LinkIcon
+                <ClipboardCopy
                   className="w-4 h-4 text-muted-foreground hover:text-primary"
                   onClick={handleCopyToClipBoard}
                 />

@@ -53,52 +53,61 @@ const notTooOld = (days: number) => (date: Date) =>
 const hasCompliantNextStepDate = (crm: CrmProject) =>
   flow(getNextStepDateElements, getDate, notTooOld(30))(crm);
 
+const isOpen = (crm: CrmProject) =>
+  !(["Closed Lost", "Launched"] as TCrmStages[]).includes(crm.stage);
+
+const isNotProspectStage = (crm: CrmProject) => crm.stage !== "Prospect";
+
 const hygieneIssues: THygieneIssue[] = [
   {
     value: "productMissing",
     label: "Product missing",
     description: "ARR or TCV are $0",
-    filterFn: (crm) => crm.arr === 0 && crm.tcv === 0,
+    filterFn: (crm) =>
+      isOpen(crm) && isNotProspectStage(crm) && crm.arr === 0 && crm.tcv === 0,
   },
   {
     value: "closeDatePast",
     label: "Close date past",
-    filterFn: (crm) => !isFuture(crm.closeDate),
+    filterFn: (crm) => isOpen(crm) && !isFuture(crm.closeDate),
   },
   {
     value: "nonCompliantStage",
     label: "Non-compliant stage",
     description:
       "When close date within 30 days stage must be BusVal/Committed",
-    filterFn: (crm) => isNonCompliantStage(crm, 0, 30),
+    filterFn: (crm) => isOpen(crm) && isNonCompliantStage(crm, 0, 30),
   },
   {
     value: "almostNonCompliantStage",
     label: "Almost non-compliant stage",
     description:
       "When close date within 45 days stage must be BusVal/Committed",
-    filterFn: (crm) => isNonCompliantStage(crm, 31, 45),
+    filterFn: (crm) => isOpen(crm) && isNonCompliantStage(crm, 31, 45),
   },
   {
     value: "stalledOps",
     label: "Stalled opps",
     description: "Stage hasn't been changed in the last 90 days",
     filterFn: (crm) =>
-      !crm.stageChangedDate ||
-      differenceInCalendarDays(new Date(), crm.stageChangedDate) >= 90,
+      isOpen(crm) &&
+      (!crm.stageChangedDate ||
+        differenceInCalendarDays(new Date(), crm.stageChangedDate) >= 90),
   },
   {
     value: "nextStep",
     label: "Next step not compliant",
     description: "Next step should be updated at least once in 30 days",
     filterFn: (crm) =>
-      !hasCompliantNextStepDateFormat(crm) || !hasCompliantNextStepDate(crm),
+      isOpen(crm) &&
+      (!hasCompliantNextStepDateFormat(crm) || !hasCompliantNextStepDate(crm)),
   },
   {
     value: "zombies",
     label: "Zombies",
     description: "Opportunities older than 1 year",
     filterFn: (crm) =>
+      isOpen(crm) &&
       differenceInCalendarDays(new Date(), crm.createdDate) >= 365,
   },
 ] as const;

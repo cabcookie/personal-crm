@@ -2,6 +2,7 @@ import { useProjectsContext } from "@/api/ContextProjects";
 import useCrmProject from "@/api/useCrmProject";
 import CrmData from "@/components/crm/CrmData";
 import { makeCrmLink } from "@/components/crm/CrmLink";
+import HygieneIssueBadge from "@/components/crm/hygiene-issue-badge";
 import LabelData from "@/components/crm/label-data";
 import NextStep from "@/components/crm/next-steps";
 import { hasHygieneIssues } from "@/components/crm/pipeline-hygiene";
@@ -62,12 +63,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
               </Badge>
             </>
           ) : (
-            hasHygieneIssues(crmProject) && (
-              <>
-                <Circle className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden bg-orange-400 rounded-full text-destructive-foreground" />
-                <Badge className="hidden md:block bg-orange-400">Hygiene</Badge>
-              </>
-            )
+            hasHygieneIssues(crmProject) && <HygieneIssueBadge />
           )
         }
         link={

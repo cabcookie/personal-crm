@@ -8,6 +8,7 @@ import {
   get,
   map,
   size,
+  some,
   sortBy,
   sum,
   uniq,
@@ -16,6 +17,8 @@ import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import CrmProjectDetails from "../ui-elements/crm-project-details/crm-project-details";
 import { Accordion } from "../ui/accordion";
+import HygieneIssueBadge from "./hygiene-issue-badge";
+import { hasHygieneIssues } from "./pipeline-hygiene";
 
 type CrmProjectForGrouping = Pick<CrmProject, "accountName" | "partnerName">;
 type ValidAccountPropertyNames = keyof CrmProjectForGrouping;
@@ -52,6 +55,12 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
       <DefaultAccordionItem
         value={`${propertyName}-${company}`}
         triggerTitle={company}
+        badge={
+          flow(
+            getCrmProjectsByAccount(propertyName, company),
+            some(hasHygieneIssues)
+          )(crmProjects) && <HygieneIssueBadge />
+        }
         triggerSubTitle={[
           `${flow(
             getCrmProjectsByAccount(propertyName, company),
