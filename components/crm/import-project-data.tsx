@@ -99,19 +99,23 @@ const ImportProjectData = () => {
 
   return (
     <div className="space-y-6">
-      {loadingImports && (
-        <div className="text-muted-foreground text-sm font-semibold flex gap-2">
-          Loading status of imported data…
-          <Loader2 className="w-4 h-4 animate-spin" />
-        </div>
-      )}
-
       <ApiLoadingError title="Loading imports failed" error={errorImports} />
 
       {!crmProjectsImport && (
         <div className="space-y-2">
-          <Label className="font-semibold">Import data from CRM</Label>
-          <Input type="file" onChange={uploadImportFile} />
+          {loadingImports ? (
+            <div className="text-muted-foreground text-sm font-semibold flex gap-2">
+              Loading status of imported data…
+              <Loader2 className="w-6 h-6 animate-spin" />
+            </div>
+          ) : (
+            <Label className="font-semibold">Import data from CRM</Label>
+          )}
+          <Input
+            type="file"
+            onChange={uploadImportFile}
+            disabled={loadingImports}
+          />
         </div>
       )}
 
@@ -131,7 +135,7 @@ const ImportProjectData = () => {
         </div>
       )}
 
-      {projectsCount > 0 && changeSet && (
+      {crmProjectsImport && projectsCount > 0 && changeSet && (
         <div className="space-y-8">
           <div className="space-y-2">
             <h2 className="font-bold text-lg">Imported Data</h2>

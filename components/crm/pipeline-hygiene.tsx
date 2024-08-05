@@ -17,9 +17,10 @@ export type THygieneIssue = {
   filterFn: FilterFunction;
 };
 
-const isNonCompliantStage = (crm: CrmProject, days: number) =>
+const isNonCompliantStage = (crm: CrmProject, fromDay: number, toDay: number) =>
   !(["Business Validation", "Committed"] as TCrmStages[]).includes(crm.stage) &&
-  differenceInCalendarDays(crm.closeDate, new Date()) <= days;
+  differenceInCalendarDays(crm.closeDate, new Date()) >= fromDay &&
+  differenceInCalendarDays(crm.closeDate, new Date()) <= toDay;
 
 const checkRange = (check: number, min: number, max: number) =>
   check >= min && check <= max;
@@ -69,14 +70,14 @@ const hygieneIssues: THygieneIssue[] = [
     label: "Non-compliant stage",
     description:
       "When close date within 30 days stage must be BusVal/Committed",
-    filterFn: (crm) => isNonCompliantStage(crm, 30),
+    filterFn: (crm) => isNonCompliantStage(crm, 0, 30),
   },
   {
     value: "almostNonCompliantStage",
     label: "Almost non-compliant stage",
     description:
-      "When close date within 30 days stage must be BusVal/Committed",
-    filterFn: (crm) => isNonCompliantStage(crm, 45),
+      "When close date within 45 days stage must be BusVal/Committed",
+    filterFn: (crm) => isNonCompliantStage(crm, 31, 45),
   },
   {
     value: "stalledOps",
