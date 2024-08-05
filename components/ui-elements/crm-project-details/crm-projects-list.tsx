@@ -37,6 +37,7 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
       id: "new",
       arr: arr || 0,
       closeDate,
+      createdDate: new Date(),
       isMarketplace: !!isMarketplace,
       name,
       projectIds: [projectId],
