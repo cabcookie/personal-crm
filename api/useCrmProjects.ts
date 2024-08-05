@@ -138,7 +138,7 @@ const fetchCrmProjects = async () => {
           closed,
           {
             closeDate: {
-              ge: flow(addDaysToDate(-14), toISODateString)(new Date()),
+              ge: flow(addDaysToDate(-30), toISODateString)(new Date()),
             },
           },
         ],

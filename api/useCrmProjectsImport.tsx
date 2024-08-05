@@ -202,7 +202,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
           stage: obj.stage,
           opportunityOwner: obj.opportunityOwner,
           nextStep: obj.nextStep,
-          partnerName: obj.partnerName || undefined,
+          partnerName: obj.partnerName ?? undefined,
           type: obj.type,
           stageChangedDate: obj.stageChangedDate,
           accountName: obj.accountName,
