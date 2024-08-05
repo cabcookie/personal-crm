@@ -292,11 +292,6 @@ const addHasOpenTasksField = async () => {
   await addHasOpenTasksFieldTable("Inbox");
 };
 
-// importData();
-// logTables();
-// addHasOpenTasksField();
-// fillFinishedOn();
-
 /**
  * Importing data requires the files mentioned in the importData function to exist.
  * Like:
@@ -312,3 +307,8 @@ const addHasOpenTasksField = async () => {
  *
  * Make sure your env.json points towards the correct environment.
  */
+
+// importData();
+// logTables();
+// addHasOpenTasksField();
+// fillFinishedOn();

@@ -1,7 +1,6 @@
 import { TCrmStages } from "@/api/useCrmProject";
 import useCrmProjects, { CrmProject } from "@/api/useCrmProjects";
 import useCurrentUser, { User } from "@/api/useUser";
-import { logFp } from "@/helpers/functional";
 import { filter, flow, some } from "lodash/fp";
 import {
   ComponentType,
@@ -12,6 +11,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { hasHygieneIssues } from "./pipeline-hygiene";
 
 interface CrmProjectsFilterType {
   crmProjects: CrmProject[] | null;
@@ -112,6 +112,11 @@ const enableDifferentPartnerFilter = (
 ): TProjectFilters[] =>
   crmProjects?.some(isDifferentPartnerName) ? ["Differenct Partner"] : [];
 
+const enableUpdateDueFilter = (
+  crmProjects: CrmProject[] | undefined
+): TProjectFilters[] =>
+  crmProjects?.some(hasHygieneIssues) ? ["Update Due"] : [];
+
 const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
   children,
 }) => {
@@ -127,12 +132,10 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
   useEffect(() => {
     if (!crmProjects) return setFiltered(null);
     if (crmFilter === "All") return setFiltered(crmProjects);
+    if (crmFilter === "Update Due")
+      return flow(filter(hasHygieneIssues), setFiltered)(crmProjects);
     if (crmFilter === "No Project")
-      return flow(
-        filter(hasNoProjectLinked),
-        logFp("No Project result"),
-        setFiltered
-      )(crmProjects);
+      return flow(filter(hasNoProjectLinked), setFiltered)(crmProjects);
     if (crmFilter === "Other Owner")
       return flow(
         filter(isOtherOpportunityOwner(user)),
@@ -159,9 +162,9 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
             ...enableDifferentAccountFilter(crmProjects),
             ...enableOtherOwnerFilter(user, crmProjects),
             ...enableDifferentPartnerFilter(crmProjects),
+            ...enableUpdateDueFilter(crmProjects),
             "By Partner",
             "By Account",
-            // "Update Due",
           ] as TProjectFilters[]
         ).filter((t) => !!t)
       );

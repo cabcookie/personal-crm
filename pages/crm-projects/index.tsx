@@ -5,6 +5,7 @@ import {
   withCrmProjectsFilter,
 } from "@/components/crm/list-filter-context";
 import CrmProjectsListFilter from "@/components/crm/list-filters";
+import CrmProjectsPipelineHygiene from "@/components/crm/pipeline-hygiene";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import LoadingAccordionItem from "@/components/ui-elements/accordion/LoadingAccordionItem";
@@ -39,7 +40,9 @@ const CrmProjectsPage = () => {
 
           <ApiLoadingError title="Loading CRM Projects failed" error={error} />
 
-          {selectedFilter === "By Account" ? (
+          {selectedFilter === "Update Due" ? (
+            <CrmProjectsPipelineHygiene crmProjects={crmProjects} />
+          ) : selectedFilter === "By Account" ? (
             <GroupCrmProjects
               crmProjects={crmProjects}
               propertyName="accountName"

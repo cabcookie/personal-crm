@@ -49,6 +49,10 @@ const NewCrmProjects: FC<NewCrmProjectsProps> = ({ crmProjects }) => {
                 <LabelData label="Partner" data={crm.partnerName} />
                 <LabelData label="Owner" data={crm.opportunityOwner} />
                 <CrmData crmId={crm.crmId} />
+                <LabelData
+                  label="Created Date"
+                  data={format(crm.createdDate, "PP")}
+                />
                 <Button onClick={handleCreate(crm)}>Create CRM project</Button>
               </div>
             </DefaultAccordionItem>

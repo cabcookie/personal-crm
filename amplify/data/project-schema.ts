@@ -107,6 +107,7 @@ const projectSchema = {
       stageChangedDate: a.date(),
       accountName: a.string(),
       territoryName: a.string(),
+      createdDate: a.date(),
     })
     .secondaryIndexes((index) => [index("partnerName")])
     .authorization((allow) => [allow.owner()]),

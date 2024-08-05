@@ -139,6 +139,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
       "Stage Duration": "stageChangedDate",
       "Account Name": "accountName",
       Territory: "territoryName",
+      "Created Date": "createdDate",
     };
 
     // Iterate through the rows and build the JSON objects
@@ -160,6 +161,11 @@ const useCrmProjectsImport = (status: TImportStatus) => {
             }
             // make 'closeDate' a date
             if (key === "closeDate") {
+              const [month, day, year] = value.split("/");
+              value = new Date(year, month - 1, day);
+            }
+            // make 'createdDate' a date
+            if (key === "createdDate") {
               const [month, day, year] = value.split("/");
               value = new Date(year, month - 1, day);
             }
@@ -191,6 +197,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
           tcv: 0,
           isMarketplace: false,
           closeDate: obj.closeDate,
+          createdDate: obj.createdDate,
           projectIds: [],
           stage: obj.stage,
           opportunityOwner: obj.opportunityOwner,

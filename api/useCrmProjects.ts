@@ -34,6 +34,7 @@ export type CrmProject = {
   pipeline?: number;
   projectAccountNames?: string[];
   linkedPartnerNames?: string[];
+  createdDate: Date;
 };
 
 export const selectionSetCrmProject = [
@@ -44,6 +45,8 @@ export const selectionSetCrmProject = [
   "totalContractVolume",
   "isMarketplace",
   "closeDate",
+  "createdDate",
+  "createdAt",
   "projects.project.id",
   "projects.project.accounts.account.name",
   "stage",
@@ -71,6 +74,8 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   totalContractVolume,
   isMarketplace,
   closeDate,
+  createdAt,
+  createdDate,
   projects,
   stage,
   stageChangedDate,
@@ -88,6 +93,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   tcv: totalContractVolume || 0,
   isMarketplace: !!isMarketplace,
   closeDate: new Date(closeDate),
+  createdDate: new Date(createdDate || createdAt),
   projectIds: projects.map(({ project: { id } }) => id),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
   stageChangedDate: !stageChangedDate ? undefined : new Date(stageChangedDate),
@@ -219,6 +225,9 @@ const useCrmProjects = () => {
           ...project
         }: CrmProject) => project)(project),
         closeDate: toISODateString(project.closeDate),
+        createdDate: !project.createdDate
+          ? null
+          : toISODateString(project.createdDate),
         annualRecurringRevenue: project.arr,
         totalContractVolume: project.tcv,
         stageChangedDate: !project.stageChangedDate
