@@ -109,7 +109,6 @@ const projectSchema = {
       territoryName: a.string(),
       createdDate: a.date(),
     })
-    .secondaryIndexes((index) => [index("partnerName")])
     .authorization((allow) => [allow.owner()]),
   Projects: a
     .model({
