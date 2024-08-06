@@ -15,7 +15,7 @@ import {
 } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import CrmProjectDetails from "../ui-elements/crm-project-details/crm-project-details";
+import CrmProjectAccordionItem from "../ui-elements/crm-project-details/CrmProjectAccordionItem";
 import { Accordion } from "../ui/accordion";
 import HygieneIssueBadge from "./hygiene-issue-badge";
 import { hasHygieneIssues } from "./pipeline-hygiene";
@@ -76,7 +76,11 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
           {flow(
             getCrmProjectsByAccount(propertyName, company),
             map(({ id }: CrmProject) => (
-              <CrmProjectDetails key={id} crmProjectId={id} showProjects />
+              <CrmProjectAccordionItem
+                key={id}
+                crmProjectId={id}
+                showProjects
+              />
             ))
           )(crmProjects)}
         </Accordion>
