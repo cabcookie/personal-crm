@@ -4,8 +4,8 @@ import { useContextContext } from "@/contexts/ContextContext";
 import { getRevenue2Years } from "@/helpers/projects";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
+import CrmProjectAccordionItem from "./CrmProjectAccordionItem";
 import CrmProjectForm from "./CrmProjectForm";
-import CrmProjectDetails from "./crm-project-details";
 
 type CrmProjectsListProps = {
   isVisible?: boolean;
@@ -62,7 +62,7 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
 
         <Accordion type="single" collapsible>
           {crmProjects.map((crmProject) => (
-            <CrmProjectDetails
+            <CrmProjectAccordionItem
               key={crmProject.id}
               crmProjectId={crmProject.id}
             />

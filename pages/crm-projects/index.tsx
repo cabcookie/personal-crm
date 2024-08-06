@@ -10,7 +10,7 @@ import {
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import LoadingAccordionItem from "@/components/ui-elements/accordion/LoadingAccordionItem";
-import CrmProjectDetails from "@/components/ui-elements/crm-project-details/crm-project-details";
+import CrmProjectAccordionItem from "@/components/ui-elements/crm-project-details/CrmProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { flow, identity, map, times } from "lodash/fp";
 
@@ -69,7 +69,11 @@ const CrmProjectsPage = () => {
             />
           ) : (
             crmProjects?.map(({ id }) => (
-              <CrmProjectDetails key={id} crmProjectId={id} showProjects />
+              <CrmProjectAccordionItem
+                key={id}
+                crmProjectId={id}
+                showProjects
+              />
             ))
           )}
         </Accordion>

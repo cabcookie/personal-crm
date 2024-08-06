@@ -3,7 +3,7 @@ import { make2YearsRevenueText } from "@/helpers/projects";
 import { filter, flow, map, sum } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import CrmProjectDetails from "../ui-elements/crm-project-details/crm-project-details";
+import CrmProjectAccordionItem from "../ui-elements/crm-project-details/CrmProjectAccordionItem";
 import { Accordion } from "../ui/accordion";
 import { THygieneIssue } from "./pipeline-hygiene";
 
@@ -38,7 +38,7 @@ const CrmProjectsPipelineHygieneCategory: FC<
   >
     <Accordion type="single" collapsible>
       {crmProjects?.map(({ id }) => (
-        <CrmProjectDetails key={id} crmProjectId={id} showProjects />
+        <CrmProjectAccordionItem key={id} crmProjectId={id} showProjects />
       ))}
     </Accordion>
   </DefaultAccordionItem>

@@ -1,1 +1,1 @@
-# Kleinere Fehlerbehebungen in CRM Projekten (Version :VERSION)
+# CRM-Projekt Detailseite eingeführt (Version :VERSION)
