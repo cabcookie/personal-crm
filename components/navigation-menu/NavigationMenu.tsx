@@ -174,7 +174,9 @@ const NavigationMenu = () => {
       <CommandInput
         placeholder="Type a command or search…"
         value={search}
-        onValueChange={setSearch}
+        onValueChange={(val) => {
+          setSearch(val);
+        }}
         onKeyDown={keyboardEventHandler}
         onKeyUp={keyboardEventHandler}
       />
