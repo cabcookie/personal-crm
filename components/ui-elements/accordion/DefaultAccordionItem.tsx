@@ -89,7 +89,9 @@ const DefaultAccordionItem = forwardRef<
                 )(triggerSubTitle)}
           </AccordionTriggerSubTitle>
         </AccordionTrigger>
-        <AccordionContent className="my-2">{children}</AccordionContent>
+        <AccordionContent className="my-2 bg-[--context-color-bg]">
+          {children}
+        </AccordionContent>
       </AccordionItem>
     )
 );

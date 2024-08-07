@@ -45,7 +45,11 @@ export const ContextContextProvider: FC<ContextContextProviderProps> = ({
     if (!context) return;
     document.documentElement.style.setProperty(
       "--context-color",
-      `hsl(var(--context-color-${context}))`
+      `rgb(var(--context-color-${context}))`
+    );
+    document.documentElement.style.setProperty(
+      "--context-color-bg",
+      `rgba(var(--context-color-${context}), 0.05)`
     );
     document.documentElement.style.setProperty(
       "--context-color-hover",
