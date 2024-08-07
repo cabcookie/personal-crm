@@ -68,7 +68,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
             showSaveStatus &&
               !readonly &&
               !isUpToDate(notes, editor.getJSON()) &&
-              "bg-destructive/10"
+              "bg-red-50"
           ),
         },
       },
