@@ -1,6 +1,7 @@
 import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
+import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { Alert, AlertTitle } from "@/components/ui/alert";
@@ -35,8 +36,13 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 }) => {
   const { getProjectById } = useProjectsContext();
   const { mutateOpenTasks } = useOpenTasksContext();
-  const { activity, updateNotes, isLoadingActivity, deleteProjectActivity } =
-    useActivity(activityId);
+  const {
+    activity,
+    updateNotes,
+    isLoadingActivity,
+    errorActivity,
+    deleteProjectActivity,
+  } = useActivity(activityId);
   const [openDeleteActivityConfirmation, setOpenDeleteActivityConfirmation] =
     useState(false);
 
@@ -52,6 +58,8 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
 
   return (
     <div className={className}>
+      <ApiLoadingError title="Loading activity failed" error={errorActivity} />
+
       {deleteActivity && (
         <DeleteWarning
           open={openDeleteActivityConfirmation}
