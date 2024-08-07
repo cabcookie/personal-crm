@@ -29,11 +29,6 @@ interface ProjectsContextType {
     projectId: string,
     notes?: EditorJsonContent
   ) => Promise<string | undefined>;
-  saveNextActions: (
-    projectId: string,
-    myNextActions: EditorJsonContent | string,
-    othersNextActions: EditorJsonContent | string
-  ) => Promise<string | undefined>;
   saveProjectName: (
     projectId: string,
     projectName: string
@@ -325,16 +320,18 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.activityId;
   };
 
-  type UpdateProjectProps = {
-    id: string;
-    project?: string;
-    dueOn?: Date;
-    doneOn?: Date | null;
+  type UpdateProjectDates = {
     onHoldTill?: Date | null;
-    myNextActions?: EditorJsonContent | string;
-    othersNextActions?: EditorJsonContent | string;
-    done?: boolean;
+    doneOn?: Date | null;
+    dueOn?: Date | null;
   };
+
+  type UpdateProjectProps = Partial<
+    Omit<Project, "id" | "onHoldTill" | "doneOn" | "dueOn">
+  > &
+    UpdateProjectDates & {
+      id: string;
+    };
 
   const updateProject = async ({
     id,
@@ -343,8 +340,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     doneOn,
     dueOn,
     onHoldTill,
-    myNextActions,
-    othersNextActions,
   }: UpdateProjectProps) => {
     const updProject: Project | undefined = projects?.find((p) => p.id === id);
     if (!updProject) return;
@@ -355,8 +350,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       ...(doneOn && { doneOn }),
       ...(dueOn && { dueOn }),
       ...(onHoldTill && { onHoldTill }),
-      ...(myNextActions && { myNextActions }),
-      ...(othersNextActions && { othersNextActions }),
     });
 
     const updated: Project[] =
@@ -367,15 +360,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       id,
       project,
       done,
-      ...(myNextActions || othersNextActions
-        ? {
-            myNextActions: null,
-            othersNextActions: null,
-            formatVersion: 2,
-            myNextActionsJson: JSON.stringify(updProject.myNextActions),
-            othersNextActionsJson: JSON.stringify(updProject.othersNextActions),
-          }
-        : {}),
       dueOn: dueOn ? toISODateString(dueOn) : undefined,
       doneOn:
         done === undefined
@@ -391,26 +375,20 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.id;
   };
 
-  const saveNextActions = (
-    projectId: string,
-    myNextActions: EditorJsonContent | string,
-    othersNextActions: EditorJsonContent | string
-  ) => updateProject({ id: projectId, myNextActions, othersNextActions });
-
   const saveProjectName = (projectId: string, projectName: string) =>
     updateProject({ id: projectId, project: projectName });
+
+  type SaveProjectDatesProps = UpdateProjectDates & {
+    projectId: string;
+  };
 
   const saveProjectDates = ({
     projectId,
     dueOn,
     doneOn,
     onHoldTill,
-  }: {
-    projectId: string;
-    dueOn?: Date;
-    doneOn?: Date;
-    onHoldTill?: Date | null;
-  }) => updateProject({ id: projectId, dueOn, onHoldTill, doneOn });
+  }: SaveProjectDatesProps) =>
+    updateProject({ id: projectId, dueOn, onHoldTill, doneOn });
 
   const updateProjectState = (projectId: string, done: boolean) =>
     updateProject({ id: projectId, done, doneOn: done ? new Date() : null });
@@ -550,7 +528,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         createProject,
         getProjectById,
         createProjectActivity,
-        saveNextActions,
         saveProjectName,
         saveProjectDates,
         updateProjectState,

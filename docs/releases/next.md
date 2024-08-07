@@ -1,3 +1,3 @@
-# Bessere Visualisierung von Akkordions (Version :VERSION)
+# Projekte schnell verlegen (Version :VERSION)
 
-- Wenn Akkordions aufgeklappt werden, erhalten sie jetzt einen leichten transparenten Hintergrund. Wenn darüber weitere Akkordions geöffnet werden, wird die Transparenz immer weniger und somit sollte sich leichter unterscheiden lassen, welcher Akkordion Kopf zu welchem Inhalt gehört.
+- In der Projekt-Listenansicht kann ich ein einzelnes Projekt schnell auf den nächsten Tag verlegen (On Hold Till), um davon nicht ständig abgelenkt zu werden.

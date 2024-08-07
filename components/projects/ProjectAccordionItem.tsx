@@ -1,31 +1,48 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useOpenTasksContext } from "@/api/ContextOpenTasks";
-import { Project } from "@/api/ContextProjects";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
-import { format } from "date-fns";
+import { addDays, format } from "date-fns";
 import { flow, map, sum } from "lodash/fp";
-import { FC } from "react";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
+import { FC, useState } from "react";
 import HygieneIssueBadge from "../crm/hygiene-issue-badge";
 import { hasHygieneIssues } from "../crm/pipeline-hygiene";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import ProjectDetails from "../ui-elements/project-details/project-details";
+import { Button } from "../ui/button";
 
 type ProjectAccordionItemProps = {
   project?: Project;
   showNotes?: boolean;
   onDelete?: () => void;
   disabled?: boolean;
+  allowPushToNextDay?: boolean;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   project,
   onDelete,
   disabled,
+  allowPushToNextDay,
   showNotes = true,
 }) => {
+  const [pushingInProgress, setPushingInProgress] = useState(false);
+  const { saveProjectDates } = useProjectsContext();
   const { getAccountNamesByIds } = useAccountsContext();
   const { openTasksByProjectId } = useOpenTasksContext();
+
+  const handlePushToNextDay = async () => {
+    if (!project) return;
+    setPushingInProgress(true);
+    const result = await saveProjectDates({
+      projectId: project.id,
+      onHoldTill: addDays(new Date(), 1),
+    });
+    if (result) return;
+    setPushingInProgress(false);
+  };
 
   return (
     project && (
@@ -64,6 +81,23 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         ]}
         disabled={disabled}
       >
+        {allowPushToNextDay && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePushToNextDay}
+            disabled={pushingInProgress}
+          >
+            {!pushingInProgress && (
+              <ArrowRightCircle className="w-4 h-4 mr-1" />
+            )}
+            {pushingInProgress && (
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+            )}
+            Push to next day
+          </Button>
+        )}
+
         <ProjectDetails
           projectId={project.id}
           showCrmDetails
