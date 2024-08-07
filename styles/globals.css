@@ -35,13 +35,15 @@
     --notes-margin: 0.2em;
     --notes-heading-mt: 1em;
 
-    --context-color-family: 55 85% 65%;
-    --context-color-hobby: 98 80% 62%;
-    --context-color-work: 181 80% 62%;
+    --context-color-family: 221, 239, 104;
+    --context-color-hobby: 151, 239, 92;
+    --context-color-work: 92, 239, 221;
+    --context-color: rgb(var(--context-color-family));
+    --context-color-bg: rgba(var(--context-color-family), 0.05);
+
     --context-color-family-secondary: 55 85% 90%;
     --context-color-hobby-secondary: 98 80% 87%;
     --context-color-work-secondary: 181 80% 87%;
-    --context-color: hsl(var(--context-color-family));
     --context-color-secondary: hsl(var(--context-color-family-secondary));
 
     --context-color-family-hover: 55 68% 65%;

@@ -1,3 +1,3 @@
-# Einfaches Kopieren von CRM Projekten (Version :VERSION)
+# Bessere Visualisierung von Akkordions (Version :VERSION)
 
-- Jedes CRM Projekt hat beim Link zum Projekt (SFDC ID) auch eine Schaltfläche, um den Titel der Opportunity und dessen Salesforce Link in die Zwischenablage zu kopieren.
+- Wenn Akkordions aufgeklappt werden, erhalten sie jetzt einen leichten transparenten Hintergrund. Wenn darüber weitere Akkordions geöffnet werden, wird die Transparenz immer weniger und somit sollte sich leichter unterscheiden lassen, welcher Akkordion Kopf zu welchem Inhalt gehört.

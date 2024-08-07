@@ -101,6 +101,7 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
         ),
         map((company: string) => (
           <DefaultAccordionItem
+            key={`${propertyName}-${company}`}
             value={`${propertyName}-${company}`}
             triggerTitle={company}
             badge={
