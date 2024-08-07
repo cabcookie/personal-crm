@@ -1,3 +1,3 @@
-# Crash in Hauptmenü behoben (Version :VERSION)
+# Detailseite für Aktivität optimiert (Version :VERSION)
 
-- Wenn man im Hauptmenü zunächst einen Suchbegriff eingegeben und diesen dann gelöscht hatte, ist die Applikation abgestürzt. Das passiert nun nicht mehr.
+- Die Notizen aus der Aktivität werden nun direkt angezeigt, ohne dass erst ein Accordion geöffnet werden muss.

@@ -20,17 +20,16 @@ const AccountDetailPage = () => {
       }`}
       sectionName="Activities"
     >
-      {!activity ? (
-        "Loading activity..."
-      ) : (
-        <ActivityComponent
-          activityId={activity.id}
-          showDates
-          showMeeting
-          showProjects
-          allowAddingProjects
-        />
-      )}
+      <div className="space-y-6">
+        {activityId && (
+          <ActivityComponent
+            activityId={activityId}
+            notesNotInAccordion
+            showMeeting
+            allowAddingProjects
+          />
+        )}
+      </div>
     </MainLayout>
   );
 };

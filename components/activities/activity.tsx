@@ -1,11 +1,11 @@
-import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import useMeeting from "@/api/useMeeting";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import TaskBadge from "../task/TaskBadge";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import ApiLoadingError from "../layouts/ApiLoadingError";
+import MeetingAccordionItem from "../meetings/MeetingAccordionItem";
+import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import ProjectNotesForm from "../ui-elements/project-notes-form/project-notes-form";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
 import DateSelector from "../ui-elements/selectors/date-selector";
@@ -41,9 +41,14 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   notesNotInAccordion,
   readOnly,
 }) => {
-  const { activity, updateNotes, updateDate, addProjectToActivity } =
-    useActivity(activityId);
-  const { getProjectNamesByIds } = useProjectsContext();
+  const {
+    activity,
+    updateNotes,
+    updateDate,
+    addProjectToActivity,
+    isLoadingActivity,
+    errorActivity,
+  } = useActivity(activityId);
   const { meeting, deleteMeetingActivity } = useMeeting(activity?.meetingId);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
@@ -81,6 +86,8 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 
   return !notesNotInAccordion ? (
     <div className="pb-8 space-y-4">
+      <ApiLoadingError title="Loading activity failed" error={errorActivity} />
+
       {showDates && (
         <div className="flex flex-row gap-2">
           <DateSelector
@@ -130,25 +137,33 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
       </Accordion>
     </div>
   ) : (
-    <DefaultAccordionItem
-      value={activityId}
-      triggerTitle="Meeting notes"
-      badge={
-        <TaskBadge
-          hasOpenTasks={activity?.hasOpenTasks}
-          hasClosedTasks={!!activity?.closedTasks?.length}
+    <div className="space-y-6">
+      {showMeeting && activity?.meetingId && (
+        <div className="space-y-0">
+          <h3 className="font-semibold">From meeting:</h3>
+          <Accordion type="single" collapsible>
+            {isLoadingActivity ||
+              (!meeting && (
+                <LoadingAccordionItem
+                  value="loading-meeting"
+                  sizeTitle="3xl"
+                  sizeSubtitle="xl"
+                />
+              ))}
+            {meeting && <MeetingAccordionItem meeting={meeting} />}
+          </Accordion>
+        </div>
+      )}
+
+      <div className="space-y-0">
+        {showMeeting && <h3 className="font-semibold">Projects:</h3>}
+        <ProjectNotesForm
+          activityId={activityId}
+          deleteActivity={() => deleteMeetingActivity(activityId)}
+          readOnly={readOnly}
         />
-      }
-      triggerSubTitle={`Projects: ${getProjectNamesByIds(
-        activity?.projectIds
-      )}`}
-    >
-      <ProjectNotesForm
-        activityId={activityId}
-        deleteActivity={() => deleteMeetingActivity(activityId)}
-        readOnly={readOnly}
-      />
-    </DefaultAccordionItem>
+      </div>
+    </div>
   );
 };
 
