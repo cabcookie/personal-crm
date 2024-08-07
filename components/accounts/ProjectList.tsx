@@ -23,11 +23,14 @@ type ProjectsByFilter = {
   accountId?: never;
   filter: ProjectFilters;
 };
-type ProjectListProps = ProjectsByAccount | ProjectsByFilter;
+type ProjectListProps = (ProjectsByAccount | ProjectsByFilter) & {
+  allowPushToNextDay?: boolean;
+};
 
 const ProjectList: FC<ProjectListProps> = ({
   accountId,
   filter: projectFilter,
+  allowPushToNextDay,
 }) => {
   const { projects, loadingProjects, errorProjects } = useProjectsContext();
   const { accounts } = useAccountsContext();
@@ -65,7 +68,11 @@ const ProjectList: FC<ProjectListProps> = ({
           )(10)}
 
         {filteredProjects.map((project) => (
-          <ProjectAccordionItem key={project.id} project={project} />
+          <ProjectAccordionItem
+            key={project.id}
+            project={project}
+            allowPushToNextDay={allowPushToNextDay}
+          />
         ))}
       </Accordion>
     </div>

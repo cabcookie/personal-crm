@@ -37,7 +37,7 @@ const ProjectListPage = () => {
           />
         </div>
 
-        <ProjectList filter={filter} />
+        <ProjectList filter={filter} allowPushToNextDay />
       </div>
     </MainLayout>
   );
