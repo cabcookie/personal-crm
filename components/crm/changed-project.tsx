@@ -90,7 +90,7 @@ const ChangedCrmProject: FC<ChangedCrmProjectProps> = ({
               importedValue={imported.createdDate}
               originalValue={crmProject.createdDate}
             />
-            <CrmData crmId={imported.crmId} />
+            <CrmData crmId={imported.crmId} label={imported.name} />
           </div>
           <Button disabled={!crmProject} onClick={handleUpdateLocalData}>
             {!crmProject && <Loader2 className="w-4 h-4 animate-spin" />}

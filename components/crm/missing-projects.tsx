@@ -47,7 +47,7 @@ const MissingCrmProjects: FC<MissingCrmProjectsProps> = ({ crmProjects }) => {
                 <LabelData label="Next step" data={crm.nextStep} />
                 <LabelData label="Partner" data={crm.partnerName} />
                 <LabelData label="Owner" data={crm.opportunityOwner} />
-                <CrmData crmId={crm.crmId} />
+                <CrmData crmId={crm.crmId} label={crm.name} />
                 <div className="flex flex-row gap-2">
                   <Button onClick={handleClosing(crm.id, "Closed Lost")}>
                     Set “Closed Lost”
