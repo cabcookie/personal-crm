@@ -9,6 +9,7 @@ import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem"
 import ProjectNotesForm from "../ui-elements/project-notes-form/project-notes-form";
 import SavedState from "../ui-elements/project-notes-form/saved-state";
 import DateSelector from "../ui-elements/selectors/date-selector";
+import ProjectSelector from "../ui-elements/selectors/project-selector";
 import { Accordion } from "../ui/accordion";
 import {
   Tooltip,
@@ -157,6 +158,14 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 
       <div className="space-y-0">
         {showMeeting && <h3 className="font-semibold">Projects:</h3>}
+        {allowAddingProjects && (
+          <ProjectSelector
+            value=""
+            onChange={addProjectToActivity}
+            allowCreateProjects
+            placeholder="Add project…"
+          />
+        )}
         <ProjectNotesForm
           activityId={activityId}
           deleteActivity={() => deleteMeetingActivity(activityId)}
