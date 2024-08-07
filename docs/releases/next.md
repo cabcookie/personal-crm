@@ -1,3 +1,3 @@
-# CRM Projekte in Wartestellung ausblenden (Version :VERSION)
+# Einfaches Kopieren von CRM Projekten (Version :VERSION)
 
-- CRM Projekte die ausschließlich mit Projekten verknüpft sind, die im Moment stummgeschaltet sind (On Hold), werden ausgeblendet. Es sei denn der Filter „Include projects on hold“ ist aktiviert.
+- Jedes CRM Projekt hat beim Link zum Projekt (SFDC ID) auch eine Schaltfläche, um den Titel der Opportunity und dessen Salesforce Link in die Zwischenablage zu kopieren.

@@ -88,7 +88,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
               <NextStep crmProject={crmProject} />
               <LabelData label="Partner" data={crmProject.partnerName} />
               <LabelData label="Owner" data={crmProject.opportunityOwner} />
-              <CrmData crmId={crmProject.crmId} />
+              <CrmData crmId={crmProject.crmId} label={crmProject.name} />
               <LabelData
                 label="Created Date"
                 data={format(crmProject.createdDate, "PP")}
