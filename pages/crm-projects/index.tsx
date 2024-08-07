@@ -1,3 +1,4 @@
+import { CrmProject } from "@/api/useCrmProjects";
 import GroupCrmProjects from "@/components/crm/group-projects";
 import ImportProjectData from "@/components/crm/import-project-data";
 import CrmProjectsListFilter from "@/components/crm/list-filters";
@@ -12,7 +13,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import LoadingAccordionItem from "@/components/ui-elements/accordion/LoadingAccordionItem";
 import CrmProjectAccordionItem from "@/components/ui-elements/crm-project-details/CrmProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
-import { flow, identity, map, times } from "lodash/fp";
+import { filter, flow, identity, map, size, times, uniq } from "lodash/fp";
 
 const CrmProjectsPage = () => {
   const { crmProjects, isLoading, error, selectedFilter } =
@@ -63,10 +64,28 @@ const CrmProjectsPage = () => {
               propertyName="accountName"
             />
           ) : selectedFilter === "By Partner" ? (
-            <GroupCrmProjects
-              crmProjects={crmProjects}
-              propertyName="partnerName"
-            />
+            <>
+              {crmProjects && (
+                <div className="font-semibold text-sm text-muted-foreground">
+                  {flow(
+                    filter((p: CrmProject) => !!p.partnerName),
+                    size
+                  )(crmProjects)}{" "}
+                  projects with{" "}
+                  {flow(
+                    map((p: CrmProject) => p.partnerName),
+                    uniq,
+                    size
+                  )(crmProjects)}{" "}
+                  partners.
+                </div>
+              )}
+
+              <GroupCrmProjects
+                crmProjects={crmProjects}
+                propertyName="partnerName"
+              />
+            </>
           ) : (
             crmProjects?.map(({ id }) => (
               <CrmProjectAccordionItem
