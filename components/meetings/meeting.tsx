@@ -14,7 +14,6 @@ import PeopleSelector from "../ui-elements/selectors/people-selector";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
 import { Accordion } from "../ui/accordion";
 import MeetingActivityList from "./meeting-activity-list";
-import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
 import MeetingProjectRecommender from "./meeting-project-recommender";
 
@@ -154,8 +153,6 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               addParticipant={!addParticipants ? undefined : addParticipant}
               removeParticipant={removeMeetingParticipant}
             />
-
-            <MeetingNextActions meeting={meeting} />
 
             <MeetingActivityList meeting={meeting} />
           </>
