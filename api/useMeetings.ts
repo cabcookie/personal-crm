@@ -15,6 +15,7 @@ export type Meeting = {
   topic: string;
   context?: Context;
   meetingOn: Date;
+  participantMeetingIds: string[];
   participantIds: string[];
   activities: Activity[];
 };
@@ -25,7 +26,8 @@ export const meetingSelectionSet = [
   "context",
   "meetingOn",
   "createdAt",
-  "participants.person.id",
+  "participants.id",
+  "participants.personId",
   "activities.id",
   "activities.notes",
   "activities.formatVersion",
@@ -57,7 +59,8 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   topic,
   meetingOn: new Date(meetingOn || createdAt),
   context: context || undefined,
-  participantIds: participants.map(({ person: { id } }) => id),
+  participantMeetingIds: participants.map(({ id }) => id),
+  participantIds: participants.map(({ personId }) => personId),
   activities: flow(
     map(mapActivity),
     sortBy((a) => -a.finishedOn.getTime())
@@ -169,6 +172,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       topic,
       meetingOn: new Date(),
       participantIds: [],
+      participantMeetingIds: [],
       activities: [],
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];

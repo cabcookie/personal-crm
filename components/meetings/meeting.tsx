@@ -36,6 +36,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   const [meetingContext, setMeetingContext] = useState(meeting?.context);
   const {
     createMeetingActivity,
+    removeMeetingParticipant,
     updateMeetingContext,
     updateMeeting,
     createMeetingParticipant,
@@ -151,6 +152,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             <MeetingParticipants
               participantIds={meeting.participantIds}
               addParticipant={!addParticipants ? undefined : addParticipant}
+              removeParticipant={removeMeetingParticipant}
             />
 
             <MeetingNextActions meeting={meeting} />
