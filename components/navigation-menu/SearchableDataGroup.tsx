@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useCommandState } from "cmdk";
 import { useRouter } from "next/router";
 import { FC } from "react";
@@ -28,17 +29,16 @@ const SearchableDataGroup: FC<SearchableDataGroupProps> = ({
   };
 
   return (
-    search &&
-    search.length >= 4 &&
-    items && (
-      <CommandGroup heading={heading}>
-        {items.map(({ id, value, link }) => (
-          <CommandItem key={id} onSelect={routeToUrl(link)}>
-            {value}
-          </CommandItem>
-        ))}
-      </CommandGroup>
-    )
+    <CommandGroup
+      heading={heading}
+      className={cn((!search || search.length < 4 || !items) && "hidden")}
+    >
+      {items?.map(({ id, value, link }) => (
+        <CommandItem key={id} onSelect={routeToUrl(link)}>
+          {value}
+        </CommandItem>
+      ))}
+    </CommandGroup>
   );
 };
 

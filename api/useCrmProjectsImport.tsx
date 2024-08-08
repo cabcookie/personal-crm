@@ -6,7 +6,7 @@ import {
   uploadFileToS3,
 } from "@/helpers/s3/upload-filtes";
 import { generateClient } from "aws-amplify/data";
-import { addDays } from "date-fns";
+import { addDays, min } from "date-fns";
 import { floor, flow } from "lodash/fp";
 import { ChangeEvent } from "react";
 import useSWR from "swr";
@@ -140,6 +140,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
       "Account Name": "accountName",
       Territory: "territoryName",
       "Created Date": "createdDate",
+      "System Close Date": "systemCloseDate",
     };
 
     // Iterate through the rows and build the JSON objects
@@ -163,6 +164,13 @@ const useCrmProjectsImport = (status: TImportStatus) => {
             if (key === "closeDate") {
               const [month, day, year] = value.split("/");
               value = new Date(year, month - 1, day);
+            }
+            // make 'systemCloseDate' a date
+            if (key === "systemCloseDate") {
+              if (value) {
+                const [month, day, year] = value.split("/");
+                value = new Date(year, month - 1, day);
+              }
             }
             // make 'createdDate' a date
             if (key === "createdDate") {
@@ -196,7 +204,9 @@ const useCrmProjectsImport = (status: TImportStatus) => {
           arr: obj.arr,
           tcv: 0,
           isMarketplace: false,
-          closeDate: obj.closeDate,
+          closeDate: !obj.systemCloseDate
+            ? obj.closeDate
+            : min([obj.systemCloseDate, obj.closeDate]),
           createdDate: obj.createdDate,
           projectIds: [],
           stage: obj.stage,
