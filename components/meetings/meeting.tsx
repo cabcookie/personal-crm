@@ -16,6 +16,7 @@ import { Accordion } from "../ui/accordion";
 import MeetingActivityList from "./meeting-activity-list";
 import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
+import MeetingProjectRecommender from "./meeting-project-recommender";
 
 type MeetingRecordProps = {
   meeting?: Meeting;
@@ -113,6 +114,13 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           allowCreateProjects
           placeholder="Add a project…"
           disabled={!meeting}
+        />
+      )}
+
+      {addProjects && (
+        <MeetingProjectRecommender
+          meeting={meeting}
+          addProjectToMeeting={handleSelectProject}
         />
       )}
 
