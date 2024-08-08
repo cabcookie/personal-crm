@@ -7,11 +7,13 @@ import PeopleSelector from "../ui-elements/selectors/people-selector";
 type MeetingParticipantsProps = {
   participantIds: string[];
   addParticipant?: (personId: string | null) => void;
+  removeParticipant?: (personId: string) => void;
 };
 
 const MeetingParticipants: FC<MeetingParticipantsProps> = ({
   participantIds,
   addParticipant,
+  removeParticipant,
 }) => {
   const { getNamesByIds } = usePeople();
 
@@ -32,7 +34,11 @@ const MeetingParticipants: FC<MeetingParticipantsProps> = ({
         )}
         <div className="my-2" />
 
-        <PeopleList personIds={participantIds} showNotes={false} />
+        <PeopleList
+          personIds={participantIds}
+          showNotes={false}
+          onDelete={removeParticipant}
+        />
       </DefaultAccordionItem>
     )
   );

@@ -74,6 +74,31 @@ const useMeeting = (meetingId?: string) => {
     return data?.meetingId;
   };
 
+  const getMeetingParticipantId = (personId: string) => {
+    if (!meeting) return;
+    return meeting.participantMeetingIds[
+      meeting.participantIds.findIndex((id) => id === personId)
+    ];
+  };
+
+  const removeMeetingParticipant = async (personId: string) => {
+    if (!meeting) return;
+    const updated: Meeting = {
+      ...meeting,
+      participantIds: meeting.participantIds.filter((id) => id !== personId),
+    };
+    mutateMeeting(updated, false);
+    const meetingParticipantId = getMeetingParticipantId(personId);
+    if (!meetingParticipantId) return;
+    const { data, errors } = await client.models.MeetingParticipant.delete({
+      id: meetingParticipantId,
+    });
+    if (errors)
+      handleApiErrors(errors, "Error deleting entry meeting participant");
+    mutateMeeting(updated);
+    return data?.id;
+  };
+
   const deleteMeetingActivity = async (activityId: string) => {
     if (!meeting) return;
     const updated: Meeting = {
@@ -164,6 +189,7 @@ const useMeeting = (meetingId?: string) => {
     loadingMeeting,
     updateMeeting,
     createMeetingParticipant,
+    removeMeetingParticipant,
     createMeetingActivity,
     updateMeetingContext,
     deleteMeetingActivity,

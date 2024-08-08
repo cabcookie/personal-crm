@@ -16,6 +16,7 @@ import { Accordion } from "../ui/accordion";
 import MeetingActivityList from "./meeting-activity-list";
 import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
+import MeetingProjectRecommender from "./meeting-project-recommender";
 
 type MeetingRecordProps = {
   meeting?: Meeting;
@@ -35,6 +36,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   const [meetingContext, setMeetingContext] = useState(meeting?.context);
   const {
     createMeetingActivity,
+    removeMeetingParticipant,
     updateMeetingContext,
     updateMeeting,
     createMeetingParticipant,
@@ -116,6 +118,13 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
         />
       )}
 
+      {addProjects && (
+        <MeetingProjectRecommender
+          meeting={meeting}
+          addProjectToMeeting={handleSelectProject}
+        />
+      )}
+
       <Accordion type="single" collapsible>
         {showMeetingDate &&
           (!meeting ? (
@@ -143,6 +152,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             <MeetingParticipants
               participantIds={meeting.participantIds}
               addParticipant={!addParticipants ? undefined : addParticipant}
+              removeParticipant={removeMeetingParticipant}
             />
 
             <MeetingNextActions meeting={meeting} />

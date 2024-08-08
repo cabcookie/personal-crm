@@ -64,30 +64,16 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
         <DeleteWarning
           open={openDeleteActivityConfirmation}
           onOpenChange={setOpenDeleteActivityConfirmation}
-          confirmText={
-            <>
-              <p>
-                Are you sure you want to delete the activity with the following
-                information?
-              </p>
-              {activity?.projectIds.map((id) => (
-                <p key={id}>
-                  <small>Project: {getProjectById(id)?.project}</small>
-                </p>
-              ))}
-              {activity && (
-                <p>
-                  <small>
-                    Notes:{" "}
-                    {getTextFromEditorJsonContent(activity?.notes).slice(
-                      0,
-                      200
-                    )}
-                  </small>
-                </p>
-              )}
-            </>
-          }
+          confirmText={`Are you sure you want to delete the activity with the following information? ${activity?.projectIds.map(
+            (id) =>
+              `Project: ${getProjectById(id)?.project}${
+                activity &&
+                `; Notes: ${getTextFromEditorJsonContent(activity?.notes).slice(
+                  0,
+                  200
+                )}`
+              }`
+          )}`}
           onConfirm={deleteActivity}
         />
       )}

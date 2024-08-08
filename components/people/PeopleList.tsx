@@ -9,9 +9,14 @@ import PersonDetails from "./PersonDetails";
 type PeopleListProps = {
   personIds?: string[];
   showNotes?: boolean;
+  onDelete?: (personId: string) => void;
 };
 
-const PeopleList: FC<PeopleListProps> = ({ personIds, showNotes }) => {
+const PeopleList: FC<PeopleListProps> = ({
+  personIds,
+  showNotes,
+  onDelete,
+}) => {
   const { people } = usePeople();
 
   const personName = (person?: Person) =>
@@ -32,6 +37,7 @@ const PeopleList: FC<PeopleListProps> = ({ personIds, showNotes }) => {
             filter((a: PersonAccount) => a.isCurrent),
             flatMap((a) => [a.position, a.accountName])
           )(people)}
+          onDelete={() => onDelete?.(personId)}
           link={`/people/${personId}`}
         >
           <PersonDetails personId={personId} showNotes={showNotes} />

@@ -1,8 +1,11 @@
-# Fehlerbehebungen CRM Projekte und Hauptmenü (Version :VERSION)
+# Meetings weiter optimieren (Version :VERSION)
 
-- Es gab CRM Projekte, bei denen das Abschlussdatum weit in der Zukunft lag und das CRM Projekt bereits geschlossen ist (verloren oder gewonnen). In diesem Fall wäre das Projekt noch sehr lange und immer wieder in der Liste aufgetaucht, obwohl nichts mehr dafür getan werden konnte. Das ist nun behoben. Es wird immer das kleinere Datum für den Import herangezogen, entweder das Abschlussdatum oder das System-Abschlussdatum, das anzeigt, wann das Projekt geschlossen wurde.
-- Das Hauptmenü führte häufig zu Abstürzen, wenn der Suchbegriff einmal mehr als 3 Zeichen hatte und dann wieder weniger. Der Grund dafür war, dass die Gruppen als Komponenten immer erst dann erschienen, wenn die Suche mehr als 3 Zeichen hatte. CmdK kann nicht gut damit umgehen, wenn die React Komponente plötzlich wieder ganz verschwindet. Wir verstecken sie nun mit einer CSS Klasse, entfernen sie aber nicht komplett vom DOM.
+- In Meetings werden Projekte angezeigt, bei denen die Teilnehmer schon einmal in Meetings involviert gewesen sind. Wenn ein Projekt angeklickt wird, wird es direkt dem Meeting hinzugefügt und man kann anfangen, Notizen zu machen.
+- In Meetings können Teilnehmer wieder entfernt werden, wenn man sie versehentlich hinzugefügt hat.
+- In der Detailansicht einer Person werden im Untertitel von Notizen nur noch Projekte angezeigt, in die die Person involviert ist, die aber noch nicht abgeschlossen sind.
 
 ## In Arbeit
+
+## Geplant
 
 - Blöcke als einzelne Records in der Datenbank speichern.
