@@ -492,6 +492,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       ? ""
       : flow(
           filter((p: Project) => projectIds.includes(p.id)),
+          filter((p) => !p.done),
           map(get("project")),
           join(", ")
         )(projects);
