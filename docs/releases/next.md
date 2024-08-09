@@ -1,8 +1,10 @@
-# Meetings weiter optimieren (Version :VERSION)
+# Benutzerprofil mit Person verknüpfen (Version :VERSION)
 
-- Statt "Meeting notes" steht nun das konkrete Projekt im Kopf des Accordions und die vereinbarten nächsten Schritte im Untertitel.
+- Das eigene Benutzerprofil kann nun mit einer Person in der Personenliste verknüpft werden. Darüber wird dann auch ermittelt, zu welcher Firma der Benutzer aktuell gehört, um besser unterscheiden zu können, ob ein Meeting, das der Benutzer angelegt hat, ein internes Meeting ist oder auch Externe beteiligt sind.
 
 ## In Arbeit
+
+- Bei vorgeschlagenenen Projekten in einem Meeting wird berücksichtigt, ob es ein rein internes Meeting ist oder ob Externe dabei sind. Sind Externe dabei, werden nur Projekte vorgeschlagen, an denen die Externen beteilgt sind.
 
 ## Geplant
 

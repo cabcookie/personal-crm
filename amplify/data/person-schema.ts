@@ -68,6 +68,8 @@ const personSchmema = {
       email: a.string(),
       name: a.string(),
       profilePicture: a.string(),
+      personId: a.id(),
+      person: a.belongsTo("Person", "personId"),
     })
     .identifier(["profileId"])
     .authorization((allow) => [allow.ownerDefinedIn("profileId")]),
@@ -85,6 +87,7 @@ const personSchmema = {
       accounts: a.hasMany("PersonAccount", "personId"),
       details: a.hasMany("PersonDetail", "personId"),
       learnings: a.hasMany("PersonLearning", "personId"),
+      profile: a.hasOne("User", "personId"),
     })
     .authorization((allow) => [allow.owner()]),
 };
