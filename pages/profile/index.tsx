@@ -1,6 +1,7 @@
 import useCurrentUser, { TUpdateProfileInfo } from "@/api/useUser";
 import SettingsLayout from "@/components/layouts/SettingsLayout";
 import S3Image from "@/components/ui-elements/image/S3Image";
+import PeopleSelector from "@/components/ui-elements/selectors/people-selector";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -28,7 +29,8 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const ProfilePage = () => {
-  const { user, updateProfileInfo, updateProfilePicture } = useCurrentUser();
+  const { user, updateProfileInfo, updateProfilePicture, linkPersonToUser } =
+    useCurrentUser();
   const [tempImgUrl, setTempImgUrl] = useState<string | undefined>(undefined);
   const defaultValues: Partial<ProfileFormValues> = {
     displayName: user?.userName || "",
@@ -69,28 +71,40 @@ const ProfilePage = () => {
           </p>
         </div>
         <Separator />
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Display name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Type your name…" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This is your public display name. It can be your real name
-                    or a pseudonym.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Update profile</Button>
-          </form>
-        </Form>
+
+        <Label className="font-semibold">Link person to profile</Label>
+        <PeopleSelector
+          value={user?.personId ?? ""}
+          allowNewPerson
+          placeholder="Link person to profile…"
+          onChange={linkPersonToUser}
+        />
+
+        {!user?.personId && (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Display name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Type your name…" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                      This is your public display name. It can be your real name
+                      or a pseudonym.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit">Update profile</Button>
+            </form>
+          </Form>
+        )}
+
         <div className="flex flex-col space-y-2">
           <Label className="font-semibold">Profile image</Label>
           <S3Image
