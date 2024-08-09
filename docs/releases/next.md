@@ -1,6 +1,7 @@
 # Benutzerprofil mit Person verknüpfen (Version :VERSION)
 
 - Das eigene Benutzerprofil kann nun mit einer Person in der Personenliste verknüpft werden. Darüber wird dann auch ermittelt, zu welcher Firma der Benutzer aktuell gehört, um besser unterscheiden zu können, ob ein Meeting, das der Benutzer angelegt hat, ein internes Meeting ist oder auch Externe beteiligt sind.
+- Personen können nun gelöscht werden. Das ist dann wichtig, wenn man versehentlich ein Duplikat erzeugt hat. Die Auflösung von Duplikaten liegt noch beim Anwender.
 
 ## In Arbeit
 
