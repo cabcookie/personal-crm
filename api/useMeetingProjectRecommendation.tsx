@@ -3,7 +3,6 @@ import { generateClient } from "aws-amplify/data";
 import { flatMap, flatten, flow, get, uniq } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { Meeting } from "./useMeetings";
 const client = generateClient<Schema>();
 
 const fetchPerson = async (personId: string) => {
@@ -25,20 +24,21 @@ const fetchPerson = async (personId: string) => {
   )(data);
 };
 
-const fetchMeetingProjectRecommendation = (meeting?: Meeting) => async () => {
-  if (!meeting) return;
-  const data = await Promise.all(meeting.participantIds.map(fetchPerson));
-  return flow(flatten, uniq)(data) as string[] | undefined;
-};
+const fetchMeetingProjectRecommendation =
+  (participantIds: string[] | undefined) => async () => {
+    if (!participantIds) return;
+    const data = await Promise.all(participantIds.map(fetchPerson));
+    return flow(flatten, uniq)(data) as string[] | undefined;
+  };
 
-const useMeetingProjectRecommendation = (meeting?: Meeting) => {
+const useMeetingProjectRecommendation = (participantIds?: string[]) => {
   const {
     data: projectIds,
     isLoading,
     error,
   } = useSWR(
-    `/api/meetings/${meeting?.id}/recommendations`,
-    fetchMeetingProjectRecommendation(meeting)
+    `/api/meetings/${participantIds}/recommendations`,
+    fetchMeetingProjectRecommendation(participantIds)
   );
 
   return { projectIds, isLoading, error };
