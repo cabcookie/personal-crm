@@ -5,57 +5,24 @@ import { Meeting } from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { Person } from "@/api/usePerson";
 import useCurrentUser, { User } from "@/api/useUser";
-import { compact, filter, flatMap, flow, get, map, uniq } from "lodash/fp";
+import { compact, filter, flatMap, flow, get, map } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
 
 const filterOutProjectIds = (avoidIds: string[] | undefined) => (id: string) =>
   !avoidIds?.includes(id);
 
-const getPersonById = (people: Person[] | undefined) => (personId: string) =>
-  people?.find((p) => p.id === personId);
-
-const getUniqAccountIds =
-  (people: Person[] | undefined) =>
-  (meeting: Meeting | undefined): string[] | undefined =>
-    flow(
-      get("participantIds"),
-      map(getPersonById(people)),
-      flatMap(get("accounts")),
-      map(get("accountId")),
-      uniq
-    )(meeting);
-
-const getNonInternalAccountIds =
+const filterInternalParticipants =
   (user: User | undefined, people: Person[] | undefined) =>
-  (meeting: Meeting | undefined): string[] | undefined =>
-    flow(
-      getUniqAccountIds(people),
-      filter((id) => !!id && id !== user?.currentAccountId)
-    )(meeting);
-
-const filterProjecsByAccountIds =
-  (projects: Project[] | undefined) =>
-  (accountIds: string[] | undefined): Project[] | undefined =>
-    flow(
-      filter(
-        (p: Project) =>
-          !accountIds ||
-          accountIds.length === 0 ||
-          p.accountIds.some((accountId) => accountIds.includes(accountId))
-      )
-    )(projects);
-
-const filterInternalProjects =
-  (
-    meeting: Meeting | undefined,
-    user: User | undefined,
-    people: Person[] | undefined
-  ) =>
-  (projects: Project[]): Project[] | undefined =>
-    flow(
-      getNonInternalAccountIds(user, people),
-      filterProjecsByAccountIds(projects)
-    )(meeting);
+  (participantIds: string[] | undefined): string[] | undefined => {
+    if (!user?.currentAccountId) return participantIds;
+    const externalIds = participantIds?.filter((id) =>
+      people
+        ?.find((p) => p.id === id)
+        ?.accounts.some((a) => a.accountId !== user.currentAccountId)
+    );
+    if (!externalIds?.length) return participantIds;
+    return externalIds;
+  };
 
 type MeetingProjectRecommenderProps = {
   meeting?: Meeting | undefined;
@@ -66,12 +33,24 @@ const MeetingProjectRecommender: FC<MeetingProjectRecommenderProps> = ({
   meeting,
   addProjectToMeeting,
 }) => {
-  const { projectIds } = useMeetingProjectRecommendation(meeting);
+  const { user } = useCurrentUser();
+  const [relevantParticipantIds, setRelevantParticipantIds] = useState<
+    string[] | undefined
+  >();
+  const { projectIds } = useMeetingProjectRecommendation(
+    relevantParticipantIds
+  );
   const { getProjectById } = useProjectsContext();
   const { getAccountNamesByIds } = useAccountsContext();
   const [projects, setProjects] = useState<Project[] | undefined>();
   const { people } = usePeople();
-  const { user } = useCurrentUser();
+
+  useEffect(() => {
+    flow(
+      filterInternalParticipants(user, people),
+      setRelevantParticipantIds
+    )(meeting?.participantIds);
+  }, [meeting?.participantIds, people, user]);
 
   useEffect(() => {
     flow(
@@ -83,10 +62,9 @@ const MeetingProjectRecommender: FC<MeetingProjectRecommenderProps> = ({
       map(getProjectById),
       compact,
       filter((p: Project) => !p.done),
-      filterInternalProjects(meeting, user, people),
       setProjects
     )(projectIds);
-  }, [meeting, projectIds, user, people, getProjectById]);
+  }, [getProjectById, meeting, projectIds]);
 
   return (
     <div className="px-1 md:px-2 text-sm text-muted-foreground">
