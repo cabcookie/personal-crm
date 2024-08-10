@@ -1,6 +1,9 @@
 import usePerson from "@/api/usePerson";
-import { FC } from "react";
+import { useRouter } from "next/router";
+import { FC, useState } from "react";
+import DeleteWarning from "../ui-elements/project-notes-form/DeleteWarning";
 import { Accordion } from "../ui/accordion";
+import { Button } from "../ui/button";
 import PersonAccounts from "./PersonAccounts";
 import PersonContactDetails from "./PersonContactDetails";
 import PersonDates from "./PersonDates";
@@ -25,6 +28,7 @@ const PersonDetails: FC<PersonDetailsProps> = ({
   const {
     person,
     updatePerson,
+    deletePerson,
     createPersonAccount,
     deletePersonAccount,
     updatePersonAccount,
@@ -32,6 +36,14 @@ const PersonDetails: FC<PersonDetailsProps> = ({
     updateContactDetail,
     deleteContactDetail,
   } = usePerson(personId);
+  const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
+  const router = useRouter();
+
+  const handlePersonDelete = async () => {
+    const result = await deletePerson();
+    if (!result) return;
+    router.push("/");
+  };
 
   return (
     <>
@@ -44,6 +56,22 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           />
         </div>
       )}
+
+      <DeleteWarning
+        open={deleteWarningOpen}
+        onOpenChange={setDeleteWarningOpen}
+        confirmText="Are you sure you want to delete the person?"
+        onConfirm={handlePersonDelete}
+      />
+
+      <div>
+        <Button
+          onClick={() => setDeleteWarningOpen(true)}
+          disabled={deleteWarningOpen}
+        >
+          Delete
+        </Button>
+      </div>
 
       <Accordion type="single" collapsible>
         <PersonAccounts

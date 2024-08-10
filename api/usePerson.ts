@@ -240,6 +240,15 @@ const usePerson = (personId?: string) => {
     isLoading: loadingPerson,
   } = useSWR(`/api/person/${personId}`, fetchPerson(personId));
 
+  const deletePerson = async () => {
+    if (!person) return;
+    const { data, errors } = await client.models.Person.delete({
+      id: person.id,
+    });
+    if (errors) handleApiErrors(errors, "Deleting person failed");
+    return data?.id;
+  };
+
   const updatePerson = async ({
     name,
     howToSay,
@@ -456,6 +465,7 @@ const usePerson = (personId?: string) => {
     errorPerson,
     loadingPerson,
     updatePerson,
+    deletePerson,
     createPersonAccount,
     deletePersonAccount,
     updatePersonAccount,
