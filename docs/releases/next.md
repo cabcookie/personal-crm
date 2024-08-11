@@ -1,8 +1,10 @@
-# Projektempfehlungen korrigiert (Version :VERSION)
+# Notizen in separaten Blöcken speichern (Version :VERSION)
 
-- Die Projektempfehlungen wurden nicht verlässlich gefiltert. Das ist nun korrigiert.
+- Datenbankschema angepasst, so dass Blöcke separat gespeichert werden können.
 
 ## In Arbeit
+
+- Wenn ich eine bestehende Notiz bearbeite, wird diese nun in der neuen Version 3 für das Notizenformat gespeichert. Das bedeutet, dass die einzelnen Blöcke der Notizen in unabhängigen Einträgen in der Datenbank landen.
 
 ## Geplant
 

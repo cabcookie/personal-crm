@@ -37,12 +37,22 @@ const selectionSet = [
   "updatedAt",
   "forProjects.id",
   "forProjects.projectsId",
+  "noteBlockIds",
+  "noteBlocks.id",
+  "noteBlocks.content",
+  "noteBlocks.formatVersion",
+  "noteBlocks.personIdsMentioned",
+  "noteBlocks.todo.id",
+  "noteBlocks.todo.todo",
+  "noteBlocks.todo.status",
+  "noteBlocks.todo.doneOn",
 ] as const;
 
 type ActivityData = SelectionSet<
   Schema["Activity"]["type"],
   typeof selectionSet
 >;
+export type NoteBlockData = ActivityData["noteBlocks"][number];
 
 export const mapActivity: (activity: ActivityData) => Activity = ({
   id,
@@ -54,17 +64,21 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   createdAt,
   updatedAt,
   forProjects,
+  noteBlockIds,
+  noteBlocks,
 }) => ({
   id,
   notes: transformNotesVersion({
     formatVersion,
     notes,
     notesJson,
+    noteBlockIds,
+    noteBlocks,
   }),
   ...flow(
     transformNotesVersion,
     getTasksData
-  )({ formatVersion, notes, notesJson }),
+  )({ formatVersion, notes, notesJson, noteBlocks, noteBlockIds }),
   meetingId: meetingActivitiesId || undefined,
   finishedOn: new Date(finishedOn || createdAt),
   updatedAt: new Date(updatedAt),

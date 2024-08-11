@@ -1,5 +1,5 @@
 import { OpenTask } from "@/api/ContextOpenTasks";
-import { Activity } from "@/api/useActivity";
+import { Activity, NoteBlockData } from "@/api/useActivity";
 import { JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
@@ -123,12 +123,6 @@ export const getTextFromEditorJsonContent = (
         MyExtensions
       );
 
-interface TransformNotesVersionType {
-  formatVersion?: number | null;
-  notes?: string | null;
-  notesJson?: any;
-}
-
 export const MyExtensions = [
   StarterKit,
   TaskList,
@@ -153,12 +147,32 @@ export const isUpToDate = (
 export const transformTasks = (tasks: any): EditorJsonContent[] | undefined =>
   !tasks ? undefined : JSON.parse(tasks);
 
+interface TransformNotesVersionType {
+  formatVersion?: number | null;
+  notes?: string | null;
+  notesJson?: any;
+  noteBlockIds?: string[] | null;
+  noteBlocks: NoteBlockData[];
+}
+
 export const transformNotesVersion = ({
   formatVersion,
   notes,
   notesJson,
+  noteBlockIds,
+  noteBlocks,
 }: TransformNotesVersionType): EditorJsonContent =>
-  formatVersion === 2
+  formatVersion === 3
+    ? {
+        type: "doc",
+        content:
+          noteBlockIds?.map((id) => {
+            const block = noteBlocks.find((block) => block.id === id);
+            if (!block) return undefined;
+            return { blockId: block.id, ...JSON.parse(block.content as any) };
+          }) ?? [],
+      }
+    : formatVersion === 2
     ? notesJson
       ? JSON.parse(notesJson)
       : stringToEditorJsonContent("")
