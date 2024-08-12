@@ -1,6 +1,6 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
+import { flow, map, uniq } from "lodash/fp";
 
-export const getDayOfDate = (date: Date) => date.toISOString().split("T")[0];
 export const addDaysToDate = (days: number) => (date: Date) =>
   addDays(date, days);
 export const toLocaleTimeString = (date?: Date) =>
@@ -12,9 +12,11 @@ export const toLocaleTimeString = (date?: Date) =>
       });
 export const toLocaleDateString = (date?: Date) =>
   !date ? "" : format(date, "PPP");
+export const makeDate = (str: string) => new Date(str);
 export const toISODateTimeString = (date: Date) =>
   format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
 export const toISODateString = (date: Date) => format(date, "yyyy-MM-dd");
+export const getUniqDates = flow(map(toISODateString), uniq, map(makeDate));
 export const isTodayOrFuture = (date: string | Date): boolean => {
   const inputDate = typeof date === "string" ? new Date(date) : date;
   const today = new Date();
@@ -41,9 +43,10 @@ export const formatRevenue = (revenue: number) =>
 export const logFp =
   (...msg: any[]) =>
   (data: any) => {
-    console.log(`[${new Date().toISOString()}]`, ...msg, data);
+    console.log(`[${newDateString()}]`, ...msg, data);
     return data;
   };
+export const newDateString = () => toISODateTimeString(new Date());
 export const truncateMiddle = (text: string, length = 20): string => {
   if (text.length <= length) return text;
   const half = Math.floor(length / 2);

@@ -2,12 +2,13 @@ import { type Schema } from "@/amplify/data/resource";
 import { Context } from "@/contexts/ContextContext";
 import {
   addDaysToDate,
-  getDayOfDate,
-  toISODateTimeString,
+  getUniqDates,
+  newDateString,
+  toISODateString,
 } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow } from "lodash";
-import { map, sortBy } from "lodash/fp";
+import { get, map, sortBy } from "lodash/fp";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -84,9 +85,12 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
 }) => {
   const toDate = flow(
     addDaysToDate(-4 * (page - 1) * 7 + 1),
-    getDayOfDate
+    toISODateString
   )(new Date());
-  const fromDate = flow(addDaysToDate(-4 * page * 7), getDayOfDate)(new Date());
+  const fromDate = flow(
+    addDaysToDate(-4 * page * 7),
+    toISODateString
+  )(new Date());
   const filter = {
     and: [
       {
@@ -183,7 +187,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
       topic,
-      meetingOn: toISODateTimeString(new Date()),
+      meetingOn: newDateString(),
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
@@ -192,14 +196,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
   };
 
   useEffect(() => {
-    setMeetingDates(
-      meetings
-        ?.reduce((prev: string[], curr) => {
-          const day = curr.meetingOn.toISOString().split("T")[0];
-          return [...prev, ...(prev.includes(day) ? [] : [day])];
-        }, [] as string[])
-        .map((d) => new Date(d)) || []
-    );
+    flow(map(get("meetingOn")), getUniqDates, setMeetingDates)(meetings);
   }, [meetings]);
 
   return {

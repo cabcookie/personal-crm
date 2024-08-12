@@ -1,5 +1,6 @@
 import { Editor } from "@tiptap/core";
 import { EditorView } from "@tiptap/pm/view";
+import { toISODateTimeString } from "../functional";
 import { uploadFileToS3 } from "../s3/upload-filtes";
 
 const dispatchImage = (view: EditorView, url: string, fileName: string) => {
@@ -67,7 +68,7 @@ export const handlePastingImage = async (
     view,
     url.toString(),
     s3Path,
-    expiresAt.toISOString(),
+    toISODateTimeString(expiresAt),
     file.name
   );
   return true;

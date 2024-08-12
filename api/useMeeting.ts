@@ -1,7 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
-import { toISODateTimeString } from "@/helpers/functional";
+import { newDateString, toISODateTimeString } from "@/helpers/functional";
 import { emptyDocument } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import { format } from "date-fns";
@@ -127,7 +127,7 @@ const useMeeting = (meetingId?: string) => {
         notes: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
-        finishedOn: toISODateTimeString(new Date()),
+        finishedOn: newDateString(),
       });
     if (errorsActivity)
       return handleApiErrors(

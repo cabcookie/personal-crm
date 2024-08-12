@@ -9,7 +9,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useContextContext } from "@/contexts/ContextContext";
-import { addDaysToDate, toLocaleDateString } from "@/helpers/functional";
+import {
+  addDaysToDate,
+  toISODateTimeString,
+  toLocaleDateString,
+} from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -63,7 +67,7 @@ export default function MeetingsPage() {
       </Pagination>
       {meetingDates.map((date) => (
         <MeetingDateList
-          key={date.toISOString()}
+          key={toISODateTimeString(date)}
           meetingDate={date}
           meetings={meetings}
         />

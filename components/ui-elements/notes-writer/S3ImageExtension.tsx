@@ -1,3 +1,4 @@
+import { toISODateTimeString } from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { mergeAttributes } from "@tiptap/core";
 import { Node as ProseMirrorNode } from "@tiptap/pm/model";
@@ -22,7 +23,7 @@ const assignUrlToDom = async (node: ProseMirrorNode, img: HTMLImageElement) => {
   }
   const { url, expiresAt } = await getUrl({ path: node.attrs.s3Key });
   img.setAttribute("src", url.toString());
-  img.setAttribute("expiresAt", expiresAt.toISOString());
+  img.setAttribute("expiresAt", toISODateTimeString(expiresAt));
   img.setAttribute("data-s3-key", node.attrs.s3Key);
   img.setAttribute("class", stdClasses);
 };

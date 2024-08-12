@@ -1,4 +1,5 @@
 import { Meeting } from "@/api/useMeetings";
+import { toISODateString } from "@/helpers/functional";
 import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
 import { Accordion } from "../ui/accordion";
@@ -22,8 +23,7 @@ const MeetingDateList: FC<MeetingDateListProps> = ({
       {flow(
         filter(
           (m: Meeting) =>
-            m.meetingOn.toISOString().split("T")[0] ===
-            meetingDate.toISOString().split("T")[0]
+            toISODateString(m.meetingOn) === toISODateString(meetingDate)
         ),
         map((meeting) => (
           <MeetingAccordionItem key={meeting.id} meeting={meeting} />
