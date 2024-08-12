@@ -1,5 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { useToast } from "@/components/ui/use-toast";
+import { toISODateTimeString } from "@/helpers/functional";
 import {
   EditorJsonContent,
   getTextFromEditorJsonContent,
@@ -84,7 +85,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
   ) => {
     const { data: activity, errors: activityErrors } =
       await client.models.Activity.create({
-        finishedOn: inboxItem.createdAt.toISOString(),
+        finishedOn: toISODateTimeString(inboxItem.createdAt),
         formatVersion: 2,
         notes: null,
         notesJson: JSON.stringify(inboxItem.note),

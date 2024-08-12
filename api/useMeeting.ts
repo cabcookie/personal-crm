@@ -1,6 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
+import { toISODateTimeString } from "@/helpers/functional";
 import { emptyDocument } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import { format } from "date-fns";
@@ -50,7 +51,7 @@ const useMeeting = (meetingId?: string) => {
     const { data, errors } = await client.models.Meeting.update({
       id: meeting.id,
       topic: title,
-      meetingOn: meetingOn.toISOString(),
+      meetingOn: toISODateTimeString(meetingOn),
     });
     if (errors) handleApiErrors(errors, "Error updating the meeting");
     mutateMeeting(updated);
@@ -126,7 +127,7 @@ const useMeeting = (meetingId?: string) => {
         notes: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
-        finishedOn: new Date().toISOString(),
+        finishedOn: toISODateTimeString(new Date()),
       });
     if (errorsActivity)
       return handleApiErrors(

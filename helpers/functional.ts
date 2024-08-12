@@ -12,14 +12,9 @@ export const toLocaleTimeString = (date?: Date) =>
       });
 export const toLocaleDateString = (date?: Date) =>
   !date ? "" : format(date, "PPP");
-export const toISODateString = (date: Date) => {
-  const year = date.getFullYear();
-  // Months are zero-based, so we add 1 to get the correct month
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-
-  return year + "-" + month + "-" + day;
-};
+export const toISODateTimeString = (date: Date) =>
+  format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
+export const toISODateString = (date: Date) => format(date, "yyyy-MM-dd");
 export const isTodayOrFuture = (date: string | Date): boolean => {
   const inputDate = typeof date === "string" ? new Date(date) : date;
   const today = new Date();

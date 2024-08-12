@@ -1,5 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
+import { toISODateTimeString } from "@/helpers/functional";
 import {
   downloadDataFromS3,
   percentLoaded,
@@ -92,7 +93,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
     const { data, errors } = await client.models.CrmProjectImport.create({
       s3Key: s3Path,
       status: "WIP",
-      createdAt: new Date().toISOString(),
+      createdAt: toISODateTimeString(new Date()),
     });
     if (errors) handleApiErrors(errors, "Updating data record failed");
     if (!data) {

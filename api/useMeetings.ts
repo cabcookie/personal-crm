@@ -1,6 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Context } from "@/contexts/ContextContext";
-import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
+import {
+  addDaysToDate,
+  getDayOfDate,
+  toISODateTimeString,
+} from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow } from "lodash";
 import { map, sortBy } from "lodash/fp";
@@ -179,7 +183,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
       topic,
-      meetingOn: new Date().toISOString(),
+      meetingOn: toISODateTimeString(new Date()),
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");

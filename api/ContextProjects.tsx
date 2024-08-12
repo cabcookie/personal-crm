@@ -1,7 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
-import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import {
+  addDaysToDate,
+  toISODateString,
+  toISODateTimeString,
+} from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import {
   EditorJsonContent,
@@ -297,7 +301,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         notesJson: JSON.stringify(emptyDocument),
         formatVersion: 2,
         hasOpenTasks: "false",
-        finishedOn: new Date().toISOString(),
+        finishedOn: toISODateTimeString(new Date()),
       });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");

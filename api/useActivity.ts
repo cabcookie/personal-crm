@@ -1,5 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { useToast } from "@/components/ui/use-toast";
+import { toISODateTimeString } from "@/helpers/functional";
 import {
   EditorJsonContent,
   getTasksData,
@@ -124,7 +125,7 @@ const useActivity = (activityId?: string) => {
     mutateActivity(updated, false);
     const { data, errors } = await client.models.Activity.update({
       id: activity.id,
-      finishedOn: date.toISOString(),
+      finishedOn: toISODateTimeString(date),
     });
     if (errors) handleApiErrors(errors, "Error updating date of activity");
 
