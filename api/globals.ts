@@ -12,7 +12,7 @@ interface SourceLocation {
 /**
  * See: https://spec.graphql.org/draft/#sec-Errors
  */
-interface GraphQLFormattedError {
+export interface GraphQLFormattedError {
   /**
    * A short, human-readable summary of the problem that **SHOULD NOT** change
    * from occurrence to occurrence of the problem, except for purposes of

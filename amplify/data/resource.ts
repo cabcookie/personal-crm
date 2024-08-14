@@ -25,7 +25,6 @@ const schema = a
         note: a.string(),
         formatVersion: a.integer().default(1),
         noteJson: a.json(),
-        hasOpenTasks: a.string().required(),
         status: a.id().required(),
         movedToActivityId: a.string(),
       })

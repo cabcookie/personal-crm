@@ -14,30 +14,45 @@ const activitySchema = {
     })
     .secondaryIndexes((index) => [index("projectsId")])
     .authorization((allow) => [allow.owner()]),
+  NoteBlockPerson: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      personId: a.id().required(),
+      person: a.belongsTo("Person", "personId"),
+      noteBlockId: a.id().required(),
+      noteBlock: a.belongsTo("NoteBlock", "noteBlockId"),
+    })
+    .authorization((allow) => [allow.owner()]),
   NoteBlock: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       content: a.json(),
+      type: a.string().required(),
       formatVersion: a.integer().required(),
       activityId: a.id().required(),
       activity: a.belongsTo("Activity", "activityId"),
-      personIdsMentioned: a.string().required().array(),
       todoId: a.id(),
       todo: a.belongsTo("Todo", "todoId"),
+      people: a.hasMany("NoteBlockPerson", "noteBlockId"),
     })
+    .secondaryIndexes((index) => [index("type")])
     .authorization((allow) => [allow.owner()]),
   Todo: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      todo: a.string().required(),
+      todo: a.json().required(),
       status: a.ref("TodoStatus").required(),
       doneOn: a.date(),
       activity: a.hasOne("NoteBlock", "todoId"),
+      projectIds: a.string().required().array(),
     })
+    .secondaryIndexes((index) => [index("status")])
     .authorization((allow) => [allow.owner()]),
   Activity: a
     .model({
@@ -53,16 +68,9 @@ const activitySchema = {
       dailyTasks: a.hasMany("DailyPlanTask", "activityId"),
       noteBlocks: a.hasMany("NoteBlock", "activityId"),
       noteBlockIds: a.string().required().array(),
-      hasOpenTasks: a.string().required(), // DEPRECATED
       notes: a.string(), // DEPRECATED
       notesJson: a.json(), // DEPRECATED
     })
-    .secondaryIndexes((index) => [
-      // DEPRECATED
-      index("hasOpenTasks")
-        .sortKeys(["finishedOn"])
-        .queryField("listActivitiesByOpenTasks"),
-    ])
     .authorization((allow) => [allow.owner()]),
 };
 

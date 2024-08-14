@@ -1,11 +1,11 @@
-import { EditorJsonContent, isUpToDate } from "@/helpers/ui-notes-writer";
-import { handlePastingImage } from "@/helpers/ui-notes-writer/image-handling";
 import { cn } from "@/lib/utils";
 import { Editor } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
-import LinkBubbleMenu from "./link-bubble-menu/LinkBubbleMenu";
-import useExtensions from "./useExtensions";
+import LinkBubbleMenu from "../editors/extensions/link-bubble-menu/LinkBubbleMenu";
+import { handlePastingImage } from "../editors/extensions/s3-images/image-handling";
+import { isUpToDate } from "../editors/helpers/compare";
+import useExtensions, { EditorJsonContent } from "./useExtensions";
 
 type NotesWriterProps = {
   notes: EditorJsonContent;

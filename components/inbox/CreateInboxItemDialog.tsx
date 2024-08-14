@@ -1,10 +1,7 @@
 import { createInboxItemApi } from "@/api/useInboxWorkflow";
-import {
-  emptyDocument,
-  getEditorContentAndTaskData,
-  SerializerOutput,
-} from "@/helpers/ui-notes-writer";
+import { getEditorContent, SerializerOutput } from "@/helpers/ui-notes-writer";
 import { createContext, FC, ReactNode, useContext, useState } from "react";
+import { emptyDocument } from "../ui-elements/editors/helpers/document";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import { Button } from "../ui/button";
 import {
@@ -32,7 +29,6 @@ interface CreateInobxItemProviderProps {
 
 const emptyEditorContent = {
   json: emptyDocument,
-  hasOpenTasks: false,
 };
 
 export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
@@ -46,10 +42,7 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
 
   const handleCreateInboxItem = async () => {
     if (!editorContent) return;
-    const result = await createInboxItemApi(
-      editorContent.json,
-      editorContent.hasOpenTasks
-    );
+    const result = await createInboxItemApi(editorContent.json);
     setEditorContent(emptyEditorContent);
     setIsOpen(false);
     return result?.id;
@@ -108,7 +101,7 @@ const CreateInboxItemDialog = () => {
           notes={editorContent.json}
           placeholder="What's on your mind?"
           saveNotes={(editor) => {
-            setEditorContent(getEditorContentAndTaskData(editor, () => {})());
+            setEditorContent(getEditorContent(editor)());
           }}
           showSaveStatus={false}
           autoFocus

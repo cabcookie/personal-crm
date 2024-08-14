@@ -46,7 +46,7 @@ export const logFp =
     console.log(`[${newDateString()}]`, ...msg, data);
     return data;
   };
-export const newDateString = () => toISODateTimeString(new Date());
+export const newDateString = (): string => toISODateTimeString(new Date());
 export const truncateMiddle = (text: string, length = 20): string => {
   if (text.length <= length) return text;
   const half = Math.floor(length / 2);

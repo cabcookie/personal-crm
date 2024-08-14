@@ -1,4 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import {
@@ -7,11 +8,7 @@ import {
   toISODateString,
 } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
-import {
-  EditorJsonContent,
-  emptyDocument,
-  transformNotesVersion,
-} from "@/helpers/ui-notes-writer";
+import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import { filter, flow, get, join, map, sortBy } from "lodash/fp";
@@ -298,9 +295,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   const createProjectActivity = async (projectId: string) => {
     const { data: activity, errors: errorsActivity } =
       await client.models.Activity.create({
-        notesJson: JSON.stringify(emptyDocument),
-        formatVersion: 2,
-        hasOpenTasks: "false",
+        formatVersion: 3,
+        noteBlockIds: [],
         finishedOn: newDateString(),
       });
     if (errorsActivity) {

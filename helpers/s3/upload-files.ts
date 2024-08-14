@@ -36,4 +36,4 @@ const downloadDataFromS3 = async (
   return await downloadData({ path, options: { onProgress } });
 };
 
-export { downloadDataFromS3, getSignedS3Url, percentLoaded, uploadFileToS3 };
+export { downloadDataFromS3, percentLoaded, uploadFileToS3 };

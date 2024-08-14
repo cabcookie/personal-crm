@@ -1,7 +1,7 @@
+import { toISODateTimeString } from "@/helpers/functional";
+import { uploadFileToS3 } from "@/helpers/s3/upload-files";
 import { Editor } from "@tiptap/core";
 import { EditorView } from "@tiptap/pm/view";
-import { toISODateTimeString } from "../functional";
-import { uploadFileToS3 } from "../s3/upload-filtes";
 
 const dispatchImage = (view: EditorView, url: string, fileName: string) => {
   const { schema } = view.state;

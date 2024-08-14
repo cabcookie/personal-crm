@@ -1,8 +1,8 @@
 import { type Schema } from "@/amplify/data/resource";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
 import {
-  EditorJsonContent,
   getTextFromEditorJsonContent,
   SerializerOutput,
 } from "@/helpers/ui-notes-writer";
@@ -11,15 +11,11 @@ import { handleApiErrors } from "./globals";
 import { HandleMutationFn, Inbox, InboxStatus, mapInbox } from "./useInbox";
 const client = generateClient<Schema>();
 
-export const createInboxItemApi = async (
-  note: EditorJsonContent,
-  hasOpenTasks: boolean
-) => {
+export const createInboxItemApi = async (note: EditorJsonContent) => {
   const { data, errors } = await client.models.Inbox.create({
     noteJson: JSON.stringify(note),
     note: null,
     formatVersion: 2,
-    hasOpenTasks: hasOpenTasks ? "true" : "false",
     status: "new",
   });
   if (errors) handleApiErrors(errors, "Error creating inbox item");
@@ -29,13 +25,8 @@ export const createInboxItemApi = async (
 const useInboxWorkflow = (mutate: HandleMutationFn) => {
   const { toast } = useToast();
 
-  const createInboxItem = async ({
-    json: note,
-    hasOpenTasks,
-    openTasks,
-    closedTasks,
-  }: SerializerOutput) => {
-    const data = await createInboxItemApi(note, hasOpenTasks);
+  const createInboxItem = async ({ json: note }: SerializerOutput) => {
+    const data = await createInboxItemApi(note);
     if (!data) return;
     toast({
       title: "New Inbox Item Created",
@@ -46,25 +37,16 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       createdAt: new Date(),
       status: "new",
       note,
-      hasOpenTasks,
-      openTasks,
-      closedTasks,
     });
     return data.id;
   };
 
   const updateNote =
     (inboxItem: Inbox) =>
-    async (
-      id: string,
-      { json: note, hasOpenTasks, openTasks, closedTasks }: SerializerOutput
-    ) => {
+    async (id: string, { json: note }: SerializerOutput) => {
       const updated: Inbox = {
         ...inboxItem,
-        hasOpenTasks,
-        openTasks,
         note,
-        closedTasks,
       };
       mutate(updated, false);
       const { data, errors } = await client.models.Inbox.update({
@@ -72,7 +54,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
         note: null,
         formatVersion: 2,
         noteJson: JSON.stringify(note),
-        hasOpenTasks: hasOpenTasks ? "true" : "false",
       });
       if (errors) handleApiErrors(errors, "Error updating inbox item");
       mutate(updated);
@@ -89,7 +70,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
         formatVersion: 2,
         notes: null,
         notesJson: JSON.stringify(inboxItem.note),
-        hasOpenTasks: inboxItem.hasOpenTasks ? "true" : "false",
       });
     if (activityErrors)
       return handleApiErrors(

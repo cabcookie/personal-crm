@@ -1,10 +1,7 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
-import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
-import { flow, join, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
-import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
 type MeetingActivityListProps = {
@@ -24,16 +21,6 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
         value={a.id}
         key={a.id}
         triggerTitle={getProjectNamesByIds(a.projectIds)}
-        badge={
-          <TaskBadge
-            hasOpenTasks={a.hasOpenTasks}
-            hasClosedTasks={!!a.closedTasks?.length}
-          />
-        }
-        triggerSubTitle={`Next actions: ${flow(
-          map(getTextFromEditorJsonContent),
-          join(", ")
-        )(a.openTasks)}`}
       >
         <ActivityComponent
           activityId={a.id}

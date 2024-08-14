@@ -1,6 +1,7 @@
-import { OpenTask } from "@/api/ContextOpenTasks";
-import { Activity, NoteBlockData } from "@/api/useActivity";
-import { JSONContent } from "@tiptap/core";
+import { transformNotesVersion1 } from "@/components/ui-elements/editors/helpers/transform-v1";
+import { transformNotesVersion2 } from "@/components/ui-elements/editors/helpers/transform-v2";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
+import { Editor } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import TaskItem from "@tiptap/extension-task-item";
@@ -8,40 +9,11 @@ import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import { generateText } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { isEqual } from "lodash";
-import { filter, flatMap, flow, get, map } from "lodash/fp";
-
-export type EditorJsonContent = JSONContent;
+import { filter, flow, get, map } from "lodash/fp";
 
 export type SerializerOutput = {
   json: EditorJsonContent;
-  hasOpenTasks: boolean;
-  openTasks?: EditorJsonContent[];
-  closedTasks?: EditorJsonContent[];
 };
-
-export const emptyDocument: EditorJsonContent = {
-  type: "doc",
-  content: [],
-};
-
-const stringToEditorJsonContent = (
-  notes?: string | null
-): EditorJsonContent => ({
-  type: "doc",
-  content:
-    notes?.split("\n").map((text) => ({
-      type: "paragraph",
-      content: !text
-        ? []
-        : [
-            {
-              type: "text",
-              text,
-            },
-          ],
-    })) ?? [],
-});
 
 const transformMentionsToText = (json: EditorJsonContent): EditorJsonContent =>
   json.type !== "mention"
@@ -136,14 +108,6 @@ export const MyExtensions = [
   Typography,
 ];
 
-export const isUpToDate = (
-  notes: EditorJsonContent,
-  editorJson: EditorJsonContent | undefined
-) => {
-  if (!editorJson) return false;
-  return isEqual(notes, editorJson);
-};
-
 export const transformTasks = (tasks: any): EditorJsonContent[] | undefined =>
   !tasks ? undefined : JSON.parse(tasks);
 
@@ -151,126 +115,19 @@ interface TransformNotesVersionType {
   formatVersion?: number | null;
   notes?: string | null;
   notesJson?: any;
-  noteBlockIds?: string[] | null;
-  noteBlocks: NoteBlockData[];
 }
 
 export const transformNotesVersion = ({
   formatVersion,
   notes,
   notesJson,
-  noteBlockIds,
-  noteBlocks,
 }: TransformNotesVersionType): EditorJsonContent =>
-  formatVersion === 3
-    ? {
-        type: "doc",
-        content:
-          noteBlockIds?.map((id) => {
-            const block = noteBlocks.find((block) => block.id === id);
-            if (!block) return undefined;
-            return { blockId: block.id, ...JSON.parse(block.content as any) };
-          }) ?? [],
-      }
-    : formatVersion === 2
-    ? notesJson
-      ? JSON.parse(notesJson)
-      : stringToEditorJsonContent("")
-    : stringToEditorJsonContent(notes);
-
-export const getAllTasks = (
-  jsonContent?: EditorJsonContent
-): EditorJsonContent[] | undefined =>
-  flow(
-    get("content"),
-    filter((content: EditorJsonContent) => content.type === "taskList"),
-    flatMap((task) => task.content),
-    filter((task) => !!task)
-  )(jsonContent);
-
-export const getTasksByActivities = (activities: Activity[]): OpenTask[] =>
-  flow(
-    flatMap(
-      ({
-        id: activityId,
-        notes,
-        closedTasks: _clos,
-        openTasks: _open,
-        hasOpenTasks: _hasO,
-        finishedOn: _fini,
-        projectActivityIds: _proj,
-        ...activity
-      }: Activity) =>
-        getAllTasks(notes)?.map(
-          (task, index): OpenTask => ({
-            ...activity,
-            activityId,
-            done: !!task.attrs?.checked,
-            index,
-            task,
-          })
-        )
-    ),
-    filter((t) => !!t),
-    filter((t) => !t.done)
-  )(activities);
-
-export const getTaskByIndex = (
-  notes: EditorJsonContent,
-  index: number
-): EditorJsonContent | undefined => flow(getAllTasks, get(index))(notes);
-
-export const updateTaskStatus = (
-  notes: EditorJsonContent,
-  index: number,
-  finished: boolean
-): EditorJsonContent => ({
-  ...notes,
-  content: notes.content?.map((c) =>
-    c.type !== "taskList"
-      ? c
-      : {
-          ...c,
-          content: c.content?.map((c, idx) =>
-            idx !== index
-              ? c
-              : {
-                  ...c,
-                  attrs: {
-                    ...c.attrs,
-                    checked: finished,
-                  },
-                }
-          ),
-        }
-  ),
-});
-
-export const getTasksData = (
-  jsonContent?: EditorJsonContent
-): Omit<SerializerOutput, "json"> => {
-  const tasks = getAllTasks(jsonContent);
-  return {
-    hasOpenTasks: tasks?.some((t) => !t?.attrs?.checked) ?? false,
-    openTasks: tasks?.filter((t) => !t.attrs?.checked) || [],
-    closedTasks: tasks?.filter((t) => t.attrs?.checked) || [],
-  };
-};
+  formatVersion === 2
+    ? transformNotesVersion2(notesJson)
+    : transformNotesVersion1(notes);
 
 export type TWithGetJsonFn = { getJSON: () => EditorJsonContent };
 
-export const getEditorContent = (editor: TWithGetJsonFn) => () => ({
+export const getEditorContent = (editor: Editor) => () => ({
   json: editor.getJSON(),
 });
-
-export const getEditorContentAndTaskData =
-  (
-    editor: TWithGetJsonFn,
-    mutateOpenTasks: (updatedOpenTasks?: EditorJsonContent[]) => void
-  ) =>
-  () => {
-    const json = editor.getJSON();
-    const taskData = getTasksData(json);
-    mutateOpenTasks(taskData.openTasks);
-    return { json, ...taskData };
-  };

@@ -1,10 +1,8 @@
 import { HandleMutationFn, Inbox } from "@/api/useInbox";
 import useInboxWorkflow from "@/api/useInboxWorkflow";
-import {
-  getEditorContentAndTaskData,
-  TWithGetJsonFn,
-} from "@/helpers/ui-notes-writer";
+import { getEditorContent } from "@/helpers/ui-notes-writer";
 import { debouncedOnChangeInboxNote } from "@/pages/inbox";
+import { Editor } from "@tiptap/core";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
@@ -46,11 +44,11 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({
     setPrevStatus(getPreviousStatusByStatus(workflow, inboxItem.status));
   }, [inboxItem]);
 
-  const handleUpdate = (editor: TWithGetJsonFn) => {
+  const handleUpdate = (editor: Editor) => {
     if (!inboxItem) return;
     debouncedOnChangeInboxNote(
       inboxItem.id,
-      getEditorContentAndTaskData(editor, () => {}),
+      getEditorContent(editor),
       updateNote(inboxItem)
     );
   };

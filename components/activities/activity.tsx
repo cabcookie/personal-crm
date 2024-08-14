@@ -44,7 +44,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 }) => {
   const {
     activity,
-    updateNotes,
     updateDate,
     addProjectToActivity,
     isLoadingActivity,
@@ -136,11 +135,7 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 
           <ActivityMeetingList meeting={meeting} showMeeting={showMeeting} />
 
-          <ActivityNotes
-            activity={activity}
-            updateNotes={updateNotes}
-            readOnly={readOnly}
-          />
+          <ActivityNotes activity={activity} readOnly={readOnly} />
         </Accordion>
       ) : (
         <>

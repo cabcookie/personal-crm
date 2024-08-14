@@ -5,7 +5,7 @@ import {
   downloadDataFromS3,
   percentLoaded,
   uploadFileToS3,
-} from "@/helpers/s3/upload-filtes";
+} from "@/helpers/s3/upload-files";
 import { generateClient } from "aws-amplify/data";
 import { addDays, min } from "date-fns";
 import { floor, flow } from "lodash/fp";
