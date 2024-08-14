@@ -8,7 +8,7 @@ import { FC, useEffect } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
 import { handlePastingImage } from "../extensions/s3-images/image-handling";
 import { getBlockIds } from "../helpers/blocks";
-import { documentIsUpToDate } from "../helpers/compare";
+import { isUpToDate } from "../helpers/compare";
 import { emptyDocument } from "../helpers/document";
 import useExtensions from "./useExtensions";
 
@@ -80,7 +80,7 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
             "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",
             activity?.notes &&
               !readonly &&
-              !documentIsUpToDate(activity.notes, editor.getJSON()) &&
+              !isUpToDate(activity.notes, editor.getJSON()) &&
               "bg-red-50"
           ),
         },

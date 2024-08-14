@@ -56,7 +56,11 @@ export const updateBlockIds = async (
 const cleanUpBlocksBlockId = (json: EditorJsonContent): EditorJsonContent => {
   const { attrs = {}, content, ...block } = json;
   const { blockId: _b, ...rest } = attrs;
-  return { ...block, attrs: rest, content: content?.map(cleanUpBlocksBlockId) };
+  return {
+    ...block,
+    ...(Object.keys(rest).length === 0 ? {} : { attrs: rest }),
+    content: content?.map(cleanUpBlocksBlockId),
+  };
 };
 
 export const stringifyBlock = flow(cleanUpBlocksBlockId, JSON.stringify);
