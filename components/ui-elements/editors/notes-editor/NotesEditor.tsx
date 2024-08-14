@@ -7,8 +7,9 @@ import { flow } from "lodash/fp";
 import { FC, useEffect } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
 import { handlePastingImage } from "../extensions/s3-images/image-handling";
+import { getBlockIds } from "../helpers/blocks";
 import { documentIsUpToDate } from "../helpers/compare";
-import { emptyDocument, getBlockIds } from "../helpers/document";
+import { emptyDocument } from "../helpers/document";
 import useExtensions from "./useExtensions";
 
 type NotesEditorProps = {

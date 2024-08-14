@@ -1,7 +1,7 @@
 import { logFp } from "@/helpers/functional";
 import { flow, isEqual } from "lodash/fp";
 import { EditorJsonContent } from "../../notes-writer/useExtensions";
-import { getBlockIds } from "./document";
+import { getBlockIds } from "./blocks";
 
 export const isUpToDate = (
   notes: EditorJsonContent,

@@ -1,6 +1,15 @@
-import { NoteBlockData } from "@/api/useActivity";
-import { compact, flow, last, reduce } from "lodash/fp";
+import {
+  ActivityData,
+  fetchActivity,
+  mapActivity,
+  NoteBlockData,
+} from "@/api/useActivity";
+import { compact, flow, last, reduce, union } from "lodash/fp";
 import { EditorJsonContent } from "../../notes-writer/useExtensions";
+import { createBlock, getBlocks, updateBlockIds } from "./blocks";
+import { transformNotesVersion } from "./transformers";
+
+export let tranformingActivityIds: string[] = [];
 
 const mapListItem = (
   wrapperType: string,
@@ -46,3 +55,18 @@ export const transformNotesVersion3 = (
   type: "doc",
   content: flow(reduce(mapBlocks(noteBlocks), []), compact)(noteBlockIds) ?? [],
 });
+
+export const updateActivityToNotesVersion3 = async (activity: ActivityData) => {
+  tranformingActivityIds = flow(union([activity.id]))(tranformingActivityIds);
+  const blocks = flow(transformNotesVersion, getBlocks)(activity);
+  if (!blocks) return mapActivity(activity);
+  const resultIds = await Promise.all(blocks.map(createBlock(activity)));
+  const result = await updateBlockIds(activity, resultIds);
+  if (!result) return;
+  const data = await fetchActivity(activity.id)();
+  if (!data) return;
+  tranformingActivityIds = tranformingActivityIds.filter(
+    (id) => id !== data.id
+  );
+  return data;
+};
