@@ -1,16 +1,31 @@
 import { type Schema } from "@/amplify/data/resource";
-import { getMentionedPeopleFromBlocks } from "@/components/ui-elements/editors/helpers/people-mentioned";
+import {
+  createBlock,
+  getBlockCreationSet,
+  mapBlockIds,
+  updateBlockIds,
+  updateTempBlockIds,
+} from "@/components/ui-elements/editors/helpers/blocks";
+import {
+  BlockMentionedPeople,
+  getMentionedPeopleFromBlocks,
+} from "@/components/ui-elements/editors/helpers/people-mentioned";
 import {
   tranformingActivityIds,
   updateActivityToNotesVersion3,
 } from "@/components/ui-elements/editors/helpers/transform-v3";
 import { transformNotesVersion } from "@/components/ui-elements/editors/helpers/transformers";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
+import {
+  BlockIdMapping,
+  CreateBlockFunction,
+  UpdateNotesFunction,
+} from "@/components/ui-elements/editors/helpers/update-notes";
+import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
-import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { isEqual } from "lodash";
+import { flow, map } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -24,7 +39,7 @@ export type Activity = {
   projectIds: string[];
   projectActivityIds: string[];
   noteBlockIds: (string | null)[] | null;
-  mentionedPeopleIds: string[];
+  mentionedPeople: BlockMentionedPeople[];
 };
 
 const selectionSet = [
@@ -85,10 +100,7 @@ export const mapActivity: (activity: ActivityData) => Activity = ({
   updatedAt: new Date(updatedAt),
   projectIds: forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: forProjects.map(({ id }) => id),
-  mentionedPeopleIds: getMentionedPeopleFromBlocks({
-    noteBlocks,
-    noteBlockIds,
-  }),
+  mentionedPeople: getMentionedPeopleFromBlocks(noteBlocks, noteBlockIds),
 });
 
 export const fetchActivity =
@@ -143,26 +155,6 @@ const useActivity = (activityId?: string) => {
     return data?.id;
   };
 
-  const updateNotes = async ({ json: notes }: SerializerOutput) => {
-    if (!activity?.id) return;
-    if (isEqual(activity.notes, notes)) return;
-    const updated: Activity = {
-      ...activity,
-      notes,
-      updatedAt: new Date(),
-    };
-    mutateActivity(updated, false);
-    const { data, errors } = await client.models.Activity.update({
-      id: activity.id,
-      notes: null,
-      formatVersion: 2,
-      notesJson: JSON.stringify(notes),
-    });
-    if (errors) handleApiErrors(errors, "Error updating activity notes");
-    mutateActivity(updated);
-    return data?.id;
-  };
-
   const addProjectToActivity = async (projectId: string | null) => {
     if (!activity) return;
     if (!projectId) return;
@@ -198,6 +190,65 @@ const useActivity = (activityId?: string) => {
     if (!data) return;
     toast({ title: "Deleted project notes" });
     return data.id;
+  };
+
+  const createNoteBlock: CreateBlockFunction = async (block) => {
+    if (!activity) return block;
+    const blockId = await createBlock(
+      activity.id,
+      activity.mentionedPeople,
+      activity.projectIds
+    )(block.content);
+    return { ...block, blockId };
+  };
+
+  const createBlockWhenNeeded =
+    (createBlockFn: CreateBlockFunction) => async (mapping: BlockIdMapping) => {
+      if (mapping.blockId) return mapping;
+      if (!mapping.content) return mapping;
+      return await createBlockFn(mapping);
+    };
+
+  const updateActivityBlockIdsWhenNeeded =
+    (activity: Activity) => async (blockIds: (string | undefined)[]) => {
+      if (isEqual(blockIds, activity.noteBlockIds)) return;
+      return await updateBlockIds(activity.id, blockIds);
+    };
+
+  const mutateActivityIfNeeded =
+    (content: EditorJsonContent) =>
+    async (
+      newActivityPromise: Promise<Schema["Activity"]["type"] | undefined | null>
+    ) => {
+      if (!activity) return;
+      const newActivity = await newActivityPromise;
+      if (!newActivity) return;
+      mutateActivity(
+        {
+          ...activity,
+          notes: content,
+          noteBlockIds: newActivity.noteBlockIds ?? [],
+        },
+        false
+      );
+    };
+
+  const updateNotes: UpdateNotesFunction = async (editor) => {
+    if (!editor) return;
+    if (!activity) return;
+    const creationResult: BlockIdMapping[] = await Promise.all(
+      flow(
+        getBlockCreationSet,
+        map(createBlockWhenNeeded(createNoteBlock))
+      )(editor)
+    );
+
+    await flow(
+      updateTempBlockIds(editor),
+      mapBlockIds,
+      updateActivityBlockIdsWhenNeeded(activity),
+      mutateActivityIfNeeded(editor.getJSON())
+    )(creationResult);
   };
 
   return {

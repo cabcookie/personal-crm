@@ -23,6 +23,7 @@ export const isTodayOrFuture = (date: string | Date): boolean => {
   today.setHours(0, 0, 0, 0);
   return inputDate.getTime() >= today.getTime();
 };
+export const not = (val: boolean) => !val;
 export const usdCurrency = new Intl.NumberFormat("en-US", {
   currency: "USD",
   style: "currency",

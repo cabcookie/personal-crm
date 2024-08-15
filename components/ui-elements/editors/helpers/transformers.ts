@@ -1,5 +1,5 @@
 import { NoteBlockData } from "@/api/useActivity";
-import { EditorJsonContent } from "../../notes-writer/useExtensions";
+import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { transformNotesVersion1 } from "./transform-v1";
 import { transformNotesVersion2 } from "./transform-v2";
 import { transformNotesVersion3 } from "./transform-v3";

@@ -1,37 +1,28 @@
 import { type Schema } from "@/amplify/data/resource";
 import { GraphQLFormattedError, handleApiErrors } from "@/api/globals";
-import { ActivityData } from "@/api/useActivity";
 import { newDateString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/api";
-import { compact, flow, get, map } from "lodash/fp";
-import { EditorJsonContent } from "../../notes-writer/useExtensions";
-import { stringifyBlock } from "./blocks";
-import { linkMentionedPeople } from "./people-mentioned";
+import { EditorJsonContent } from "../notes-editor/useExtensions";
+import { createNoteBlockApi, stringifyBlock } from "./blocks";
+import { BlockMentionedPeople, linkMentionedPeople } from "./people-mentioned";
 const client = generateClient<Schema>();
 
 const createNoteBlockLinkedToTodo = async (
-  activity: ActivityData,
+  activityId: string,
+  blocksMentionedPeople: BlockMentionedPeople[],
   todoId: string,
   block: EditorJsonContent
 ) => {
-  const { data, errors } = await client.models.NoteBlock.create({
-    activityId: activity.id,
-    formatVersion: 3,
-    todoId,
-    type: "taskItem",
-  });
-  if (errors) {
-    handleApiErrors(errors, "Updating Note to v3 failed (with linked todo)");
-    throw errors;
-  }
+  const data = await createNoteBlockApi(activityId, block, todoId);
   if (!data) return;
-  const result = await linkMentionedPeople(activity, data.id, block);
-  console.log("linking mentioned people", result);
+  await linkMentionedPeople(blocksMentionedPeople, data.id, block);
   return data.id;
 };
 
 export const createTodoAndNoteBlock = async (
-  activity: ActivityData,
+  activityId: string,
+  blocksMentionedPeople: BlockMentionedPeople[],
+  projectIds: string[],
   block: EditorJsonContent
 ) => {
   const checked = (block.attrs?.checked ?? false) as boolean;
@@ -39,10 +30,7 @@ export const createTodoAndNoteBlock = async (
     todo: stringifyBlock(block),
     status: checked ? "DONE" : "OPEN",
     doneOn: checked ? newDateString() : null,
-    projectIds: flow(
-      get("forProjects"),
-      map(get("projectsId"), compact)
-    )(activity),
+    projectIds,
   });
   if (errors) {
     handleApiErrors(errors, "Creating Todo failed");
@@ -57,5 +45,10 @@ export const createTodoAndNoteBlock = async (
     handleApiErrors([error], "Creating Todo failed; no data");
     throw error;
   }
-  return createNoteBlockLinkedToTodo(activity, data.id, block);
+  return createNoteBlockLinkedToTodo(
+    activityId,
+    blocksMentionedPeople,
+    data.id,
+    block
+  );
 };

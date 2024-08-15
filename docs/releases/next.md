@@ -93,3 +93,5 @@ const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
   )}
 >
 ```
+
+- Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.

@@ -1,4 +1,4 @@
-import { EditorJsonContent } from "../../notes-writer/useExtensions";
+import { EditorJsonContent } from "../notes-editor/useExtensions";
 
 const stringToEditorJsonContent = (
   notes?: string | null

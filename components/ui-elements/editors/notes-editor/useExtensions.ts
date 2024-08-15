@@ -6,7 +6,12 @@ import {
   mapPersonToSuggestion,
   renderer,
 } from "@/helpers/ui-notes-writer/suggestions";
-import { EditorOptions, mergeAttributes, NodeConfig } from "@tiptap/core";
+import {
+  EditorOptions,
+  JSONContent,
+  mergeAttributes,
+  NodeConfig,
+} from "@tiptap/core";
 import BlockQuote from "@tiptap/extension-blockquote";
 import CodeBlock from "@tiptap/extension-code-block";
 import Heading from "@tiptap/extension-heading";
@@ -24,6 +29,8 @@ import { filter, flow, map } from "lodash/fp";
 import { useMemo } from "react";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../extensions/s3-images/S3ImageExtension";
+
+export type EditorJsonContent = JSONContent;
 
 const extendedConfig: Partial<NodeConfig<any, any>> = {
   addAttributes() {
@@ -53,20 +60,6 @@ const extendedConfig: Partial<NodeConfig<any, any>> = {
       },
     };
   },
-  // onUpdate() {
-  //   const { editor } = this;
-  //   const { state } = editor;
-  //   const { selection } = state;
-  //   const { $from } = selection;
-
-  //   console.log(
-  //     "onUpdate",
-  //     $from.parent.attrs.blockId,
-  //     $from.doc,
-  //     // $from.before($from.parentOffset),
-  //     $from.parentOffset
-  //   );
-  // },
 };
 
 const StarterKitExtended = [

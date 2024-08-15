@@ -1,4 +1,4 @@
-import { EditorJsonContent } from "../../notes-writer/useExtensions";
+import { EditorJsonContent } from "../notes-editor/useExtensions";
 
 export const emptyDocument: EditorJsonContent = {
   type: "doc",

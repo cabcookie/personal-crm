@@ -1,11 +1,18 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
-import { ActivityData, NoteBlockData } from "@/api/useActivity";
+import { ActivityData } from "@/api/useActivity";
 import { generateClient } from "aws-amplify/api";
-import { compact, find, flatMap, flatten, flow, get, map } from "lodash/fp";
-import { EditorJsonContent } from "../../notes-writer/useExtensions";
+import { find, flatten, flow, get, map } from "lodash/fp";
+import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { getBlockFromId } from "./blocks";
 const client = generateClient<Schema>();
+
+export type MentionedPerson = { id: string; personId: string };
+
+export type BlockMentionedPeople = {
+  id: string;
+  people: MentionedPerson[];
+};
 
 const getMentionedPeopleIds = (
   content: EditorJsonContent["content"]
@@ -20,31 +27,45 @@ const getMentionedPeopleIds = (
 
 const getExistingMentionedPeopleIds = (
   blockId: string,
-  blocks: NoteBlockData[]
-) => flow(getBlockFromId(blocks), getMentionedPeopleFromBlock)(blockId);
+  blocksMentionedPeople: BlockMentionedPeople[]
+) =>
+  flow(
+    getBlockFromId(blocksMentionedPeople),
+    getMentionedPeopleFromBlock
+  )(blockId);
 
 export const getMentionedPeopleFromBlock = (
-  block: NoteBlockData | undefined
-): string[] =>
-  !block ? [] : flow(map(get("personId")), compact)(block.people);
+  mentionedPeople: BlockMentionedPeople | undefined
+): MentionedPerson[] =>
+  mentionedPeople?.people.map(({ id, personId }) => ({ id, personId })) ?? [];
 
-export const getMentionedPeopleFromBlocks = (activity: {
-  noteBlocks: ActivityData["noteBlocks"];
-  noteBlockIds: ActivityData["noteBlockIds"];
-}): string[] =>
-  flow(
-    map(getBlockFromId(activity.noteBlocks)),
-    compact,
-    flatMap(getMentionedPeopleFromBlock)
-  )(activity.noteBlockIds);
+export const getMentionedPeopleFromBlocks = (
+  noteBlocks: ActivityData["noteBlocks"],
+  noteBlockIds: ActivityData["noteBlockIds"]
+): BlockMentionedPeople[] =>
+  !noteBlockIds
+    ? []
+    : map(
+        (id: string): BlockMentionedPeople => ({
+          id,
+          people: flow(
+            getBlockFromId(noteBlocks),
+            getMentionedPeopleFromBlock
+          )(id),
+        })
+      )(noteBlockIds);
 
 const removePeopleLinkIfNeeded =
-  (blocks: NoteBlockData[], blockId: string, block: EditorJsonContent) =>
+  (
+    blocksMentionedPeople: BlockMentionedPeople[],
+    blockId: string,
+    block: EditorJsonContent
+  ) =>
   async (personId: string) => {
     const existingPeopleIds = getMentionedPeopleIds(block.content);
     if (existingPeopleIds.includes(personId)) return;
     const personLinkToDelete = flow(
-      getBlockFromId(blocks),
+      getBlockFromId(blocksMentionedPeople),
       get("people"),
       find((p) => p.personId === personId),
       get("id")
@@ -58,12 +79,13 @@ const removePeopleLinkIfNeeded =
   };
 
 const createPeopleLinkIfNeeded =
-  (activity: ActivityData, blockId: string) => async (personId: string) => {
+  (blocksMentionedPeople: BlockMentionedPeople[], blockId: string) =>
+  async (personId: string) => {
     const existingPeopleIds = getExistingMentionedPeopleIds(
       blockId,
-      activity.noteBlocks
+      blocksMentionedPeople
     );
-    if (existingPeopleIds.includes(personId)) return;
+    if (existingPeopleIds.some((p) => p.personId === personId)) return;
     const { data, errors } = await client.models.NoteBlockPerson.create({
       noteBlockId: blockId,
       personId,
@@ -73,21 +95,21 @@ const createPeopleLinkIfNeeded =
   };
 
 export const linkMentionedPeople = async (
-  activity: ActivityData,
+  blocksMentionedPeople: BlockMentionedPeople[],
   blockId: string,
   block: EditorJsonContent
 ) => {
   const createdLinksIds = await Promise.all(
     flow(
       getMentionedPeopleIds,
-      map(createPeopleLinkIfNeeded(activity, blockId))
+      map(createPeopleLinkIfNeeded(blocksMentionedPeople, blockId))
     )(block.content)
   );
   const removedLinksIds = await Promise.all(
     flow(
       getExistingMentionedPeopleIds,
-      map(removePeopleLinkIfNeeded(activity.noteBlocks, blockId, block))
-    )(blockId, activity.noteBlocks)
+      map(removePeopleLinkIfNeeded(blocksMentionedPeople, blockId, block))
+    )(blockId, blocksMentionedPeople)
   );
 
   return {

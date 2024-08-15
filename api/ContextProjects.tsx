@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
+import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import {
