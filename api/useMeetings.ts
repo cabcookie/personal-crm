@@ -52,7 +52,6 @@ export const meetingSelectionSet = [
   "activities.noteBlocks.todo.todo",
   "activities.noteBlocks.todo.status",
   "activities.noteBlocks.todo.doneOn",
-  "activities.noteBlocks.todo.projectIds",
   "activities.noteBlocks.people.id",
   "activities.noteBlocks.people.personId",
 ] as const;

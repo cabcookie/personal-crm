@@ -5,11 +5,11 @@ import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
 import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
 import ActivityMetaData from "../../activities/activity-meta-data";
 import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
+import { getTextFromEditorJsonContent } from "../editors/helpers/text-generation";
 import NotesEditor from "../editors/notes-editor/NotesEditor";
 import DeleteWarning from "./DeleteWarning";
 

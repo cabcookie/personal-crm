@@ -1,11 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
+import { getTextFromEditorJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
 import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
-import {
-  getTextFromEditorJsonContent,
-  SerializerOutput,
-} from "@/helpers/ui-notes-writer";
+import { SerializerOutput } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "./globals";
 import { HandleMutationFn, Inbox, InboxStatus, mapInbox } from "./useInbox";

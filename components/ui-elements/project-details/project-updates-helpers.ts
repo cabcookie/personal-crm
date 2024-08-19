@@ -1,18 +1,4 @@
-import { EditorJsonContent, SerializerOutput } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
-
-type UpdateActionsProps = {
-  serializer: () => SerializerOutput;
-  updateActions: (actions: EditorJsonContent) => Promise<string | undefined>;
-};
-
-export const debouncedUpdateActions = debounce(
-  async ({ serializer, updateActions }: UpdateActionsProps) => {
-    const { json: actions } = serializer();
-    await updateActions(actions);
-  },
-  1000
-);
 
 type UpdateFnProps = {
   id: string;

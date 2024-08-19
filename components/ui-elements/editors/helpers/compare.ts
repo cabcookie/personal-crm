@@ -2,12 +2,10 @@ import { isNil, omitBy } from "lodash";
 import { flow, isEqual } from "lodash/fp";
 import { EditorJsonContent } from "../notes-editor/useExtensions";
 
-const cleanAttrs = (
-  attrs: EditorJsonContent["attrs"]
-): EditorJsonContent["attrs"] => {
-  if (!attrs) return undefined;
+const cleanAttrs = (attrs: EditorJsonContent["attrs"]): EditorJsonContent => {
+  if (!attrs) return {};
   const cleanedAttrs = omitBy(attrs, isNil);
-  return Object.keys(cleanedAttrs).length > 0 ? cleanedAttrs : undefined;
+  return Object.keys(cleanedAttrs).length === 0 ? {} : { attrs: cleanedAttrs };
 };
 
 const cleanContent = ({
@@ -16,8 +14,12 @@ const cleanContent = ({
   ...rest
 }: EditorJsonContent): EditorJsonContent => ({
   ...rest,
-  attrs: cleanAttrs(attrs),
-  content: content?.map(cleanContent),
+  ...cleanAttrs(attrs),
+  ...(!content
+    ? {}
+    : {
+        content: content.map(cleanContent),
+      }),
 });
 
 export const isUpToDate = (

@@ -6,7 +6,7 @@ import { truncate } from "lodash";
 import Link from "next/link";
 import type { FC } from "react";
 
-export type ViewLinkMenuContentProps = {
+type ViewLinkMenuContentProps = {
   editor: Editor;
   onCancel: () => void;
   onEdit: () => void;

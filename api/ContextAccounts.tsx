@@ -1,15 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
+import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
+import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { toast } from "@/components/ui/use-toast";
 import {
   calcAccountAndSubsidariesPipeline,
   calcOrder,
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
-import {
-  EditorJsonContent,
-  emptyDocument,
-  transformNotesVersion,
-} from "@/helpers/ui-notes-writer";
+import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { filter, flow, get, join, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";

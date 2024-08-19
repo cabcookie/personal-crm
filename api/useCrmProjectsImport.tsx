@@ -21,9 +21,9 @@ export type DataChanged = {
   changed: Omit<CrmProject, "id">[];
 };
 
-export const IMPORT_STATUS = ["WIP", "DONE"] as const;
+const IMPORT_STATUS = ["WIP", "DONE"] as const;
 
-export type TImportStatus = (typeof IMPORT_STATUS)[number];
+type TImportStatus = (typeof IMPORT_STATUS)[number];
 
 type CrmProjectsImportData = Schema["CrmProjectImport"]["type"];
 

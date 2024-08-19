@@ -9,9 +9,8 @@ import { Project } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
-export const WEEK_PLAN_STATUS = ["WIP", "DONE", "CANCELLED"];
-
-export type TWeekPlanStatus = (typeof WEEK_PLAN_STATUS)[number];
+const WEEK_PLAN_STATUS = ["WIP", "DONE", "CANCELLED"];
+type TWeekPlanStatus = (typeof WEEK_PLAN_STATUS)[number];
 
 export type WeeklyPlan = {
   id: string;

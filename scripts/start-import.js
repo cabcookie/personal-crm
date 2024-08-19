@@ -17,6 +17,7 @@ const {
 const { getTable, getEnvironment } = require("./import-data/environments");
 const { getAwsProfile } = require("./helpers/get-aws-profile");
 const { fromIni } = require("@aws-sdk/credential-providers");
+const { flow, compact, filter, map } = require("lodash/fp");
 
 const importData = async () => {
   // Account

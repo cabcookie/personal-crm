@@ -6,7 +6,7 @@ import { Editor, getMarkRange, getMarkType } from "@tiptap/core";
 import encodeurl from "encodeurl";
 import { FC, useCallback, useRef, useState } from "react";
 
-export type EditLinkMenuContentProps = {
+type EditLinkMenuContentProps = {
   editor: Editor;
   onCancel: () => void;
   onSave: ({ text, link }: { text: string; link: string }) => void;

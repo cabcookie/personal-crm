@@ -2,7 +2,7 @@ import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Editor, isNodeSelection, posToDOMRect } from "@tiptap/core";
 import { FC, ReactNode, useCallback, useEffect, useState } from "react";
 
-export type PopoverStylesProps =
+type PopoverStylesProps =
   | {
       top: string;
       left: string;
@@ -16,7 +16,7 @@ export type PopoverStylesProps =
       transform?: undefined;
     };
 
-export type ControlledBubbleMenuProps = {
+type ControlledBubbleMenuProps = {
   editor: Editor;
   open: boolean;
   children: ReactNode;

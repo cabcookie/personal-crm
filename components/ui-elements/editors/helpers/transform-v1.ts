@@ -1,7 +1,8 @@
+import { ActivityData } from "@/api/useActivity";
 import { EditorJsonContent } from "../notes-editor/useExtensions";
 
-const stringToEditorJsonContent = (
-  notes?: string | null
+export const transformNotesVersion1 = (
+  notes: ActivityData["notes"]
 ): EditorJsonContent => ({
   type: "doc",
   content:
@@ -17,6 +18,3 @@ const stringToEditorJsonContent = (
           ],
     })) ?? [],
 });
-
-export const transformNotesVersion1 = (notes?: string | null) =>
-  stringToEditorJsonContent(notes);

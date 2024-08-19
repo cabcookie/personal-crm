@@ -14,6 +14,7 @@ import {
 } from "@tiptap/core";
 import BlockQuote from "@tiptap/extension-blockquote";
 import CodeBlock from "@tiptap/extension-code-block";
+import Document from "@tiptap/extension-document";
 import Heading from "@tiptap/extension-heading";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
@@ -21,7 +22,6 @@ import ListItem from "@tiptap/extension-list-item";
 import Mention from "@tiptap/extension-mention";
 import Paragraph from "@tiptap/extension-paragraph";
 import Placeholder from "@tiptap/extension-placeholder";
-import TaskItem from "@tiptap/extension-task-item";
 import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
@@ -29,6 +29,7 @@ import { filter, flow, map } from "lodash/fp";
 import { useMemo } from "react";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../extensions/s3-images/S3ImageExtension";
+import { TaskItem } from "../extensions/tasks/task-item";
 
 export type EditorJsonContent = JSONContent;
 
@@ -42,30 +43,11 @@ const extendedConfig: Partial<NodeConfig<any, any>> = {
       },
     };
   },
-  addKeyboardShortcuts() {
-    return {
-      Enter: ({ editor }) => {
-        const { state } = editor;
-        const { selection } = state;
-        const { $from } = selection;
-        if ($from.parent.attrs.blockId) {
-          editor
-            .chain()
-            .splitBlock()
-            .updateAttributes($from.parent.type.name, { blockId: null })
-            .run();
-          return true;
-        }
-        return false;
-      },
-    };
-  },
 };
 
 const StarterKitExtended = [
   Heading,
   Paragraph,
-  BlockQuote,
   ListItem,
   CodeBlock,
   S3ImageExtension,
@@ -83,10 +65,33 @@ const useExtensions = (): EditorOptions["extensions"] => {
         listItem: false,
         codeBlock: false,
         blockquote: false,
+        document: false,
       }),
       ...StarterKitExtended,
+      Document.extend({
+        addAttributes() {
+          return {
+            projects: {
+              default: [],
+              parseHTML: (element) => {
+                const projects = element.getAttribute("data-projects");
+                if (projects === null) return null;
+                return JSON.parse(projects);
+              },
+              renderHTML: (attrs) => ({
+                "data-projects": JSON.stringify(attrs.projects),
+              }),
+            },
+          };
+        },
+      }),
+      BlockQuote.extend(extendedConfig).configure({
+        HTMLAttributes: {
+          class: "font-normal not-italic",
+        },
+      }),
       TaskList,
-      TaskItem.extend(extendedConfig).configure({
+      TaskItem.configure({
         HTMLAttributes: {
           class: "flex items-center gap-2 font-semibold list-none",
         },
@@ -100,7 +105,33 @@ const useExtensions = (): EditorOptions["extensions"] => {
         },
       }),
       Typography,
-      Mention.configure({
+      Mention.extend({
+        addAttributes() {
+          return {
+            id: {
+              default: null,
+              parseHTML: (element) => element.getAttribute("data-id"),
+              renderHTML: (attrs) => ({
+                "data-id": attrs.id,
+              }),
+            },
+            label: {
+              default: null,
+              parseHTML: (element) => element.getAttribute("data-label"),
+              renderHTML: (attrs) => ({
+                "data-label": attrs.label,
+              }),
+            },
+            recordId: {
+              default: null,
+              parseHTML: (element) => element.getAttribute("data-record-id"),
+              renderHTML: (attrs) => ({
+                "data-record-id": attrs.recordId,
+              }),
+            },
+          };
+        },
+      }).configure({
         HTMLAttributes: {
           class:
             "text-blue-400 no-underline hover:underline underline-offset-2",

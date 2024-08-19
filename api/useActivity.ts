@@ -1,34 +1,33 @@
 import { type Schema } from "@/amplify/data/resource";
 import {
-  createBlock,
-  getBlockCreationSet,
-  mapBlockIds,
-  updateBlockIds,
-  updateTempBlockIds,
-} from "@/components/ui-elements/editors/helpers/blocks";
-import {
-  BlockMentionedPeople,
-  getMentionedPeopleFromBlocks,
-} from "@/components/ui-elements/editors/helpers/people-mentioned";
-import {
-  tranformingActivityIds,
-  updateActivityToNotesVersion3,
-} from "@/components/ui-elements/editors/helpers/transform-v3";
+  createAndDeleteBlocksAndTodos,
+  updateBlocksAndTodos,
+} from "@/components/ui-elements/editors/helpers/block-todo-cud";
+import { addAttrsInEditorContent } from "@/components/ui-elements/editors/helpers/cleanup-attrs";
+import { deleteAndCreateMentionedPeople } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
+import TransactionError from "@/components/ui-elements/editors/helpers/transaction-error";
 import { transformNotesVersion } from "@/components/ui-elements/editors/helpers/transformers";
-import {
-  BlockIdMapping,
-  CreateBlockFunction,
-  UpdateNotesFunction,
-} from "@/components/ui-elements/editors/helpers/update-notes";
+import { UpdateNotesFunction } from "@/components/ui-elements/editors/helpers/update-notes";
 import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
 import { generateClient, SelectionSet } from "aws-amplify/data";
-import { isEqual } from "lodash";
-import { flow, map } from "lodash/fp";
+import { useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
+
+export type TempIdMapping = {
+  tempId: string;
+  id: string;
+};
+
+type MentionedPerson = { recordId: string; personId: string };
+
+type BlockMentionedPeople = {
+  blockId: string;
+  people: MentionedPerson[];
+};
 
 export type Activity = {
   id: string;
@@ -62,7 +61,6 @@ const selectionSet = [
   "noteBlocks.todo.todo",
   "noteBlocks.todo.status",
   "noteBlocks.todo.doneOn",
-  "noteBlocks.todo.projectIds",
   "noteBlocks.people.id",
   "noteBlocks.people.personId",
 ] as const;
@@ -73,37 +71,27 @@ export type ActivityData = SelectionSet<
 >;
 export type NoteBlockData = ActivityData["noteBlocks"][number];
 
-export const mapActivity: (activity: ActivityData) => Activity = ({
-  id,
-  notes,
-  formatVersion,
-  notesJson,
-  meetingActivitiesId,
-  finishedOn,
-  createdAt,
-  updatedAt,
-  forProjects,
-  noteBlockIds,
-  noteBlocks,
-}) => ({
-  id,
-  notes: transformNotesVersion({
-    formatVersion,
-    notes,
-    notesJson,
-    noteBlockIds,
-    noteBlocks,
-  }),
-  noteBlockIds,
-  meetingId: meetingActivitiesId || undefined,
-  finishedOn: new Date(finishedOn || createdAt),
-  updatedAt: new Date(updatedAt),
-  projectIds: forProjects.map(({ projectsId }) => projectsId),
-  projectActivityIds: forProjects.map(({ id }) => id),
-  mentionedPeople: getMentionedPeopleFromBlocks(noteBlocks, noteBlockIds),
+export const mapActivity = (a: ActivityData): Activity => ({
+  id: a.id,
+  notes: transformNotesVersion(a),
+  noteBlockIds:
+    a.noteBlockIds?.filter((id) => a.noteBlocks.some((b) => b.id === id)) ??
+    null,
+  meetingId: a.meetingActivitiesId || undefined,
+  finishedOn: new Date(a.finishedOn || a.createdAt),
+  updatedAt: new Date(a.updatedAt),
+  projectIds: a.forProjects.map(({ projectsId }) => projectsId),
+  projectActivityIds: a.forProjects.map(({ id }) => id),
+  mentionedPeople: a.noteBlocks.map((block) => ({
+    blockId: block.id,
+    people: block.people.map((p) => ({
+      recordId: p.id,
+      personId: p.personId,
+    })),
+  })),
 });
 
-export const fetchActivity =
+const fetchActivity =
   (activityId?: string) => async (): Promise<Activity | undefined> => {
     if (!activityId) return;
     const { data, errors } = await client.models.Activity.get(
@@ -115,11 +103,6 @@ export const fetchActivity =
       throw errors;
     }
     if (!data) throw new Error("fetchActivity didn't retrieve data");
-    if (
-      (!data.formatVersion || data.formatVersion < 3) &&
-      !tranformingActivityIds.includes(data.id)
-    )
-      return updateActivityToNotesVersion3(data);
     try {
       return mapActivity(data);
     } catch (error) {
@@ -136,6 +119,7 @@ const useActivity = (activityId?: string) => {
     mutate: mutateActivity,
   } = useSWR(`/api/activities/${activityId}`, fetchActivity(activityId));
   const { toast } = useToast();
+  const [isUpdatingActivity, setIsUpdatingActivity] = useState(false);
 
   const updateDate = async (date: Date) => {
     if (!activity) return;
@@ -192,63 +176,65 @@ const useActivity = (activityId?: string) => {
     return data.id;
   };
 
-  const createNoteBlock: CreateBlockFunction = async (block) => {
-    if (!activity) return block;
-    const blockId = await createBlock(
-      activity.id,
-      activity.mentionedPeople,
-      activity.projectIds
-    )(block.content);
-    return { ...block, blockId };
-  };
-
-  const createBlockWhenNeeded =
-    (createBlockFn: CreateBlockFunction) => async (mapping: BlockIdMapping) => {
-      if (mapping.blockId) return mapping;
-      if (!mapping.content) return mapping;
-      return await createBlockFn(mapping);
-    };
-
-  const updateActivityBlockIdsWhenNeeded =
-    (activity: Activity) => async (blockIds: (string | undefined)[]) => {
-      if (isEqual(blockIds, activity.noteBlockIds)) return;
-      return await updateBlockIds(activity.id, blockIds);
-    };
-
-  const mutateActivityIfNeeded =
-    (content: EditorJsonContent) =>
-    async (
-      newActivityPromise: Promise<Schema["Activity"]["type"] | undefined | null>
-    ) => {
-      if (!activity) return;
-      const newActivity = await newActivityPromise;
-      if (!newActivity) return;
-      mutateActivity(
-        {
-          ...activity,
-          notes: content,
-          noteBlockIds: newActivity.noteBlockIds ?? [],
-        },
-        false
-      );
-    };
-
   const updateNotes: UpdateNotesFunction = async (editor) => {
+    if (isUpdatingActivity) {
+      console.log("----------------------------------------------------------");
+      console.log("Update of activity in progress. Ignoring this update call!");
+      console.log("----------------------------------------------------------");
+      return;
+    }
     if (!editor) return;
     if (!activity) return;
-    const creationResult: BlockIdMapping[] = await Promise.all(
-      flow(
-        getBlockCreationSet,
-        map(createBlockWhenNeeded(createNoteBlock))
-      )(editor)
+    console.log(
+      "*******************************************************************"
     );
+    console.log("Starting update of activity...");
+    setIsUpdatingActivity(true);
 
-    await flow(
-      updateTempBlockIds(editor),
-      mapBlockIds,
-      updateActivityBlockIdsWhenNeeded(activity),
-      mutateActivityIfNeeded(editor.getJSON())
-    )(creationResult);
+    try {
+      /* Ensure each block in the editor has relevant attributes (blockId, todoId, recordId) */
+      addAttrsInEditorContent(editor);
+
+      /**
+       * Delete and create todos and note blocks where neccessary
+       * and update Activity's note block ids
+       */
+      await createAndDeleteBlocksAndTodos(editor, activity, mutateActivity);
+
+      /* Delete and create mentioned people where neccessary and update activity recordId's */
+      await deleteAndCreateMentionedPeople(editor, activity, mutateActivity);
+
+      /* Update todos and blocks where neccessary */
+      await updateBlocksAndTodos(editor, activity, mutateActivity);
+
+      /* Update mentioned people where neccessary */
+
+      /* Update todo projects where neccessary */
+
+      /* Delete todo projects where neccessary */
+
+      /* Create todo projects where neccessary */
+    } catch (error) {
+      if (error instanceof TransactionError) {
+        console.error(
+          "updateNotes",
+          error.name,
+          error.message,
+          error.failedTransaction,
+          error.block,
+          error.graphQlErrors,
+          error.stack
+        );
+      } else {
+        console.error("updateNotes", error);
+      }
+    } finally {
+      setIsUpdatingActivity(false);
+      console.log("Done with processing the update activity request.");
+      console.log(
+        "*******************************************************************"
+      );
+    }
   };
 
   return {
@@ -257,9 +243,11 @@ const useActivity = (activityId?: string) => {
     errorActivity,
     updateNotes,
     updateDate,
+    mutateActivity,
     addProjectToActivity,
     deleteProjectActivity,
   };
 };
 
+export type MutateActivityFn = ReturnType<typeof useActivity>["mutateActivity"];
 export default useActivity;

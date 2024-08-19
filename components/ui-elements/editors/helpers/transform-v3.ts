@@ -1,25 +1,42 @@
-import {
-  ActivityData,
-  fetchActivity,
-  mapActivity,
-  NoteBlockData,
-} from "@/api/useActivity";
-import { compact, flow, last, reduce, union } from "lodash/fp";
+import { ActivityData, NoteBlockData } from "@/api/useActivity";
+import { compact, flow, last, reduce } from "lodash/fp";
 import { EditorJsonContent } from "../notes-editor/useExtensions";
-import { createBlock, getBlocks, updateBlockIds } from "./blocks";
-import { transformNotesVersion } from "./transformers";
 
-export let tranformingActivityIds: string[] = [];
+const mapPeople =
+  (block: NoteBlockData) =>
+  (content: EditorJsonContent): EditorJsonContent => ({
+    ...content,
+    ...(content.type !== "mention"
+      ? {
+          ...mapContentPeople(content.content, block),
+        }
+      : !content.attrs?.id
+      ? {}
+      : {
+          attrs: {
+            ...content.attrs,
+            recordId: block.people.find((p) => p.personId === content.attrs?.id)
+              ?.id,
+          },
+        }),
+  });
 
 const mapListItem = (
   wrapperType: string,
   prev: EditorJsonContent[],
   content: EditorJsonContent,
-  blockId: string
+  block: NoteBlockData
 ): EditorJsonContent[] => {
   const preparedContent: EditorJsonContent = {
     ...content,
-    attrs: { ...content.attrs, blockId },
+    attrs: {
+      ...content.attrs,
+      blockId: block.id,
+      ...(!(wrapperType === "taskList" && block.todo.id)
+        ? {}
+        : { todoId: block.todo.id }),
+    },
+    ...mapContentPeople(content.content, block),
   };
   if (last(prev)?.type !== wrapperType)
     return [...prev, { type: wrapperType, content: [preparedContent] }];
@@ -33,48 +50,51 @@ const mapListItem = (
   );
 };
 
+const mapTodoBlock = (block: NoteBlockData): EditorJsonContent => {
+  const content: EditorJsonContent = JSON.parse(block.todo.todo as any);
+  return {
+    ...content,
+    attrs: {
+      ...content.attrs,
+      todoId: block.todo.id,
+      blockId: block.id,
+    },
+    ...mapContentPeople(content.content, block),
+  };
+};
+
+const mapContentPeople = (
+  content: EditorJsonContent[] | undefined,
+  block: NoteBlockData
+) => (!content ? {} : { content: content.map(mapPeople(block)) });
+
 const mapBlocks =
   (noteBlocks: NoteBlockData[]) =>
   (prev: EditorJsonContent[], blockId: string): EditorJsonContent[] => {
     const block = noteBlocks.find((block) => block.id === blockId);
     if (!block) return prev;
-    const content: EditorJsonContent = JSON.parse(
-      (block.type === "taskItem" ? block.todo.todo : block.content) as any
-    );
+    const content: EditorJsonContent =
+      block.type === "taskItem"
+        ? mapTodoBlock(block)
+        : JSON.parse(block.content as any);
     if (content.type === "listItem")
-      return mapListItem("bulletList", prev, content, blockId);
+      return mapListItem("bulletList", prev, content, block);
     if (content.type === "taskItem")
-      return mapListItem("taskList", prev, content, blockId);
-    return [...prev, { ...content, attrs: { ...content.attrs, blockId } }];
+      return mapListItem("taskList", prev, content, block);
+    return [
+      ...prev,
+      {
+        ...content,
+        attrs: { ...content.attrs, blockId },
+        ...mapContentPeople(content.content, block),
+      },
+    ];
   };
 
 export const transformNotesVersion3 = (
   noteBlocks: NoteBlockData[],
-  noteBlockIds?: string[] | null
+  noteBlockIds: ActivityData["noteBlockIds"]
 ) => ({
   type: "doc",
   content: flow(reduce(mapBlocks(noteBlocks), []), compact)(noteBlockIds) ?? [],
 });
-
-export const updateActivityToNotesVersion3 = async (activity: ActivityData) => {
-  tranformingActivityIds = flow(union([activity.id]))(tranformingActivityIds);
-  const blocks = flow(transformNotesVersion, getBlocks)(activity);
-  if (!blocks) return mapActivity(activity);
-  const resultIds = await Promise.all(
-    blocks.map(
-      createBlock(
-        activity.id,
-        activity.noteBlocks,
-        activity.forProjects.map((p) => p.projectsId)
-      )
-    )
-  );
-  const result = await updateBlockIds(activity.id, resultIds);
-  if (!result) return;
-  const data = await fetchActivity(activity.id)();
-  if (!data) return;
-  tranformingActivityIds = tranformingActivityIds.filter(
-    (id) => id !== data.id
-  );
-  return data;
-};

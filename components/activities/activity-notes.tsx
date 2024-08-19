@@ -1,7 +1,7 @@
 import { Activity } from "@/api/useActivity";
-import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import NotesEditor from "../ui-elements/editors/notes-editor/NotesEditor";
 import ActivityMetaData from "./activity-meta-data";
 

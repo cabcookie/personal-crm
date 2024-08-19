@@ -129,9 +129,7 @@ type ProjectData = SelectionSet<
 >;
 export type CrmDataProps = ProjectData["crmProjects"][number];
 
-export const mapCrmData = ({
-  crmProject,
-}: CrmDataProps): CrmProject | undefined =>
+const mapCrmData = ({ crmProject }: CrmDataProps): CrmProject | undefined =>
   !crmProject ? undefined : mapCrmProject({ ...crmProject, projects: [] });
 
 const mapProject: (project: ProjectData) => Project = ({
