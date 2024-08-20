@@ -2,7 +2,7 @@ import { type Schema } from "@/amplify/data/resource";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
-import { newDateString, toISODateTimeString } from "@/helpers/functional";
+import { newDateTimeString, toISODateTimeString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
 import { format } from "date-fns";
 import { useRouter } from "next/router";
@@ -126,7 +126,7 @@ const useMeeting = (meetingId?: string) => {
         meetingActivitiesId: meetingId,
         notes: JSON.stringify(emptyDocument),
         formatVersion: 2,
-        finishedOn: newDateString(),
+        finishedOn: newDateTimeString(),
       });
     if (errorsActivity)
       return handleApiErrors(

@@ -2,7 +2,7 @@
 
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
-import { newDateString, not } from "@/helpers/functional";
+import { newDateString, newDateTimeString, not } from "@/helpers/functional";
 import { Editor } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { filter, find, flatMap, flow, get, map, some } from "lodash/fp";
@@ -36,7 +36,7 @@ export const createTodo = async ({
   const { data, errors } = await client.models.Todo.create({
     todo: content,
     status: done ? "DONE" : "OPEN",
-    doneOn: done ? newDateString() : null,
+    doneOn: done ? newDateTimeString() : null,
   });
   if (errors)
     throw new TransactionError(
@@ -79,7 +79,7 @@ const mapTodoToCreationSet = (block: EditorJsonContent): TTodoCreationSet => {
   };
 };
 
-const getTodos = (content: EditorJsonContent): EditorJsonContent[] =>
+export const getTodos = (content: EditorJsonContent): EditorJsonContent[] =>
   flow(
     get("content"),
     filter((c: EditorJsonContent) => c.type === "taskList"),

@@ -6,7 +6,8 @@
 - Enthält eine Notiz Verweise auf Personen, werden diese Personen in einem separaten Eintrag in der Datenbank gespeichert, so dass Verweise besser gefunden werden können (z.B. in der Personenansicht).
 - Werden Aufgaben in einer Notiz angelegt, so landen diese Aufgaben auch in einer separaten Datenbank-Tabelle, so dass auch Aufgaben leichter gefunden und daran gearbeitet werden kann. Die Projekte, die an der Notiz hängen, werden auch als Verweise an der Aufgabe hinterlegt, so dass die Aufgaben auch von Projekt-Seite gefunden werden können.
 - Das Löschen eines Abschnitts in einer Notiz führt dazu, dass der Block aus der Datenbank gelöscht wird und Einträge, die mit dem Block in Beziehung stehen (Aufgaben und Personen).
-- Abschnitte in einer Notiz werden nun in der Datenbank gespeichert, wenn der Anwender Änderungen vornimmt.
+- Änderungen an einer Notiz werden nun in der Datenbank gespeichert inkl. Aufgaben und Verknüpfungen zu Personen oder Projekten.
+
 - Den Mechanismus für offene Aufgaben haben wir zunächst einmal komplett entfernt:
   - ContextOpenTasks löschen
   - useDailyPlans löschen

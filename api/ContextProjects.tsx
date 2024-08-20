@@ -4,7 +4,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import {
   addDaysToDate,
-  newDateString,
+  newDateTimeString,
   toISODateString,
 } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
@@ -295,7 +295,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       await client.models.Activity.create({
         formatVersion: 3,
         noteBlockIds: [],
-        finishedOn: newDateString(),
+        finishedOn: newDateTimeString(),
       });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");

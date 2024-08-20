@@ -38,10 +38,11 @@ export const formatRevenue = (revenue: number) =>
 export const logFp =
   <T>(...msg: any[]) =>
   (data: T) => {
-    console.log(`[${newDateString()}]`, ...msg, data);
+    console.log(`[${newDateTimeString()}]`, ...msg, data);
     return data;
   };
-export const newDateString = (): string => toISODateTimeString(new Date());
+export const newDateTimeString = (): string => toISODateTimeString(new Date());
+export const newDateString = (): string => toISODateString(new Date());
 export const truncateMiddle = (text: string, length = 20): string => {
   if (text.length <= length) return text;
   const half = Math.floor(length / 2);

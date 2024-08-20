@@ -6,6 +6,7 @@ import {
 import { getBlockIds } from "@/components/ui-elements/editors/helpers/blocks";
 import { addAttrsInEditorContent } from "@/components/ui-elements/editors/helpers/cleanup-attrs";
 import { deleteAndCreateMentionedPeople } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
+import { createAndDeleteProjectTodos } from "@/components/ui-elements/editors/helpers/project-todo-cud";
 import TransactionError from "@/components/ui-elements/editors/helpers/transaction-error";
 import { transformNotesVersion } from "@/components/ui-elements/editors/helpers/transformers";
 import { UpdateNotesFunction } from "@/components/ui-elements/editors/helpers/update-notes";
@@ -71,6 +72,7 @@ export type ActivityData = SelectionSet<
   typeof selectionSet
 >;
 export type NoteBlockData = ActivityData["noteBlocks"][number];
+export type ActivityProjectsData = ActivityData["forProjects"][number];
 
 export const mapActivity = (a: ActivityData): Activity => ({
   id: a.id,
@@ -208,13 +210,8 @@ const useActivity = (activityId?: string) => {
       /* Update todos and blocks where neccessary */
       await updateBlocksAndTodos(editor, activity);
 
-      /* Update mentioned people where neccessary */
-
-      /* Update todo projects where neccessary */
-
-      /* Delete todo projects where neccessary */
-
-      /* Create todo projects where neccessary */
+      /* Create or delete todo projects where neccessary */
+      await createAndDeleteProjectTodos(editor, activity);
 
       const content = editor.getJSON();
       mutateActivity(

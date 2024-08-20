@@ -3,7 +3,7 @@ import { Context } from "@/contexts/ContextContext";
 import {
   addDaysToDate,
   getUniqDates,
-  newDateString,
+  newDateTimeString,
   toISODateString,
 } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
@@ -197,7 +197,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
       topic,
-      meetingOn: newDateString(),
+      meetingOn: newDateTimeString(),
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
