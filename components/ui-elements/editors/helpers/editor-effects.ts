@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Editor, Extensions } from "@tiptap/react";
+import { Editor } from "@tiptap/react";
 import { handlePastingImage } from "../extensions/s3-images/image-handling";
 import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { isUpToDate } from "./compare";
@@ -18,14 +18,6 @@ export const applyReadOnly = (
 ) => {
   if (!editor) return;
   editor.setEditable(!readonly);
-};
-
-export const applyExtensions = (
-  editor: Editor | null,
-  extensions: Extensions
-) => {
-  if (!editor) return;
-  editor.setOptions({ extensions });
 };
 
 export const applyPastePropsAndUiAttrs = (

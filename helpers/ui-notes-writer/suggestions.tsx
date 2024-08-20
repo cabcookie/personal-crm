@@ -27,7 +27,7 @@ export const mapPersonToSuggestion =
   });
 
 export const filterPersonByQuery = (query: string) => (p: Person) =>
-  p.name.toLowerCase().includes(query.toLowerCase());
+  p.name.toLowerCase().replaceAll(" ", "").includes(query.toLowerCase());
 
 export const limitItems = (limit: number) => (items: SuggestionItem[]) =>
   items.slice(0, limit);

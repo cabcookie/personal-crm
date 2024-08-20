@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { Activity, MutateActivityFn, TempIdMapping } from "@/api/useActivity";
+import { Activity, TempIdMapping } from "@/api/useActivity";
 import { Editor } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { isEqual } from "lodash";
@@ -106,11 +106,7 @@ export const getBlockIdsUpdateSet = (
   )(editor.getJSON());
 
 export const updateActivityBlockIds =
-  (
-    activity: Activity,
-    content: EditorJsonContent,
-    mutateActivity: MutateActivityFn
-  ) =>
+  (activity: Activity, content: EditorJsonContent) =>
   async (blockIds: string[]) => {
     if (blockIds.length === 0) return;
     const { data, errors } = await client.models.Activity.update({
@@ -133,8 +129,4 @@ export const updateActivityBlockIds =
         content,
         "updateActivityBlockIds"
       );
-    mutateActivity(
-      { ...activity, notes: content, noteBlockIds: blockIds },
-      false
-    );
   };

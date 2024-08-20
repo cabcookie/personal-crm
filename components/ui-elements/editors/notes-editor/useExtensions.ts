@@ -1,11 +1,5 @@
-import { useAccountsContext } from "@/api/ContextAccounts";
-import usePeople from "@/api/usePeople";
-import {
-  filterPersonByQuery,
-  limitItems,
-  mapPersonToSuggestion,
-  renderer,
-} from "@/helpers/ui-notes-writer/suggestions";
+import { queryPerson } from "@/api/usePeople";
+import { renderer } from "@/helpers/ui-notes-writer/suggestions";
 import {
   EditorOptions,
   JSONContent,
@@ -25,7 +19,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
-import { filter, flow, map } from "lodash/fp";
 import { useMemo } from "react";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../extensions/s3-images/S3ImageExtension";
@@ -54,9 +47,6 @@ const StarterKitExtended = [
 ].map((ext) => ext.extend(extendedConfig));
 
 const useExtensions = (): EditorOptions["extensions"] => {
-  const { people } = usePeople();
-  const { getAccountNamesByIds } = useAccountsContext();
-
   const extensions = useMemo(() => {
     return [
       StarterKit.configure({
@@ -145,12 +135,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
           `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
         ],
         suggestion: {
-          items: ({ query }) =>
-            flow(
-              filter(filterPersonByQuery(query)),
-              map(mapPersonToSuggestion(getAccountNamesByIds)),
-              limitItems(5)
-            )(people),
+          items: ({ query }) => queryPerson(query),
           render: renderer,
         },
       }),
@@ -163,7 +148,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
       }),
       LinkBubbleMenuHandler,
     ];
-  }, [getAccountNamesByIds, people]);
+  }, []);
 
   return extensions;
 };

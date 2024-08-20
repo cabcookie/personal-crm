@@ -3,6 +3,7 @@ import {
   createAndDeleteBlocksAndTodos,
   updateBlocksAndTodos,
 } from "@/components/ui-elements/editors/helpers/block-todo-cud";
+import { getBlockIds } from "@/components/ui-elements/editors/helpers/blocks";
 import { addAttrsInEditorContent } from "@/components/ui-elements/editors/helpers/cleanup-attrs";
 import { deleteAndCreateMentionedPeople } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
 import TransactionError from "@/components/ui-elements/editors/helpers/transaction-error";
@@ -199,13 +200,13 @@ const useActivity = (activityId?: string) => {
        * Delete and create todos and note blocks where neccessary
        * and update Activity's note block ids
        */
-      await createAndDeleteBlocksAndTodos(editor, activity, mutateActivity);
+      await createAndDeleteBlocksAndTodos(editor, activity);
 
       /* Delete and create mentioned people where neccessary and update activity recordId's */
-      await deleteAndCreateMentionedPeople(editor, activity, mutateActivity);
+      await deleteAndCreateMentionedPeople(editor, activity);
 
       /* Update todos and blocks where neccessary */
-      await updateBlocksAndTodos(editor, activity, mutateActivity);
+      await updateBlocksAndTodos(editor, activity);
 
       /* Update mentioned people where neccessary */
 
@@ -214,6 +215,16 @@ const useActivity = (activityId?: string) => {
       /* Delete todo projects where neccessary */
 
       /* Create todo projects where neccessary */
+
+      const content = editor.getJSON();
+      mutateActivity(
+        {
+          ...activity,
+          notes: content,
+          noteBlockIds: getBlockIds(content),
+        },
+        true
+      );
     } catch (error) {
       if (error instanceof TransactionError) {
         console.error(

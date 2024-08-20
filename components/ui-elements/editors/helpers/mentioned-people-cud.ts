@@ -1,7 +1,7 @@
 /* Create, update, delete operations on mentioned people (i.e., NoteMentionedPersonPerson) */
 
 import { type Schema } from "@/amplify/data/resource";
-import { Activity, MutateActivityFn, TempIdMapping } from "@/api/useActivity";
+import { Activity, TempIdMapping } from "@/api/useActivity";
 import { logFp, not } from "@/helpers/functional";
 import { Editor } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
@@ -136,59 +136,6 @@ const getPeopleMentioned = (content: EditorJsonContent): EditorJsonContent[] =>
     reduce(findPeopleMentioned(), [] as EditorJsonContent[])
   )(content);
 
-const mapMentions =
-  (idMapping: MentionedPersonTempIdMapping[]) =>
-  (content: EditorJsonContent): EditorJsonContent => ({
-    ...content,
-    ...(idMapping.some((m) => m.personId === content.attrs?.personId)
-      ? {
-          attrs: {
-            ...content.attrs,
-            recordId: idMapping.find(
-              (m) => m.personId === content.attrs?.personId
-            )?.id,
-          },
-        }
-      : {
-          content: content.content?.map(mapMentions(idMapping)),
-        }),
-  });
-
-const mapRelevantBlock =
-  (idMapping: MentionedPersonTempIdMapping[]) =>
-  (content: EditorJsonContent): EditorJsonContent => ({
-    ...content,
-    ...(idMapping.some((m) => m.blockId && m.blockId === content.attrs?.blockId)
-      ? {
-          content: content.content?.map(
-            mapMentions(
-              idMapping.filter(
-                (m) => m.blockId && m.blockId === content.attrs?.blockId
-              )
-            )
-          ),
-        }
-      : {}),
-  });
-
-const updateRecordIdInActivity = (
-  activity: Activity | undefined,
-  idMapping: MentionedPersonTempIdMapping[],
-  mutateActivity: MutateActivityFn
-) =>
-  !activity
-    ? undefined
-    : mutateActivity(
-        {
-          ...activity,
-          notes: {
-            ...activity.notes,
-            content: activity.notes.content?.map(mapRelevantBlock(idMapping)),
-          },
-        },
-        false
-      );
-
 const mapDeleteSet = (block: EditorJsonContent): TMentionedPersonDeleteSet => {
   if (!block.attrs?.recordId)
     throw new TransactionError(
@@ -235,8 +182,7 @@ const getMentionedPersonDeleteSet = (
 
 export const deleteAndCreateMentionedPeople = async (
   editor: Editor,
-  activity: Activity,
-  mutateActivity: MutateActivityFn
+  activity: Activity
 ) => {
   /* Delete mentioned people where neccessary */
   await Promise.all(
@@ -258,5 +204,4 @@ export const deleteAndCreateMentionedPeople = async (
     )(editor, activity)
   );
   mapIds(editor, "recordId", mentionedPersonIdMapping);
-  updateRecordIdInActivity(activity, mentionedPersonIdMapping, mutateActivity);
 };

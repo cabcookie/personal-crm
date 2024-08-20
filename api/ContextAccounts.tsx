@@ -177,7 +177,7 @@ const addOrderNumberToAccounts = (
     []
   );
 
-const fetchAccounts = async () => {
+export const fetchAccounts = async () => {
   const { data, errors } = await client.models.Account.list({
     limit: 500,
     selectionSet,

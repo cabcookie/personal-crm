@@ -5,7 +5,6 @@ import { FC, useEffect } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
 import { emptyDocument } from "../helpers/document";
 import {
-  applyExtensions,
   applyPastePropsAndUiAttrs,
   applyReadOnly,
   updateEditorContent,
@@ -43,11 +42,7 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
     applyReadOnly(editor, readonly);
   }, [editor, readonly]);
   useEffect(() => {
-    applyExtensions(editor, extensions);
-  }, [editor, extensions]);
-  useEffect(() => {
     applyPastePropsAndUiAttrs(editor, activity?.notes, readonly);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activity?.notes, editor?.getJSON(), readonly]);
 
   return (

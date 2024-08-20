@@ -1,9 +1,16 @@
 import { type Schema } from "@/amplify/data/resource";
+import {
+  filterPersonByQuery,
+  limitItems,
+  mapPersonToSuggestion,
+  SuggestionItem,
+} from "@/helpers/ui-notes-writer/suggestions";
 import { generateClient } from "aws-amplify/data";
 import { filter, flow, join, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
+import { Account, fetchAccounts } from "./ContextAccounts";
 import { handleApiErrors } from "./globals";
-import { Person, mapPerson, selectionSet } from "./usePerson";
+import { mapPerson, Person, selectionSet } from "./usePerson";
 const client = generateClient<Schema>();
 
 const fetchPeople = async () => {
@@ -24,6 +31,37 @@ const fetchPeople = async () => {
     console.error("fetchPeople", { error });
     throw error;
   }
+};
+
+type QueryPersonMemo = {
+  people: Person[] | undefined;
+  accounts: Account[] | undefined;
+};
+
+const queryPersonMemo: QueryPersonMemo = {
+  people: undefined,
+  accounts: undefined,
+};
+
+export const queryPerson = async (query: string): Promise<SuggestionItem[]> => {
+  if (!queryPersonMemo.people) {
+    queryPersonMemo.people = await fetchPeople();
+  }
+  if (!queryPersonMemo.accounts) {
+    queryPersonMemo.accounts = await fetchAccounts();
+  }
+  const { people, accounts } = queryPersonMemo;
+  const getAccountNamesByIds = (ids: string[]) =>
+    flow(
+      filter((a: Account) => ids.includes(a.id)),
+      map((a) => a.name),
+      join(", ")
+    )(accounts);
+  return flow(
+    filter(filterPersonByQuery(query)),
+    map(mapPersonToSuggestion(getAccountNamesByIds)),
+    limitItems(7)
+  )(people);
 };
 
 const usePeople = () => {

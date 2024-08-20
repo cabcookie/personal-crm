@@ -27,6 +27,7 @@
 - Auch bei Inbox Items haben wir den Task Mechanismus entfernt.
 
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
+- Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
 
 ## In Arbeit
 
