@@ -14,7 +14,6 @@ export const mapIds = (
   attrName: string,
   mappings: TempIdMapping[]
 ) => {
-  console.log("mapIds", { attrName, mappings });
   if (mappings.length === 0) return;
   const { view } = editor;
   const { state, dispatch } = view;
@@ -30,7 +29,6 @@ export const mapIds = (
       });
     }
   });
-  console.log("Transactions", updateTr.steps);
   if (updateTr.steps.length > 0) {
     dispatch(updateTr);
   }
@@ -85,7 +83,6 @@ export const addAttrsInEditorContent = (editor: Editor) => {
       }
     }
   });
-  console.log("Transactions", updateTr.steps);
   if (updateTr.steps.length > 0) {
     dispatch(updateTr);
   }

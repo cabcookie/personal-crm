@@ -24,13 +24,6 @@ export type TempIdMapping = {
   id: string;
 };
 
-type MentionedPerson = { recordId: string; personId: string };
-
-type BlockMentionedPeople = {
-  blockId: string;
-  people: MentionedPerson[];
-};
-
 export type Activity = {
   id: string;
   notes: EditorJsonContent;
@@ -40,7 +33,6 @@ export type Activity = {
   projectIds: string[];
   projectActivityIds: string[];
   noteBlockIds: (string | null)[] | null;
-  mentionedPeople: BlockMentionedPeople[];
 };
 
 const selectionSet = [
@@ -58,7 +50,6 @@ const selectionSet = [
   "noteBlocks.id",
   "noteBlocks.content",
   "noteBlocks.type",
-  "noteBlocks.formatVersion",
   "noteBlocks.todo.id",
   "noteBlocks.todo.todo",
   "noteBlocks.todo.status",
@@ -85,13 +76,6 @@ export const mapActivity = (a: ActivityData): Activity => ({
   updatedAt: new Date(a.updatedAt),
   projectIds: a.forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: a.forProjects.map(({ id }) => id),
-  mentionedPeople: a.noteBlocks.map((block) => ({
-    blockId: block.id,
-    people: block.people.map((p) => ({
-      recordId: p.id,
-      personId: p.personId,
-    })),
-  })),
 });
 
 const fetchActivity =
@@ -180,18 +164,10 @@ const useActivity = (activityId?: string) => {
   };
 
   const updateNotes: UpdateNotesFunction = async (editor) => {
-    if (isUpdatingActivity) {
-      console.log("----------------------------------------------------------");
-      console.log("Update of activity in progress. Ignoring this update call!");
-      console.log("----------------------------------------------------------");
-      return;
-    }
+    if (isUpdatingActivity) return;
     if (!editor) return;
     if (!activity) return;
-    console.log(
-      "*******************************************************************"
-    );
-    console.log("Starting update of activity...");
+
     setIsUpdatingActivity(true);
 
     try {
@@ -238,10 +214,6 @@ const useActivity = (activityId?: string) => {
       }
     } finally {
       setIsUpdatingActivity(false);
-      console.log("Done with processing the update activity request.");
-      console.log(
-        "*******************************************************************"
-      );
     }
   };
 

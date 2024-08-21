@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Activity } from "@/api/useActivity";
-import { logFp, not } from "@/helpers/functional";
+import { not } from "@/helpers/functional";
 import { Editor } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import {
@@ -148,17 +148,9 @@ export const createAndDeleteProjectTodos = async (
   activity: Activity
 ) => {
   await Promise.all(
-    flow(
-      getChangeSet,
-      logFp("createSet"),
-      map(createProjectTodo)
-    )(editor.getJSON(), activity.notes)
+    flow(getChangeSet, map(createProjectTodo))(editor.getJSON(), activity.notes)
   );
   await Promise.all(
-    flow(
-      getChangeSet,
-      logFp("deleteSet"),
-      map(deleteProjectTodo)
-    )(activity.notes, editor.getJSON())
+    flow(getChangeSet, map(deleteProjectTodo))(activity.notes, editor.getJSON())
   );
 };

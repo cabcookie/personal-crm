@@ -1,8 +1,8 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Button } from "@/components/ui/button";
-import { EditorJsonContent } from "@/helpers/ui-notes-writer";
 import { FC, useEffect, useState } from "react";
 import NotesWriter from "../notes-writer/NotesWriter";
+import { EditorJsonContent } from "../notes-writer/useExtensions";
 import DeleteWarning from "../project-notes-form/DeleteWarning";
 import RecordDetails from "../record-details/record-details";
 

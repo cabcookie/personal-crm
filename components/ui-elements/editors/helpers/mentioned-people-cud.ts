@@ -2,7 +2,7 @@
 
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
-import { logFp, not } from "@/helpers/functional";
+import { not } from "@/helpers/functional";
 import { Editor } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { filter, flow, get, map, reduce, some } from "lodash/fp";
@@ -186,22 +186,20 @@ export const deleteAndCreateMentionedPeople = async (
 ) => {
   /* Delete mentioned people where neccessary */
   await Promise.all(
-    flow(
-      getMentionedPersonDeleteSet,
-      logFp("mentionedPeopleDeleteSet"),
-      map(deleteMentionedPerson)
-    )(editor, activity)
+    flow(getMentionedPersonDeleteSet, map(deleteMentionedPerson))(
+      editor,
+      activity
+    )
   );
 
   /* Delete todo projects where neccessary */
 
   /* Create mentioned people where neccessary */
   const mentionedPersonIdMapping = await Promise.all(
-    flow(
-      getMentionedPersonCreationSet,
-      logFp("mentionedPeopleCreateSet"),
-      map(createMentionedPerson)
-    )(editor, activity)
+    flow(getMentionedPersonCreationSet, map(createMentionedPerson))(
+      editor,
+      activity
+    )
   );
   mapIds(editor, "recordId", mentionedPersonIdMapping);
 };

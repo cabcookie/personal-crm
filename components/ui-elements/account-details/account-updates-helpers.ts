@@ -1,5 +1,5 @@
-import { EditorJsonContent } from "@/helpers/ui-notes-writer";
 import { debounce } from "lodash";
+import { EditorJsonContent } from "../notes-writer/useExtensions";
 
 type UpdateFnProps = {
   id: string;

@@ -8,6 +8,9 @@
 - Das Löschen eines Abschnitts in einer Notiz führt dazu, dass der Block aus der Datenbank gelöscht wird und Einträge, die mit dem Block in Beziehung stehen (Aufgaben und Personen).
 - Änderungen an einer Notiz werden nun in der Datenbank gespeichert inkl. Aufgaben und Verknüpfungen zu Personen oder Projekten.
 
+- Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
+- Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
+
 - Den Mechanismus für offene Aufgaben haben wir zunächst einmal komplett entfernt:
   - ContextOpenTasks löschen
   - useDailyPlans löschen
@@ -27,18 +30,13 @@
   - getEditorContentAndTaskData löschen
 - Auch bei Inbox Items haben wir den Task Mechanismus entfernt.
 
-- Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
-- Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
-
 ## In Arbeit
 
-- Notizen testen auf Stabilität.
-- CUD Operationen für ProjectTodo unterstützen.
+- Sicherstellen, dass wieder Todos erzeugt werden können und in diversen Ansichten angezeigt werden können (offene Aufgaben aus Meetings und in Projekten).
 
 ## Geplant
 
 - Sicherstellen, dass die Inbox funktioniert und Einträge in Activity übertragen werden können.
-- Sicherstellen, dass wieder Todos erzeugt werden können und in diversen Ansichten angezeigt werden können (offene Aufgaben aus Meetings und in Projekten).
 - In `meeting-activity-list.tsx` wieder die Task Badges einfügen:
 
 ```jsx

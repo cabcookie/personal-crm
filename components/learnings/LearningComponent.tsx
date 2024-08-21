@@ -1,11 +1,12 @@
 import { PersonLearning } from "@/api/usePersonLearnings";
-import { EditorJsonContent, getEditorContent } from "@/helpers/ui-notes-writer";
+import { getEditorContent } from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Check, Edit, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
 import PrayerStatus, { TPrayerStatus } from "../prayer/PrayerStatus";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import { EditorJsonContent } from "../ui-elements/notes-writer/useExtensions";
 import DateSelector from "../ui-elements/selectors/date-selector";
 import { Button } from "../ui/button";
 

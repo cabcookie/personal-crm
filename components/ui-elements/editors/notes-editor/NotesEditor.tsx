@@ -1,8 +1,9 @@
 import useActivity from "@/api/useActivity";
 import { Editor } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { FC, useEffect } from "react";
+import { FC, useEffect, useState } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
+import { isUpToDate } from "../helpers/compare";
 import { emptyDocument } from "../helpers/document";
 import {
   applyPastePropsAndUiAttrs,
@@ -10,7 +11,7 @@ import {
   updateEditorContent,
 } from "../helpers/editor-effects";
 import { debouncedUpdateNote } from "../helpers/update-notes";
-import useExtensions from "./useExtensions";
+import useExtensions, { EditorJsonContent } from "./useExtensions";
 
 type NotesEditorProps = {
   activityId: string;
@@ -19,6 +20,12 @@ type NotesEditorProps = {
 
 const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
   const { activity, updateNotes } = useActivity(activityId);
+  const [activityNotes, setActivityNotes] = useState<
+    EditorJsonContent | undefined
+  >();
+  const [editorContent, setEditorContent] = useState<
+    EditorJsonContent | undefined
+  >();
   const extensions = useExtensions();
 
   const handleNotesUpdate = (editor: Editor) => {
@@ -36,14 +43,25 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
 
   /** Handle changes on activity.notes, editor's content, extensions, or readonly state */
   useEffect(() => {
-    updateEditorContent(editor, activity?.notes);
-  }, [editor, activity?.notes]);
+    if (!editor) return;
+    if (isUpToDate(editor.getJSON(), activity?.notes)) return;
+    setEditorContent(editor.getJSON());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
+  useEffect(() => {
+    if (!activity) return;
+    setActivityNotes(activity.notes);
+  }, [activity]);
+  useEffect(() => {
+    updateEditorContent(editor, activityNotes);
+  }, [editor, activityNotes]);
   useEffect(() => {
     applyReadOnly(editor, readonly);
   }, [editor, readonly]);
   useEffect(() => {
-    applyPastePropsAndUiAttrs(editor, activity?.notes, readonly);
-  }, [activity?.notes, editor?.getJSON(), readonly]);
+    applyPastePropsAndUiAttrs(editor, activityNotes, readonly);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activityNotes, editorContent, readonly]);
 
   return (
     <>

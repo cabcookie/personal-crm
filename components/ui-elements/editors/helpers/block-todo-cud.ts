@@ -1,5 +1,4 @@
 import { Activity } from "@/api/useActivity";
-import { logFp } from "@/helpers/functional";
 import { Editor } from "@tiptap/core";
 import { flow, map } from "lodash/fp";
 import {
@@ -51,7 +50,6 @@ export const createAndDeleteBlocksAndTodos = async (
   /* Update noteBlockIds of Activity if neccessary */
   await flow(
     getBlockIdsUpdateSet,
-    logFp("blockIdsUpdateSet"),
     updateActivityBlockIds(activity, editor.getJSON())
   )(editor, activity);
 };
@@ -61,20 +59,10 @@ export const updateBlocksAndTodos = async (
   activity: Activity
 ) => {
   /* Update todos where neccessary */
-  await Promise.all(
-    flow(
-      getTodoUpdateSet,
-      logFp("todoUpdateSet"),
-      map(updateTodo)
-    )(editor, activity)
-  );
+  await Promise.all(flow(getTodoUpdateSet, map(updateTodo))(editor, activity));
 
   /* Update note blocks where neccessary */
   await Promise.all(
-    flow(
-      getBlockUpdateSet,
-      logFp("blockUpdateSet"),
-      map(updateBlock)
-    )(editor, activity)
+    flow(getBlockUpdateSet, map(updateBlock))(editor, activity)
   );
 };

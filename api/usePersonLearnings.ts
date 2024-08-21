@@ -1,12 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
 import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
+import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
+import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
 import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
-import {
-  EditorJsonContent,
-  emptyDocument,
-  transformNotesVersion,
-} from "@/helpers/ui-notes-writer";
+import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { generateClient } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
