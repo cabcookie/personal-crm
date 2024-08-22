@@ -35,6 +35,7 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
   const editor = useEditor({
     extensions,
     editable: !readonly,
+    immediatelyRender: false,
     content: activity?.notes ?? emptyDocument,
     onUpdate: ({ editor }) => {
       handleNotesUpdate(editor);

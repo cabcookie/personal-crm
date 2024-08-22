@@ -1,10 +1,12 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Activity } from "@/api/useActivity";
 import { Meeting } from "@/api/useMeetings";
+import useMeetingTodos from "@/api/useMeetingTodos";
 import usePeople from "@/api/usePeople";
 import { format } from "date-fns";
 import { flatMap, flow, get, map } from "lodash/fp";
 import { FC } from "react";
+import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import MeetingRecord from "./meeting";
@@ -16,6 +18,7 @@ type MeetingAccordionItemProps = {
 const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
   const { getNamesByIds } = usePeople();
   const { getProjectNamesByIds } = useProjectsContext();
+  const { meetingTodos } = useMeetingTodos(meeting.id);
 
   return (
     <DefaultAccordionItem
@@ -23,12 +26,12 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
       triggerTitle={`${meeting.topic} (${format(meeting.meetingOn, "Pp")})`}
       className="tracking-tight"
       link={`/meetings/${meeting.id}`}
-      // badge={
-      //   <TaskBadge
-      //     hasOpenTasks={meeting.activities.some((a) => a.hasOpenTasks)}
-      //     hasClosedTasks={meeting.activities.some((a) => a.closedTasks?.length)}
-      //   />
-      // }
+      badge={
+        <TaskBadge
+          hasOpenTasks={meetingTodos?.some((t) => !t.done)}
+          hasClosedTasks={meetingTodos?.every((t) => t.done)}
+        />
+      }
       triggerSubTitle={[
         meeting.participantIds.length > 0 &&
           `Participants: ${getNamesByIds(meeting.participantIds)}`,

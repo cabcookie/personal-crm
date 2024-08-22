@@ -4,7 +4,7 @@ import { Badge } from "../ui/badge";
 
 type TaskBadgeProps = {
   hasOpenTasks?: boolean;
-  hasClosedTasks: boolean;
+  hasClosedTasks?: boolean;
 };
 
 const TaskBadge: FC<TaskBadgeProps> = ({ hasClosedTasks, hasOpenTasks }) =>
