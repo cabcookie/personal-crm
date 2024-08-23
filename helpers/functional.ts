@@ -1,5 +1,4 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { flow, map, uniq } from "lodash/fp";
 
 export const addDaysToDate = (days: number) => (date: Date) =>
   addDays(date, days);
@@ -12,11 +11,10 @@ export const toLocaleTimeString = (date?: Date) =>
       });
 export const toLocaleDateString = (date?: Date) =>
   !date ? "" : format(date, "PPP");
-const makeDate = (str: string) => new Date(str);
+export const makeDate = (str: string) => new Date(str);
 export const toISODateTimeString = (date: Date) =>
   format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
 export const toISODateString = (date: Date) => format(date, "yyyy-MM-dd");
-export const getUniqDates = flow(map(toISODateString), uniq, map(makeDate));
 export const not = (val: boolean) => !val;
 export const usdCurrency = new Intl.NumberFormat("en-US", {
   currency: "USD",

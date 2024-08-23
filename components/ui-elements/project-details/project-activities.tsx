@@ -20,7 +20,7 @@ const ProjectActivities: FC<ProjectActivitiesProps> = ({
   ) : (
     <DefaultAccordionItem
       value="activities"
-      triggerTitle="Notes"
+      triggerTitle="Project Notes"
       isVisible={isVisible}
     >
       <div className="space-y-2">

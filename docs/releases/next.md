@@ -9,6 +9,7 @@
 - Änderungen an einer Notiz werden nun in der Datenbank gespeichert inkl. Aufgaben und Verknüpfungen zu Personen oder Projekten.
 - Für ein Meeting und Projekte werden die offenen vereinbarten Aufgaben dargestellt (sie können nicht editiert werden).
 
+- Der Zeitraum für die angezeigte Liste der Meetings wird durch einen URL Parameter bestimmt (`startDate`).
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
 - Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
 
