@@ -1,6 +1,6 @@
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { FC } from "react";
-import { Badge } from "../ui/badge";
+import AccordionItemBadge from "../accordion-item-badge/badge";
 
 type TaskBadgeProps = {
   hasOpenTasks?: boolean;
@@ -9,20 +9,14 @@ type TaskBadgeProps = {
 
 const TaskBadge: FC<TaskBadgeProps> = ({ hasClosedTasks, hasOpenTasks }) =>
   hasOpenTasks ? (
-    <>
-      <Circle className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden bg-destructive rounded-full text-destructive-foreground" />
-      <Badge variant="destructive" className="hidden md:block">
-        Open
-      </Badge>
-    </>
+    <AccordionItemBadge badgeLabel="Open" className="bg-destructive" />
   ) : (
     hasClosedTasks && (
-      <>
-        <CheckCircle2 className="mt-[0.2rem] w-4 min-w-4 h-4 md:hidden rounded-full bg-constructive text-constructive-foreground" />
-        <Badge className="hidden md:block bg-constructive text-constructive-foreground">
-          Done
-        </Badge>
-      </>
+      <AccordionItemBadge
+        badgeLabel="Done"
+        Icon={CheckCircle2}
+        className="bg-constructive"
+      />
     )
   );
 

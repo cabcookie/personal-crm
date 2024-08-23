@@ -3,6 +3,7 @@ import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import NotesEditor from "../ui-elements/editors/notes-editor/NotesEditor";
+import ActivityFormatBadge from "./activity-format-badge";
 import ActivityMetaData from "./activity-meta-data";
 
 type ActivityNotesProps = {
@@ -19,6 +20,7 @@ const ActivityNotes: FC<ActivityNotesProps> = ({ activity, readOnly }) => {
       triggerTitle="Notes"
       triggerSubTitle={getTextFromEditorJsonContent(activity.notes)}
       className="tracking-tight"
+      badge={activity.oldFormatVersion && <ActivityFormatBadge />}
     >
       <NotesEditor
         activityId={activity.id}

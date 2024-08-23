@@ -33,6 +33,7 @@ export type Activity = {
   projectIds: string[];
   projectActivityIds: string[];
   noteBlockIds: (string | null)[] | null;
+  oldFormatVersion: boolean;
 };
 
 const selectionSet = [
@@ -76,6 +77,7 @@ export const mapActivity = (a: ActivityData): Activity => ({
   updatedAt: new Date(a.updatedAt),
   projectIds: a.forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: a.forProjects.map(({ id }) => id),
+  oldFormatVersion: !a.formatVersion || a.formatVersion < 3,
 });
 
 const fetchActivity =

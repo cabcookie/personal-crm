@@ -83,6 +83,7 @@ export type Project = {
   partnerId?: string;
   activityIds: string[];
   crmProjects: CrmProject[];
+  hasOldVersionedActivityFormat: boolean;
 };
 
 const selectionSet = [
@@ -103,6 +104,7 @@ const selectionSet = [
   "partner.id",
   "activities.activity.id",
   "activities.activity.finishedOn",
+  "activities.activity.formatVersion",
   "activities.activity.createdAt",
   "crmProjects.crmProject.id",
   "crmProjects.crmProject.name",
@@ -208,7 +210,12 @@ const mapProject: (project: ProjectData) => Project = ({
     pipeline: pipeline,
     order: pipeline,
     partnerId: partner?.id,
-  };
+    hasOldVersionedActivityFormat: !activities
+      ? false
+      : activities.some(
+          (a) => !a.activity?.formatVersion || a.activity.formatVersion < 3
+        ),
+  } as Project;
 };
 
 const fetchProjects = (context?: Context) => async () => {
@@ -272,6 +279,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       crmProjects: [],
       pipeline: 0,
       order: 0,
+      hasOldVersionedActivityFormat: false,
     };
 
     const updatedProjects = [...(projects || []), newProject];

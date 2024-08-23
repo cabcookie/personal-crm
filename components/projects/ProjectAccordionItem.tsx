@@ -6,6 +6,7 @@ import { addDays, format } from "date-fns";
 import { flow, map, sum } from "lodash/fp";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
 import { FC, useState } from "react";
+import ActivityFormatBadge from "../activities/activity-format-badge";
 import HygieneIssueBadge from "../crm/hygiene-issue-badge";
 import { hasHygieneIssues } from "../crm/pipeline-hygiene";
 import TaskBadge from "../task/TaskBadge";
@@ -57,11 +58,8 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
             {project.crmProjects.some(hasHygieneIssues) && (
               <HygieneIssueBadge />
             )}
-            {
-              <TaskBadge
-                hasOpenTasks={projectTodos && projectTodos.length > 0}
-              />
-            }
+            <TaskBadge hasOpenTasks={projectTodos && projectTodos.length > 0} />
+            {project.hasOldVersionedActivityFormat && <ActivityFormatBadge />}
           </>
         }
         triggerSubTitle={[

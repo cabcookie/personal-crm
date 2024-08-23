@@ -3,6 +3,7 @@ import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
+import ActivityFormatBadge from "../activities/activity-format-badge";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { getTodoText } from "../ui-elements/editors/helpers/text-generation";
@@ -25,10 +26,17 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
         value={a.id}
         key={a.id}
         badge={
-          <TaskBadge
-            hasOpenTasks={meetingTodos?.some((t) => !t.done)}
-            hasClosedTasks={meetingTodos?.every((t) => t.done)}
-          />
+          <>
+            <TaskBadge
+              hasOpenTasks={meetingTodos?.some((t) => !t.done)}
+              hasClosedTasks={
+                meetingTodos &&
+                meetingTodos.length > 0 &&
+                meetingTodos.every((t) => t.done)
+              }
+            />
+            {a.oldFormatVersion && <ActivityFormatBadge />}
+          </>
         }
         triggerTitle={getProjectNamesByIds(a.projectIds)}
         triggerSubTitle={`Next actions: ${getTodoText(meetingTodos)}`}

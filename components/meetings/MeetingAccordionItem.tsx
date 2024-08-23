@@ -6,6 +6,7 @@ import usePeople from "@/api/usePeople";
 import { format } from "date-fns";
 import { flatMap, flow, get, map } from "lodash/fp";
 import { FC } from "react";
+import ActivityFormatBadge from "../activities/activity-format-badge";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
@@ -27,10 +28,13 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
       className="tracking-tight"
       link={`/meetings/${meeting.id}`}
       badge={
-        <TaskBadge
-          hasOpenTasks={meetingTodos?.some((t) => !t.done)}
-          hasClosedTasks={meetingTodos?.every((t) => t.done)}
-        />
+        <>
+          <TaskBadge
+            hasOpenTasks={meetingTodos?.some((t) => !t.done)}
+            hasClosedTasks={meetingTodos?.every((t) => t.done)}
+          />
+          {meeting.hasOldVersionFormattedActivities && <ActivityFormatBadge />}
+        </>
       }
       triggerSubTitle={[
         meeting.participantIds.length > 0 &&

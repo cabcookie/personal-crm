@@ -103,7 +103,7 @@ const createProjectTodo = async ({
     );
 };
 
-const makeProjectIdTodoStatus = ({
+export const makeProjectIdTodoStatus = ({
   projectId,
   done,
 }: Omit<TProjectTodoData, "todoId">) =>

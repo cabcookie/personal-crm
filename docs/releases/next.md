@@ -8,6 +8,7 @@
 - Das Löschen eines Abschnitts in einer Notiz führt dazu, dass der Block aus der Datenbank gelöscht wird und Einträge, die mit dem Block in Beziehung stehen (Aufgaben und Personen).
 - Änderungen an einer Notiz werden nun in der Datenbank gespeichert inkl. Aufgaben und Verknüpfungen zu Personen oder Projekten.
 - Für ein Meeting und Projekte werden die offenen vereinbarten Aufgaben dargestellt (sie können nicht editiert werden).
+- Für Meetings und Projekte wird dargestellt, wenn Aktivitäten nach alter Formatierung enthalten sind. Das ist wichtig als Warnung, dass in der Aktivität Aufgaben enthalten sein könnten, die im Moment wegen der alten Formatierung nicht angezeigt werden könnten.
 
 - Der Zeitraum für die angezeigte Liste der Meetings wird durch einen URL Parameter bestimmt (`startDate`).
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.

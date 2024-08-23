@@ -25,6 +25,7 @@ export type Meeting = {
   participantMeetingIds: string[];
   participantIds: string[];
   activities: Activity[];
+  hasOldVersionFormattedActivities: boolean;
 };
 
 export const meetingSelectionSet = [
@@ -82,6 +83,9 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
     map(mapActivity),
     sortBy((a) => -a.finishedOn.getTime())
   )(activities),
+  hasOldVersionFormattedActivities: activities.some(
+    (a) => !a.formatVersion || a.formatVersion < 3
+  ),
 });
 
 const calculateToDate = (startDate: string) =>
@@ -204,6 +208,7 @@ const useMeetings = ({
       participantIds: [],
       participantMeetingIds: [],
       activities: [],
+      hasOldVersionFormattedActivities: false,
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
