@@ -1,9 +1,9 @@
 import { ActivityData } from "@/api/useActivity";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
+import { JSONContent } from "@tiptap/core";
 
 export const transformNotesVersion1 = (
   notes: ActivityData["notes"]
-): EditorJsonContent => ({
+): JSONContent => ({
   type: "doc",
   content:
     notes?.split("\n").map((text) => ({

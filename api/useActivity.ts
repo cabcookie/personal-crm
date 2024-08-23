@@ -10,9 +10,9 @@ import { createAndDeleteProjectTodos } from "@/components/ui-elements/editors/he
 import TransactionError from "@/components/ui-elements/editors/helpers/transaction-error";
 import { transformNotesVersion } from "@/components/ui-elements/editors/helpers/transformers";
 import { UpdateNotesFunction } from "@/components/ui-elements/editors/helpers/update-notes";
-import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
+import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { useState } from "react";
 import useSWR from "swr";
@@ -26,7 +26,7 @@ export type TempIdMapping = {
 
 export type Activity = {
   id: string;
-  notes: EditorJsonContent;
+  notes: JSONContent;
   meetingId?: string;
   finishedOn: Date;
   updatedAt: Date;

@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -29,7 +29,7 @@ const mapStatus = (status: string): InboxStatus =>
 
 export type Inbox = {
   id: string;
-  note: EditorJsonContent;
+  note: JSONContent;
   status: InboxStatus;
   createdAt: Date;
 };

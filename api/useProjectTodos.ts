@@ -1,13 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
 import { makeProjectIdTodoStatus } from "@/components/ui-elements/editors/helpers/project-todo-cud";
-import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
+import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
 export type Todo = {
   todoId: string;
-  todo: EditorJsonContent;
+  todo: JSONContent;
   done: boolean;
   doneOn: Date | null;
   activityId: string;

@@ -1,10 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
 import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
 import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
@@ -13,7 +13,7 @@ const client = generateClient<Schema>();
 
 export type PersonLearning = {
   id: string;
-  learning: EditorJsonContent;
+  learning: JSONContent;
   learnedOn: Date;
   updatedAt: Date;
   prayerStatus: TPrayerStatus;
@@ -135,10 +135,7 @@ const usePersonLearnings = (personId?: string) => {
     return data?.id;
   };
 
-  const updateLearning = async (
-    learningId: string,
-    learning: EditorJsonContent
-  ) => {
+  const updateLearning = async (learningId: string, learning: JSONContent) => {
     if (!learnings) return;
     const updated: PersonLearning[] = learnings.map((l) =>
       l.id !== learningId

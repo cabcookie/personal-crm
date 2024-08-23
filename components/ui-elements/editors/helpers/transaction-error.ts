@@ -1,20 +1,20 @@
 import { GraphQLFormattedError } from "@/api/globals";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
+import { JSONContent } from "@tiptap/core";
 
 interface TTransactionError extends Error {
-  block: EditorJsonContent | string | null;
+  block: JSONContent | string | null;
   failedTransaction: string;
   graphQlErrors?: GraphQLFormattedError[];
 }
 
 class TransactionError extends Error implements TTransactionError {
-  block: EditorJsonContent | string | null;
+  block: JSONContent | string | null;
   failedTransaction: string;
   graphQlErrors?: GraphQLFormattedError[] | undefined;
 
   constructor(
     message: string,
-    block: EditorJsonContent | string | null,
+    block: JSONContent | string | null,
     failedTransaction: string,
     graphQlErrors?: GraphQLFormattedError[]
   ) {

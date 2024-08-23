@@ -1,7 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Activity } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import {
   compact,
@@ -13,7 +13,6 @@ import {
   map,
   some,
 } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { getTodos } from "./todos-cud";
 import TransactionError from "./transaction-error";
 const client = generateClient<Schema>();
@@ -40,20 +39,20 @@ const mapProjectTodoData =
       })
     );
 
-const mapTodo = (todo: EditorJsonContent): TTodoData => ({
+const mapTodo = (todo: JSONContent): TTodoData => ({
   todoId: todo.attrs?.todoId,
   done: todo.attrs?.checked,
 });
 
-const getProjects = (content: EditorJsonContent): undefined | string[] =>
+const getProjects = (content: JSONContent): undefined | string[] =>
   flow(get("attrs.projects"), map(get("projectsId")))(content);
 
 const mapProjectTodos = (
-  content: EditorJsonContent
+  content: JSONContent
 ): ((todo: TTodoData) => TProjectTodoData[] | undefined) =>
   flow(getProjects, mapProjectTodoData)(content);
 
-const getProjectTodos = (content: EditorJsonContent) =>
+const getProjectTodos = (content: JSONContent) =>
   flow(
     getTodos,
     map(mapTodo),
@@ -68,12 +67,12 @@ const existingRecords =
 
 const filterExisting = flow(getProjectTodos, existingRecords);
 
-const filterMissingRecords = (filteredByRecords: EditorJsonContent) =>
+const filterMissingRecords = (filteredByRecords: JSONContent) =>
   filter(flow(filterExisting(filteredByRecords), not));
 
 const getChangeSet = (
-  referenceRecords: EditorJsonContent,
-  filteredByRecords: EditorJsonContent
+  referenceRecords: JSONContent,
+  filteredByRecords: JSONContent
 ): TProjectTodoData[] =>
   flow(
     getProjectTodos,

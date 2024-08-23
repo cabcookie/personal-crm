@@ -1,11 +1,11 @@
 import { Todo } from "@/api/useProjectTodos";
+import { JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import useExtensions from "./useExtensions";
 
-const getTodoEditorContent = (todos: Todo[]): EditorJsonContent => ({
+const getTodoEditorContent = (todos: Todo[]): JSONContent => ({
   type: "doc",
   content: [
     {

@@ -1,12 +1,12 @@
 import { PersonLearning } from "@/api/usePersonLearnings";
 import { getEditorContent } from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
+import { JSONContent } from "@tiptap/core";
 import { format } from "date-fns";
 import { Check, Edit, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
 import PrayerStatus, { TPrayerStatus } from "../prayer/PrayerStatus";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
-import { EditorJsonContent } from "../ui-elements/notes-writer/useExtensions";
 import DateSelector from "../ui-elements/selectors/date-selector";
 import { Button } from "../ui/button";
 
@@ -15,7 +15,7 @@ type LearningComponentProps = {
   editable?: boolean;
   onMakeEditable?: () => void;
   onDelete?: () => void;
-  onChange: (serializer: () => { json: EditorJsonContent }) => void;
+  onChange: (serializer: () => { json: JSONContent }) => void;
   onStatusChange: (val: TPrayerStatus) => void;
   onDateChange: (newDate: Date) => Promise<string | undefined>;
 };

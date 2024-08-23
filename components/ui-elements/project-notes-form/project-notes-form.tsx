@@ -9,7 +9,7 @@ import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
 import ActivityMetaData from "../../activities/activity-meta-data";
 import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
-import { getTextFromEditorJsonContent } from "../editors/helpers/text-generation";
+import { getTextFromJsonContent } from "../editors/helpers/text-generation";
 import NotesEditor from "../editors/notes-editor/NotesEditor";
 import DeleteWarning from "./DeleteWarning";
 
@@ -46,7 +46,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
             (id) =>
               `Project: ${getProjectById(id)?.project}${
                 activity &&
-                `; Notes: ${getTextFromEditorJsonContent(activity?.notes).slice(
+                `; Notes: ${getTextFromJsonContent(activity?.notes).slice(
                   0,
                   200
                 )}`

@@ -9,7 +9,7 @@ import { FC } from "react";
 import ActivityFormatBadge from "../activities/activity-format-badge";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
+import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import MeetingRecord from "./meeting";
 
 type MeetingAccordionItemProps = {
@@ -47,7 +47,7 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
         meeting.activities.length > 0 &&
           `Notes: ${flow(
             map(get("notes")),
-            map(getTextFromEditorJsonContent)
+            map(getTextFromJsonContent)
           )(meeting.activities)}`,
       ]}
     >

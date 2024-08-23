@@ -1,5 +1,5 @@
 import useActivity from "@/api/useActivity";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect, useState } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
@@ -11,7 +11,7 @@ import {
   updateEditorContent,
 } from "../helpers/editor-effects";
 import { debouncedUpdateNote } from "../helpers/update-notes";
-import useExtensions, { EditorJsonContent } from "./useExtensions";
+import useExtensions from "./useExtensions";
 
 type NotesEditorProps = {
   activityId: string;
@@ -20,12 +20,8 @@ type NotesEditorProps = {
 
 const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
   const { activity, updateNotes } = useActivity(activityId);
-  const [activityNotes, setActivityNotes] = useState<
-    EditorJsonContent | undefined
-  >();
-  const [editorContent, setEditorContent] = useState<
-    EditorJsonContent | undefined
-  >();
+  const [activityNotes, setActivityNotes] = useState<JSONContent | undefined>();
+  const [editorContent, setEditorContent] = useState<JSONContent | undefined>();
   const extensions = useExtensions();
 
   const handleNotesUpdate = (editor: Editor) => {

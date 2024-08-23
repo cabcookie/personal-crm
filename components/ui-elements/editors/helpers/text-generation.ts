@@ -1,5 +1,5 @@
 import { Todo } from "@/api/useProjectTodos";
-import { generateText } from "@tiptap/core";
+import { generateText, JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
@@ -8,18 +8,17 @@ import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
 import { filter, flow, get, join, map, trim } from "lodash/fp";
 import { TaskItem } from "../extensions/tasks/task-item";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 
-const filterS3ImageNodes = (nodes: EditorJsonContent[]): EditorJsonContent[] =>
+const filterS3ImageNodes = (nodes: JSONContent[]): JSONContent[] =>
   flow(
-    filter((node: EditorJsonContent) => node.type !== "s3image"),
+    filter((node: JSONContent) => node.type !== "s3image"),
     map((node) => ({
       ...node,
       content: !node.content ? undefined : filterS3ImageNodes(node.content),
     }))
   )(nodes);
 
-const transformMentionsToText = (json: EditorJsonContent): EditorJsonContent =>
+const transformMentionsToText = (json: JSONContent): JSONContent =>
   json.type !== "mention"
     ? {
         ...json,
@@ -35,7 +34,7 @@ const transformMentionsToText = (json: EditorJsonContent): EditorJsonContent =>
     ? {}
     : { type: "text", text: `@${json.attrs?.label}` };
 
-const transformTasksToText = (json: EditorJsonContent): EditorJsonContent =>
+const transformTasksToText = (json: JSONContent): JSONContent =>
   json.type !== "taskList"
     ? {
         ...json,
@@ -80,9 +79,7 @@ const MyExtensions = [
   Mention,
 ];
 
-export const getTextFromEditorJsonContent = (
-  json?: EditorJsonContent | string
-) =>
+export const getTextFromJsonContent = (json?: JSONContent | string) =>
   !json
     ? ""
     : typeof json === "string"
@@ -107,7 +104,7 @@ export const getTextFromEditorJsonContent = (
 export const getTodoText: (todos: Todo[] | undefined) => string = flow(
   filter((t) => !t.done),
   map(get("todo")),
-  map(getTextFromEditorJsonContent),
+  map(getTextFromJsonContent),
   map(trim),
   join(", ")
 );

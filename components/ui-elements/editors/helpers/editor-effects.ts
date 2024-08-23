@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
-import { Editor } from "@tiptap/react";
+import { Editor, JSONContent } from "@tiptap/react";
 import { handlePastingImage } from "../extensions/s3-images/image-handling";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { isUpToDate } from "./compare";
 
 export const updateEditorContent = (
   editor: Editor | null,
-  content: EditorJsonContent | undefined
+  content: JSONContent | undefined
 ) => {
   if (!editor) return;
+  if (!content) return;
   if (editor.getText() === "" && content) editor.commands.setContent(content);
 };
 
@@ -22,8 +22,9 @@ export const applyReadOnly = (
 
 export const applyPastePropsAndUiAttrs = (
   editor: Editor | null,
-  content: EditorJsonContent | undefined,
-  readonly: boolean | undefined
+  content: JSONContent | undefined,
+  readonly: boolean | undefined,
+  showSaveStatus: boolean | undefined = true
 ) => {
   if (!editor) return;
   editor.setOptions({
@@ -42,7 +43,8 @@ export const applyPastePropsAndUiAttrs = (
       attributes: {
         class: cn(
           "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",
-          content &&
+          showSaveStatus &&
+            content &&
             !readonly &&
             !isUpToDate(content, editor.getJSON()) &&
             "bg-red-50"

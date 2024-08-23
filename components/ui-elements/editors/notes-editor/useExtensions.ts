@@ -1,11 +1,6 @@
 import { queryPerson } from "@/api/usePeople";
 import { renderer } from "@/helpers/ui-notes-writer/suggestions";
-import {
-  EditorOptions,
-  JSONContent,
-  mergeAttributes,
-  NodeConfig,
-} from "@tiptap/core";
+import { EditorOptions, mergeAttributes, NodeConfig } from "@tiptap/core";
 import BlockQuote from "@tiptap/extension-blockquote";
 import CodeBlock from "@tiptap/extension-code-block";
 import Document from "@tiptap/extension-document";
@@ -23,8 +18,6 @@ import { useMemo } from "react";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../extensions/s3-images/S3ImageExtension";
 import { TaskItem } from "../extensions/tasks/task-item";
-
-export type EditorJsonContent = JSONContent;
 
 const extendedConfig: Partial<NodeConfig<any, any>> = {
   addAttributes() {

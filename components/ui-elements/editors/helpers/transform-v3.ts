@@ -1,10 +1,10 @@
 import { ActivityData, NoteBlockData } from "@/api/useActivity";
+import { JSONContent } from "@tiptap/core";
 import { compact, flow, last, reduce } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 
 const mapPeople =
   (block: NoteBlockData) =>
-  (content: EditorJsonContent): EditorJsonContent => ({
+  (content: JSONContent): JSONContent => ({
     ...content,
     ...(content.type !== "mention"
       ? {
@@ -23,11 +23,11 @@ const mapPeople =
 
 const mapListItem = (
   wrapperType: string,
-  prev: EditorJsonContent[],
-  content: EditorJsonContent,
+  prev: JSONContent[],
+  content: JSONContent,
   block: NoteBlockData
-): EditorJsonContent[] => {
-  const preparedContent: EditorJsonContent = {
+): JSONContent[] => {
+  const preparedContent: JSONContent = {
     ...content,
     attrs: {
       ...content.attrs,
@@ -50,8 +50,8 @@ const mapListItem = (
   );
 };
 
-const mapTodoBlock = (block: NoteBlockData): EditorJsonContent => {
-  const content: EditorJsonContent = JSON.parse(block.todo.todo as any);
+const mapTodoBlock = (block: NoteBlockData): JSONContent => {
+  const content: JSONContent = JSON.parse(block.todo.todo as any);
   return {
     ...content,
     attrs: {
@@ -64,16 +64,16 @@ const mapTodoBlock = (block: NoteBlockData): EditorJsonContent => {
 };
 
 const mapContentPeople = (
-  content: EditorJsonContent[] | undefined,
+  content: JSONContent[] | undefined,
   block: NoteBlockData
 ) => (!content ? {} : { content: content.map(mapPeople(block)) });
 
 const mapBlocks =
   (noteBlocks: NoteBlockData[]) =>
-  (prev: EditorJsonContent[], blockId: string): EditorJsonContent[] => {
+  (prev: JSONContent[], blockId: string): JSONContent[] => {
     const block = noteBlocks.find((block) => block.id === blockId);
     if (!block) return prev;
-    const content: EditorJsonContent =
+    const content: JSONContent =
       block.type === "taskItem"
         ? mapTodoBlock(block)
         : JSON.parse(block.content as any);

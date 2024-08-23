@@ -1,8 +1,8 @@
+import { JSONContent } from "@tiptap/core";
 import { isNil, omitBy } from "lodash";
 import { flow, isEqual } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 
-const cleanAttrs = (attrs: EditorJsonContent["attrs"]): EditorJsonContent => {
+const cleanAttrs = (attrs: JSONContent["attrs"]): JSONContent => {
   if (!attrs) return {};
   const cleanedAttrs = omitBy(attrs, isNil);
   return Object.keys(cleanedAttrs).length === 0 ? {} : { attrs: cleanedAttrs };
@@ -12,7 +12,7 @@ const cleanContent = ({
   attrs,
   content,
   ...rest
-}: EditorJsonContent): EditorJsonContent => ({
+}: JSONContent): JSONContent => ({
   ...rest,
   ...cleanAttrs(attrs),
   ...(!content
@@ -23,8 +23,8 @@ const cleanContent = ({
 });
 
 export const isUpToDate = (
-  notes: EditorJsonContent,
-  editorJson: EditorJsonContent | undefined
+  notes: JSONContent,
+  editorJson: JSONContent | undefined
 ) =>
   !editorJson
     ? false

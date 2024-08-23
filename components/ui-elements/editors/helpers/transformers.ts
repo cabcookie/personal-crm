@@ -1,6 +1,6 @@
 import { ActivityData, NoteBlockData } from "@/api/useActivity";
+import { JSONContent } from "@tiptap/core";
 import { flow } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { transformNotesVersion1 } from "./transform-v1";
 import { transformNotesVersion2 } from "./transform-v2";
 import { transformNotesVersion3 } from "./transform-v3";
@@ -20,7 +20,7 @@ const createDocument = ({
   noteBlocks,
   notes,
   notesJson,
-}: Omit<TransformNotesVersionType, "forProjects">): EditorJsonContent =>
+}: Omit<TransformNotesVersionType, "forProjects">): JSONContent =>
   formatVersion === 3
     ? transformNotesVersion3(noteBlocks, noteBlockIds)
     : formatVersion === 2
@@ -28,9 +28,9 @@ const createDocument = ({
     : transformNotesVersion1(notes);
 
 const createAttrs = (
-  content: EditorJsonContent,
+  content: JSONContent,
   level: number
-): Record<string, never> | { attrs: EditorJsonContent["attrs"] } => {
+): Record<string, never> | { attrs: JSONContent["attrs"] } => {
   const attrs = {
     ...content.attrs,
     ...(content.type &&
@@ -57,7 +57,7 @@ const createAttrs = (
 
 const infuseTempBlockAndOtherIds =
   (level: number) =>
-  (content: EditorJsonContent): EditorJsonContent => {
+  (content: JSONContent): JSONContent => {
     return {
       ...content,
       ...createAttrs(content, level),
@@ -70,7 +70,7 @@ const infuseTempBlockAndOtherIds =
   };
 
 const infuseRootLevelTempBlockAndOtherIds =
-  (projects: ActivityData["forProjects"]) => (content: EditorJsonContent) => ({
+  (projects: ActivityData["forProjects"]) => (content: JSONContent) => ({
     ...content,
     attrs: {
       projects,
@@ -81,7 +81,7 @@ const infuseRootLevelTempBlockAndOtherIds =
 export const transformNotesVersion = ({
   forProjects,
   ...activity
-}: TransformNotesVersionType): EditorJsonContent =>
+}: TransformNotesVersionType): JSONContent =>
   flow(
     createDocument,
     infuseRootLevelTempBlockAndOtherIds(forProjects)

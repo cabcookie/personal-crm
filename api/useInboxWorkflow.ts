@@ -1,15 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
-import { getTextFromEditorJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
-import { EditorJsonContent } from "@/components/ui-elements/notes-writer/useExtensions";
+import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
 import { SerializerOutput } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "./globals";
 import { HandleMutationFn, Inbox, InboxStatus, mapInbox } from "./useInbox";
 const client = generateClient<Schema>();
 
-export const createInboxItemApi = async (note: EditorJsonContent) => {
+export const createInboxItemApi = async (note: JSONContent) => {
   const { data, errors } = await client.models.Inbox.create({
     noteJson: JSON.stringify(note),
     note: null,
@@ -28,7 +28,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
     if (!data) return;
     toast({
       title: "New Inbox Item Created",
-      description: getTextFromEditorJsonContent(note),
+      description: getTextFromJsonContent(note),
     });
     mutate({
       id: crypto.randomUUID(),

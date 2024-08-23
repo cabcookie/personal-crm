@@ -3,10 +3,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { newDateString, newDateTimeString, not } from "@/helpers/functional";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { filter, find, flatMap, flow, get, map, some } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { stringifyBlock } from "./blocks";
 import { isUpToDate } from "./compare";
 import TransactionError from "./transaction-error";
@@ -57,14 +56,14 @@ export const createTodo = async ({
   };
 };
 
-const doesNotExist = (notes: EditorJsonContent) => (block: EditorJsonContent) =>
+const doesNotExist = (notes: JSONContent) => (block: JSONContent) =>
   flow(
     getTodos,
     some((t) => t.attrs?.todoId === block.attrs?.todoId),
     not
   )(notes);
 
-const mapTodoToCreationSet = (block: EditorJsonContent): TTodoCreationSet => {
+const mapTodoToCreationSet = (block: JSONContent): TTodoCreationSet => {
   if (!block.attrs?.todoId)
     throw new TransactionError(
       "todoId not set on todo that should be stored in database",
@@ -79,10 +78,10 @@ const mapTodoToCreationSet = (block: EditorJsonContent): TTodoCreationSet => {
   };
 };
 
-export const getTodos = (content: EditorJsonContent): EditorJsonContent[] =>
+export const getTodos = (content: JSONContent): JSONContent[] =>
   flow(
     get("content"),
-    filter((c: EditorJsonContent) => c.type === "taskList"),
+    filter((c: JSONContent) => c.type === "taskList"),
     flatMap(get("content"))
   )(content);
 
@@ -96,30 +95,28 @@ export const getTodoCreationSet = (
     map(mapTodoToCreationSet)
   )(editor.getJSON());
 
-const getTodoById =
-  (todoId: string | undefined) => (content: EditorJsonContent) =>
-    !todoId
-      ? undefined
-      : flow(
-          getTodos,
-          find((t) => t.attrs?.todoId && t.attrs.todoId === todoId)
-        )(content);
+const getTodoById = (todoId: string | undefined) => (content: JSONContent) =>
+  !todoId
+    ? undefined
+    : flow(
+        getTodos,
+        find((t) => t.attrs?.todoId && t.attrs.todoId === todoId)
+      )(content);
 
 const todoIsUpToDate =
-  (editorContent: EditorJsonContent) =>
-  (activityContent: EditorJsonContent | undefined) =>
+  (editorContent: JSONContent) => (activityContent: JSONContent | undefined) =>
     !activityContent ? true : isUpToDate(editorContent, activityContent);
 
 const filterForChanged =
-  (activityContent: EditorJsonContent) =>
-  (editorContent: EditorJsonContent): boolean =>
+  (activityContent: JSONContent) =>
+  (editorContent: JSONContent): boolean =>
     flow(
       getTodoById(editorContent.attrs?.todoId),
       todoIsUpToDate(editorContent),
       not
     )(activityContent);
 
-const mapUpdateSet = (content: EditorJsonContent): TTodoUpdateSet => {
+const mapUpdateSet = (content: JSONContent): TTodoUpdateSet => {
   if (!content.attrs?.todoId)
     throw new TransactionError(
       "todoId is missing for update set",
@@ -133,13 +130,10 @@ const mapUpdateSet = (content: EditorJsonContent): TTodoUpdateSet => {
   };
 };
 
-const mapTaskItem = (
-  changedTodos: TTodoUpdateSet[],
-  taskItem: EditorJsonContent
-) => {
+const mapTaskItem = (changedTodos: TTodoUpdateSet[], taskItem: JSONContent) => {
   const todo = changedTodos.find((t) => t.todoId === taskItem.attrs?.todoId);
   if (!todo) return taskItem;
-  const content = JSON.parse(todo.content) as EditorJsonContent;
+  const content = JSON.parse(todo.content) as JSONContent;
   return {
     ...content,
     attrs: {
@@ -149,14 +143,13 @@ const mapTaskItem = (
   };
 };
 
-const mapLevel2 =
-  (changedTodos: TTodoUpdateSet[]) => (level2: EditorJsonContent) =>
-    level2.type !== "taskItem" || !level2.attrs?.todoId
-      ? level2
-      : mapTaskItem(changedTodos, level2);
+const mapLevel2 = (changedTodos: TTodoUpdateSet[]) => (level2: JSONContent) =>
+  level2.type !== "taskItem" || !level2.attrs?.todoId
+    ? level2
+    : mapTaskItem(changedTodos, level2);
 
 const mapLevel1 =
-  (changedTodos: TTodoUpdateSet[]) => (level1: EditorJsonContent) => ({
+  (changedTodos: TTodoUpdateSet[]) => (level1: JSONContent) => ({
     ...level1,
     content: level1.content?.map(mapLevel2(changedTodos)),
   });
@@ -205,7 +198,7 @@ export const getTodoUpdateSet = (
     map(mapUpdateSet)
   )(editor.getJSON());
 
-const mapDeleteSet = (block: EditorJsonContent): TTodoDeleteSet => {
+const mapDeleteSet = (block: JSONContent): TTodoDeleteSet => {
   if (!block.attrs?.todoId)
     throw new TransactionError(
       "todoId not set on todo that should be deleted in database",

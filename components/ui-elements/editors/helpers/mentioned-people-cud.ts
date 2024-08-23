@@ -3,10 +3,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { filter, flow, get, map, reduce, some } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { mapIds } from "./cleanup-attrs";
 import TransactionError from "./transaction-error";
 const client = generateClient<Schema>();
@@ -17,26 +16,18 @@ type TMentionedPersonCreationSet = {
   blockId: string;
 };
 
-// type TMentionedPersonUpdateSet = {
-//   recordId: string;
-//   personId: string;
-//   blockId: string;
-// };
-
 type TMentionedPersonDeleteSet = {
   recordId: string;
 };
 
-const doesNotExist = (notes: EditorJsonContent) => (block: EditorJsonContent) =>
+const doesNotExist = (notes: JSONContent) => (block: JSONContent) =>
   flow(
     getPeopleMentioned,
     some((b) => b.attrs?.recordId === block.attrs?.recordId),
     not
   )(notes);
 
-const mapToCreationSet = (
-  block: EditorJsonContent
-): TMentionedPersonCreationSet => {
+const mapToCreationSet = (block: JSONContent): TMentionedPersonCreationSet => {
   if (!block.attrs?.recordId)
     throw new TransactionError(
       "recordId not set on mentioned person that should be stored in database",
@@ -95,16 +86,9 @@ const getMentionedPersonCreationSet = (
     map(mapToCreationSet)
   )(editor.getJSON());
 
-// const getMentionedPersonUpdateSet = (
-//   editor: Editor,
-//   activity: Activity
-// ): TMentionedPersonUpdateSet[] => {
-//   return [];
-// };
-
 const findPeopleMentioned =
   (blockId?: string) =>
-  (prev: EditorJsonContent[], curr: EditorJsonContent): EditorJsonContent[] => {
+  (prev: JSONContent[], curr: JSONContent): JSONContent[] => {
     if (curr.type === "mention")
       return [
         ...prev,
@@ -127,16 +111,16 @@ const findPeopleMentioned =
     return prev;
   };
 
-const emptyRecord = (block: EditorJsonContent): boolean =>
+const emptyRecord = (block: JSONContent): boolean =>
   Boolean(block.attrs?.recordId);
 
-const getPeopleMentioned = (content: EditorJsonContent): EditorJsonContent[] =>
+const getPeopleMentioned = (content: JSONContent): JSONContent[] =>
   flow(
     get("content"),
-    reduce(findPeopleMentioned(), [] as EditorJsonContent[])
+    reduce(findPeopleMentioned(), [] as JSONContent[])
   )(content);
 
-const mapDeleteSet = (block: EditorJsonContent): TMentionedPersonDeleteSet => {
+const mapDeleteSet = (block: JSONContent): TMentionedPersonDeleteSet => {
   if (!block.attrs?.recordId)
     throw new TransactionError(
       "recordId not set on person mentioned should be deleted in database",

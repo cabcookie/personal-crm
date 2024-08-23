@@ -1,14 +1,14 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Button } from "@/components/ui/button";
+import { JSONContent } from "@tiptap/core";
 import { FC, useEffect, useState } from "react";
 import NotesWriter from "../notes-writer/NotesWriter";
-import { EditorJsonContent } from "../notes-writer/useExtensions";
 import DeleteWarning from "../project-notes-form/DeleteWarning";
 import RecordDetails from "../record-details/record-details";
 
 type LegacyNextActionsHelperProps = {
   title: string;
-  content?: EditorJsonContent;
+  content?: JSONContent;
 };
 
 const LegacyNextActionsHelper: FC<LegacyNextActionsHelperProps> = ({

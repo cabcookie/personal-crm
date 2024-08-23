@@ -3,10 +3,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { filter, find, flow, map, some } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { getBlocks, stringifyBlock } from "./blocks";
 import { isUpToDate } from "./compare";
 import TransactionError from "./transaction-error";
@@ -39,7 +38,7 @@ type TBlockDeleteSet = {
   blockId: string;
 };
 
-const doesNotExist = (notes: EditorJsonContent) => (block: EditorJsonContent) =>
+const doesNotExist = (notes: JSONContent) => (block: JSONContent) =>
   flow(
     getBlocks,
     some((b) => b.attrs?.blockId === block.attrs?.blockId),
@@ -48,7 +47,7 @@ const doesNotExist = (notes: EditorJsonContent) => (block: EditorJsonContent) =>
 
 const mapToCreationSet =
   (activityId: string) =>
-  (block: EditorJsonContent): TBlockCreationSet => {
+  (block: JSONContent): TBlockCreationSet => {
     if (!block.attrs?.blockId)
       throw new TransactionError(
         "blockId not set on block that should be stored in database",
@@ -126,30 +125,28 @@ export const getBlockCreationSet = (
     map(mapToCreationSet(activity.id))
   )(editor.getJSON());
 
-const getBlockById =
-  (blockId: string | undefined) => (content: EditorJsonContent) =>
-    !blockId
-      ? undefined
-      : flow(
-          getBlocks,
-          find((b) => b.attrs?.blockId && b.attrs.blockId === blockId)
-        )(content);
+const getBlockById = (blockId: string | undefined) => (content: JSONContent) =>
+  !blockId
+    ? undefined
+    : flow(
+        getBlocks,
+        find((b) => b.attrs?.blockId && b.attrs.blockId === blockId)
+      )(content);
 
 const blockIsUpToDate =
-  (editorContent: EditorJsonContent) =>
-  (activityContent: EditorJsonContent | undefined) =>
+  (editorContent: JSONContent) => (activityContent: JSONContent | undefined) =>
     !activityContent ? true : isUpToDate(editorContent, activityContent);
 
 const filterForChanged =
-  (activityContent: EditorJsonContent) =>
-  (editorContent: EditorJsonContent): boolean =>
+  (activityContent: JSONContent) =>
+  (editorContent: JSONContent): boolean =>
     flow(
       getBlockById(editorContent.attrs?.blockId),
       blockIsUpToDate(editorContent),
       not
     )(activityContent);
 
-const mapUpdateSet = (content: EditorJsonContent): TBlockUpdateSet => {
+const mapUpdateSet = (content: JSONContent): TBlockUpdateSet => {
   if (!content.attrs?.blockId)
     throw new TransactionError(
       "blockId is missig for update set",
@@ -165,7 +162,7 @@ const mapUpdateSet = (content: EditorJsonContent): TBlockUpdateSet => {
 
 const mapLevel2 =
   (changedBlocks: TBlockUpdateSet[]) =>
-  (level2: EditorJsonContent): EditorJsonContent => {
+  (level2: JSONContent): JSONContent => {
     const block = changedBlocks.find(
       (b) => b.blockId === level2.attrs?.blockId
     );
@@ -182,7 +179,7 @@ const mapLevel2 =
 
 const mapLevel1 =
   (changedBlocks: TBlockUpdateSet[]) =>
-  (level1: EditorJsonContent): EditorJsonContent => {
+  (level1: JSONContent): JSONContent => {
     const block = changedBlocks.find(
       (b) => b.blockId === level1.attrs?.blockId
     );
@@ -247,7 +244,7 @@ export const getBlockUpdateSet = (
     map(mapUpdateSet)
   )(editor.getJSON());
 
-const mapDeleteSet = (block: EditorJsonContent): TBlockDeleteSet => {
+const mapDeleteSet = (block: JSONContent): TBlockDeleteSet => {
   if (!block.attrs?.blockId)
     throw new TransactionError(
       "blockId not set on block should be deleted in database",
@@ -279,7 +276,7 @@ export const deleteBlock = async ({ blockId }: TBlockDeleteSet) => {
     );
 };
 
-const emptyBlock = (block: EditorJsonContent): boolean =>
+const emptyBlock = (block: JSONContent): boolean =>
   Boolean(block.attrs?.blockId);
 
 export const getBlockDeleteSet = (

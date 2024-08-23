@@ -1,5 +1,4 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import {
@@ -9,6 +8,7 @@ import {
 } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import { filter, flow, get, join, map, sortBy } from "lodash/fp";
@@ -28,7 +28,7 @@ interface ProjectsContextType {
   getProjectById: (projectId: string) => Project | undefined;
   createProjectActivity: (
     projectId: string,
-    notes?: EditorJsonContent
+    notes?: JSONContent
   ) => Promise<string | undefined>;
   saveProjectName: (
     projectId: string,
@@ -76,8 +76,8 @@ export type Project = {
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
-  myNextActions?: EditorJsonContent;
-  othersNextActions?: EditorJsonContent;
+  myNextActions?: JSONContent;
+  othersNextActions?: JSONContent;
   context: Context;
   accountIds: string[];
   partnerId?: string;

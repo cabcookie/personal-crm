@@ -1,6 +1,6 @@
-import { EditorJsonContent } from "../notes-editor/useExtensions";
+import { JSONContent } from "@tiptap/core";
 
-export const emptyDocument: EditorJsonContent = {
+export const emptyDocument: JSONContent = {
   type: "doc",
   content: [],
 };

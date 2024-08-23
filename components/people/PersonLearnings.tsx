@@ -1,4 +1,5 @@
 import usePersonLearnings from "@/api/usePersonLearnings";
+import { JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
 import { flow, get, map } from "lodash/fp";
 import { PlusCircle } from "lucide-react";
@@ -6,14 +7,13 @@ import { FC, useState } from "react";
 import LearningComponent from "../learnings/LearningComponent";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
-import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
-import { EditorJsonContent } from "../ui-elements/notes-writer/useExtensions";
+import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import { Button } from "../ui/button";
 
 type DebouncedUpdateLearningsProps = {
   learningId: string;
-  updateLearning: (learningId: string, learning: EditorJsonContent) => void;
-  serializer: () => { json: EditorJsonContent };
+  updateLearning: (learningId: string, learning: JSONContent) => void;
+  serializer: () => { json: JSONContent };
 };
 
 const debouncedUpdateLearnings = debounce(
@@ -49,7 +49,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
   };
 
   const handleLearningUpdate =
-    (learningId: string) => (serializer: () => { json: EditorJsonContent }) => {
+    (learningId: string) => (serializer: () => { json: JSONContent }) => {
       debouncedUpdateLearnings({
         learningId,
         updateLearning,
@@ -72,7 +72,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
         flow(
           (l) => l.slice(0, 2),
           map(get("learning")),
-          map(getTextFromEditorJsonContent)
+          map(getTextFromJsonContent)
         )(learnings)
       }
     >

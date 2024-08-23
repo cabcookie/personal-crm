@@ -1,10 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { isEqual } from "lodash";
 import { flow } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 import { getBlockIds } from "./blocks";
 import TransactionError from "./transaction-error";
 const client = generateClient<Schema>();
@@ -103,8 +102,7 @@ export const getBlockIdsUpdateSet = (
   )(editor.getJSON());
 
 export const updateActivityBlockIds =
-  (activity: Activity, content: EditorJsonContent) =>
-  async (blockIds: string[]) => {
+  (activity: Activity, content: JSONContent) => async (blockIds: string[]) => {
     if (blockIds.length === 0) return;
     const { data, errors } = await client.models.Activity.update({
       id: activity.id,

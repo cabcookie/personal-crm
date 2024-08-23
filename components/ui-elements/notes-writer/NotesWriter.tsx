@@ -1,14 +1,14 @@
 import { cn } from "@/lib/utils";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
 import LinkBubbleMenu from "../editors/extensions/link-bubble-menu/LinkBubbleMenu";
 import { handlePastingImage } from "../editors/extensions/s3-images/image-handling";
 import { isUpToDate } from "../editors/helpers/compare";
-import useExtensions, { EditorJsonContent } from "./useExtensions";
+import useExtensions from "./useExtensions";
 
 type NotesWriterProps = {
-  notes: EditorJsonContent;
+  notes: JSONContent;
   saveNotes?: (editor: Editor) => void;
   autoFocus?: boolean;
   readonly?: boolean;
@@ -30,6 +30,7 @@ const NotesWriter: FC<NotesWriterProps> = ({
     autofocus: autoFocus,
     editable: !readonly,
     content: notes,
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;
       saveNotes(editor);

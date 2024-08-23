@@ -1,7 +1,7 @@
+import { JSONContent } from "@tiptap/core";
 import { flow, get, map } from "lodash/fp";
-import { EditorJsonContent } from "../notes-editor/useExtensions";
 
-const cleanUpBlocksBlockId = (json: EditorJsonContent): EditorJsonContent => {
+const cleanUpBlocksBlockId = (json: JSONContent): JSONContent => {
   const { attrs = {}, content, ...block } = json;
   const {
     blockId: _b,
@@ -19,17 +19,15 @@ const cleanUpBlocksBlockId = (json: EditorJsonContent): EditorJsonContent => {
 
 export const stringifyBlock = flow(cleanUpBlocksBlockId, JSON.stringify);
 
-export const getBlocks = (
-  json: EditorJsonContent
-): EditorJsonContent[] | undefined =>
+export const getBlocks = (json: JSONContent): JSONContent[] | undefined =>
   json.content?.flatMap((c) =>
     c.type && ["bulletList", "taskList"].includes(c.type) ? c.content : c
   );
 
-const getBlockId = (block: EditorJsonContent): string | null =>
+const getBlockId = (block: JSONContent): string | null =>
   get("attrs.blockId")(block) ?? null;
 
 export const getBlockIds = (
-  editorContent: EditorJsonContent | undefined
+  editorContent: JSONContent | undefined
 ): (string | null)[] =>
   !editorContent ? [] : flow(getBlocks, map(getBlockId))(editorContent);

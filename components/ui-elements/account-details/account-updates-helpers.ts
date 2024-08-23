@@ -1,14 +1,14 @@
+import { JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
-import { EditorJsonContent } from "../notes-writer/useExtensions";
 
 type UpdateFnProps = {
   id: string;
   name?: string;
-  introduction?: EditorJsonContent;
+  introduction?: JSONContent;
 };
 
 type UpdateAccountDetailsProps = UpdateFnProps & {
-  serializeIntroduction?: () => { json: EditorJsonContent };
+  serializeIntroduction?: () => { json: JSONContent };
   updateAccountFn: (props: UpdateFnProps) => Promise<string | undefined>;
   updateSavedState?: (state: boolean) => void;
 };
