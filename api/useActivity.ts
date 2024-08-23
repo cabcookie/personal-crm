@@ -197,6 +197,7 @@ const useActivity = (activityId?: string) => {
           ...activity,
           notes: content,
           noteBlockIds: getBlockIds(content),
+          oldFormatVersion: false,
         },
         true
       );

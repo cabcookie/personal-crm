@@ -64,7 +64,6 @@ const fetchProjectTodos = (projectId: string | undefined) => async () => {
   if (errors) throw errors;
   if (!data) throw new Error("fetchProjectTodos didn't retrieve data");
   try {
-    console.log("fetchProjectTodos", { projectId, data, projectIdTodoStatus });
     return data.map(mapProjectTodo);
   } catch (error) {
     console.error("fetchProjectTodos", { error });

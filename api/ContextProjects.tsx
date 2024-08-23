@@ -212,9 +212,11 @@ const mapProject: (project: ProjectData) => Project = ({
     partnerId: partner?.id,
     hasOldVersionedActivityFormat: !activities
       ? false
-      : activities.some(
-          (a) => !a.activity?.formatVersion || a.activity.formatVersion < 3
-        ),
+      : activities
+          .filter((a) => !!a.activity)
+          .some(
+            (a) => !a.activity?.formatVersion || a.activity.formatVersion < 3
+          ),
   } as Project;
 };
 
