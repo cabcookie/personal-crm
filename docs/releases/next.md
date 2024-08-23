@@ -7,7 +7,7 @@
 - Werden Aufgaben in einer Notiz angelegt, so landen diese Aufgaben auch in einer separaten Datenbank-Tabelle, so dass auch Aufgaben leichter gefunden und daran gearbeitet werden kann. Die Projekte, die an der Notiz hängen, werden auch als Verweise an der Aufgabe hinterlegt, so dass die Aufgaben auch von Projekt-Seite gefunden werden können.
 - Das Löschen eines Abschnitts in einer Notiz führt dazu, dass der Block aus der Datenbank gelöscht wird und Einträge, die mit dem Block in Beziehung stehen (Aufgaben und Personen).
 - Änderungen an einer Notiz werden nun in der Datenbank gespeichert inkl. Aufgaben und Verknüpfungen zu Personen oder Projekten.
-- Für ein Meeting werden die offenen vereinbarten Aufgaben dargestellt (sie können nicht editiert werden).
+- Für ein Meeting und Projekte werden die offenen vereinbarten Aufgaben dargestellt (sie können nicht editiert werden).
 
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
 - Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
@@ -21,31 +21,13 @@
   - DailyPlanningPage löschen
   - MakeTaskDecision löschen
   - ReviewProjectForDailyPlanning löschen
-  - NextAction löschen
 - Auch bei Inbox Items haben wir den Task Mechanismus entfernt.
 
 ## In Arbeit
 
-- Sicherstellen, dass wieder Todos erzeugt werden können und in diversen Ansichten angezeigt werden können (offene Aufgaben aus Meetings und in Projekten).
+- Sicherstellen, dass die Inbox funktioniert und Einträge in Activity übertragen werden können.
 
 ## Geplant
 
-- Sicherstellen, dass die Inbox funktioniert und Einträge in Activity übertragen werden können.
-
 - Im NavigationMenu die Einträge für Daily Planning und Today's Tasks wieder herstellen.
-- In `ProjectAccordionItem.tsx` den Task Badge wieder einführen:
-
-```jsx
-<DefaultAccordionItem
-  badge={project.crmProjects.some(hasHygieneIssues) ? (
-    <HygieneIssueBadge />
-  ) : (
-    <TaskBadge
-      hasOpenTasks={openTasksByProjectId(project.id).length > 0}
-      hasClosedTasks={false}
-    />
-  )}
->
-```
-
 - Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.
