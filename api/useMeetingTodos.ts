@@ -1,16 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
-import { EditorJsonContent } from "@/components/ui-elements/editors/notes-editor/useExtensions";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import useSWR from "swr";
+import { Todo } from "./useProjectTodos";
 const client = generateClient<Schema>();
 
-export type MeetingTodo = {
+export type MeetingTodo = Todo & {
   meetingId: string;
-  todoId: string;
-  todo: EditorJsonContent;
-  done: boolean;
-  doneOn: Date | null;
-  activityId: string;
   blockId: string;
 };
 

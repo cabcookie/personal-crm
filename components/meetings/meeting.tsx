@@ -1,10 +1,12 @@
 import useMeeting from "@/api/useMeeting";
 import { Meeting } from "@/api/useMeetings";
+import useMeetingTodos from "@/api/useMeetingTodos";
 import { Context } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
 import { FC, useEffect, useState } from "react";
 import { contexts } from "../navigation-menu/ContextSwitcher";
+import MeetingNextActions from "../task/meeting-next-actions";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import ButtonGroup from "../ui-elements/btn-group/btn-group";
@@ -14,7 +16,6 @@ import PeopleSelector from "../ui-elements/selectors/people-selector";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
 import { Accordion } from "../ui/accordion";
 import MeetingActivityList from "./meeting-activity-list";
-import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
 import MeetingProjectRecommender from "./meeting-project-recommender";
 
@@ -44,6 +45,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
   );
+  const { meetingTodos } = useMeetingTodos(meeting?.id);
 
   useEffect(() => {
     if (!meeting) return;
@@ -155,7 +157,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               removeParticipant={removeMeetingParticipant}
             />
 
-            <MeetingNextActions meetingId={meeting.id} />
+            <MeetingNextActions todos={meetingTodos} />
 
             <MeetingActivityList meeting={meeting} />
           </>

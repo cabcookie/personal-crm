@@ -1,18 +1,16 @@
-import { MeetingTodo } from "@/api/useMeetingTodos";
+import { Todo } from "@/api/useProjectTodos";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
 import { EditorJsonContent } from "../notes-editor/useExtensions";
 import useExtensions from "./useExtensions";
 
-const getTodoEditorContent = (
-  meetingTodos: MeetingTodo[]
-): EditorJsonContent => ({
+const getTodoEditorContent = (todos: Todo[]): EditorJsonContent => ({
   type: "doc",
   content: [
     {
       type: "taskList",
-      content: meetingTodos.map(({ todo, todoId, blockId }) => ({
+      content: todos.map(({ todo, todoId, blockId }) => ({
         ...todo,
         attrs: {
           ...todo.attrs,
@@ -25,16 +23,16 @@ const getTodoEditorContent = (
 });
 
 type TodoEditorProps = {
-  meetingTodos: MeetingTodo[];
+  todos: Todo[];
 };
 
-const TodoEditor: FC<TodoEditorProps> = ({ meetingTodos }) => {
+const TodoEditor: FC<TodoEditorProps> = ({ todos }) => {
   const extensions = useExtensions();
   const editor = useEditor({
     extensions,
     editable: false,
     immediatelyRender: false,
-    content: getTodoEditorContent(meetingTodos),
+    content: getTodoEditorContent(todos),
   });
 
   useEffect(() => {

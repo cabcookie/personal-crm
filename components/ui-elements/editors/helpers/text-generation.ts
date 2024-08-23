@@ -1,3 +1,4 @@
+import { Todo } from "@/api/useProjectTodos";
 import { generateText } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
@@ -5,7 +6,7 @@ import Mention from "@tiptap/extension-mention";
 import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
-import { filter, flow, get, map } from "lodash/fp";
+import { filter, flow, get, join, map, trim } from "lodash/fp";
 import { TaskItem } from "../extensions/tasks/task-item";
 import { EditorJsonContent } from "../notes-editor/useExtensions";
 
@@ -102,3 +103,11 @@ export const getTextFromEditorJsonContent = (
         },
         MyExtensions
       );
+
+export const getTodoText: (todos: Todo[] | undefined) => string = flow(
+  filter((t) => !t.done),
+  map(get("todo")),
+  map(getTextFromEditorJsonContent),
+  map(trim),
+  join(", ")
+);

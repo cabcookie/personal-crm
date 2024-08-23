@@ -7,7 +7,7 @@ import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
 import CrmProjectsList from "../crm-project-details/crm-projects-list";
 import RecordDetails from "../record-details/record-details";
-import NextActions from "./next-actions";
+import ProjectNextActions from "./next-actions";
 import ProjectAccountDetails from "./project-account-details";
 import ProjectActivities from "./project-activities";
 import ProjectDates from "./project-dates";
@@ -117,7 +117,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 
           <ProjectDates project={project} updateDatesFn={handleDateChange} />
 
-          <NextActions projectId={project.id} />
+          <ProjectNextActions projectId={project.id} />
 
           <ProjectActivities isVisible={showNotes} project={project} />
         </Accordion>

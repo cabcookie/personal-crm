@@ -1,12 +1,11 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
-import { flow, get, join, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { getTextFromEditorJsonContent } from "../ui-elements/editors/helpers/text-generation";
+import { getTodoText } from "../ui-elements/editors/helpers/text-generation";
 
 type MeetingActivityListProps = {
   meeting: Meeting;
@@ -32,11 +31,7 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
           />
         }
         triggerTitle={getProjectNamesByIds(a.projectIds)}
-        triggerSubTitle={`Next actions: ${flow(
-          map(get("todo")),
-          map(getTextFromEditorJsonContent),
-          join(", ")
-        )(meetingTodos)}`}
+        triggerSubTitle={`Next actions: ${getTodoText(meetingTodos)}`}
       >
         <ActivityComponent
           activityId={a.id}

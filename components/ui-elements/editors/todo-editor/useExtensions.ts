@@ -24,7 +24,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
       TaskList,
       TaskItem.configure({
         HTMLAttributes: {
-          class: "flex items-center gap-2 list-none",
+          class: "flex items-start gap-2 list-none",
         },
       }),
       Link.extend({ inclusive: false }).configure({
