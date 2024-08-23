@@ -1,10 +1,6 @@
 import { transformNotesVersion1 } from "@/components/ui-elements/editors/helpers/transform-v1";
 import { transformNotesVersion2 } from "@/components/ui-elements/editors/helpers/transform-v2";
-import { Editor, JSONContent } from "@tiptap/core";
-
-export type SerializerOutput = {
-  json: JSONContent;
-};
+import { JSONContent } from "@tiptap/core";
 
 interface TransformNotesVersionType {
   formatVersion?: number | null;
@@ -22,7 +18,3 @@ export const transformNotesVersion = ({
     : transformNotesVersion1(notes ?? null);
 
 export type TWithGetJsonFn = { getJSON: () => JSONContent };
-
-export const getEditorContent = (editor: Editor) => () => ({
-  json: editor.getJSON(),
-});

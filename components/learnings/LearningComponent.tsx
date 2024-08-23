@@ -1,7 +1,6 @@
 import { PersonLearning } from "@/api/usePersonLearnings";
-import { getEditorContent } from "@/helpers/ui-notes-writer";
 import { cn } from "@/lib/utils";
-import { JSONContent } from "@tiptap/core";
+import { Editor } from "@tiptap/core";
 import { format } from "date-fns";
 import { Check, Edit, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
@@ -15,7 +14,7 @@ type LearningComponentProps = {
   editable?: boolean;
   onMakeEditable?: () => void;
   onDelete?: () => void;
-  onChange: (serializer: () => { json: JSONContent }) => void;
+  onChange: (editor: Editor) => void;
   onStatusChange: (val: TPrayerStatus) => void;
   onDateChange: (newDate: Date) => Promise<string | undefined>;
 };
@@ -85,7 +84,7 @@ const LearningComponent: FC<LearningComponentProps> = ({
           readonly={!editable}
           placeholder="Document what you've learned about the person…"
           notes={learning.learning}
-          saveNotes={(editor) => onChange(getEditorContent(editor))}
+          saveNotes={(editor) => onChange(editor)}
         />
       </div>
     </div>

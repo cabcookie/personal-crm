@@ -1,5 +1,5 @@
 import usePersonLearnings from "@/api/usePersonLearnings";
-import { JSONContent } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
 import { flow, get, map } from "lodash/fp";
 import { PlusCircle } from "lucide-react";
@@ -13,17 +13,16 @@ import { Button } from "../ui/button";
 type DebouncedUpdateLearningsProps = {
   learningId: string;
   updateLearning: (learningId: string, learning: JSONContent) => void;
-  serializer: () => { json: JSONContent };
+  editor: Editor;
 };
 
 const debouncedUpdateLearnings = debounce(
   async ({
     learningId,
     updateLearning,
-    serializer,
+    editor,
   }: DebouncedUpdateLearningsProps) => {
-    const { json: learning } = serializer();
-    await updateLearning(learningId, learning);
+    await updateLearning(learningId, editor.getJSON());
   },
   1500
 );
@@ -48,14 +47,13 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
     if (newId) setEditId(newId);
   };
 
-  const handleLearningUpdate =
-    (learningId: string) => (serializer: () => { json: JSONContent }) => {
-      debouncedUpdateLearnings({
-        learningId,
-        updateLearning,
-        serializer,
-      });
-    };
+  const handleLearningUpdate = (learningId: string) => (editor: Editor) => {
+    debouncedUpdateLearnings({
+      learningId,
+      updateLearning,
+      editor,
+    });
+  };
 
   return !personId ? (
     <LoadingAccordionItem

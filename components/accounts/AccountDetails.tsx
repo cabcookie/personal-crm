@@ -6,7 +6,6 @@ import {
   calcPipelineByAccountId,
   make2YearsRevenueText,
 } from "@/helpers/projects";
-import { getEditorContent } from "@/helpers/ui-notes-writer";
 import { Editor } from "@tiptap/core";
 import { filter, flow, get, map } from "lodash/fp";
 import { FC } from "react";
@@ -60,7 +59,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
     if (!account) return;
     debouncedUpdateAccountDetails({
       id: account.id,
-      serializeIntroduction: getEditorContent(editor),
+      editor,
       updateAccountFn: updateAccount,
     });
   };

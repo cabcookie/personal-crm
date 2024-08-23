@@ -176,8 +176,6 @@ export const deleteAndCreateMentionedPeople = async (
     )
   );
 
-  /* Delete todo projects where neccessary */
-
   /* Create mentioned people where neccessary */
   const mentionedPersonIdMapping = await Promise.all(
     flow(getMentionedPersonCreationSet, map(createMentionedPerson))(

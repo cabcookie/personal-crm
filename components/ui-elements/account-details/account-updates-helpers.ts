@@ -1,4 +1,4 @@
-import { JSONContent } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
 
 type UpdateFnProps = {
@@ -8,7 +8,7 @@ type UpdateFnProps = {
 };
 
 type UpdateAccountDetailsProps = UpdateFnProps & {
-  serializeIntroduction?: () => { json: JSONContent };
+  editor?: Editor;
   updateAccountFn: (props: UpdateFnProps) => Promise<string | undefined>;
   updateSavedState?: (state: boolean) => void;
 };
@@ -16,13 +16,13 @@ type UpdateAccountDetailsProps = UpdateFnProps & {
 export const debouncedUpdateAccountDetails = debounce(
   async ({
     updateAccountFn,
-    serializeIntroduction,
+    editor,
     updateSavedState,
     ...props
   }: UpdateAccountDetailsProps) => {
     await updateAccountFn({
       ...props,
-      introduction: serializeIntroduction?.().json,
+      introduction: editor?.getJSON(),
     });
     updateSavedState && updateSavedState(true);
   },
