@@ -3,7 +3,6 @@ import { Editor, JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect, useState } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
-import { isUpToDate } from "../helpers/compare";
 import { emptyDocument } from "../helpers/document";
 import {
   applyPastePropsAndUiAttrs,
@@ -41,10 +40,9 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
   /** Handle changes on activity.notes, editor's content, extensions, or readonly state */
   useEffect(() => {
     if (!editor) return;
-    if (isUpToDate(editor.getJSON(), activity?.notes)) return;
     setEditorContent(editor.getJSON());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor]);
+  }, [editor?.getJSON()]);
   useEffect(() => {
     if (!activity) return;
     setActivityNotes(activity.notes);

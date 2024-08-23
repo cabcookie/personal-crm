@@ -23,7 +23,12 @@ export const stringifyBlock = flow(cleanUpBlocksBlockId, JSON.stringify);
 
 export const getBlocks = (json: JSONContent): JSONContent[] | undefined =>
   json.content?.flatMap((c) =>
-    c.type && LIST_TYPES.includes(c.type) ? c.content : c
+    c.type && LIST_TYPES.includes(c.type)
+      ? c.content?.map((sc) => ({
+          ...sc,
+          ...(c.type === "orderedList" ? { type: "listItemOrdered" } : {}),
+        }))
+      : c
   );
 
 const getBlockId = (block: JSONContent): string | null =>

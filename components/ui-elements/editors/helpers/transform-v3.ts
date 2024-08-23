@@ -39,7 +39,14 @@ const mapListItem = (
     ...mapContentPeople(content.content, block),
   };
   if (last(prev)?.type !== wrapperType)
-    return [...prev, { type: wrapperType, content: [preparedContent] }];
+    return [
+      ...prev,
+      {
+        type: wrapperType,
+        ...(wrapperType === "orderedList" ? { attrs: { start: 1 } } : {}),
+        content: [preparedContent],
+      },
+    ];
   return prev.map((val, index) =>
     index !== prev.length - 1
       ? val

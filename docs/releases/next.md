@@ -14,6 +14,7 @@
 - Der Zeitraum für die angezeigte Liste der Meetings wird durch einen URL Parameter bestimmt (`startDate`).
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
 - Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
+- Numerierte Listen werden nun korrekt in NoteBlocks gespeichert.
 
 - Den Mechanismus für offene Aufgaben haben wir zunächst einmal komplett entfernt:
   - useDailyPlans löschen
@@ -28,7 +29,7 @@
 
 ## In Arbeit
 
-- Numerierte Listen müssen korrekt in NoteBlocks gespeichert werden. Im Moment werden sie alle in nicht-nummerierte Aufzählungen umgewandelt (siehe `transform-v3.ts` und dort `mapBlocks()`)
+- Tagesplanung wieder reaktivieren.
 
 ## Geplant
 
