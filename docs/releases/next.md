@@ -9,6 +9,7 @@
 - Änderungen an einer Notiz werden nun in der Datenbank gespeichert inkl. Aufgaben und Verknüpfungen zu Personen oder Projekten.
 - Für ein Meeting und Projekte werden die offenen vereinbarten Aufgaben dargestellt (sie können nicht editiert werden).
 - Für Meetings und Projekte wird dargestellt, wenn Aktivitäten nach alter Formatierung enthalten sind. Das ist wichtig als Warnung, dass in der Aktivität Aufgaben enthalten sein könnten, die im Moment wegen der alten Formatierung nicht angezeigt werden könnten.
+- Die Inbox funktioniert weiterhin und Einträge können im neuen Format in den Aktivitäten übernommen werden.
 
 - Der Zeitraum für die angezeigte Liste der Meetings wird durch einen URL Parameter bestimmt (`startDate`).
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
@@ -27,9 +28,10 @@
 
 ## In Arbeit
 
-- Sicherstellen, dass die Inbox funktioniert und Einträge in Activity übertragen werden können.
+- Numerierte Listen müssen korrekt in NoteBlocks gespeichert werden. Im Moment werden sie alle in nicht-nummerierte Aufzählungen umgewandelt (siehe `transform-v3.ts` und dort `mapBlocks()`)
 
 ## Geplant
 
 - Im NavigationMenu die Einträge für Daily Planning und Today's Tasks wieder herstellen.
 - Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.
+- Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.

@@ -1,6 +1,8 @@
 import { JSONContent } from "@tiptap/core";
 import { flow, get, map } from "lodash/fp";
 
+export const LIST_TYPES = ["bulletList", "orderedList", "taskList"];
+
 const cleanUpBlocksBlockId = (json: JSONContent): JSONContent => {
   const { attrs = {}, content, ...block } = json;
   const {
@@ -21,7 +23,7 @@ export const stringifyBlock = flow(cleanUpBlocksBlockId, JSON.stringify);
 
 export const getBlocks = (json: JSONContent): JSONContent[] | undefined =>
   json.content?.flatMap((c) =>
-    c.type && ["bulletList", "taskList"].includes(c.type) ? c.content : c
+    c.type && LIST_TYPES.includes(c.type) ? c.content : c
   );
 
 const getBlockId = (block: JSONContent): string | null =>

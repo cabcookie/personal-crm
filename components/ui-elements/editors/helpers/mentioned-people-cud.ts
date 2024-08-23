@@ -114,7 +114,10 @@ const findPeopleMentioned =
 const emptyRecord = (block: JSONContent): boolean =>
   Boolean(block.attrs?.recordId);
 
-const getPeopleMentioned = (content: JSONContent): JSONContent[] =>
+export const getPersonId = (person: JSONContent) =>
+  !person.attrs?.id ? undefined : (person.attrs.id as string);
+
+export const getPeopleMentioned = (content: JSONContent): JSONContent[] =>
   flow(
     get("content"),
     reduce(findPeopleMentioned(), [] as JSONContent[])

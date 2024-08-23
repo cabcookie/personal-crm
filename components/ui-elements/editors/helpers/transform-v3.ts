@@ -77,6 +77,13 @@ const mapBlocks =
       block.type === "taskItem"
         ? mapTodoBlock(block)
         : JSON.parse(block.content as any);
+    if (content.type === "listItemOrdered")
+      return mapListItem(
+        "orderedList",
+        prev,
+        { ...content, type: "listItem" },
+        block
+      );
     if (content.type === "listItem")
       return mapListItem("bulletList", prev, content, block);
     if (content.type === "taskItem")

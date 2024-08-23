@@ -4,7 +4,7 @@ import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
 import { isEqual } from "lodash";
 import { flow } from "lodash/fp";
-import { getBlockIds } from "./blocks";
+import { getBlockIds, LIST_TYPES } from "./blocks";
 import TransactionError from "./transaction-error";
 const client = generateClient<Schema>();
 
@@ -43,8 +43,8 @@ export const addAttrsInEditorContent = (editor: Editor) => {
   doc.descendants((node, nodePos, parent) => {
     if (!parent) return true;
     if (
-      ["doc", "bulletList", "taskList"].includes(parent.type.name) &&
-      !["bulletList", "taskList"].includes(node.type.name)
+      ["doc", ...LIST_TYPES].includes(parent.type.name) &&
+      !LIST_TYPES.includes(node.type.name)
     ) {
       const attrs: Record<string, any> = {};
       /* set blockId if not existent or duplicate */

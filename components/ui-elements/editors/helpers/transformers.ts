@@ -1,6 +1,7 @@
 import { ActivityData, NoteBlockData } from "@/api/useActivity";
 import { JSONContent } from "@tiptap/core";
 import { flow } from "lodash/fp";
+import { LIST_TYPES } from "./blocks";
 import { transformNotesVersion1 } from "./transform-v1";
 import { transformNotesVersion2 } from "./transform-v2";
 import { transformNotesVersion3 } from "./transform-v3";
@@ -35,7 +36,7 @@ const createAttrs = (
     ...content.attrs,
     ...(content.type &&
     level === 1 &&
-    !["bulletList", "taskList"].includes(content.type) &&
+    !LIST_TYPES.includes(content.type) &&
     !content.attrs?.blockId
       ? { blockId: null }
       : {}),

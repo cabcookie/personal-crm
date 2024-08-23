@@ -1,8 +1,8 @@
 import { createInboxItemApi } from "@/api/useInboxWorkflow";
-import { getEditorContent, SerializerOutput } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { createContext, FC, ReactNode, useContext, useState } from "react";
 import { emptyDocument } from "../ui-elements/editors/helpers/document";
-import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import InboxEditor from "../ui-elements/editors/inbox-editor/InboxEditor";
 import { Button } from "../ui/button";
 import {
   Dialog,
@@ -18,8 +18,8 @@ interface CreateInboxItemContextType {
   state: boolean;
   open: () => void;
   close: () => void;
-  editorContent: SerializerOutput;
-  setEditorContent: (val: SerializerOutput) => void;
+  editorContent: JSONContent;
+  setEditorContent: (val: JSONContent) => void;
   createInboxItem: () => Promise<string | undefined>;
 }
 
@@ -27,23 +27,17 @@ interface CreateInobxItemProviderProps {
   children: ReactNode;
 }
 
-const emptyEditorContent = {
-  json: emptyDocument,
-};
-
 export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
   children,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [editorContent, setEditorContent] =
-    useState<SerializerOutput>(emptyEditorContent);
-
-  const handleUpdate = (val: SerializerOutput) => setEditorContent(val);
+    useState<JSONContent>(emptyDocument);
 
   const handleCreateInboxItem = async () => {
     if (!editorContent) return;
-    const result = await createInboxItemApi(editorContent.json);
-    setEditorContent(emptyEditorContent);
+    const result = await createInboxItemApi(editorContent);
+    setEditorContent(emptyDocument);
     setIsOpen(false);
     return result?.id;
   };
@@ -55,7 +49,7 @@ export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
         open: () => setIsOpen(true),
         close: () => setIsOpen(false),
         editorContent,
-        setEditorContent: handleUpdate,
+        setEditorContent,
         createInboxItem: handleCreateInboxItem,
       }}
     >
@@ -97,11 +91,10 @@ const CreateInboxItemDialog = () => {
             continue to focus on what matters now.
           </DialogDescription>
         </DialogHeader>
-        <NotesWriter
-          notes={editorContent.json}
-          placeholder="What's on your mind?"
+        <InboxEditor
+          notes={editorContent}
           saveNotes={(editor) => {
-            setEditorContent(getEditorContent(editor)());
+            setEditorContent(editor.getJSON());
           }}
           showSaveStatus={false}
           autoFocus
