@@ -6,7 +6,6 @@ import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
 import { FC, useEffect, useState } from "react";
 import { contexts } from "../navigation-menu/ContextSwitcher";
-import MeetingNextActions from "../task/meeting-next-actions";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import ButtonGroup from "../ui-elements/btn-group/btn-group";
@@ -16,6 +15,7 @@ import PeopleSelector from "../ui-elements/selectors/people-selector";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
 import { Accordion } from "../ui/accordion";
 import MeetingActivityList from "./meeting-activity-list";
+import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
 import MeetingProjectRecommender from "./meeting-project-recommender";
 
