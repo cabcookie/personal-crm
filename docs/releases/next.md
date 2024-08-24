@@ -25,7 +25,6 @@
   - DailyPlanningPage löschen
   - MakeTaskDecision löschen
   - ReviewProjectForDailyPlanning löschen
-- Auch bei Inbox Items haben wir den Task Mechanismus entfernt.
 
 ## In Arbeit
 

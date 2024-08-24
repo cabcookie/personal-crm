@@ -16,5 +16,3 @@ export const transformNotesVersion = ({
   formatVersion === 2
     ? transformNotesVersion2(notesJson)
     : transformNotesVersion1(notes ?? null);
-
-export type TWithGetJsonFn = { getJSON: () => JSONContent };

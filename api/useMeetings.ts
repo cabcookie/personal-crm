@@ -123,14 +123,14 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
           {
             and: [
               { meetingOn: { ge: startDate } },
-              { meetingOn: { le: toDate } },
+              { meetingOn: { lt: toDate } },
             ],
           },
           {
             and: [
               { meetingOn: { attributeExists: false } },
               { createdAt: { ge: startDate } },
-              { createdAt: { le: toDate } },
+              { createdAt: { lt: toDate } },
             ],
           },
         ],

@@ -25,7 +25,7 @@ const useMeetingPagination = () => {
   useEffect(() => {
     if (startDate === router.query.startDate) return;
     router.replace({ query: { startDate } });
-  }, [startDate]);
+  }, [router, startDate]);
 
   const handlePaginationClick = (direction: "BACKW" | "FORW") => () => {
     const newDate = flow(

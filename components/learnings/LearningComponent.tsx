@@ -84,7 +84,7 @@ const LearningComponent: FC<LearningComponentProps> = ({
           readonly={!editable}
           placeholder="Document what you've learned about the person…"
           notes={learning.learning}
-          saveNotes={(editor) => onChange(editor)}
+          saveNotes={onChange}
         />
       </div>
     </div>
