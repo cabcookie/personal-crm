@@ -34,26 +34,22 @@ const planningSchema = {
       dayGoal: a.string().required(),
       context: a.ref("Context").required(),
       status: a.ref("DailyPlanStatus").required(),
-      tasks: a.hasMany("DailyPlanTask", "dailyPlanId"),
+      todos: a.hasMany("DailyPlanTodo", "dailyPlanId"),
     })
     .secondaryIndexes((index) => [
       index("status").sortKeys(["day"]).queryField("listByStatus"),
     ])
     .authorization((allow) => [allow.owner()]),
-  DailyPlanTask: a
+  DailyPlanTodo: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       dailyPlanId: a.id().required(),
       dailyPlan: a.belongsTo("DailyPlan", "dailyPlanId"),
-      activityId: a.id().required(),
-      activity: a.belongsTo("Activity", "activityId"),
-      taskIndex: a.integer().required(),
-      isInFocus: a.boolean().required(),
-      task: a.json().required(),
+      todoId: a.id().required(),
+      todo: a.belongsTo("Todo", "todoId"),
     })
-    .identifier(["dailyPlanId", "activityId", "taskIndex"])
     .authorization((allow) => [allow.owner()]),
 };
 

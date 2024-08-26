@@ -1,37 +1,25 @@
-import { Todo } from "@/api/useProjectTodos";
 import { JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
 import useExtensions from "./useExtensions";
 
-const getTodoEditorContent = (todos: Todo[]): JSONContent => ({
+const makeDocument = (content: JSONContent[]): JSONContent => ({
   type: "doc",
-  content: [
-    {
-      type: "taskList",
-      content: todos.map(({ todo, todoId, blockId }) => ({
-        ...todo,
-        attrs: {
-          ...todo.attrs,
-          blockId,
-          todoId,
-        },
-      })),
-    },
-  ],
+  content,
 });
 
-type TodoEditorProps = {
-  todos: Todo[];
+type SimpleReadOnlyProps = {
+  content: JSONContent[];
 };
 
-const TodoEditor: FC<TodoEditorProps> = ({ todos }) => {
+const SimpleReadOnly: FC<SimpleReadOnlyProps> = ({ content }) => {
   const extensions = useExtensions();
+
   const editor = useEditor({
     extensions,
     editable: false,
     immediatelyRender: false,
-    content: getTodoEditorContent(todos),
+    content: makeDocument(content),
   });
 
   useEffect(() => {
@@ -48,4 +36,4 @@ const TodoEditor: FC<TodoEditorProps> = ({ todos }) => {
   return <EditorContent editor={editor} />;
 };
 
-export default TodoEditor;
+export default SimpleReadOnly;

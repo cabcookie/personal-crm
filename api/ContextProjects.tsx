@@ -349,7 +349,11 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     dueOn,
     onHoldTill,
   }: UpdateProjectProps) => {
-    const updProject: Project | undefined = projects?.find((p) => p.id === id);
+    const updProject: Project | undefined = (() => {
+      const project = projects?.find((p) => p.id === id);
+      if (!project) return undefined;
+      return { ...project } as Project;
+    })();
     if (!updProject) return;
 
     Object.assign(updProject, {
@@ -362,6 +366,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
     const updated: Project[] =
       projects?.map((p) => (p.id === id ? updProject : p)) || [];
+
     mutateProjects(updated, false);
 
     const newProject = {

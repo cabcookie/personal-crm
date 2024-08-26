@@ -24,7 +24,7 @@ const selectionSet = [
   "todo.todo",
   "todo.status",
   "todo.doneOn",
-  "todo.activity.id",
+  "todo.activity.activityId",
 ] as const;
 
 type ProjectTodoData = SelectionSet<
@@ -36,7 +36,7 @@ const mapProjectTodo = ({
   id: projectTodoId,
   todo: {
     id: todoId,
-    activity: { id: activityId },
+    activity: { activityId },
     doneOn,
     status,
     todo,

@@ -1,12 +1,8 @@
 import { EditorOptions, mergeAttributes } from "@tiptap/core";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
-import TaskList from "@tiptap/extension-task-list";
-import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
-import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
-import { TaskItem } from "../extensions/tasks/task-item";
 
 const useExtensions = (): EditorOptions["extensions"] => {
   const extensions = useMemo(() => {
@@ -19,20 +15,13 @@ const useExtensions = (): EditorOptions["extensions"] => {
         codeBlock: false,
         blockquote: false,
       }),
-      TaskList,
-      TaskItem.configure({
-        HTMLAttributes: {
-          class: "flex items-start gap-2 list-none",
-        },
-      }),
       Link.extend({ inclusive: false }).configure({
-        openOnClick: false,
+        openOnClick: true,
         HTMLAttributes: {
           class:
             "no-underline text-blue-400 hover:text-blue-600 hover:underline hover:underline-offset-2",
         },
       }),
-      Typography,
       Mention.extend({
         addAttributes() {
           return {
@@ -73,10 +62,8 @@ const useExtensions = (): EditorOptions["extensions"] => {
           `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
         ],
       }),
-      LinkBubbleMenuHandler,
     ];
   }, []);
-
   return extensions;
 };
 

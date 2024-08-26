@@ -65,6 +65,7 @@ const activitySchema = {
       doneOn: a.date(),
       activity: a.hasOne("NoteBlock", "todoId"),
       projects: a.hasMany("ProjectTodo", "todoId"),
+      dailyTodos: a.hasMany("DailyPlanTodo", "todoId"),
     })
     .secondaryIndexes((index) => [index("status")])
     .authorization((allow) => [allow.owner()]),
@@ -79,7 +80,6 @@ const activitySchema = {
       meetingActivitiesId: a.id(),
       forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
       finishedOn: a.datetime(),
-      dailyTasks: a.hasMany("DailyPlanTask", "activityId"),
       noteBlocks: a.hasMany("NoteBlock", "activityId"),
       noteBlockIds: a.string().required().array(),
       notes: a.string(), // DEPRECATED

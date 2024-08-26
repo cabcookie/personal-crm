@@ -8,7 +8,11 @@ import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/router";
 import { KeyboardEventHandler, useState } from "react";
-import { BiCalendarWeek, BiConversation } from "react-icons/bi";
+import {
+  BiCalendarEvent,
+  BiCalendarWeek,
+  BiConversation,
+} from "react-icons/bi";
 import { IconType } from "react-icons/lib";
 import { useCreateInboxItemContext } from "../inbox/CreateInboxItemDialog";
 import {
@@ -68,12 +72,12 @@ const NavigationMenu = () => {
       Icon: BiConversation,
       url: "/meetings",
     },
-    // {
-    //   label: "Daily Planning",
-    //   shortcut: "^D",
-    //   Icon: BiCalendarEvent,
-    //   url: "/planday",
-    // },
+    {
+      label: "Daily Planning",
+      shortcut: "^D",
+      Icon: BiCalendarEvent,
+      url: "/planday",
+    },
     {
       label: "Weekly Planning",
       shortcut: "^K",
