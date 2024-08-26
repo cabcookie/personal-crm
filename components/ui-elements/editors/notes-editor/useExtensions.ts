@@ -31,13 +31,9 @@ const extendedConfig: Partial<NodeConfig<any, any>> = {
   },
 };
 
-const StarterKitExtended = [
-  Heading,
-  Paragraph,
-  ListItem,
-  CodeBlock,
-  S3ImageExtension,
-].map((ext) => ext.extend(extendedConfig));
+const StarterKitExtended = [Heading, Paragraph, ListItem, CodeBlock].map(
+  (ext) => ext.extend(extendedConfig)
+);
 
 const useExtensions = (): EditorOptions["extensions"] => {
   const extensions = useMemo(() => {
@@ -88,6 +84,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
         },
       }),
       Typography,
+      S3ImageExtension,
       Mention.extend({
         addAttributes() {
           return {

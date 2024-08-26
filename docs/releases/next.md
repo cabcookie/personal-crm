@@ -15,6 +15,7 @@
 - Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
 - Numerierte Listen werden nun korrekt in NoteBlocks gespeichert.
 - Die Tagesplanung funktioniert wieder und die tägliche Todoliste ebenso.
+- Kleinere Fehlerbehebungen im Editor.
 
 ## In Arbeit
 
