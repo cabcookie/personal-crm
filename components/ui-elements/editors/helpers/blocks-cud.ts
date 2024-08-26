@@ -160,40 +160,6 @@ const mapUpdateSet = (content: JSONContent): TBlockUpdateSet => {
   };
 };
 
-const mapLevel2 =
-  (changedBlocks: TBlockUpdateSet[]) =>
-  (level2: JSONContent): JSONContent => {
-    const block = changedBlocks.find(
-      (b) => b.blockId === level2.attrs?.blockId
-    );
-    if (!block)
-      return {
-        ...level2,
-        content: level2.content?.map(mapLevel2(changedBlocks)),
-      };
-    return {
-      ...level2,
-      ...JSON.parse(block.content),
-    };
-  };
-
-const mapLevel1 =
-  (changedBlocks: TBlockUpdateSet[]) =>
-  (level1: JSONContent): JSONContent => {
-    const block = changedBlocks.find(
-      (b) => b.blockId === level1.attrs?.blockId
-    );
-    if (!block)
-      return {
-        ...level1,
-        content: level1.content?.map(mapLevel2(changedBlocks)),
-      };
-    return {
-      ...level1,
-      ...JSON.parse(block.content),
-    };
-  };
-
 export const updateBlock = async ({
   blockId,
   content,
