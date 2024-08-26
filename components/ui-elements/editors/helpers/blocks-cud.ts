@@ -194,17 +194,6 @@ const mapLevel1 =
     };
   };
 
-export const mapChangedBlocks = (
-  changedBlocks: TBlockUpdateSet[],
-  activity: Activity
-) => ({
-  ...activity,
-  notes: {
-    ...activity.notes,
-    content: activity.notes.content?.map(mapLevel1(changedBlocks)),
-  },
-});
-
 export const updateBlock = async ({
   blockId,
   content,

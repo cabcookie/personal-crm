@@ -64,7 +64,6 @@ export type ActivityData = SelectionSet<
   typeof selectionSet
 >;
 export type NoteBlockData = ActivityData["noteBlocks"][number];
-export type ActivityProjectsData = ActivityData["forProjects"][number];
 
 export const mapActivity = (a: ActivityData): Activity => ({
   id: a.id,
@@ -232,5 +231,4 @@ const useActivity = (activityId?: string) => {
   };
 };
 
-export type MutateActivityFn = ReturnType<typeof useActivity>["mutateActivity"];
 export default useActivity;
