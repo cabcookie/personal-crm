@@ -6,7 +6,7 @@ import {
   calcPipelineByAccountId,
   make2YearsRevenueText,
 } from "@/helpers/projects";
-import { getEditorContent, TWithGetJsonFn } from "@/helpers/ui-notes-writer";
+import { Editor } from "@tiptap/core";
 import { filter, flow, get, map } from "lodash/fp";
 import { FC } from "react";
 import CrmLink from "../crm/CrmLink";
@@ -55,11 +55,11 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   const { territories } = useTerritories();
   const { projects } = useProjectsContext();
 
-  const handleUpdateIntroduction = (editor: TWithGetJsonFn) => {
+  const handleUpdateIntroduction = (editor: Editor) => {
     if (!account) return;
     debouncedUpdateAccountDetails({
       id: account.id,
-      serializeIntroduction: getEditorContent(editor),
+      editor,
       updateAccountFn: updateAccount,
     });
   };

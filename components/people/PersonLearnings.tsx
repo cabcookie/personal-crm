@@ -1,8 +1,5 @@
 import usePersonLearnings from "@/api/usePersonLearnings";
-import {
-  EditorJsonContent,
-  getTextFromEditorJsonContent,
-} from "@/helpers/ui-notes-writer";
+import { Editor, JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
 import { flow, get, map } from "lodash/fp";
 import { PlusCircle } from "lucide-react";
@@ -10,22 +7,22 @@ import { FC, useState } from "react";
 import LearningComponent from "../learnings/LearningComponent";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
+import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import { Button } from "../ui/button";
 
 type DebouncedUpdateLearningsProps = {
   learningId: string;
-  updateLearning: (learningId: string, learning: EditorJsonContent) => void;
-  serializer: () => { json: EditorJsonContent };
+  updateLearning: (learningId: string, learning: JSONContent) => void;
+  editor: Editor;
 };
 
 const debouncedUpdateLearnings = debounce(
   async ({
     learningId,
     updateLearning,
-    serializer,
+    editor,
   }: DebouncedUpdateLearningsProps) => {
-    const { json: learning } = serializer();
-    await updateLearning(learningId, learning);
+    await updateLearning(learningId, editor.getJSON());
   },
   1500
 );
@@ -50,14 +47,13 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
     if (newId) setEditId(newId);
   };
 
-  const handleLearningUpdate =
-    (learningId: string) => (serializer: () => { json: EditorJsonContent }) => {
-      debouncedUpdateLearnings({
-        learningId,
-        updateLearning,
-        serializer,
-      });
-    };
+  const handleLearningUpdate = (learningId: string) => (editor: Editor) => {
+    debouncedUpdateLearnings({
+      learningId,
+      updateLearning,
+      editor,
+    });
+  };
 
   return !personId ? (
     <LoadingAccordionItem
@@ -74,7 +70,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
         flow(
           (l) => l.slice(0, 2),
           map(get("learning")),
-          map(getTextFromEditorJsonContent)
+          map(getTextFromJsonContent)
         )(learnings)
       }
     >

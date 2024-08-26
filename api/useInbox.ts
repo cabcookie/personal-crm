@@ -1,11 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
-import {
-  EditorJsonContent,
-  getTasksData,
-  transformNotesVersion,
-} from "@/helpers/ui-notes-writer";
+import { transformNotesVersion } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/data";
-import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -33,10 +29,7 @@ const mapStatus = (status: string): InboxStatus =>
 
 export type Inbox = {
   id: string;
-  note: EditorJsonContent;
-  hasOpenTasks: boolean;
-  openTasks?: EditorJsonContent[];
-  closedTasks?: EditorJsonContent[];
+  note: JSONContent;
   status: InboxStatus;
   createdAt: Date;
 };
@@ -54,14 +47,6 @@ export const mapInbox: MapInboxFn = ({
   id,
   status: mapStatus(status),
   note: transformNotesVersion({
-    formatVersion,
-    notes: note,
-    notesJson: noteJson,
-  }),
-  ...flow(
-    transformNotesVersion,
-    getTasksData
-  )({
     formatVersion,
     notes: note,
     notesJson: noteJson,

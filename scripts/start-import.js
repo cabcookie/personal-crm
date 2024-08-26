@@ -17,6 +17,7 @@ const {
 const { getTable, getEnvironment } = require("./import-data/environments");
 const { getAwsProfile } = require("./helpers/get-aws-profile");
 const { fromIni } = require("@aws-sdk/credential-providers");
+const { flow, compact, filter, map } = require("lodash/fp");
 
 const importData = async () => {
   // Account
@@ -146,9 +147,6 @@ const importData = async () => {
     ({ fromMeeting, forProjects, ...item }) => ({
       ...item,
       ...mapMeetingIdForActivity(fromMeeting, meetings),
-      hasOpenTasks: "false",
-      openTasks: JSON.stringify([]),
-      closedTasks: JSON.stringify([]),
     })
   );
 
@@ -240,58 +238,6 @@ const fillFinishedOn = async () => {
   );
 };
 
-const addHasOpenTasksFieldTable = async (tableName) => {
-  const TableName = getTable(tableName);
-  const log = stdLog(`[${TableName}] [UPDATE FIELD hasOpenTasks]:`);
-  log("Start processing…");
-  const region = getEnvironment().region;
-  const profile = getAwsProfile();
-  const client = new DynamoDBClient({
-    region,
-    credentials: fromIni({ profile }),
-  });
-  const existingRecords = await client.send(
-    new ScanCommand({
-      TableName,
-      FilterExpression: "attribute_not_exists(#f)",
-      ExpressionAttributeNames: { "#f": "hasOpenTasks" },
-    })
-  );
-  log(
-    "Relevant records:",
-    existingRecords.Items.map(({ id }) => id.S)
-  );
-  await Promise.all(
-    existingRecords.Items.map(async ({ id }) => {
-      log("Processing record with ID:", id.S);
-      const params = {
-        TableName,
-        Key: {
-          id,
-        },
-        UpdateExpression: `SET hasOpenTasks = :newValue`,
-        ExpressionAttributeValues: {
-          ":newValue": { S: "false" },
-        },
-        ReturnValues: "UPDATED_NEW",
-      };
-      const response = await client.send(new UpdateItemCommand(params));
-      log(
-        "Response:",
-        "StatusCode",
-        response.$metadata.httpStatusCode,
-        "Attributes",
-        response.Attributes.hasOpenTasks
-      );
-    })
-  );
-};
-
-const addHasOpenTasksField = async () => {
-  await addHasOpenTasksFieldTable("Activity");
-  await addHasOpenTasksFieldTable("Inbox");
-};
-
 /**
  * Importing data requires the files mentioned in the importData function to exist.
  * Like:
@@ -310,5 +256,4 @@ const addHasOpenTasksField = async () => {
 
 // importData();
 // logTables();
-// addHasOpenTasksField();
 // fillFinishedOn();

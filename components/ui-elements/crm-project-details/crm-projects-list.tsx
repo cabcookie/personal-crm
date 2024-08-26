@@ -1,4 +1,6 @@
 import useCrmProjects, { CrmProject } from "@/api/useCrmProjects";
+import HygieneIssueBadge from "@/components/crm/hygiene-issue-badge";
+import { hasHygieneIssues } from "@/components/crm/pipeline-hygiene";
 import { Accordion } from "@/components/ui/accordion";
 import { useContextContext } from "@/contexts/ContextContext";
 import { getRevenue2Years } from "@/helpers/projects";
@@ -52,6 +54,7 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
       <DefaultAccordionItem
         value="crmprojects"
         triggerTitle="CRM Projects"
+        badge={crmProjects.some(hasHygieneIssues) && <HygieneIssueBadge />}
         isVisible={isVisible}
         triggerSubTitle={
           crmProjects && crmProjects.length > 0 && getRevenue2Years(crmProjects)

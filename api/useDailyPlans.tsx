@@ -1,38 +1,25 @@
 import { type Schema } from "@/amplify/data/resource";
+import { handleApiErrors } from "@/api/globals";
 import { ToastAction } from "@/components/ui/toast";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { toISODateString } from "@/helpers/functional";
-import { calcPipeline } from "@/helpers/projects";
-import {
-  EditorJsonContent,
-  getTaskByIndex,
-  getTasksData,
-  transformNotesVersion,
-  updateTaskStatus,
-} from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
-import {
-  filter,
-  findIndex,
-  flatMap,
-  flow,
-  sortBy,
-  union,
-  uniq,
-} from "lodash/fp";
 import useSWR from "swr";
-import { OpenTask } from "./ContextOpenTasks";
-import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 const dailyPlanStatuses = ["PLANNING", "OPEN", "DONE", "CANCELLED"] as const;
 type DailyPlanStatus = (typeof dailyPlanStatuses)[number];
 
-export type DailyPlanTodo = OpenTask & {
-  isInFocus: boolean;
-  order: number;
+export type DailyPlanTodo = {
+  recordId: string;
+  todoId: string;
+  todo: JSONContent;
+  done: boolean;
+  projectIds: string[];
+  activityId: string;
 };
 
 export type DailyPlan = {
@@ -41,7 +28,7 @@ export type DailyPlan = {
   dayGoal: string;
   context: Context;
   status: DailyPlanStatus;
-  tasks: DailyPlanTodo[];
+  todos: DailyPlanTodo[];
 };
 
 const selectionSet = [
@@ -50,94 +37,68 @@ const selectionSet = [
   "dayGoal",
   "context",
   "status",
-  "tasks.isInFocus",
-  "tasks.taskIndex",
-  "tasks.task",
-  "tasks.activity.id",
-  "tasks.activity.notesJson",
-  "tasks.activity.updatedAt",
-  "tasks.activity.meetingActivitiesId",
-  "tasks.activity.forProjects.projects.id",
-  "tasks.activity.forProjects.projects.crmProjects.crmProject.id",
-  "tasks.activity.forProjects.projects.crmProjects.crmProject.closeDate",
-  "tasks.activity.forProjects.projects.crmProjects.crmProject.isMarketplace",
-  "tasks.activity.forProjects.projects.crmProjects.crmProject.annualRecurringRevenue",
-  "tasks.activity.forProjects.projects.crmProjects.crmProject.totalContractVolume",
-  "tasks.activity.forProjects.projects.crmProjects.crmProject.stage",
+  "todos.id",
+  "todos.todo.id",
+  "todos.todo.todo",
+  "todos.todo.status",
+  "todos.todo.activity.type",
+  "todos.todo.activity.activity.id",
+  "todos.todo.activity.activityId",
+  "todos.todo.projects.projectIdTodoStatus",
 ] as const;
 
 type DailyPlanData = SelectionSet<
   Schema["DailyPlan"]["type"],
-  // @ts-expect-error TS2344
   typeof selectionSet
 >;
-type TaskData = DailyPlanData["tasks"][number];
 
-const getTask = (task: any): EditorJsonContent => JSON.parse(task);
-
-const calcTaskOrder = (task: TaskData, maxProjectIndex: number): number =>
-  calcPipeline(
-    task.activity.forProjects.map((p) => ({
-      projects: { crmProjects: p.projects.crmProjects },
-    }))
-  ) +
-  maxProjectIndex * 10 +
-  (getTask(task.task).attrs?.checked || false ? 0 : 1);
-
-const getProjectIndex = (tasks: TaskData[], task: TaskData) =>
-  flow(
-    flatMap((task: TaskData) =>
-      task.activity.forProjects.map((p) => p.projects.id)
-    ),
-    uniq,
-    findIndex((projectId) =>
-      task.activity.forProjects.some((p) => p.projects.id === projectId)
-    )
-  )(tasks);
-
-const mapDailyPlanTodos = (tasks: TaskData[]) =>
-  tasks.map((task) => ({
-    task: getTask(task.task),
-    isInFocus: task.isInFocus,
-    done: getTask(task.task).attrs?.checked || false,
-    activityId: task.activity.id,
-    index: task.taskIndex,
-    projectIds: task.activity.forProjects.map((p) => p.projects.id),
-    order: calcTaskOrder(task, getProjectIndex(tasks, task)),
-    meetingId: task.activity.meetingActivitiesId || undefined,
-    updatedAt: new Date(task.activity.updatedAt),
-  }));
-
-const mapDailyPlan: (
-  dailyPlanStatus: DailyPlanStatus
-) => (dayplan: DailyPlanData) => DailyPlan =
-  (dailyPlanStatus) =>
-  ({ id, day, dayGoal, context, status, tasks }) => ({
-    id,
-    day: new Date(day),
-    dayGoal,
-    context: context || "work",
-    status,
-    tasks: flow(
-      filter((t: TaskData) => dailyPlanStatus === "PLANNING" || t.isInFocus),
-      mapDailyPlanTodos,
-      sortBy((t) => -t.order)
-    )(tasks),
-  });
+const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
+  id,
+  day,
+  dayGoal,
+  context,
+  status,
+  todos,
+}) => ({
+  id,
+  day: new Date(day),
+  dayGoal,
+  context: context || "work",
+  status,
+  todos: todos.map(
+    ({
+      id: recordId,
+      todo: {
+        id: todoId,
+        projects,
+        status,
+        todo,
+        activity: { activityId },
+      },
+    }): DailyPlanTodo => ({
+      recordId,
+      todoId,
+      todo: JSON.parse(todo as any),
+      done: status === "DONE",
+      projectIds: projects.map((p) =>
+        p.projectIdTodoStatus.replaceAll("-DONE", "").replaceAll("-OPEN", "")
+      ),
+      activityId,
+    })
+  ),
+});
 
 const fetchDailyPlans =
   (status: DailyPlanStatus | undefined = "OPEN") =>
   async (): Promise<DailyPlan[] | undefined> => {
-    // @ts-expect-error TS2589
     const { data, errors } = await client.models.DailyPlan.listByStatus(
       { status },
-      // @ts-expect-error TS2589
       { sortDirection: "DESC", selectionSet }
     );
     if (errors) throw errors;
     if (!data) throw new Error("No daily tasks list fetched");
     try {
-      return data.map(mapDailyPlan(status));
+      return data.map(mapDailyPlan);
     } catch (error) {
       console.error("fetchDailyPlans", { error });
       throw error;
@@ -150,7 +111,40 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     error,
     isLoading,
     mutate,
-  } = useSWR(`/api/dayplans/${status}`, fetchDailyPlans(status));
+  } = useSWR(`/api/dailyplans/${status}`, fetchDailyPlans(status));
+  const { toast } = useToast();
+
+  const addTodoToDailyPlan = async (
+    dailyPlanId: string,
+    todo: DailyPlanTodo
+  ) => {
+    const updated = dailyPlans?.map((p) =>
+      p.id !== dailyPlanId ? p : { ...p, todos: [...(p.todos ?? []), todo] }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanTodo.create({
+      dailyPlanId,
+      todoId: todo.todoId,
+    });
+    if (errors) handleApiErrors(errors, "Adding todo to daily plan failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  const removeTodoFromDailyPlan = async (recordId: string) => {
+    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
+      !p.todos.some((t) => t.recordId === recordId)
+        ? p
+        : { ...p, todos: p.todos.filter((t) => t.recordId !== recordId) }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanTodo.delete({
+      id: recordId,
+    });
+    if (errors) handleApiErrors(errors, "Removing todo from daily plan failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
 
   const createDailyPlan = async (
     day: Date,
@@ -165,9 +159,9 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
         dayGoal,
         status: "PLANNING",
         context,
-        tasks: [],
+        todos: [],
       },
-      ...(dailyPlans || []),
+      ...(dailyPlans ?? []),
     ];
     mutate(updated, false);
     const { data, errors } = await client.models.DailyPlan.create({
@@ -176,8 +170,8 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
       status: "PLANNING",
       context,
     });
-    if (errors) handleApiErrors(errors, "Error creating task list for the day");
-    if (!data) throw new Error("createDailyPlan didn't return result data");
+    if (errors) handleApiErrors(errors, "Creating daily plan failed");
+    if (!data) throw new Error("Creating daily plan returned no data");
     mutate(updated);
     return data.id;
   };
@@ -198,124 +192,114 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
-  const getExistingTask = async (
-    dailyPlanId: string,
-    activityId: string,
-    taskIndex: number
-  ) => {
-    const { data, errors } = await client.models.DailyPlanTask.get({
-      dailyPlanId,
-      activityId,
-      taskIndex,
-    });
-    if (errors) handleApiErrors(errors, "Finding existing task failed");
-    return data;
+  type ProjectTodoMapping = {
+    recordId: string;
+    projectId: string;
   };
 
-  const makeTaskDecision = async (
-    openTask: OpenTask,
-    dailyPlanId: string,
-    isInFocus: boolean
-  ) => {
-    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId
-        ? p
-        : {
-            ...p,
-            tasks: [
-              ...(p.tasks || []),
-              {
-                ...openTask,
-                isInFocus,
-                order: 0,
-              },
-            ],
-          }
-    );
-    if (updated) mutate(updated, false);
-    const existingTask = await getExistingTask(
-      dailyPlanId,
-      openTask.activityId,
-      openTask.index
-    );
-    if (existingTask) {
-      const { data, errors } = await client.models.DailyPlanTask.update({
-        dailyPlanId,
-        activityId: openTask.activityId,
-        taskIndex: openTask.index,
-        isInFocus,
-        task: JSON.stringify(openTask.task),
-      });
-      if (errors) handleApiErrors(errors, "Updating daily plan's task failed");
-      if (updated) mutate(updated);
-      if (!data) return;
-      toast({ title: "Daily plan's task updated" });
-      return data;
-    } else {
-      const { data, errors } = await client.models.DailyPlanTask.create({
-        dailyPlanId,
-        activityId: openTask.activityId,
-        taskIndex: openTask.index,
-        isInFocus,
-        task: JSON.stringify(openTask.task),
-      });
-      if (errors) handleApiErrors(errors, "Creating daily plan's task failed");
-      if (updated) mutate(updated);
-      if (!data) return;
-      toast({ title: "Daily plan's task created" });
-      return data;
-    }
-  };
-
-  const handleUndoFinishDailyTaskList =
-    (dailyPlan: DailyPlan, toaster: typeof toast) => async () => {
-      const updated: DailyPlan[] = flow(
-        union([dailyPlan]),
-        sortBy((p) => -p.day.getTime())
-      )(dailyPlans);
-      mutate(updated, false);
-      const { data, errors } = await client.models.DailyPlan.update({
-        id: dailyPlan.id,
-        status: "OPEN",
+  const updateTodoProjectStatus =
+    (newIsDone: boolean) =>
+    async ({ recordId, projectId }: ProjectTodoMapping) => {
+      const { data, errors } = await client.models.ProjectTodo.update({
+        id: recordId,
+        projectIdTodoStatus: `${projectId}-${newIsDone ? "DONE" : "OPEN"}`,
       });
       if (errors)
-        handleApiErrors(errors, "Undoing finishing daily plan's task failed");
-      if (updated) mutate(updated);
-      if (!data) return;
-      toaster({
-        title: "Re-opened Daily task list",
-        description: `Daily task list with title “${
-          dailyPlan.dayGoal
-        }” for ${format(dailyPlan.day, "PP")} is open again.`,
-      });
-      return data.id;
+        handleApiErrors(errors, "Updating todo's project status failed");
+      return data?.id;
     };
 
-  const finishDailyTaskList = async (
+  const getTodoProjects = async (
+    todoId: string
+  ): Promise<ProjectTodoMapping[] | undefined> => {
+    const { data, errors } =
+      await client.models.ProjectTodo.listProjectTodoByTodoId({ todoId });
+    if (errors) handleApiErrors(errors, "Reading todo's project IDs failed");
+    if (!data) return;
+    return data.map((d) => ({
+      recordId: d.id,
+      projectId: d.projectIdTodoStatus
+        .replaceAll("-DONE", "")
+        .replaceAll("-OPEN", ""),
+    }));
+  };
+
+  const updateTodoStatus = async (todoId: string, newIsDone: boolean) => {
+    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) => ({
+      ...p,
+      todos: p.todos.map((t) =>
+        t.todoId !== todoId
+          ? t
+          : {
+              ...t,
+              done: newIsDone,
+            }
+      ),
+    }));
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.Todo.update({
+      id: todoId,
+      status: newIsDone ? "DONE" : "OPEN",
+    });
+    if (errors) handleApiErrors(errors, "Updating todo status failed");
+    if (updated) mutate(updated);
+    if (!data) return;
+    const projects = await getTodoProjects(todoId);
+    if (!projects) return;
+    await Promise.all(projects.map(updateTodoProjectStatus(newIsDone)));
+    return data?.id;
+  };
+
+  const updateDailyPlanStatus = async (
     dailyPlanId: string,
-    toaster: typeof toast
+    status: "DONE" | "OPEN",
+    defaultErrorMsg: string
   ) => {
-    const oldDailyPlan = dailyPlans?.find((p) => p.id === dailyPlanId);
     const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId ? p : { ...p, status: "DONE" }
+      p.id !== dailyPlanId ? p : { ...p, status }
     );
     if (updated) mutate(updated, false);
     const { data, errors } = await client.models.DailyPlan.update({
       id: dailyPlanId,
-      status: "DONE",
+      status,
     });
-    if (errors) handleApiErrors(errors, "Finishing task list failed");
+    if (errors) handleApiErrors(errors, defaultErrorMsg);
     if (updated) mutate(updated);
+    return data;
+  };
+
+  const handleUndoFinishDailyTaskList = (dailyPlanId: string) => async () => {
+    const data = await updateDailyPlanStatus(
+      dailyPlanId,
+      "OPEN",
+      "Undoing finishing daily todo list failed"
+    );
     if (!data) return;
-    toaster({
-      title: "Daily task list completed",
-      description: `You completed the daily task list with title “${
+    toast({
+      title: "Re-opened daily todo list",
+      description: `Daily todo list “${data.dayGoal}” (${format(
+        new Date(data.day),
+        "PP"
+      )}) is open again`,
+    });
+  };
+
+  const finishDailyTaskList = async (dailyPlanId: string) => {
+    const data = await updateDailyPlanStatus(
+      dailyPlanId,
+      "DONE",
+      "Finishing todo list failed"
+    );
+    if (!data) return;
+    toast({
+      title: "Daily todo list completed",
+      description: `You completed the daily todo list “${
         data.dayGoal
-      }” for ${format(data.day, "PP")}`,
-      action: oldDailyPlan && (
+      }” (${format(new Date(data.day), "PP")})`,
+      action: (
         <ToastAction
-          altText="Undo finishing task list"
-          onClick={handleUndoFinishDailyTaskList(oldDailyPlan, toaster)}
+          altText="Undo finishing todo list"
+          onClick={handleUndoFinishDailyTaskList(dailyPlanId)}
         >
           Undo
         </ToastAction>
@@ -324,79 +308,16 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
-  const getActivityNotes = async (activityId: string) => {
-    const { data, errors } = await client.models.Activity.get({
-      id: activityId,
-    });
-    if (errors) handleApiErrors(errors, "Fetching activity with tasks failed");
-    if (!data) return;
-    return transformNotesVersion(data);
-  };
-
-  const finishTask = async (
-    activityId: string,
-    index: number,
-    finished: boolean
-  ) => {
-    const notes = await getActivityNotes(activityId);
-    if (!notes) return;
-    const updated = updateTaskStatus(notes, index, finished);
-    const { hasOpenTasks } = getTasksData(updated);
-    const { data, errors } = await client.models.Activity.update({
-      id: activityId,
-      hasOpenTasks: hasOpenTasks ? "true" : "false",
-      formatVersion: 2,
-      notes: null,
-      notesJson: JSON.stringify(updated),
-    });
-    if (errors) handleApiErrors(errors, "Task status updated");
-    if (!data) return;
-    toast({ title: "Task status updated" });
-    return getTaskByIndex(updated, index);
-  };
-
-  const finishDailyTask = async (
-    dailyPlanId: string,
-    { activityId, index }: DailyPlanTodo,
-    finished: boolean
-  ) => {
-    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId
-        ? p
-        : {
-            ...p,
-            tasks: p.tasks.map((t) =>
-              t.activityId !== activityId || t.index !== index
-                ? t
-                : {
-                    ...t,
-                    done: finished,
-                  }
-            ),
-          }
-    );
-    if (updated) mutate(updated, false);
-    const updatedTask = await finishTask(activityId, index, finished);
-    const { data, errors } = await client.models.DailyPlanTask.update({
-      dailyPlanId,
-      activityId: activityId,
-      taskIndex: index,
-      task: JSON.stringify(updatedTask),
-    });
-    if (errors) handleApiErrors(errors, "Updating daily task item failed");
-    if (updated) mutate(updated);
-    return data;
-  };
-
   return {
     dailyPlans,
     error,
     isLoading,
     createDailyPlan,
     confirmDailyPlanning,
-    makeTaskDecision,
     finishDailyTaskList,
-    finishDailyTask,
+    addTodoToDailyPlan,
+    removeTodoFromDailyPlan,
+    updateTodoStatus,
   };
 };
 

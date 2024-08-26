@@ -1,29 +1,21 @@
-import { OpenTask, useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { useProjectsContext } from "@/api/ContextProjects";
-import { Accordion } from "@/components/ui/accordion";
-import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
-import { filter, flow } from "lodash/fp";
+import useProjectTodos from "@/api/useProjectTodos";
 import { FC, useEffect, useState } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
+import { getTodoText } from "../editors/helpers/text-generation";
+import TodoEditor from "../editors/todo-editor/TodoEditor";
 import LegacyNextActions from "./legacy-next-actions";
-import NextAction from "./next-action";
 
-type NextActionsProps = {
+type ProjectNextActionsProps = {
   projectId: string;
 };
 
-const NextActions: FC<NextActionsProps> = ({ projectId }) => {
+const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
   const { projects } = useProjectsContext();
-  const { openTasks: tasks } = useOpenTasksContext();
-  const [openTasks] = useState(
-    flow(
-      filter((task: OpenTask) => task.projectIds.includes(projectId)),
-      filter((t) => !t.done)
-    )(tasks)
-  );
   const [project, setProject] = useState(
     projects?.find((p) => p.id === projectId)
   );
+  const { projectTodos } = useProjectTodos(projectId);
 
   useEffect(() => {
     setProject(projects?.find((p) => p.id === projectId));
@@ -33,27 +25,17 @@ const NextActions: FC<NextActionsProps> = ({ projectId }) => {
     <DefaultAccordionItem
       value="next-actions"
       triggerTitle="Next Actions"
-      triggerSubTitle={openTasks.map(({ task }) =>
-        getTextFromEditorJsonContent(task)
-      )}
+      triggerSubTitle={getTodoText(projectTodos)}
       isVisible={
-        openTasks.length > 0 ||
+        (projectTodos && projectTodos.length > 0) ||
         !!project?.myNextActions ||
         !!project?.othersNextActions
       }
     >
-      <Accordion type="single" collapsible>
-        {openTasks?.map((openTask) => (
-          <NextAction
-            key={`${openTask.activityId}-${openTask.index}`}
-            openTask={openTask}
-          />
-        ))}
-      </Accordion>
-
+      {projectTodos && <TodoEditor todos={projectTodos} />}
       <LegacyNextActions projectId={projectId} />
     </DefaultAccordionItem>
   );
 };
 
-export default NextActions;
+export default ProjectNextActions;

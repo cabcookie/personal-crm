@@ -1,14 +1,14 @@
-import { EditorJsonContent } from "@/helpers/ui-notes-writer";
+import { Editor, JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
 
 type UpdateFnProps = {
   id: string;
   name?: string;
-  introduction?: EditorJsonContent;
+  introduction?: JSONContent;
 };
 
 type UpdateAccountDetailsProps = UpdateFnProps & {
-  serializeIntroduction?: () => { json: EditorJsonContent };
+  editor?: Editor;
   updateAccountFn: (props: UpdateFnProps) => Promise<string | undefined>;
   updateSavedState?: (state: boolean) => void;
 };
@@ -16,13 +16,13 @@ type UpdateAccountDetailsProps = UpdateFnProps & {
 export const debouncedUpdateAccountDetails = debounce(
   async ({
     updateAccountFn,
-    serializeIntroduction,
+    editor,
     updateSavedState,
     ...props
   }: UpdateAccountDetailsProps) => {
     await updateAccountFn({
       ...props,
-      introduction: serializeIntroduction?.().json,
+      introduction: editor?.getJSON(),
     });
     updateSavedState && updateSavedState(true);
   },

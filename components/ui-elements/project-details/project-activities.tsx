@@ -1,5 +1,6 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import ActivityComponent from "@/components/activities/activity";
+import ActivityFormatBadge from "@/components/activities/activity-format-badge";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { FC } from "react";
@@ -20,7 +21,8 @@ const ProjectActivities: FC<ProjectActivitiesProps> = ({
   ) : (
     <DefaultAccordionItem
       value="activities"
-      triggerTitle="Notes"
+      triggerTitle="Project Notes"
+      badge={project.hasOldVersionedActivityFormat && <ActivityFormatBadge />}
       isVisible={isVisible}
     >
       <div className="space-y-2">

@@ -1,55 +1,31 @@
-import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { Activity } from "@/api/useActivity";
-import {
-  getEditorContentAndTaskData,
-  getTextFromEditorJsonContent,
-  SerializerOutput,
-  TWithGetJsonFn,
-} from "@/helpers/ui-notes-writer";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
-import { debouncedUpdateNotes } from "./activity-helper";
+import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
+import NotesEditor from "../ui-elements/editors/notes-editor/NotesEditor";
+import ActivityFormatBadge from "./activity-format-badge";
 import ActivityMetaData from "./activity-meta-data";
 
 type ActivityNotesProps = {
   activity?: Activity;
-  updateNotes: (
-    serializedOutput: SerializerOutput
-  ) => Promise<string | undefined>;
   readOnly?: boolean;
 };
 
-const ActivityNotes: FC<ActivityNotesProps> = ({
-  activity,
-  updateNotes,
-  readOnly,
-}) => {
-  const { mutateOpenTasks } = useOpenTasksContext();
-
-  const handleNotesUpdate = (editor: TWithGetJsonFn) => {
-    debouncedUpdateNotes({
-      updateNotes,
-      serializer: getEditorContentAndTaskData(editor, (tasks) =>
-        mutateOpenTasks(tasks, activity)
-      ),
-    });
-  };
-
+const ActivityNotes: FC<ActivityNotesProps> = ({ activity, readOnly }) => {
   return !activity ? (
     "Loading…"
   ) : (
     <DefaultAccordionItem
       value="notes"
       triggerTitle="Notes"
-      triggerSubTitle={getTextFromEditorJsonContent(activity.notes)}
+      triggerSubTitle={getTextFromJsonContent(activity.notes)}
       className="tracking-tight"
+      badge={activity.oldFormatVersion && <ActivityFormatBadge />}
     >
-      <NotesWriter
-        notes={activity.notes}
-        saveNotes={handleNotesUpdate}
-        key={activity.id}
+      <NotesEditor
+        activityId={activity.id}
         readonly={readOnly}
+        key={activity.id}
       />
 
       <ActivityMetaData activity={activity} />

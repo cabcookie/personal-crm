@@ -1,4 +1,3 @@
-import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { useProjectsContext } from "@/api/ContextProjects";
 import useActivity from "@/api/useActivity";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
@@ -6,22 +5,17 @@ import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { Accordion } from "@/components/ui/accordion";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getEditorContentAndTaskData,
-  getTextFromEditorJsonContent,
-  TWithGetJsonFn,
-} from "@/helpers/ui-notes-writer";
 import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
-import { debouncedUpdateNotes } from "../../activities/activity-helper";
 import ActivityMetaData from "../../activities/activity-meta-data";
 import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
-import NotesWriter from "../notes-writer/NotesWriter";
+import { getTextFromJsonContent } from "../editors/helpers/text-generation";
+import NotesEditor from "../editors/notes-editor/NotesEditor";
 import DeleteWarning from "./DeleteWarning";
 
 type ProjectNotesFormProps = {
-  className?: string;
   activityId: string;
+  className?: string;
   deleteActivity?: () => void;
   hideProjects?: boolean;
   readOnly?: boolean;
@@ -35,26 +29,10 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
   readOnly,
 }) => {
   const { getProjectById } = useProjectsContext();
-  const { mutateOpenTasks } = useOpenTasksContext();
-  const {
-    activity,
-    updateNotes,
-    isLoadingActivity,
-    errorActivity,
-    deleteProjectActivity,
-  } = useActivity(activityId);
+  const { activity, isLoadingActivity, errorActivity, deleteProjectActivity } =
+    useActivity(activityId);
   const [openDeleteActivityConfirmation, setOpenDeleteActivityConfirmation] =
     useState(false);
-
-  const handleNotesUpdate = (editor: TWithGetJsonFn) => {
-    if (!updateNotes) return;
-    debouncedUpdateNotes({
-      serializer: getEditorContentAndTaskData(editor, (tasks) =>
-        mutateOpenTasks(tasks, activity)
-      ),
-      updateNotes,
-    });
-  };
 
   return (
     <div className={className}>
@@ -68,7 +46,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
             (id) =>
               `Project: ${getProjectById(id)?.project}${
                 activity &&
-                `; Notes: ${getTextFromEditorJsonContent(activity?.notes).slice(
+                `; Notes: ${getTextFromJsonContent(activity?.notes).slice(
                   0,
                   200
                 )}`
@@ -114,11 +92,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
         activity && (
           <>
             <div className="mx-0 md:mx-2">
-              <NotesWriter
-                notes={activity.notes}
-                saveNotes={handleNotesUpdate}
-                readonly={readOnly}
-              />
+              <NotesEditor activityId={activity.id} readonly={readOnly} />
             </div>
             <div className="mx-2 md:mx-4">
               <ActivityMetaData activity={activity} />

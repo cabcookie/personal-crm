@@ -6,7 +6,7 @@ import {
   mapPersonToSuggestion,
   renderer,
 } from "@/helpers/ui-notes-writer/suggestions";
-import { EditorOptions, JSONContent } from "@tiptap/core";
+import { EditorOptions } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
@@ -18,10 +18,8 @@ import { mergeAttributes } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { filter, flow, map } from "lodash/fp";
 import { useMemo } from "react";
-import LinkBubbleMenuHandler from "./link-bubble-menu/LinkBubbleMenuHandler";
-import S3ImageExtension from "./S3ImageExtension";
-
-export type EditorJsonContent = JSONContent;
+import LinkBubbleMenuHandler from "../editors/extensions/link-bubble-menu/LinkBubbleMenuHandler";
+import S3ImageExtension from "../editors/extensions/s3-images/S3ImageExtension";
 
 interface UseExtensionsProps {
   placeholder?: string;

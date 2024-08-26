@@ -1,13 +1,10 @@
 import { HandleMutationFn, Inbox } from "@/api/useInbox";
 import useInboxWorkflow from "@/api/useInboxWorkflow";
-import {
-  getEditorContentAndTaskData,
-  TWithGetJsonFn,
-} from "@/helpers/ui-notes-writer";
 import { debouncedOnChangeInboxNote } from "@/pages/inbox";
+import { Editor } from "@tiptap/core";
 import { useRouter } from "next/router";
 import { FC, useEffect, useState } from "react";
-import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
+import InboxEditor from "../ui-elements/editors/inbox-editor/InboxEditor";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import {
@@ -46,13 +43,9 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({
     setPrevStatus(getPreviousStatusByStatus(workflow, inboxItem.status));
   }, [inboxItem]);
 
-  const handleUpdate = (editor: TWithGetJsonFn) => {
+  const handleUpdate = (editor: Editor) => {
     if (!inboxItem) return;
-    debouncedOnChangeInboxNote(
-      inboxItem.id,
-      getEditorContentAndTaskData(editor, () => {}),
-      updateNote(inboxItem)
-    );
+    debouncedOnChangeInboxNote(inboxItem.id, editor, updateNote(inboxItem));
   };
 
   const goBack = async () => {
@@ -98,7 +91,7 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({
             action={startProcessingItem}
           />
         )}
-        <NotesWriter notes={inboxItem?.note} saveNotes={handleUpdate} />
+        <InboxEditor notes={inboxItem.note} saveNotes={handleUpdate} />
       </div>
     )
   );

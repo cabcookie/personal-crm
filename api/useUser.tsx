@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
-import { uploadFileToS3 } from "@/helpers/s3/upload-filtes";
+import { uploadFileToS3 } from "@/helpers/s3/upload-files";
 import { AuthUser, getCurrentUser } from "aws-amplify/auth";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { remove } from "aws-amplify/storage";

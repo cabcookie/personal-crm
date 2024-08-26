@@ -1,13 +1,15 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Activity } from "@/api/useActivity";
 import { Meeting } from "@/api/useMeetings";
+import useMeetingTodos from "@/api/useMeetingTodos";
 import usePeople from "@/api/usePeople";
-import { getTextFromEditorJsonContent } from "@/helpers/ui-notes-writer";
 import { format } from "date-fns";
 import { flatMap, flow, get, map } from "lodash/fp";
 import { FC } from "react";
+import ActivityFormatBadge from "../activities/activity-format-badge";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import MeetingRecord from "./meeting";
 
 type MeetingAccordionItemProps = {
@@ -17,6 +19,7 @@ type MeetingAccordionItemProps = {
 const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
   const { getNamesByIds } = usePeople();
   const { getProjectNamesByIds } = useProjectsContext();
+  const { meetingTodos } = useMeetingTodos(meeting.id);
 
   return (
     <DefaultAccordionItem
@@ -25,10 +28,13 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
       className="tracking-tight"
       link={`/meetings/${meeting.id}`}
       badge={
-        <TaskBadge
-          hasOpenTasks={meeting.activities.some((a) => a.hasOpenTasks)}
-          hasClosedTasks={meeting.activities.some((a) => a.closedTasks?.length)}
-        />
+        <>
+          <TaskBadge
+            hasOpenTasks={meetingTodos?.some((t) => !t.done)}
+            hasClosedTasks={meetingTodos?.every((t) => t.done)}
+          />
+          {meeting.hasOldVersionFormattedActivities && <ActivityFormatBadge />}
+        </>
       }
       triggerSubTitle={[
         meeting.participantIds.length > 0 &&
@@ -41,7 +47,7 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
         meeting.activities.length > 0 &&
           `Notes: ${flow(
             map(get("notes")),
-            map(getTextFromEditorJsonContent)
+            map(getTextFromJsonContent)
           )(meeting.activities)}`,
       ]}
     >

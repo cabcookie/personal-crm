@@ -88,6 +88,7 @@ const personSchmema = {
       details: a.hasMany("PersonDetail", "personId"),
       learnings: a.hasMany("PersonLearning", "personId"),
       profile: a.hasOne("User", "personId"),
+      noteBlocks: a.hasMany("NoteBlockPerson", "personId"),
     })
     .authorization((allow) => [allow.owner()]),
 };

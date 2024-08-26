@@ -1,10 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
+import { newDateTimeString } from "@/helpers/functional";
 import {
   downloadDataFromS3,
   percentLoaded,
   uploadFileToS3,
-} from "@/helpers/s3/upload-filtes";
+} from "@/helpers/s3/upload-files";
 import { generateClient } from "aws-amplify/data";
 import { addDays, min } from "date-fns";
 import { floor, flow } from "lodash/fp";
@@ -20,9 +21,9 @@ export type DataChanged = {
   changed: Omit<CrmProject, "id">[];
 };
 
-export const IMPORT_STATUS = ["WIP", "DONE"] as const;
+const IMPORT_STATUS = ["WIP", "DONE"] as const;
 
-export type TImportStatus = (typeof IMPORT_STATUS)[number];
+type TImportStatus = (typeof IMPORT_STATUS)[number];
 
 type CrmProjectsImportData = Schema["CrmProjectImport"]["type"];
 
@@ -92,7 +93,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
     const { data, errors } = await client.models.CrmProjectImport.create({
       s3Key: s3Path,
       status: "WIP",
-      createdAt: new Date().toISOString(),
+      createdAt: newDateTimeString(),
     });
     if (errors) handleApiErrors(errors, "Updating data record failed");
     if (!data) {

@@ -1,23 +1,12 @@
 import { Account } from "@/api/ContextAccounts";
 import { Project } from "@/api/ContextProjects";
-import { DailyPlanTodo } from "@/api/useDailyPlans";
 import { WeeklyPlan } from "@/api/useWeekPlan";
 import { updateProjectOrder } from "@/helpers/projects";
 import { differenceInCalendarDays } from "date-fns";
 import { filter, flow, map, sortBy } from "lodash/fp";
-import { EditorJsonContent } from "./ui-notes-writer";
 
 export const projectFilters = ["Open", "In Focus", "On Hold"] as const;
 export type ProjectFilters = (typeof projectFilters)[number];
-
-export const transformTaskType = (task: DailyPlanTodo): DailyPlanTodo =>
-  (({ attrs: _attrs, type: _type, ...rest }: EditorJsonContent) => ({
-    ...task,
-    task: {
-      ...rest,
-      type: "doc",
-    },
-  }))(task.task);
 
 export const filterAndSortProjectsForWeeklyPlanning = (
   accounts: Account[] | undefined,

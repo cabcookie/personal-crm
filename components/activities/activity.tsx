@@ -44,7 +44,6 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
 }) => {
   const {
     activity,
-    updateNotes,
     updateDate,
     addProjectToActivity,
     isLoadingActivity,
@@ -85,8 +84,8 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
     }
   };
 
-  return !notesNotInAccordion ? (
-    <div className="pb-8 space-y-4">
+  return (
+    <div className="pb-8 space-y-6">
       <ApiLoadingError title="Loading activity failed" error={errorActivity} />
 
       {showDates && (
@@ -97,81 +96,84 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
             selectHours
             bold
           />
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <LinkIcon
-                  className="mt-2 text-muted-foreground hover:text-primary"
-                  onClick={handleCopyToClipBoard}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Copy link of the note to clipboard</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
 
-          <Link href={`/activities/${activityId}`}>
-            <ExternalLink className="mt-2 text-muted-foreground hover:text-primary" />
-          </Link>
+          {!notesNotInAccordion && (
+            <>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <LinkIcon
+                      className="mt-2 text-muted-foreground hover:text-primary"
+                      onClick={handleCopyToClipBoard}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Copy link of the note to clipboard</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-          <SavedState saved={dateSaved} />
+              <Link href={`/activities/${activityId}`}>
+                <ExternalLink className="mt-2 text-muted-foreground hover:text-primary" />
+              </Link>
+
+              <SavedState saved={dateSaved} />
+            </>
+          )}
         </div>
       )}
 
-      <Accordion type="single" collapsible>
-        <ActivityProjectList
-          projectIds={activity?.projectIds}
-          addProjectToActivity={
-            !allowAddingProjects ? undefined : addProjectToActivity
-          }
-          showProjects={showProjects}
-        />
-
-        <ActivityMeetingList meeting={meeting} showMeeting={showMeeting} />
-
-        <ActivityNotes
-          activity={activity}
-          updateNotes={updateNotes}
-          readOnly={readOnly}
-        />
-      </Accordion>
-    </div>
-  ) : (
-    <div className="space-y-6">
-      {showMeeting && activity?.meetingId && (
-        <div className="space-y-0">
-          <h3 className="font-semibold">From meeting:</h3>
-          <Accordion type="single" collapsible>
-            {isLoadingActivity ||
-              (!meeting && (
-                <LoadingAccordionItem
-                  value="loading-meeting"
-                  sizeTitle="3xl"
-                  sizeSubtitle="xl"
-                />
-              ))}
-            {meeting && <MeetingAccordionItem meeting={meeting} />}
-          </Accordion>
-        </div>
-      )}
-
-      <div className="space-y-0">
-        {showMeeting && <h3 className="font-semibold">Projects:</h3>}
-        {allowAddingProjects && (
-          <ProjectSelector
-            value=""
-            onChange={addProjectToActivity}
-            allowCreateProjects
-            placeholder="Add project…"
+      {!notesNotInAccordion ? (
+        <Accordion type="single" collapsible>
+          <ActivityProjectList
+            projectIds={activity?.projectIds}
+            addProjectToActivity={
+              !allowAddingProjects ? undefined : addProjectToActivity
+            }
+            showProjects={showProjects}
           />
-        )}
-        <ProjectNotesForm
-          activityId={activityId}
-          deleteActivity={() => deleteMeetingActivity(activityId)}
-          readOnly={readOnly}
-        />
-      </div>
+
+          <ActivityMeetingList meeting={meeting} showMeeting={showMeeting} />
+
+          <ActivityNotes activity={activity} readOnly={readOnly} />
+        </Accordion>
+      ) : (
+        <>
+          {showMeeting && activity?.meetingId && (
+            <div className="space-y-0">
+              <h3 className="font-semibold">From meeting:</h3>
+              <Accordion type="single" collapsible>
+                {isLoadingActivity ||
+                  (!meeting && (
+                    <LoadingAccordionItem
+                      value="loading-meeting"
+                      sizeTitle="3xl"
+                      sizeSubtitle="xl"
+                    />
+                  ))}
+                {meeting && <MeetingAccordionItem meeting={meeting} />}
+              </Accordion>
+            </div>
+          )}
+
+          <div className="space-y-0">
+            {showMeeting && <h3 className="font-semibold">Projects:</h3>}
+            {allowAddingProjects && (
+              <ProjectSelector
+                value=""
+                onChange={addProjectToActivity}
+                allowCreateProjects
+                placeholder="Add project…"
+              />
+            )}
+            <ProjectNotesForm
+              activityId={activityId}
+              deleteActivity={() => deleteMeetingActivity(activityId)}
+              readOnly={readOnly}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };

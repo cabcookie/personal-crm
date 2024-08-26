@@ -1,6 +1,7 @@
 import { a } from "@aws-amplify/backend";
 
 const activitySchema = {
+  TodoStatus: a.enum(["OPEN", "DONE"]),
   ProjectActivity: a
     .model({
       owner: a
@@ -13,27 +14,77 @@ const activitySchema = {
     })
     .secondaryIndexes((index) => [index("projectsId")])
     .authorization((allow) => [allow.owner()]),
+  NoteBlockPerson: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      personId: a.id().required(),
+      person: a.belongsTo("Person", "personId"),
+      noteBlockId: a.id().required(),
+      noteBlock: a.belongsTo("NoteBlock", "noteBlockId"),
+    })
+    .authorization((allow) => [allow.owner()]),
+  NoteBlock: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      content: a.json(),
+      type: a.string().required(),
+      formatVersion: a.integer().required(),
+      activityId: a.id().required(),
+      activity: a.belongsTo("Activity", "activityId"),
+      todoId: a.id(),
+      todo: a.belongsTo("Todo", "todoId"),
+      people: a.hasMany("NoteBlockPerson", "noteBlockId"),
+    })
+    .secondaryIndexes((index) => [index("type")])
+    .authorization((allow) => [allow.owner()]),
+  ProjectTodo: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      todoId: a.id().required(),
+      todo: a.belongsTo("Todo", "todoId"),
+      projectIdTodoStatus: a.string().required(),
+    })
+    .secondaryIndexes((index) => [
+      index("projectIdTodoStatus"),
+      index("todoId"),
+    ])
+    .authorization((allow) => [allow.owner()]),
+  Todo: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      todo: a.json().required(),
+      status: a.ref("TodoStatus").required(),
+      doneOn: a.date(),
+      activity: a.hasOne("NoteBlock", "todoId"),
+      projects: a.hasMany("ProjectTodo", "todoId"),
+      dailyTodos: a.hasMany("DailyPlanTodo", "todoId"),
+    })
+    .secondaryIndexes((index) => [index("status")])
+    .authorization((allow) => [allow.owner()]),
   Activity: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
-      notes: a.string(),
       formatVersion: a.integer().default(1),
-      notesJson: a.json(),
-      hasOpenTasks: a.string().required(),
       forProjects: a.hasMany("ProjectActivity", "activityId"),
       meetingActivitiesId: a.id(),
       forMeeting: a.belongsTo("Meeting", "meetingActivitiesId"),
       finishedOn: a.datetime(),
-      dailyTasks: a.hasMany("DailyPlanTask", "activityId"),
+      noteBlocks: a.hasMany("NoteBlock", "activityId"),
+      noteBlockIds: a.string().required().array(),
+      notes: a.string(), // DEPRECATED
+      notesJson: a.json(), // DEPRECATED
     })
-    .secondaryIndexes((index) => [
-      index("hasOpenTasks")
-        .sortKeys(["finishedOn"])
-        .queryField("listActivitiesByOpenTasks"),
-    ])
     .authorization((allow) => [allow.owner()]),
 };
 

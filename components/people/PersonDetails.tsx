@@ -48,12 +48,19 @@ const PersonDetails: FC<PersonDetailsProps> = ({
   return (
     <>
       {person && (
-        <div className="ml-2">
+        <div className="ml-1 md:ml-2 flex flex-row gap-2">
           <PersonUpdateForm
             person={person}
             onUpdate={updatePerson}
             formControl={updateFormControl}
           />
+          <Button
+            onClick={() => setDeleteWarningOpen(true)}
+            disabled={deleteWarningOpen}
+            size="sm"
+          >
+            Delete
+          </Button>
         </div>
       )}
 
@@ -63,15 +70,6 @@ const PersonDetails: FC<PersonDetailsProps> = ({
         confirmText="Are you sure you want to delete the person?"
         onConfirm={handlePersonDelete}
       />
-
-      <div>
-        <Button
-          onClick={() => setDeleteWarningOpen(true)}
-          disabled={deleteWarningOpen}
-        >
-          Delete
-        </Button>
-      </div>
 
       <Accordion type="single" collapsible>
         <PersonAccounts

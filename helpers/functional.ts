@@ -1,6 +1,5 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
 
-export const getDayOfDate = (date: Date) => date.toISOString().split("T")[0];
 export const addDaysToDate = (days: number) => (date: Date) =>
   addDays(date, days);
 export const toLocaleTimeString = (date?: Date) =>
@@ -12,20 +11,11 @@ export const toLocaleTimeString = (date?: Date) =>
       });
 export const toLocaleDateString = (date?: Date) =>
   !date ? "" : format(date, "PPP");
-export const toISODateString = (date: Date) => {
-  const year = date.getFullYear();
-  // Months are zero-based, so we add 1 to get the correct month
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-
-  return year + "-" + month + "-" + day;
-};
-export const isTodayOrFuture = (date: string | Date): boolean => {
-  const inputDate = typeof date === "string" ? new Date(date) : date;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return inputDate.getTime() >= today.getTime();
-};
+export const makeDate = (str: string) => new Date(str);
+export const toISODateTimeString = (date: Date) =>
+  format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
+export const toISODateString = (date: Date) => format(date, "yyyy-MM-dd");
+export const not = (val: boolean) => !val;
 export const usdCurrency = new Intl.NumberFormat("en-US", {
   currency: "USD",
   style: "currency",
@@ -44,11 +34,13 @@ export const formatRevenue = (revenue: number) =>
     ? `$${(revenue / 1000).toFixed(0)}k`
     : `$${(revenue / 1000000).toFixed(1)}M`;
 export const logFp =
-  (...msg: any[]) =>
-  (data: any) => {
-    console.log(`[${new Date().toISOString()}]`, ...msg, data);
+  <T>(...msg: any[]) =>
+  (data: T) => {
+    console.log(`[${newDateTimeString()}]`, ...msg, data);
     return data;
   };
+export const newDateTimeString = (): string => toISODateTimeString(new Date());
+export const newDateString = (): string => toISODateString(new Date());
 export const truncateMiddle = (text: string, length = 20): string => {
   if (text.length <= length) return text;
   const half = Math.floor(length / 2);

@@ -1,7 +1,7 @@
 import { Person, PersonAccount } from "@/api/usePerson";
 import MentionList, {
   MentionListRef,
-} from "@/components/ui-elements/notes-writer/MentionList";
+} from "@/components/ui-elements/editors/extensions/MentionList";
 import { ReactRenderer } from "@tiptap/react";
 import { SuggestionKeyDownProps, SuggestionProps } from "@tiptap/suggestion";
 import { flow, map } from "lodash/fp";
@@ -27,7 +27,7 @@ export const mapPersonToSuggestion =
   });
 
 export const filterPersonByQuery = (query: string) => (p: Person) =>
-  p.name.toLowerCase().includes(query.toLowerCase());
+  p.name.toLowerCase().replaceAll(" ", "").includes(query.toLowerCase());
 
 export const limitItems = (limit: number) => (items: SuggestionItem[]) =>
   items.slice(0, limit);

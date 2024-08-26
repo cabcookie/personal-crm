@@ -1,9 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
 import { Context } from "@/contexts/ContextContext";
-import { addDaysToDate, getDayOfDate } from "@/helpers/functional";
+import {
+  addDaysToDate,
+  makeDate,
+  newDateString,
+  newDateTimeString,
+  toISODateString,
+} from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow } from "lodash";
-import { map, sortBy } from "lodash/fp";
+import { get, map, sortBy, uniq } from "lodash/fp";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -15,9 +21,11 @@ export type Meeting = {
   topic: string;
   context?: Context;
   meetingOn: Date;
+  meetingDayStr: string;
   participantMeetingIds: string[];
   participantIds: string[];
   activities: Activity[];
+  hasOldVersionFormattedActivities: boolean;
 };
 
 export const meetingSelectionSet = [
@@ -32,13 +40,22 @@ export const meetingSelectionSet = [
   "activities.notes",
   "activities.formatVersion",
   "activities.notesJson",
-  "activities.hasOpenTasks",
   "activities.meetingActivitiesId",
   "activities.finishedOn",
   "activities.createdAt",
   "activities.updatedAt",
   "activities.forProjects.id",
   "activities.forProjects.projectsId",
+  "activities.noteBlockIds",
+  "activities.noteBlocks.id",
+  "activities.noteBlocks.content",
+  "activities.noteBlocks.type",
+  "activities.noteBlocks.todo.id",
+  "activities.noteBlocks.todo.todo",
+  "activities.noteBlocks.todo.status",
+  "activities.noteBlocks.todo.doneOn",
+  "activities.noteBlocks.people.id",
+  "activities.noteBlocks.people.personId",
 ] as const;
 
 type MeetingData = SelectionSet<
@@ -58,6 +75,7 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   id,
   topic,
   meetingOn: new Date(meetingOn || createdAt),
+  meetingDayStr: toISODateString(new Date(meetingOn || createdAt)),
   context: context || undefined,
   participantMeetingIds: participants.map(({ id }) => id),
   participantIds: participants.map(({ personId }) => personId),
@@ -65,24 +83,27 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
     map(mapActivity),
     sortBy((a) => -a.finishedOn.getTime())
   )(activities),
+  hasOldVersionFormattedActivities: activities.some(
+    (a) => !a.formatVersion || a.formatVersion < 3
+  ),
 });
 
+const calculateToDate = (startDate: string) =>
+  flow(makeDate, addDaysToDate(4 * 7 + 1), toISODateString)(startDate);
+
 type FetchMeetingsWithTokenFunction = (props: {
-  page: number;
+  startDate: string;
   token?: string;
   context: Context;
 }) => Promise<MeetingData[] | undefined>;
 
 const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
-  page,
+  startDate,
   token,
   context,
 }) => {
-  const toDate = flow(
-    addDaysToDate(-4 * (page - 1) * 7 + 1),
-    getDayOfDate
-  )(new Date());
-  const fromDate = flow(addDaysToDate(-4 * page * 7), getDayOfDate)(new Date());
+  const toDate = calculateToDate(startDate);
+
   const filter = {
     and: [
       {
@@ -101,14 +122,15 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
         or: [
           {
             and: [
-              { meetingOn: { gt: fromDate } },
-              { meetingOn: { le: toDate } },
+              { meetingOn: { ge: startDate } },
+              { meetingOn: { lt: toDate } },
             ],
           },
           {
             and: [
               { meetingOn: { attributeExists: false } },
-              { createdAt: { gt: fromDate } },
+              { createdAt: { ge: startDate } },
+              { createdAt: { lt: toDate } },
             ],
           },
         ],
@@ -129,15 +151,18 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
   if (!nextToken) return data;
   return [
     ...data,
-    ...((await fetchMeetingsWithToken({ page, token: nextToken, context })) ||
-      []),
+    ...((await fetchMeetingsWithToken({
+      startDate,
+      token: nextToken,
+      context,
+    })) || []),
   ];
 };
 
-const fetchMeetings = (page: number, context?: Context) => async () => {
+const fetchMeetings = (startDate: string, context?: Context) => async () => {
   if (!context) return;
   try {
-    return (await fetchMeetingsWithToken({ page, context }))
+    return (await fetchMeetingsWithToken({ startDate, context }))
       ?.map(mapMeeting)
       .sort((a, b) => b.meetingOn.getTime() - a.meetingOn.getTime());
   } catch (error) {
@@ -148,20 +173,28 @@ const fetchMeetings = (page: number, context?: Context) => async () => {
 
 type UseMeetingsProps = {
   context?: Context;
-  page?: number;
+  startDate?: string;
 };
 
-const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
+export const defaultStartDate = flow(
+  addDaysToDate(-4 * 7),
+  toISODateString
+)(new Date());
+
+const useMeetings = ({
+  context,
+  startDate = defaultStartDate,
+}: UseMeetingsProps) => {
   const {
     data: meetings,
     error: errorMeetings,
     isLoading: loadingMeetings,
     mutate: mutateMeetings,
   } = useSWR(
-    `/api/meetings/${context}/page/${page}`,
-    fetchMeetings(page, context)
+    `/api/meetings/${context}/start-date/${startDate}`,
+    fetchMeetings(startDate, context)
   );
-  const [meetingDates, setMeetingDates] = useState<Date[]>([]);
+  const [meetingDates, setMeetingDates] = useState<string[]>([]);
 
   const createMeeting = async (
     topic: string,
@@ -171,15 +204,17 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
       id: crypto.randomUUID(),
       topic,
       meetingOn: new Date(),
+      meetingDayStr: newDateString(),
       participantIds: [],
       participantMeetingIds: [],
       activities: [],
+      hasOldVersionFormattedActivities: false,
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
     const { data, errors } = await client.models.Meeting.create({
       topic,
-      meetingOn: new Date().toISOString(),
+      meetingOn: newDateTimeString(),
       context,
     });
     if (errors) handleApiErrors(errors, "Error creating a meeting");
@@ -188,14 +223,7 @@ const useMeetings = ({ page = 1, context }: UseMeetingsProps) => {
   };
 
   useEffect(() => {
-    setMeetingDates(
-      meetings
-        ?.reduce((prev: string[], curr) => {
-          const day = curr.meetingOn.toISOString().split("T")[0];
-          return [...prev, ...(prev.includes(day) ? [] : [day])];
-        }, [] as string[])
-        .map((d) => new Date(d)) || []
-    );
+    flow(map(get("meetingDayStr")), uniq, setMeetingDates)(meetings);
   }, [meetings]);
 
   return {

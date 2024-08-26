@@ -1,13 +1,14 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
-import { addDaysToDate, toISODateString } from "@/helpers/functional";
-import { calcPipeline } from "@/helpers/projects";
 import {
-  EditorJsonContent,
-  emptyDocument,
-  transformNotesVersion,
-} from "@/helpers/ui-notes-writer";
+  addDaysToDate,
+  newDateTimeString,
+  toISODateString,
+} from "@/helpers/functional";
+import { calcPipeline } from "@/helpers/projects";
+import { transformNotesVersion } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import { filter, flow, get, join, map, sortBy } from "lodash/fp";
@@ -27,7 +28,7 @@ interface ProjectsContextType {
   getProjectById: (projectId: string) => Project | undefined;
   createProjectActivity: (
     projectId: string,
-    notes?: EditorJsonContent
+    notes?: JSONContent
   ) => Promise<string | undefined>;
   saveProjectName: (
     projectId: string,
@@ -75,13 +76,14 @@ export type Project = {
   doneOn?: Date;
   dueOn?: Date;
   onHoldTill?: Date;
-  myNextActions?: EditorJsonContent;
-  othersNextActions?: EditorJsonContent;
+  myNextActions?: JSONContent;
+  othersNextActions?: JSONContent;
   context: Context;
   accountIds: string[];
   partnerId?: string;
   activityIds: string[];
   crmProjects: CrmProject[];
+  hasOldVersionedActivityFormat: boolean;
 };
 
 const selectionSet = [
@@ -102,6 +104,7 @@ const selectionSet = [
   "partner.id",
   "activities.activity.id",
   "activities.activity.finishedOn",
+  "activities.activity.formatVersion",
   "activities.activity.createdAt",
   "crmProjects.crmProject.id",
   "crmProjects.crmProject.name",
@@ -128,9 +131,7 @@ type ProjectData = SelectionSet<
 >;
 export type CrmDataProps = ProjectData["crmProjects"][number];
 
-export const mapCrmData = ({
-  crmProject,
-}: CrmDataProps): CrmProject | undefined =>
+const mapCrmData = ({ crmProject }: CrmDataProps): CrmProject | undefined =>
   !crmProject ? undefined : mapCrmProject({ ...crmProject, projects: [] });
 
 const mapProject: (project: ProjectData) => Project = ({
@@ -209,7 +210,14 @@ const mapProject: (project: ProjectData) => Project = ({
     pipeline: pipeline,
     order: pipeline,
     partnerId: partner?.id,
-  };
+    hasOldVersionedActivityFormat: !activities
+      ? false
+      : activities
+          .filter((a) => !!a.activity)
+          .some(
+            (a) => !a.activity?.formatVersion || a.activity.formatVersion < 3
+          ),
+  } as Project;
 };
 
 const fetchProjects = (context?: Context) => async () => {
@@ -273,6 +281,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       crmProjects: [],
       pipeline: 0,
       order: 0,
+      hasOldVersionedActivityFormat: false,
     };
 
     const updatedProjects = [...(projects || []), newProject];
@@ -294,10 +303,9 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   const createProjectActivity = async (projectId: string) => {
     const { data: activity, errors: errorsActivity } =
       await client.models.Activity.create({
-        notesJson: JSON.stringify(emptyDocument),
-        formatVersion: 2,
-        hasOpenTasks: "false",
-        finishedOn: new Date().toISOString(),
+        formatVersion: 3,
+        noteBlockIds: [],
+        finishedOn: newDateTimeString(),
       });
     if (errorsActivity) {
       handleApiErrors(errorsActivity, "Error creating activity");
@@ -341,7 +349,11 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     dueOn,
     onHoldTill,
   }: UpdateProjectProps) => {
-    const updProject: Project | undefined = projects?.find((p) => p.id === id);
+    const updProject: Project | undefined = (() => {
+      const project = projects?.find((p) => p.id === id);
+      if (!project) return undefined;
+      return { ...project } as Project;
+    })();
     if (!updProject) return;
 
     Object.assign(updProject, {
@@ -354,6 +366,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
     const updated: Project[] =
       projects?.map((p) => (p.id === id ? updProject : p)) || [];
+
     mutateProjects(updated, false);
 
     const newProject = {

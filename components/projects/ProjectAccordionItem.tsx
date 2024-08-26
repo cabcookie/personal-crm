@@ -1,11 +1,12 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
-import { useOpenTasksContext } from "@/api/ContextOpenTasks";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
+import useProjectTodos from "@/api/useProjectTodos";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { addDays, format } from "date-fns";
 import { flow, map, sum } from "lodash/fp";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
 import { FC, useState } from "react";
+import ActivityFormatBadge from "../activities/activity-format-badge";
 import HygieneIssueBadge from "../crm/hygiene-issue-badge";
 import { hasHygieneIssues } from "../crm/pipeline-hygiene";
 import TaskBadge from "../task/TaskBadge";
@@ -31,7 +32,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   const [pushingInProgress, setPushingInProgress] = useState(false);
   const { saveProjectDates } = useProjectsContext();
   const { getAccountNamesByIds } = useAccountsContext();
-  const { openTasksByProjectId } = useOpenTasksContext();
+  const { projectTodos } = useProjectTodos(project?.id);
 
   const handlePushToNextDay = async () => {
     if (!project) return;
@@ -53,14 +54,13 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         onDelete={onDelete}
         link={`/projects/${project.id}`}
         badge={
-          project.crmProjects.some(hasHygieneIssues) ? (
-            <HygieneIssueBadge />
-          ) : (
-            <TaskBadge
-              hasOpenTasks={openTasksByProjectId(project.id).length > 0}
-              hasClosedTasks={false}
-            />
-          )
+          <>
+            {project.crmProjects.some(hasHygieneIssues) && (
+              <HygieneIssueBadge />
+            )}
+            <TaskBadge hasOpenTasks={projectTodos && projectTodos.length > 0} />
+            {project.hasOldVersionedActivityFormat && <ActivityFormatBadge />}
+          </>
         }
         triggerSubTitle={[
           project.doneOn && `Done on: ${format(project.doneOn, "PPP")}`,

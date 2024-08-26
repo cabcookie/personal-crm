@@ -1,61 +1,57 @@
 import useDailyPlans, { DailyPlan, DailyPlanTodo } from "@/api/useDailyPlans";
-import { transformTaskType } from "@/helpers/planning";
 import { format } from "date-fns";
-import { filter, flow, map } from "lodash/fp";
-import { Loader2 } from "lucide-react";
-import { FC, useState } from "react";
+import { flow, map, size, sortBy } from "lodash/fp";
+import { FC } from "react";
 import { Checkbox } from "../ui/checkbox";
-import { useToast } from "../ui/use-toast";
-import Task from "./Task";
+import TodoForDecision from "./TodoForDecision";
+import TodoProjectInfos from "./TodoProjectInfos";
 
 type DailyPlanComponentProps = {
   dailyPlan: DailyPlan;
 };
 
 const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
-  dailyPlan: { id: dailyPlanId, status, day, dayGoal, tasks },
+  dailyPlan: { id: dailyPlanId, status, day, dayGoal, todos },
 }) => {
-  const { finishDailyTaskList } = useDailyPlans("OPEN");
-  const { toast } = useToast();
-  const [changing, setChanging] = useState(false);
-
-  const handleCheckedChange = async () => {
-    setChanging(true);
-    await finishDailyTaskList(dailyPlanId, toast);
-    setChanging(false);
-  };
+  const { updateTodoStatus, finishDailyTaskList } = useDailyPlans("OPEN");
 
   return (
     <div className="space-y-8">
       <div className="flex flex-row items-start gap-3 sticky top-[7rem] md:top-[8rem] z-30 bg-bgTransparent">
-        {changing && (
-          <Loader2 className="mt-[0.3rem] md:mt-[0.2rem] w-4 h-4 min-w-4 md:w-5 md:h-5 md:min-w-5 animate-spin text-muted-foreground" />
-        )}
-        {!changing && (
-          <Checkbox
-            checked={status === "DONE"}
-            onCheckedChange={handleCheckedChange}
-            className="mt-[0.3rem] md:mt-[0.4rem]"
-          />
-        )}
-        <div className="text-xl md:text-2xl font-bold tracking-tight">
-          {dayGoal} – {format(day, "PP")}
-        </div>
+        <Checkbox
+          checked={status === "DONE"}
+          onCheckedChange={() => finishDailyTaskList(dailyPlanId)}
+          className="mt-[0.3rem] md:mt-[0.4rem]"
+        />
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight">
+          {dayGoal} – {format(day, "PPP")}
+        </h2>
       </div>
-      {tasks.filter((t) => t.isInFocus && !t.done).length === 0 && (
-        <p className="text-muted-foreground">No open taks</p>
+
+      {size(todos) === 0 ? (
+        <div className="mx-2 md:mx-4 my-8 font-semibold text-sm text-muted-foreground md:text-center">
+          No open todos.
+        </div>
+      ) : (
+        <div className="ml-7">
+          {flow(
+            sortBy((t: DailyPlanTodo) => (t.done ? 1 : 0)),
+            map(
+              ({ todo: { content }, todoId, activityId, done, projectIds }) => (
+                <TodoForDecision
+                  key={todoId}
+                  activityId={activityId}
+                  content={content}
+                  todoStatus={done}
+                  finishTodoOnDailyPlan={() => updateTodoStatus(todoId, !done)}
+                >
+                  <TodoProjectInfos projectIds={projectIds} />
+                </TodoForDecision>
+              )
+            )
+          )(todos)}
+        </div>
       )}
-      {flow(
-        filter((task: DailyPlanTodo) => task.isInFocus),
-        map(transformTaskType),
-        map((task) => (
-          <Task
-            key={`${task.activityId}-${task.index}`}
-            task={task}
-            dailyPlanId={dailyPlanId}
-          />
-        ))
-      )(tasks)}
     </div>
   );
 };

@@ -25,6 +25,7 @@ const AccountDetailPage = () => {
           <ActivityComponent
             activityId={activityId}
             notesNotInAccordion
+            showDates
             showMeeting
             allowAddingProjects
           />

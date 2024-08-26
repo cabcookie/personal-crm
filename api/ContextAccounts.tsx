@@ -1,15 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
+import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
 import { toast } from "@/components/ui/use-toast";
 import {
   calcAccountAndSubsidariesPipeline,
   calcOrder,
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
-import {
-  EditorJsonContent,
-  emptyDocument,
-  transformNotesVersion,
-} from "@/helpers/ui-notes-writer";
+import { transformNotesVersion } from "@/helpers/ui-notes-writer";
+import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { filter, flow, get, join, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
@@ -21,7 +19,7 @@ type UpdateAccountProps = {
   id: string;
   name?: string;
   crmId?: string;
-  introduction?: EditorJsonContent;
+  introduction?: JSONContent;
 };
 
 interface AccountsContextType {
@@ -58,7 +56,7 @@ export type Account = {
   id: string;
   name: string;
   crmId?: string;
-  introduction: EditorJsonContent;
+  introduction: JSONContent;
   controller?: {
     id: string;
     name: string;
@@ -179,7 +177,7 @@ const addOrderNumberToAccounts = (
     []
   );
 
-const fetchAccounts = async () => {
+export const fetchAccounts = async () => {
   const { data, errors } = await client.models.Account.list({
     limit: 500,
     selectionSet,

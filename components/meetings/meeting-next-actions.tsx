@@ -1,42 +1,23 @@
-import { OpenTask } from "@/api/ContextOpenTasks";
-import { Meeting } from "@/api/useMeetings";
-import {
-  getTasksByActivities,
-  getTextFromEditorJsonContent,
-} from "@/helpers/ui-notes-writer";
-import { FC, useState } from "react";
+import { Todo } from "@/api/useProjectTodos";
+import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import NextAction from "../ui-elements/project-details/next-action";
-import { Accordion } from "../ui/accordion";
+import { getTodoText } from "../ui-elements/editors/helpers/text-generation";
+import TodoEditor from "../ui-elements/editors/todo-editor/TodoEditor";
 
 type MeetingNextActionsProps = {
-  meeting: Meeting;
+  todos: Todo[] | undefined;
 };
 
-const MeetingNextActions: FC<MeetingNextActionsProps> = ({ meeting }) => {
-  const [tasks] = useState(getTasksByActivities(meeting.activities));
-
-  const getTasksText = ({ task }: OpenTask) =>
-    getTextFromEditorJsonContent(task).trim();
-
-  return (
-    tasks.length > 0 && (
-      <DefaultAccordionItem
-        value="next-actions"
-        triggerTitle="Agreed Next Actions"
-        triggerSubTitle={tasks.map(getTasksText)}
-      >
-        <Accordion type="single" collapsible>
-          {tasks.map((task) => (
-            <NextAction
-              key={`${task.activityId}-${task.index}`}
-              openTask={task}
-            />
-          ))}
-        </Accordion>
-      </DefaultAccordionItem>
-    )
+const MeetingNextActions: FC<MeetingNextActionsProps> = ({ todos }) =>
+  todos &&
+  todos.length > 0 && (
+    <DefaultAccordionItem
+      value="next-actions"
+      triggerTitle="Agreed Next Actions"
+      triggerSubTitle={getTodoText(todos)}
+    >
+      <TodoEditor todos={todos} />
+    </DefaultAccordionItem>
   );
-};
 
 export default MeetingNextActions;
