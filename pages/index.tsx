@@ -10,7 +10,7 @@ export default function Home() {
     if (lastVisitedPage) {
       router.replace(lastVisitedPage);
     } else {
-      router.replace("/projects");
+      router.replace("/today");
     }
   }, [router]);
 
