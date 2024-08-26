@@ -130,30 +130,6 @@ const mapUpdateSet = (content: JSONContent): TTodoUpdateSet => {
   };
 };
 
-const mapTaskItem = (changedTodos: TTodoUpdateSet[], taskItem: JSONContent) => {
-  const todo = changedTodos.find((t) => t.todoId === taskItem.attrs?.todoId);
-  if (!todo) return taskItem;
-  const content = JSON.parse(todo.content) as JSONContent;
-  return {
-    ...content,
-    attrs: {
-      ...taskItem.attrs,
-      ...content.attrs,
-    },
-  };
-};
-
-const mapLevel2 = (changedTodos: TTodoUpdateSet[]) => (level2: JSONContent) =>
-  level2.type !== "taskItem" || !level2.attrs?.todoId
-    ? level2
-    : mapTaskItem(changedTodos, level2);
-
-const mapLevel1 =
-  (changedTodos: TTodoUpdateSet[]) => (level1: JSONContent) => ({
-    ...level1,
-    content: level1.content?.map(mapLevel2(changedTodos)),
-  });
-
 export const updateTodo = async ({ todoId, content, done }: TTodoUpdateSet) => {
   const { data, errors } = await client.models.Todo.update({
     id: todoId,
