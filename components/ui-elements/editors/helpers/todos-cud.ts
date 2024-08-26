@@ -2,10 +2,19 @@
 
 import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
-import { newDateString, newDateTimeString, not } from "@/helpers/functional";
+import { newDateString, not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
-import { filter, find, flatMap, flow, get, map, some } from "lodash/fp";
+import {
+  compact,
+  filter,
+  find,
+  flatMap,
+  flow,
+  get,
+  map,
+  some,
+} from "lodash/fp";
 import { stringifyBlock } from "./blocks";
 import { isUpToDate } from "./compare";
 import TransactionError from "./transaction-error";
@@ -35,7 +44,7 @@ export const createTodo = async ({
   const { data, errors } = await client.models.Todo.create({
     todo: content,
     status: done ? "DONE" : "OPEN",
-    doneOn: done ? newDateTimeString() : null,
+    doneOn: done ? newDateString() : null,
   });
   if (errors)
     throw new TransactionError(
@@ -163,15 +172,10 @@ export const getTodoUpdateSet = (
     map(mapUpdateSet)
   )(editor.getJSON());
 
-const mapDeleteSet = (block: JSONContent): TTodoDeleteSet => {
-  if (!block.attrs?.todoId)
-    throw new TransactionError(
-      "todoId not set on todo that should be deleted in database",
-      block,
-      "mapDeleteSet"
-    );
+const mapDeleteSet = (block: JSONContent): TTodoDeleteSet | undefined => {
+  if (!block.attrs?.todoId) return;
   return {
-    todoId: block.attrs.todoId,
+    todoId: block.attrs?.todoId,
   };
 };
 
@@ -202,5 +206,6 @@ export const getTodoDeleteSet = (
   flow(
     getTodos,
     filter(doesNotExist(editor.getJSON())),
-    map(mapDeleteSet)
+    map(mapDeleteSet),
+    compact
   )(activity.notes);

@@ -12,6 +12,7 @@ const dispatchImage = (view: EditorView, url: string, fileName: string) => {
     schema.nodes.s3image.create({
       src: url,
       fileKey: fileName,
+      blockId: crypto.randomUUID(),
     })
   );
   view.dispatch(tr);
@@ -27,10 +28,12 @@ const updateImageSrc = (
   const { state, dispatch } = view;
   const { tr, doc } = state;
   let pos: number | null = null;
+  let blockId: string | null = null;
 
   doc.descendants((node, nodePos) => {
     if (node.type.name === "s3image" && node.attrs.fileKey === fileName) {
       pos = nodePos;
+      blockId = node.attrs.blockId;
       return false;
     }
     return true;
@@ -42,6 +45,7 @@ const updateImageSrc = (
       s3Key,
       expiresAt,
       fileKey: fileName,
+      blockId,
     });
     dispatch(transaction);
   }
