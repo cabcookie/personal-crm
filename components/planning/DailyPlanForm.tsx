@@ -71,7 +71,7 @@ const DailyPlanForm: FC<DailyPlanFormProps> = ({
       dailyPlan?.day ||
         (getHours(new Date()) < 12 ? new Date() : addDays(new Date(), 1))
     );
-  }, [dailyPlan, context]);
+  }, [dailyPlan, context, form]);
 
   const handleSubmit = ({ date, goal }: FormValues) => {
     if (!dailyPlan) {

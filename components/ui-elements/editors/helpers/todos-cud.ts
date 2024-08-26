@@ -154,17 +154,6 @@ const mapLevel1 =
     content: level1.content?.map(mapLevel2(changedTodos)),
   });
 
-export const mapChangedTodos = (
-  changedTodos: TTodoUpdateSet[],
-  activity: Activity
-) => ({
-  ...activity,
-  notes: {
-    ...activity.notes,
-    content: activity.notes.content?.map(mapLevel1(changedTodos)),
-  },
-});
-
 export const updateTodo = async ({ todoId, content, done }: TTodoUpdateSet) => {
   const { data, errors } = await client.models.Todo.update({
     id: todoId,

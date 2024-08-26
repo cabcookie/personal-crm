@@ -44,6 +44,7 @@ const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
 
   useEffect(() => {
     filterTodos(projectTodos, dailyPlan, setFilteredTodos);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectTodos, dailyPlan.todos]);
 
   const pushProject = () => {

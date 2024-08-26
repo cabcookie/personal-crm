@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { Todo } from "./useProjectTodos";
 const client = generateClient<Schema>();
 
-export type MeetingTodo = Todo & {
+type MeetingTodo = Todo & {
   meetingId: string;
   blockId: string;
 };
