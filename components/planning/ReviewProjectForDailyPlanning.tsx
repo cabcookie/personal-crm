@@ -1,6 +1,6 @@
 import { Project } from "@/api/ContextProjects";
+import { DailyPlan, DailyPlanTodo } from "@/api/useDailyPlans";
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
-import { DailyPlan, DailyPlanTodo } from "@/pages/api/useDailyPlans";
 import { addDays } from "date-fns";
 import { filter, flow } from "lodash/fp";
 import { FC, useEffect, useState } from "react";

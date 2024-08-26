@@ -1,5 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
+import useDailyPlans, { DailyPlanTodo } from "@/api/useDailyPlans";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
@@ -14,7 +15,6 @@ import { filterAndSortProjectsForDailyPlanning } from "@/helpers/planning";
 import { filter, flow, map } from "lodash/fp";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import useDailyPlans, { DailyPlanTodo } from "./api/useDailyPlans";
 
 const DailyPlanningPage = () => {
   const {
