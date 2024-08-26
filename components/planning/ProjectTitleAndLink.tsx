@@ -25,15 +25,12 @@ const ProjectTitleAndLink: FC<ProjectTitleAndLinkProps> = ({
     </h3>
   ) : (
     as === "div" && (
-      <div className="block tracking-tight">
+      <Link
+        className="block tracking-tight text-blue-400 hover:text-blue-600 hover:underline hover:underline-offset-2"
+        href={`/projects/${projectId}`}
+      >
         {projectName}
-        <Link
-          href={`/projects/${projectId}`}
-          className="ml-2 text-muted-foreground hover:text-primary"
-        >
-          <BiLinkExternal className="inline-block" />
-        </Link>
-      </div>
+      </Link>
     )
   );
 };

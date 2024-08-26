@@ -43,7 +43,6 @@ const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
   const [pushingProject, setPushingProject] = useState(false);
 
   useEffect(() => {
-    console.log("useEffect", { projectTodos, dailyPlan });
     filterTodos(projectTodos, dailyPlan, setFilteredTodos);
   }, [projectTodos, dailyPlan.todos]);
 

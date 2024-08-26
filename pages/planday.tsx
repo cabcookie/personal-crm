@@ -5,14 +5,13 @@ import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
 import DailyPlanForm from "@/components/planning/DailyPlanForm";
-import ProjectInformation from "@/components/planning/ProjectInformation";
-import ProjectTitleAndLink from "@/components/planning/ProjectTitleAndLink";
 import ReviewProjectForDailyPlanning from "@/components/planning/ReviewProjectForDailyPlanning";
 import TodoForDecision from "@/components/planning/TodoForDecision";
+import TodoProjectInfos from "@/components/planning/TodoProjectInfos";
 import { Accordion } from "@/components/ui/accordion";
 import { useContextContext } from "@/contexts/ContextContext";
 import { filterAndSortProjectsForDailyPlanning } from "@/helpers/planning";
-import { filter, flow, map } from "lodash/fp";
+import { flow } from "lodash/fp";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -87,23 +86,7 @@ const DailyPlanningPage = () => {
                 }
                 activityId={t.activityId}
               >
-                <div className="space-y-2 mt-4">
-                  <div className="font-bold">Project Infos:</div>
-                  {flow(
-                    map((id: string) => projects?.find((p) => p.id === id)),
-                    filter((p) => !!p),
-                    map((p) => (
-                      <div key={p.id}>
-                        <ProjectTitleAndLink
-                          projectId={p.id}
-                          projectName={p.project}
-                          as="div"
-                        />
-                        <ProjectInformation project={p} />
-                      </div>
-                    ))
-                  )(t.projectIds)}
-                </div>
+                <TodoProjectInfos projectIds={t.projectIds} />
               </TodoForDecision>
             ))}
           </div>

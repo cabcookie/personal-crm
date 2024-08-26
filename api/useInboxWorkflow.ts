@@ -76,7 +76,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       notes: null,
       notesJson: null,
     });
-    console.log("Activity created", { data, errors });
     if (errors)
       handleApiErrors(errors, "Error creating activity with inbox notes");
     return data?.id;
@@ -90,7 +89,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       projectIdTodoStatus,
       todoId,
     });
-    console.log("ProjectTodo created", { data, errors });
     if (errors) handleApiErrors(errors, "Linking project/todo failed");
     return data?.id;
   };
@@ -102,7 +100,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       todo: stringifyBlock(block),
       doneOn: block.attrs?.checked ? newDateString() : null,
     });
-    console.log("Todo created", { block, data, errors });
     if (errors) handleApiErrors(errors, "Creating todo failed");
     if (!data) return;
     await createProjectTodo(
@@ -130,7 +127,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       content: !todoId ? stringifyBlock(block) : null,
       ...(!todoId ? {} : { todoId }),
     });
-    console.log("NoteBlock created", { data, block, todoId, errors });
     if (errors) handleApiErrors(errors, "Creating note block failed");
     if (!data) return;
 
@@ -159,7 +155,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       id: activityId,
       noteBlockIds,
     });
-    console.log("Activity updated", { data, errors, noteBlockIds });
     if (errors) handleApiErrors(errors, "Updating activity's block ids failed");
   };
 
@@ -171,7 +166,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       activityId,
       projectsId: projectId,
     });
-    console.log("ProjectActivity created", { data, errors });
     if (errors) handleApiErrors(errors, "Linking activity/project failed");
   };
 
@@ -184,7 +178,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       status: "done",
       movedToActivityId: activityId,
     });
-    console.log("Inbox updated", { data, errors });
     if (errors) handleApiErrors(errors, "Linking inbox item/activity failed");
     return data?.id;
   };
@@ -194,7 +187,6 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       noteBlockId: blockId,
       personId,
     });
-    console.log("NoteBlockPerson created", { data, errors });
     if (errors) handleApiErrors(errors, "Linking note block/person failed");
   };
 

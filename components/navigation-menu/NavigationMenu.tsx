@@ -13,6 +13,7 @@ import {
   BiCalendarWeek,
   BiConversation,
 } from "react-icons/bi";
+import { GoTasklist } from "react-icons/go";
 import { IconType } from "react-icons/lib";
 import { useCreateInboxItemContext } from "../inbox/CreateInboxItemDialog";
 import {
@@ -60,12 +61,12 @@ const NavigationMenu = () => {
   const router = useRouter();
 
   const mainNavigation: NavigationItem[] = [
-    // {
-    //   label: "Today's Tasks",
-    //   shortcut: "^T",
-    //   Icon: GoTasklist,
-    //   url: "/today",
-    // },
+    {
+      label: "Today's Tasks",
+      shortcut: "^T",
+      Icon: GoTasklist,
+      url: "/today",
+    },
     {
       label: "Meetings",
       shortcut: "^M",

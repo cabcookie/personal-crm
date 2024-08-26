@@ -14,18 +14,12 @@
 - Für Zitate ist der Stil etwas angepasst. Die Schrift ist nicht mehr kursiv und auch nicht mehr fett gedruckt.
 - Das Suchen nach Personen (in einer Notiz mit einer @-Erwähnung) ist jetzt stabiler und lädt die Personen auch hin und wieder nach.
 - Numerierte Listen werden nun korrekt in NoteBlocks gespeichert.
-- Die Tagesplanung funktioniert wieder.
-
-- Den Mechanismus für offene Aufgaben haben wir zunächst einmal komplett entfernt:
-  - page /today löschen
-  - DailyPlanComponent löschen
+- Die Tagesplanung funktioniert wieder und die tägliche Todoliste ebenso.
 
 ## In Arbeit
 
-- Tagesplan wieder anzeigen.
+- Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.
 
 ## Geplant
 
-- Im NavigationMenu die Einträge für Today's Tasks wieder herstellen.
-- Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.
 - Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.

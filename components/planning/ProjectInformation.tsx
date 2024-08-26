@@ -14,7 +14,7 @@ const ProjectInformation: FC<ProjectInformationProps> = ({
 }) => {
   const { getAccountNamesByIds } = useAccountsContext();
   return (
-    <div className="text-sm tracking-tight">
+    <div className="text-sm tracking-tight text-muted-foreground">
       {accountIds && <div>{getAccountNamesByIds(accountIds)}</div>}
       {crmProjects && (
         <div>

@@ -18,7 +18,7 @@ export const addKeyDownListener = (
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.ctrlKey && !event.altKey && !event.shiftKey) {
       const func: ((isMetaKeyPressed: boolean) => void) | undefined = {
-        // t: routeToUrl("/today"),
+        t: routeToUrl("/today"),
         k: routeToUrl("/planweek"),
         d: routeToUrl("/planday"),
         m: routeToUrl("/meetings"),
