@@ -38,7 +38,7 @@ const FormSchema = z.object({
 type FormValues = z.infer<typeof FormSchema>;
 
 type DailyPlanFormProps = {
-  dailyPlan: DailyPlan;
+  dailyPlan: DailyPlan | undefined;
   createDailyPlan: ReturnType<typeof useDailyPlans>["createDailyPlan"];
   confirmDailyPlanning: ReturnType<
     typeof useDailyPlans

@@ -59,13 +59,11 @@ const DailyPlanningPage = () => {
         {isLoading ? (
           <Loader2 className="mt-2 ml-2 h-6 w-6 animate-spin" />
         ) : (
-          dailyPlan && (
-            <DailyPlanForm
-              createDailyPlan={createDailyPlan}
-              confirmDailyPlanning={confirmDailyPlanning}
-              dailyPlan={dailyPlan}
-            />
-          )
+          <DailyPlanForm
+            createDailyPlan={createDailyPlan}
+            confirmDailyPlanning={confirmDailyPlanning}
+            dailyPlan={dailyPlan}
+          />
         )}
 
         <div className="space-y-2">

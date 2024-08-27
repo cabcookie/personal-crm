@@ -109,6 +109,7 @@ export const makeProjectIdTodoStatus = ({
   `${projectId}-${done ? "DONE" : "OPEN"}`;
 
 const getProjectTodoId = async ({ todoId, projectId }: TProjectTodoData) => {
+  if (!todoId || !projectId) return;
   const { data, errors } =
     await client.models.ProjectTodo.listProjectTodoByTodoId({ todoId });
   if (errors)
