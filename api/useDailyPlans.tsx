@@ -52,6 +52,28 @@ type DailyPlanData = SelectionSet<
   typeof selectionSet
 >;
 
+const mapDailyPlanTodo: (
+  todo: DailyPlanData["todos"][number]
+) => DailyPlanTodo = ({
+  id: recordId,
+  todo: {
+    id: todoId,
+    projects,
+    status,
+    todo,
+    activity: { activityId },
+  },
+}) => ({
+  recordId,
+  todoId,
+  todo: JSON.parse(todo as any),
+  done: status === "DONE",
+  projectIds: projects.map((p) =>
+    p.projectIdTodoStatus.replaceAll("-DONE", "").replaceAll("-OPEN", "")
+  ),
+  activityId,
+});
+
 const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   id,
   day,
@@ -65,27 +87,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   dayGoal,
   context: context || "work",
   status,
-  todos: todos.map(
-    ({
-      id: recordId,
-      todo: {
-        id: todoId,
-        projects,
-        status,
-        todo,
-        activity: { activityId },
-      },
-    }): DailyPlanTodo => ({
-      recordId,
-      todoId,
-      todo: JSON.parse(todo as any),
-      done: status === "DONE",
-      projectIds: projects.map((p) =>
-        p.projectIdTodoStatus.replaceAll("-DONE", "").replaceAll("-OPEN", "")
-      ),
-      activityId,
-    })
-  ),
+  todos: todos.map(mapDailyPlanTodo),
 });
 
 const fetchDailyPlans =
