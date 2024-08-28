@@ -74,26 +74,27 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
         )(learnings)
       }
     >
-      <div className="mb-2 space-y-2">
+      <div className="space-y-4 px-1 md:px-2">
         <Button size="sm" className="gap-1" onClick={handleCreate}>
           <PlusCircle className="w-4 h-4" />
           Learning
         </Button>
+
+        {learnings?.map((learning) => (
+          <LearningComponent
+            key={learning.id}
+            learning={learning}
+            editable={learning.id === editId}
+            onMakeEditable={() =>
+              setEditId(editId === learning.id ? null : learning.id)
+            }
+            onDelete={() => deleteLearning(learning.id)}
+            onChange={handleLearningUpdate(learning.id)}
+            onDateChange={(date) => updateDate(learning.id, date)}
+            onStatusChange={(val) => updatePrayerStatus(learning.id, val)}
+          />
+        ))}
       </div>
-      {learnings?.map((learning) => (
-        <LearningComponent
-          key={learning.id}
-          learning={learning}
-          editable={learning.id === editId}
-          onMakeEditable={() =>
-            setEditId(editId === learning.id ? null : learning.id)
-          }
-          onDelete={() => deleteLearning(learning.id)}
-          onChange={handleLearningUpdate(learning.id)}
-          onDateChange={(date) => updateDate(learning.id, date)}
-          onStatusChange={(val) => updatePrayerStatus(learning.id, val)}
-        />
-      ))}
     </DefaultAccordionItem>
   );
 };

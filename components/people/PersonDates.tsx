@@ -1,39 +1,43 @@
 import { Person } from "@/api/usePerson";
-import { format } from "date-fns";
+import { addYears, format, subYears } from "date-fns";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
-import { Calendar } from "../ui/calendar";
+import DateSelector from "../ui-elements/selectors/date-selector";
 import { Label } from "../ui/label";
 
 type PersonDateHelperProps = {
-  id?: string;
   label: string;
-  value: Date;
+  value?: Date;
+  updateDateFn: (date: Date) => Promise<string | undefined>;
 };
 
-const PersonDateHelper: FC<PersonDateHelperProps> = ({ id, label, value }) => (
+const PersonDateHelper: FC<PersonDateHelperProps> = ({
+  label,
+  value,
+  updateDateFn,
+}) => (
   <div>
-    <Label htmlFor={id} className="font-semibold">
-      {label}
-    </Label>
-    <Calendar
-      id={id}
-      mode="single"
-      defaultMonth={value}
-      selected={value}
-      className="w-[17.5rem]"
-      disabled
-      disableNavigation
+    <Label className="font-semibold">{label}</Label>
+    <DateSelector
+      date={value}
+      setDate={updateDateFn}
+      captionLayout="dropdown"
+      startMonth={subYears(new Date(), 120)}
+      endMonth={addYears(new Date(), 1)}
     />
   </div>
 );
 
 type PersonDatesProps = {
   person?: Person;
+  updateDateFn: (dates: {
+    dateOfBirth?: Date;
+    dateOfDeath?: Date;
+  }) => Promise<string | undefined>;
 };
 
-const PersonDates: FC<PersonDatesProps> = ({ person }) =>
+const PersonDates: FC<PersonDatesProps> = ({ person, updateDateFn }) =>
   !person ? (
     <LoadingAccordionItem
       value="loading-dates"
@@ -52,20 +56,18 @@ const PersonDates: FC<PersonDatesProps> = ({ person }) =>
           `Date of death: ${format(person.dateOfDeath, "PPP")}`,
       ]}
     >
-      {person.dateOfBirth && (
+      <div className="space-y-4 px-1 md:px-2">
         <PersonDateHelper
-          id="date-of-birth"
           label="Date of Birth"
           value={person.dateOfBirth}
+          updateDateFn={(date: Date) => updateDateFn({ dateOfBirth: date })}
         />
-      )}
-      {person.dateOfDeath && (
         <PersonDateHelper
-          id="date-of-death"
           label="Date of Death"
           value={person.dateOfDeath}
+          updateDateFn={(date: Date) => updateDateFn({ dateOfDeath: date })}
         />
-      )}
+      </div>
     </DefaultAccordionItem>
   );
 

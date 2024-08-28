@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, CalendarProps } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -20,6 +20,9 @@ type DateSelectorProps = {
   bold?: boolean;
   disabled?: boolean;
   isLoading?: boolean;
+  startMonth?: Date;
+  endMonth?: Date;
+  captionLayout?: CalendarProps["captionLayout"];
 };
 
 const DateSelector: FC<DateSelectorProps> = ({
@@ -30,6 +33,9 @@ const DateSelector: FC<DateSelectorProps> = ({
   bold,
   disabled,
   isLoading,
+  startMonth,
+  endMonth,
+  captionLayout,
   placeholder = "Pick a date…",
 }) => {
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -96,6 +102,9 @@ const DateSelector: FC<DateSelectorProps> = ({
             selected={selectedDate}
             onSelect={onDateChange}
             defaultMonth={selectedDate}
+            captionLayout={captionLayout}
+            startMonth={startMonth}
+            endMonth={endMonth}
           />
         </PopoverContent>
       </Popover>

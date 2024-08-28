@@ -46,22 +46,25 @@ const PersonContactDetails: FC<PersonContactDetailsProps> = ({
       triggerTitle="Contact details"
       triggerSubTitle={person.details.map(buildLabel)}
     >
-      <PersonContactDetailsForm personName={person.name} onCreate={onCreate} />
-
-      <div className="mt-4" />
-
-      {person.details.map((pd) => (
-        <PersonContactDetail
-          key={pd.id}
-          personDetail={pd}
+      <div className="space-y-4 px-1 md:px-2">
+        <PersonContactDetailsForm
           personName={person.name}
-          onChange={onChange}
-          onDelete={onDelete}
-          detailType={personDetailsLabels.find(
-            (l) => l.fieldLabel === pd.label
-          )}
+          onCreate={onCreate}
         />
-      ))}
+
+        {person.details.map((pd) => (
+          <PersonContactDetail
+            key={pd.id}
+            personDetail={pd}
+            personName={person.name}
+            onChange={onChange}
+            onDelete={onDelete}
+            detailType={personDetailsLabels.find(
+              (l) => l.fieldLabel === pd.label
+            )}
+          />
+        ))}
+      </div>
     </DefaultAccordionItem>
   );
 

@@ -9,6 +9,7 @@ import PersonContactDetails from "./PersonContactDetails";
 import PersonDates from "./PersonDates";
 import PersonLearnings from "./PersonLearnings";
 import PersonNotes from "./PersonNotes";
+import PersonRelationships from "./PersonRelationships";
 import PersonUpdateForm from "./PersonUpdateForm";
 
 type PersonDetailsProps = {
@@ -35,6 +36,8 @@ const PersonDetails: FC<PersonDetailsProps> = ({
     createContactDetail,
     updateContactDetail,
     deleteContactDetail,
+    updateRelationship,
+    deleteRelationship,
   } = usePerson(personId);
   const [deleteWarningOpen, setDeleteWarningOpen] = useState(false);
   const router = useRouter();
@@ -44,6 +47,11 @@ const PersonDetails: FC<PersonDetailsProps> = ({
     if (!result) return;
     router.push("/");
   };
+
+  const handleDateChange = (dates: {
+    dateOfBirth?: Date;
+    dateOfDeath?: Date;
+  }) => updatePerson(dates);
 
   return (
     <>
@@ -86,9 +94,15 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           onDelete={deleteContactDetail}
         />
 
-        <PersonDates person={person} />
+        <PersonDates person={person} updateDateFn={handleDateChange} />
 
         <PersonLearnings personId={person?.id} />
+
+        <PersonRelationships
+          relationships={person?.relationships}
+          updateRelationship={updateRelationship}
+          deleteRelationship={deleteRelationship}
+        />
 
         <PersonNotes personId={person?.id} showNotes={showNotes} />
       </Accordion>
