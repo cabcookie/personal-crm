@@ -45,52 +45,52 @@ const PersonAccounts: FC<PersonAccountsProps> = ({
         ])
       )(person.accounts)}
     >
-      <PersonAccountForm personName={person.name} onCreate={onCreate} />
+      <div className="space-y-4 px-1 md:px-2">
+        <PersonAccountForm personName={person.name} onCreate={onCreate} />
 
-      <div className="mt-4" />
-
-      {person.accounts.map((pa) => (
-        <div key={pa.personAccountId} className="my-2">
-          <div className="flex flex-row gap-2 items-center">
-            <div>
-              <span>{pa.position}</span>
-              <span className="ml-2 font-semibold">
-                <Link
-                  href={`/accounts/${pa.accountId}`}
-                  className="hover:underline hover:underline-offset-2"
-                >
-                  {pa.accountName}
-                </Link>
-              </span>
+        {person.accounts.map((pa) => (
+          <div key={pa.personAccountId}>
+            <div className="flex flex-row gap-2 items-center">
+              <div>
+                <span>{pa.position}</span>
+                <span className="ml-2 font-semibold">
+                  <Link
+                    href={`/accounts/${pa.accountId}`}
+                    className="hover:underline hover:underline-offset-2"
+                  >
+                    {pa.accountName}
+                  </Link>
+                </span>
+              </div>
+              <PersonAccountForm
+                personName={person.name}
+                personAccount={pa}
+                onChange={onChange}
+              />
+              <Trash2
+                className="w-5 h-5 text-muted-foreground hover:text-primary"
+                onClick={() => onDelete(pa.personAccountId)}
+              />
             </div>
-            <PersonAccountForm
-              personName={person.name}
-              personAccount={pa}
-              onChange={onChange}
-            />
-            <Trash2
-              className="w-5 h-5 text-muted-foreground hover:text-primary"
-              onClick={() => onDelete(pa.personAccountId)}
-            />
+            <div className="text-muted-foreground">
+              <small>
+                {pa.startDate &&
+                  !pa.endDate &&
+                  `Since ${format(pa.startDate, "PP")}`}
+                {pa.startDate &&
+                  pa.endDate &&
+                  `Between ${format(pa.startDate, "PP")} and ${format(
+                    pa.endDate,
+                    "PP"
+                  )}`}
+                {!pa.startDate &&
+                  pa.endDate &&
+                  `Till ${format(pa.endDate, "PP")}`}
+              </small>
+            </div>
           </div>
-          <div className="text-muted-foreground">
-            <small>
-              {pa.startDate &&
-                !pa.endDate &&
-                `Since ${format(pa.startDate, "PP")}`}
-              {pa.startDate &&
-                pa.endDate &&
-                `Between ${format(pa.startDate, "PP")} and ${format(
-                  pa.endDate,
-                  "PP"
-                )}`}
-              {!pa.startDate &&
-                pa.endDate &&
-                `Till ${format(pa.endDate, "PP")}`}
-            </small>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </DefaultAccordionItem>
   );
 

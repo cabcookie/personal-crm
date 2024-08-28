@@ -1,5 +1,6 @@
 import { Project } from "@/api/ContextProjects";
 import DateSelector from "@/components/ui-elements/selectors/date-selector";
+import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
@@ -14,14 +15,12 @@ const ProjectDatesHelper: FC<ProjectDatesHelperProps> = ({
   date,
   title,
   updateDateFn,
-}) => {
-  return (
-    <div>
-      <h3 className="font-semibold tracking-tight">{title}</h3>
-      <DateSelector date={date} setDate={updateDateFn} />
-    </div>
-  );
-};
+}) => (
+  <div>
+    <Label className="font-semibold">{title}</Label>
+    <DateSelector date={date} setDate={updateDateFn} />
+  </div>
+);
 
 type ProjectDatesProps = {
   project: Project;
@@ -46,7 +45,7 @@ const ProjectDates: FC<ProjectDatesProps> = ({
       onHoldTill && `On hold till: ${format(onHoldTill, "PPP")}`,
     ]}
   >
-    <div className="space-y-4">
+    <div className="space-y-4 px-1 md:px-2">
       <ProjectDatesHelper
         title="Due on"
         date={dueOn}

@@ -11,6 +11,15 @@ const personSchmema = {
     "instagram",
     "amazonalias",
   ]),
+  RelationshipTypeEnum: a.enum([
+    "parent",
+    "child",
+    "spouse",
+    "fiance",
+    "partner",
+    "friend",
+    "smallgroup",
+  ]),
   MeetingParticipant: a
     .model({
       owner: a
@@ -73,6 +82,20 @@ const personSchmema = {
     })
     .identifier(["profileId"])
     .authorization((allow) => [allow.ownerDefinedIn("profileId")]),
+  PersonRelationship: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      personId: a.id(),
+      person: a.belongsTo("Person", "personId"),
+      typeName: a.ref("RelationshipTypeEnum"),
+      relatedPersonId: a.id(),
+      relatedPerson: a.belongsTo("Person", "relatedPersonId"),
+      date: a.date(),
+      endDate: a.date(),
+    })
+    .authorization((allow) => [allow.owner()]),
   Person: a
     .model({
       owner: a
@@ -89,6 +112,8 @@ const personSchmema = {
       learnings: a.hasMany("PersonLearning", "personId"),
       profile: a.hasOne("User", "personId"),
       noteBlocks: a.hasMany("NoteBlockPerson", "personId"),
+      relationshipsFrom: a.hasMany("PersonRelationship", "personId"),
+      relationshipsTo: a.hasMany("PersonRelationship", "relatedPersonId"),
     })
     .authorization((allow) => [allow.owner()]),
 };

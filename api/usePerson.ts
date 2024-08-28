@@ -1,9 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
-import { toISODateString } from "@/helpers/functional";
+import { getDateOrUndefined, toISODateString } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { isFuture } from "date-fns";
-import { flow, map, replace, sortBy } from "lodash/fp";
+import { getDate, getMonth, getYear, isFuture } from "date-fns";
+import { get, indexOf } from "lodash";
+import { flow, map, replace, sortBy, union } from "lodash/fp";
 import {
   AtSign,
   Building,
@@ -16,13 +17,6 @@ import {
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
-
-interface UpdatePersonProps {
-  name: string;
-  howToSay?: string;
-  dateOfBirth?: Date;
-  dateOfDeath?: Date;
-}
 
 export const selectionSet = [
   "id",
@@ -40,6 +34,50 @@ export const selectionSet = [
   "details.id",
   "details.label",
   "details.detail",
+  "relationshipsFrom.id",
+  "relationshipsFrom.date",
+  "relationshipsFrom.endDate",
+  "relationshipsFrom.typeName",
+  "relationshipsFrom.relatedPerson.id",
+  "relationshipsFrom.relatedPerson.name",
+  "relationshipsFrom.relatedPerson.birthday",
+  "relationshipsFrom.relatedPerson.dateOfDeath",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.date",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.endDate",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.typeName",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.relatedPerson.id",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.relatedPerson.name",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.relatedPerson.birthday",
+  "relationshipsFrom.relatedPerson.relationshipsFrom.relatedPerson.dateOfDeath",
+  "relationshipsFrom.relatedPerson.relationshipsTo.date",
+  "relationshipsFrom.relatedPerson.relationshipsTo.endDate",
+  "relationshipsFrom.relatedPerson.relationshipsTo.typeName",
+  "relationshipsFrom.relatedPerson.relationshipsTo.person.id",
+  "relationshipsFrom.relatedPerson.relationshipsTo.person.name",
+  "relationshipsFrom.relatedPerson.relationshipsTo.person.birthday",
+  "relationshipsFrom.relatedPerson.relationshipsTo.person.dateOfDeath",
+  "relationshipsTo.id",
+  "relationshipsTo.date",
+  "relationshipsTo.endDate",
+  "relationshipsTo.typeName",
+  "relationshipsTo.person.id",
+  "relationshipsTo.person.name",
+  "relationshipsTo.person.birthday",
+  "relationshipsTo.person.dateOfDeath",
+  "relationshipsTo.person.relationshipsFrom.date",
+  "relationshipsTo.person.relationshipsFrom.endDate",
+  "relationshipsTo.person.relationshipsFrom.typeName",
+  "relationshipsTo.person.relationshipsFrom.relatedPerson.id",
+  "relationshipsTo.person.relationshipsFrom.relatedPerson.name",
+  "relationshipsTo.person.relationshipsFrom.relatedPerson.birthday",
+  "relationshipsTo.person.relationshipsFrom.relatedPerson.dateOfDeath",
+  "relationshipsTo.person.relationshipsTo.date",
+  "relationshipsTo.person.relationshipsTo.endDate",
+  "relationshipsTo.person.relationshipsTo.typeName",
+  "relationshipsTo.person.relationshipsTo.person.id",
+  "relationshipsTo.person.relationshipsTo.person.name",
+  "relationshipsTo.person.relationshipsTo.person.birthday",
+  "relationshipsTo.person.relationshipsTo.person.dateOfDeath",
 ] as const;
 
 export type TDetailLabel =
@@ -51,6 +89,98 @@ export type TDetailLabel =
   | "salesforce"
   | "instagram"
   | "amazonalias";
+
+export const RELATIONSHIP_TYPES = [
+  "spouse",
+  "fiance",
+  "partner",
+  "child",
+  "parent",
+  "smallgroup",
+  "friend",
+] as const;
+export type TRelationshipTypes = (typeof RELATIONSHIP_TYPES)[number];
+
+const orderRelationShip = (relationType: TRelationshipTypes) =>
+  indexOf(RELATIONSHIP_TYPES, relationType);
+
+type OtherInterestingRelation = {
+  relationName: TRelationshipTypes;
+  label?: string;
+  labelOfOtherDirection?: string;
+};
+
+type RelationshipType = {
+  name: TRelationshipTypes;
+  nameOfOtherDirection: TRelationshipTypes;
+  hasAnniversary: boolean;
+  nameOfAnniversary?: string;
+  hasEndDate: boolean;
+  otherInterestingRelation: OtherInterestingRelation[];
+};
+
+const makeOtherInterestingRelation = (
+  relationName: TRelationshipTypes,
+  label: string | undefined,
+  labelOfOtherDirection: string | undefined
+): OtherInterestingRelation => ({
+  relationName,
+  label,
+  labelOfOtherDirection,
+});
+
+export const RELATIONSHIPS: RelationshipType[] = [
+  {
+    name: "parent",
+    nameOfOtherDirection: "child",
+    hasAnniversary: false,
+    hasEndDate: false,
+    otherInterestingRelation: [
+      makeOtherInterestingRelation("parent", undefined, "Grand-parent"),
+      makeOtherInterestingRelation("child", "Grand-child", "Sibling"),
+    ],
+  },
+  {
+    name: "spouse",
+    nameOfOtherDirection: "spouse",
+    hasAnniversary: true,
+    nameOfAnniversary: "Wedding",
+    hasEndDate: true,
+    otherInterestingRelation: [],
+  },
+  {
+    name: "fiance",
+    nameOfOtherDirection: "fiance",
+    hasAnniversary: true,
+    nameOfAnniversary: "Engagement",
+    hasEndDate: true,
+    otherInterestingRelation: [],
+  },
+  {
+    name: "partner",
+    nameOfOtherDirection: "partner",
+    hasAnniversary: true,
+    nameOfAnniversary: "Anniversary",
+    hasEndDate: true,
+    otherInterestingRelation: [],
+  },
+  {
+    name: "friend",
+    nameOfOtherDirection: "friend",
+    hasAnniversary: true,
+    nameOfAnniversary: "Friendship",
+    hasEndDate: true,
+    otherInterestingRelation: [],
+  },
+  {
+    name: "smallgroup",
+    nameOfOtherDirection: "smallgroup",
+    hasAnniversary: true,
+    nameOfAnniversary: "Membership",
+    hasEndDate: true,
+    otherInterestingRelation: [],
+  },
+] as const;
 
 export type TPersonDetailTypes = {
   fieldLabel: TDetailLabel;
@@ -167,16 +297,141 @@ export type PersonDetail = {
   detail: string;
 };
 
+export type PersonRelationship = {
+  id: string;
+  relatedPerson?: {
+    id: string;
+    name: string;
+  };
+  nameOfRelationship?: TRelationshipTypes;
+  nameOfAnniversary?: string;
+  anniversary?: Date;
+  endDate?: Date;
+  direction: "from" | "to";
+};
+
 export type Person = {
   id: string;
   name: string;
   howToSay?: string;
-  dateOfBirth?: Date;
-  dateOfDeath?: Date;
+  relationships: PersonRelationship[];
   details: PersonDetail[];
   accounts: PersonAccount[];
+  dateOfDeath?: Date;
+  dateOfBirth?: Date;
   updatedAt: Date;
 };
+
+const getRelationTypeName = (
+  fromDirection: boolean,
+  name: TRelationshipTypes,
+  nameOfOtherDirection: TRelationshipTypes,
+  relationTypeName: TRelationshipTypes
+): TRelationshipTypes =>
+  (fromDirection && relationTypeName === name) ||
+  (!fromDirection && relationTypeName === nameOfOtherDirection)
+    ? name
+    : nameOfOtherDirection;
+
+const findRelationType = (name: TRelationshipTypes | undefined | null) =>
+  RELATIONSHIPS.find((r) => r.name === name || r.nameOfOtherDirection === name);
+
+const getRelationType = (
+  direction: "from" | "to",
+  name: TRelationshipTypes | undefined | null
+): RelationshipType | undefined => {
+  if (!name) return;
+  const relationType = findRelationType(name);
+  if (!relationType) return;
+  return {
+    name: getRelationTypeName(
+      direction === "from",
+      relationType.name,
+      relationType.nameOfOtherDirection,
+      name
+    ),
+    nameOfOtherDirection: getRelationTypeName(
+      direction === "from",
+      relationType.nameOfOtherDirection,
+      relationType.name,
+      name
+    ),
+    nameOfAnniversary: relationType.nameOfAnniversary,
+    hasAnniversary: relationType.hasAnniversary,
+    hasEndDate: relationType.hasEndDate,
+  } as RelationshipType;
+};
+
+type MinimalPersonData = {
+  id: string;
+  name: string;
+  birthday?: string | null;
+  dateOfDeath?: string | null;
+};
+
+type MinimalRelationData = {
+  id: string;
+  typeName?: TRelationshipTypes | null;
+  date?: string | null;
+  endDate?: string | null;
+};
+
+type MapRelationship =
+  | {
+      direction: "from";
+      relationship: MinimalRelationData & {
+        relatedPerson?: MinimalPersonData;
+        person?: never;
+      };
+    }
+  | {
+      direction: "to";
+      relationship: MinimalRelationData & {
+        person?: MinimalPersonData;
+        relatedPerson?: never;
+      };
+    };
+
+const getRelationDate = (
+  direction: "from" | "to",
+  dateName: "birthday" | "dateOfDeath",
+  typeName: TRelationshipTypes | undefined | null,
+  date: string | undefined | null,
+  person: MinimalPersonData | undefined,
+  relatedPerson: MinimalPersonData | undefined
+) =>
+  typeName === "child" || typeName === "parent"
+    ? direction === "from"
+      ? getDateOrUndefined(get(relatedPerson, dateName))
+      : getDateOrUndefined(get(person, dateName))
+    : getDateOrUndefined(date);
+
+const mapRelationship = ({
+  direction,
+  relationship: { id, typeName, date, endDate, person, relatedPerson },
+}: MapRelationship): PersonRelationship => ({
+  direction,
+  id,
+  anniversary: getRelationDate(
+    direction,
+    "birthday",
+    typeName,
+    date,
+    person,
+    relatedPerson
+  ),
+  endDate: getRelationDate(
+    direction,
+    "dateOfDeath",
+    typeName,
+    endDate,
+    person,
+    relatedPerson
+  ),
+  nameOfAnniversary: findRelationType(typeName)?.nameOfAnniversary,
+  nameOfRelationship: getRelationType(direction, typeName)?.name,
+  relatedPerson: person ?? relatedPerson,
+});
 
 export const mapPerson = ({
   id,
@@ -187,10 +442,34 @@ export const mapPerson = ({
   accounts,
   details,
   updatedAt,
+  relationshipsFrom,
+  relationshipsTo,
 }: PersonData): Person => ({
   id,
   name,
   howToSay: howToSay || undefined,
+  relationships: flow(
+    union(
+      relationshipsFrom.map((relationship) =>
+        mapRelationship({ direction: "from", relationship })
+      )
+    ),
+    union(
+      relationshipsTo.map((relationship) =>
+        mapRelationship({ direction: "to", relationship })
+      )
+    ),
+    sortBy(({ nameOfRelationship, anniversary }) =>
+      !nameOfRelationship
+        ? 0
+        : [
+            [orderRelationShip(nameOfRelationship), 1],
+            [!anniversary ? 0 : getYear(anniversary), 10000],
+            [!anniversary ? 0 : getMonth(anniversary), 100],
+            [!anniversary ? 0 : getDate(anniversary), 100],
+          ].reduce((acc, cur) => acc * cur[1] + cur[0], 0)
+    )
+  )([]),
   dateOfBirth: !birthday ? undefined : new Date(birthday),
   dateOfDeath: !dateOfDeath ? undefined : new Date(dateOfDeath),
   details,
@@ -254,19 +533,17 @@ const usePerson = (personId?: string) => {
     howToSay,
     dateOfBirth,
     dateOfDeath,
-  }: UpdatePersonProps) => {
+  }: Partial<Person>) => {
     if (!person) return;
-    const updated: Person = {
-      id: person.id,
-      name,
-      howToSay: howToSay || person.howToSay,
-      dateOfBirth: dateOfBirth || person.dateOfBirth,
-      dateOfDeath: dateOfDeath || person.dateOfDeath,
-      updatedAt: new Date(),
-      details: [],
-      accounts: [],
-    };
+    const updated: Person = { ...person };
+    Object.assign(updated, {
+      ...(name && { name }),
+      ...(howToSay && { howToSay }),
+      ...(dateOfBirth && { dateOfBirth }),
+      ...(dateOfDeath && { dateOfDeath }),
+    });
     mutate(updated, false);
+
     const { data, errors } = await client.models.Person.update({
       id: person.id,
       name,
@@ -281,6 +558,108 @@ const usePerson = (personId?: string) => {
       title: "Person updated",
     });
     return data.id;
+  };
+
+  const createRelationship = async () => {
+    if (!person) return;
+    const updated: Person = {
+      ...person,
+      relationships: [
+        ...person.relationships,
+        { id: crypto.randomUUID(), direction: "from" },
+      ],
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.PersonRelationship.create({
+      personId: person.id,
+    });
+    if (errors) handleApiErrors(errors, "Creating person relationship failed");
+    mutate(updated);
+    return data?.id;
+  };
+
+  const updateRelationship = async ({
+    id,
+    anniversary,
+    endDate,
+    nameOfAnniversary,
+    nameOfRelationship,
+    relatedPerson,
+  }: Partial<PersonRelationship> & { id: string }) => {
+    if (!person) return;
+    if (id === "NEW") return createRelationship();
+
+    const updRelation = (() => {
+      const relationship = person.relationships.find((r) => r.id === id);
+      return !relationship
+        ? undefined
+        : ({ ...relationship } as PersonRelationship);
+    })();
+    if (!updRelation) return;
+    const relationType = getRelationType(
+      updRelation.direction,
+      nameOfRelationship
+    );
+
+    Object.assign(updRelation, {
+      ...(anniversary && { anniversary }),
+      ...(endDate && { endDate }),
+      ...(nameOfAnniversary && { nameOfAnniversary }),
+      ...(relationType && {
+        nameOfRelationship:
+          updRelation.direction === "from"
+            ? relationType.name
+            : relationType.nameOfOtherDirection,
+      }),
+      ...(relatedPerson && { relatedPerson }),
+    });
+
+    const updPerson = {
+      ...person,
+      relationships: person.relationships.map((r) =>
+        r.id === id ? updRelation : r
+      ),
+    } as Person;
+    mutate(updPerson, false);
+
+    const { data, errors } = await client.models.PersonRelationship.update({
+      id,
+      personId:
+        updRelation.direction === "from" ? person.id : relatedPerson?.id,
+      relatedPersonId:
+        updRelation.direction === "to" ? person.id : relatedPerson?.id,
+      ...(!relationType
+        ? {}
+        : {
+            typeName:
+              updRelation.direction === "from"
+                ? relationType.name
+                : relationType.nameOfOtherDirection,
+          }),
+      ...(!anniversary ? {} : { date: toISODateString(anniversary) }),
+      ...(!endDate ? {} : { endDate: toISODateString(endDate) }),
+    });
+    if (errors) handleApiErrors(errors, "Updating person relation failed");
+    mutate(updPerson);
+    return data?.id;
+  };
+
+  const deleteRelationship = async (relationshipId: string) => {
+    const updated: Person | undefined = !person
+      ? undefined
+      : ({
+          ...person,
+          relationships: person.relationships.filter(
+            (r) => r.id !== relationshipId
+          ),
+        } as Person);
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.PersonRelationship.delete({
+      id: relationshipId,
+    });
+    if (errors) handleApiErrors(errors, "Deleting person relation failed");
+    if (updated) mutate(updated);
+    return data?.id;
   };
 
   const deletePersonAccount = async (personAccountId: string) => {
@@ -472,6 +851,8 @@ const usePerson = (personId?: string) => {
     createContactDetail,
     updateContactDetail,
     deleteContactDetail,
+    updateRelationship,
+    deleteRelationship,
   };
 };
 

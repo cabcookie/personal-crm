@@ -5,7 +5,6 @@ import { FC, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
-import { Calendar } from "../ui/calendar";
 import {
   Dialog,
   DialogClose,
@@ -25,20 +24,15 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { ScrollArea } from "../ui/scroll-area";
 
 const FormSchema = z.object({
   name: z.string(),
   howToSay: z.string().optional(),
-  dateOfBirth: z.date().optional(),
-  dateOfDeath: z.date().optional(),
 });
 
 interface OnUpdateProps {
   name: string;
   howToSay?: string;
-  dayOfBirth?: Date;
-  dayOfDeath?: Date;
 }
 
 type PersonUpdateFormProps = {
@@ -61,8 +55,6 @@ const PersonUpdateForm: FC<PersonUpdateFormProps> = ({
     defaultValues: {
       name: person.name,
       howToSay: person.howToSay || "",
-      dateOfBirth: person.dateOfBirth,
-      dateOfDeath: person.dateOfDeath,
     },
   });
 
@@ -100,83 +92,34 @@ const PersonUpdateForm: FC<PersonUpdateFormProps> = ({
                 Update information about the person.
               </DialogDescription>
             </DialogHeader>
-            <ScrollArea className="h-80 md:h-[30rem] w-full">
-              <div className="space-y-3 mx-1">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Name…" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="howToSay"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>How to say the name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Clarify if not obvious…"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dateOfBirth"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Date of Birth</FormLabel>
-                      <FormControl>
-                        <Calendar
-                          mode="single"
-                          onSelect={field.onChange}
-                          defaultMonth={field.value}
-                          selected={field.value}
-                          captionLayout="dropdown"
-                          className="w-[17.5rem]"
-                          startMonth={new Date(1920, 0)}
-                          endMonth={new Date()}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dateOfDeath"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Date of Death</FormLabel>
-                      <FormControl>
-                        <Calendar
-                          mode="single"
-                          onSelect={field.onChange}
-                          defaultMonth={field.value}
-                          selected={field.value}
-                          captionLayout="dropdown"
-                          className="w-[17.5rem]"
-                          startMonth={new Date(1990, 0)}
-                          endMonth={new Date()}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </ScrollArea>
+            <div className="space-y-3 mx-1">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Name…" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="howToSay"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>How to say the name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Clarify if not obvious…" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <DialogFooter className="gap-2 mx-1">
               <Button onClick={form.handleSubmit(handleSubmit)}>
                 Save changes

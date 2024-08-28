@@ -41,6 +41,8 @@ export const logFp =
   };
 export const newDateTimeString = (): string => toISODateTimeString(new Date());
 export const newDateString = (): string => toISODateString(new Date());
+export const getDateOrUndefined = (date?: string | null) =>
+  !date ? undefined : new Date(date);
 export const truncateMiddle = (text: string, length = 20): string => {
   if (text.length <= length) return text;
   const half = Math.floor(length / 2);

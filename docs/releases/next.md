@@ -1,11 +1,12 @@
 # Kleinere Fehlerbehebungen beim Bearbeiten von Notizen (Version :VERSION)
 
+- Beziehungen zwischen Menschen können abgebildet werden (Partner, Ehe etc.).
+- Beim Bearbeiten einer Person sind die Jahrestage jetzt nicht mehr mit im Popup, sondern ähnlich wie bei den Projektdaten in dem Accordion. Das ist übersichtlicher.
+
 ## In Arbeit
 
-- Beziehungen zwischen Menschen abbilden (Partner, Ehe etc.).
 - Weitere persönliche Jahrestage abbilden (Tauftag, Taufentscheidung etc.).
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
-- Beim Bearbeiten einer Person die Jahrestage nicht im Popup bearbeiten, sondern ähnlich wie bei den Projektdaten in dem Accordion.
 
 ## Geplant
 
