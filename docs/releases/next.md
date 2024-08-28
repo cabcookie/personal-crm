@@ -1,4 +1,4 @@
-# Kleinere Fehlerbehebungen beim Bearbeiten von Notizen (Version :VERSION)
+# Beziehungen zwischen Personen darstellen (Version :VERSION)
 
 - Beziehungen zwischen Menschen können abgebildet werden (Partner, Ehe etc.).
 - Beim Bearbeiten einer Person sind die Jahrestage jetzt nicht mehr mit im Popup, sondern ähnlich wie bei den Projektdaten in dem Accordion. Das ist übersichtlicher.
