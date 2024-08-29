@@ -1,10 +1,10 @@
-import { Person, PersonAccount } from "@/api/usePerson";
+import { LeanPerson } from "@/api/usePeople";
+import { Person } from "@/api/usePerson";
 import MentionList, {
   MentionListRef,
 } from "@/components/ui-elements/editors/extensions/MentionList";
 import { ReactRenderer } from "@tiptap/react";
 import { SuggestionKeyDownProps, SuggestionProps } from "@tiptap/suggestion";
-import { flow, map } from "lodash/fp";
 import tippy, { Instance, Props } from "tippy.js";
 
 export type SuggestionItem = {
@@ -14,17 +14,16 @@ export type SuggestionItem = {
   information?: string; // are shown as additional information but not taken into account for the query
 };
 
-export const mapPersonToSuggestion =
-  (getAccountNamesByIds: (accountIds: string[]) => string) =>
-  ({ id, name, accounts }: Person): SuggestionItem => ({
-    category: "person",
-    id,
-    label: name,
-    information: flow(
-      map((pa: PersonAccount) => pa.accountId),
-      getAccountNamesByIds
-    )(accounts),
-  });
+export const mapPersonToSuggestion = ({
+  id,
+  name,
+  accountNames,
+}: LeanPerson): SuggestionItem => ({
+  category: "person",
+  id,
+  label: name,
+  information: accountNames,
+});
 
 export const filterPersonByQuery = (query: string) => (p: Person) =>
   p.name.toLowerCase().replaceAll(" ", "").includes(query.toLowerCase());

@@ -2,9 +2,7 @@ import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useMeetingProjectRecommendation from "@/api/useMeetingProjectRecommendation";
 import { Meeting } from "@/api/useMeetings";
-import usePeople from "@/api/usePeople";
-import { Person } from "@/api/usePerson";
-import useCurrentUser, { User } from "@/api/useUser";
+import usePeople, { LeanPerson } from "@/api/usePeople";
 import { compact, filter, flatMap, flow, get, map } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
 
@@ -12,13 +10,10 @@ const filterOutProjectIds = (avoidIds: string[] | undefined) => (id: string) =>
   !avoidIds?.includes(id);
 
 const filterInternalParticipants =
-  (user: User | undefined, people: Person[] | undefined) =>
+  (people: LeanPerson[] | undefined) =>
   (participantIds: string[] | undefined): string[] | undefined => {
-    if (!user?.currentAccountId) return participantIds;
-    const externalIds = participantIds?.filter((id) =>
-      people
-        ?.find((p) => p.id === id)
-        ?.accounts.some((a) => a.accountId !== user.currentAccountId)
+    const externalIds = participantIds?.filter(
+      (id) => !people?.find((p) => p.id === id)?.isPeerOfUser
     );
     if (!externalIds?.length) return participantIds;
     return externalIds;
@@ -33,7 +28,6 @@ const MeetingProjectRecommender: FC<MeetingProjectRecommenderProps> = ({
   meeting,
   addProjectToMeeting,
 }) => {
-  const { user } = useCurrentUser();
   const [relevantParticipantIds, setRelevantParticipantIds] = useState<
     string[] | undefined
   >();
@@ -47,10 +41,10 @@ const MeetingProjectRecommender: FC<MeetingProjectRecommenderProps> = ({
 
   useEffect(() => {
     flow(
-      filterInternalParticipants(user, people),
+      filterInternalParticipants(people),
       setRelevantParticipantIds
     )(meeting?.participantIds);
-  }, [meeting?.participantIds, people, user]);
+  }, [meeting?.participantIds, people]);
 
   useEffect(() => {
     flow(

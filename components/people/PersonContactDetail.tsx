@@ -2,7 +2,7 @@ import {
   PersonContactDetailsUpdateProps,
   PersonDetail,
   TPersonDetailTypes,
-} from "@/api/usePerson";
+} from "@/helpers/person/details";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";

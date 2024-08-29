@@ -1,6 +1,5 @@
-import usePeople from "@/api/usePeople";
-import { Person, PersonAccount } from "@/api/usePerson";
-import { filter, find, flatMap, flow, get } from "lodash/fp";
+import usePeople, { LeanPerson } from "@/api/usePeople";
+import { find, flow, get } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { Accordion } from "../ui/accordion";
@@ -19,7 +18,7 @@ const PeopleList: FC<PeopleListProps> = ({
 }) => {
   const { people } = usePeople();
 
-  const personName = (person?: Person) =>
+  const personName = (person?: LeanPerson) =>
     !person
       ? ""
       : `${person.name}${!person.howToSay ? "" : ` (say: ${person.howToSay})`}`;
@@ -32,10 +31,8 @@ const PeopleList: FC<PeopleListProps> = ({
           value={personId}
           triggerTitle={personName(people?.find((p) => p.id === personId))}
           triggerSubTitle={flow(
-            find((p: Person) => p.id === personId),
-            get("accounts"),
-            filter((a: PersonAccount) => a.isCurrent),
-            flatMap((a) => [a.position, a.accountName])
+            find((p: LeanPerson) => p.id === personId),
+            get("accountNames")
           )(people)}
           onDelete={() => onDelete?.(personId)}
           link={`/people/${personId}`}

@@ -2,7 +2,7 @@ import {
   PersonAccount,
   PersonAccountCreateProps,
   PersonAccountUpdateProps,
-} from "@/api/usePerson";
+} from "@/helpers/person/accounts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addYears } from "date-fns";
 import { Edit, PlusCircle } from "lucide-react";

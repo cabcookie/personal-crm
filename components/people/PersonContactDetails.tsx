@@ -1,10 +1,10 @@
+import { Person } from "@/api/usePerson";
 import {
-  Person,
   PersonContactDetailsCreateProps,
   PersonContactDetailsUpdateProps,
   PersonDetail,
   personDetailsLabels,
-} from "@/api/usePerson";
+} from "@/helpers/person/details";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";

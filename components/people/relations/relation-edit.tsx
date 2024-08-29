@@ -3,7 +3,7 @@ import {
   RELATIONSHIP_TYPES,
   RELATIONSHIPS,
   TRelationshipTypes,
-} from "@/api/usePerson";
+} from "@/helpers/person/relationships";
 import { FC, useMemo } from "react";
 import DateSelector from "../../ui-elements/selectors/date-selector";
 import PeopleSelector from "../../ui-elements/selectors/people-selector";

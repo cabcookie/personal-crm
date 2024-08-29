@@ -1,4 +1,4 @@
-import { PersonRelationship } from "@/api/usePerson";
+import { PersonRelationship } from "@/helpers/person/relationships";
 import { differenceInYears, format } from "date-fns";
 import { capitalize } from "lodash";
 import { Edit, Trash2 } from "lucide-react";
