@@ -14,12 +14,16 @@ const backendType = backend.auth.resources.userPool.node.tryGetContext(
   "amplify-backend-type"
 );
 if (backendType !== "sandbox") {
-  const dataResources = backend.data.resources;
-  Object.values(dataResources.cfnResources.amplifyDynamoDbTables).forEach(
-    (table) => {
-      table.pointInTimeRecoveryEnabled = true;
-      table.deletionProtectionEnabled = true;
-      table.applyRemovalPolicy(RemovalPolicy.RETAIN);
-    }
-  );
+  const { amplifyDynamoDbTables } = backend.data.resources.cfnResources;
+  /**
+   * Ensure that new tables when moved into production will at first not have
+   * deletion protection and backup enabled. CloudFormation always runs into
+   * issues when enabled right from the get-go and Amplify deployments fail.
+   */
+  const { PersonRelationship: _pr, ...restTables } = amplifyDynamoDbTables;
+  Object.values(restTables).forEach((table) => {
+    table.pointInTimeRecoveryEnabled = true;
+    table.deletionProtectionEnabled = true;
+    table.applyRemovalPolicy(RemovalPolicy.RETAIN);
+  });
 }
