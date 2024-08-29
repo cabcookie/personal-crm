@@ -31,8 +31,8 @@ export type PersonAccount = {
 
 const mapAccount = (a: AccountData): PersonAccount => ({
   personAccountId: a.id,
-  accountId: a.account.id,
-  accountName: a.account.name,
+  accountId: a.account?.id,
+  accountName: a.account?.name,
   startDate: !a.startDate ? undefined : new Date(a.startDate),
   endDate: !a.endDate ? undefined : new Date(a.endDate),
   position: a.position || undefined,

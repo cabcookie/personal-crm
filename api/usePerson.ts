@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
-import { toISODateString } from "@/helpers/functional";
+import { getDateOrUndefined, toISODateString } from "@/helpers/functional";
 import {
   getAccounts,
   PersonAccount,
@@ -119,8 +119,8 @@ export const mapPerson = ({
   name,
   howToSay: howToSay || undefined,
   relationships: getRelationships(relationshipsFrom, relationshipsTo),
-  dateOfBirth: !birthday ? undefined : new Date(birthday),
-  dateOfDeath: !dateOfDeath ? undefined : new Date(dateOfDeath),
+  dateOfBirth: getDateOrUndefined(birthday),
+  dateOfDeath: getDateOrUndefined(dateOfDeath),
   details,
   updatedAt: new Date(updatedAt),
   accounts: getAccounts(accounts),
@@ -196,18 +196,28 @@ const usePerson = (personId?: string) => {
     return data.id;
   };
 
-  const createRelationship = async () => {
+  const createRelationship = async ({
+    relatedPerson,
+    nameOfRelationship,
+  }: Partial<Omit<PersonRelationship, "id">>) => {
     if (!person) return;
     const updated: Person = {
       ...person,
       relationships: [
         ...person.relationships,
-        { id: crypto.randomUUID(), direction: "from" },
+        {
+          id: crypto.randomUUID(),
+          direction: "from",
+          relatedPerson,
+          nameOfRelationship,
+        },
       ],
     };
     mutate(updated, false);
     const { data, errors } = await client.models.PersonRelationship.create({
       personId: person.id,
+      relatedPersonId: relatedPerson?.id,
+      typeName: nameOfRelationship,
     });
     if (errors) handleApiErrors(errors, "Creating person relationship failed");
     mutate(updated);
@@ -223,7 +233,8 @@ const usePerson = (personId?: string) => {
     relatedPerson,
   }: Partial<PersonRelationship> & { id: string }) => {
     if (!person) return;
-    if (id === "NEW") return createRelationship();
+    if (id === "NEW")
+      return createRelationship({ relatedPerson, nameOfRelationship });
 
     const updRelation = (() => {
       const relationship = person.relationships.find((r) => r.id === id);

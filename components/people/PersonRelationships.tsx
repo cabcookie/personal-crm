@@ -8,6 +8,7 @@ import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem"
 import { Button } from "../ui/button";
 import RelationEdit from "./relations/relation-edit";
 import RelationText from "./relations/relation-text";
+import SubRelationships from "./relations/sub-relation-text";
 
 type PersonRelationshipHelperProps = {
   relationship: PersonRelationship;
@@ -40,6 +41,7 @@ const PersonRelationshipHelper: FC<PersonRelationshipHelperProps> = ({
 };
 
 type PersonRelationshipsProps = {
+  ownPersonId?: string;
   relationships?: PersonRelationship[];
   updateRelationship: (
     relationship: Partial<PersonRelationship> & { id: string }
@@ -48,11 +50,12 @@ type PersonRelationshipsProps = {
 };
 
 const PersonRelationships: FC<PersonRelationshipsProps> = ({
+  ownPersonId,
   relationships,
   updateRelationship,
   deleteRelationship,
 }) =>
-  !relationships ? (
+  !ownPersonId || !relationships ? (
     <LoadingAccordionItem
       value="loading-relations"
       sizeTitle="lg"
@@ -93,6 +96,12 @@ const PersonRelationships: FC<PersonRelationshipsProps> = ({
             deleteRelationship={deleteRelationship}
           />
         ))}
+
+        <SubRelationships
+          ownPersonId={ownPersonId}
+          relations={relationships}
+          updateRelationship={updateRelationship}
+        />
       </div>
     </DefaultAccordionItem>
   );

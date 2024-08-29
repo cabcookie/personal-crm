@@ -99,6 +99,7 @@ const PersonDetails: FC<PersonDetailsProps> = ({
         <PersonLearnings personId={person?.id} />
 
         <PersonRelationships
+          ownPersonId={person?.id}
           relationships={person?.relationships}
           updateRelationship={updateRelationship}
           deleteRelationship={deleteRelationship}
