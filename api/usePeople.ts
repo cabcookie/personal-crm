@@ -26,8 +26,6 @@ const selectionSet = [
   "id",
   "name",
   "howToSay",
-  // "birthday",
-  // "dateOfDeath",
   "updatedAt",
   "accounts.id",
   "accounts.startDate",
@@ -35,9 +33,6 @@ const selectionSet = [
   "accounts.position",
   "accounts.account.id",
   "accounts.account.name",
-  // "details.id",
-  // "details.label",
-  // "details.detail",
 ] as const;
 
 type PersonData = SelectionSet<Schema["Person"]["type"], typeof selectionSet>;
