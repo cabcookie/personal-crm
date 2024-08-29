@@ -218,9 +218,9 @@ const NavigationMenu = () => {
         <SearchableDataGroup
           heading="People"
           metaPressed={metaPressed}
-          items={people?.map(({ id, name }) => ({
+          items={people?.map(({ id, name, accountNames }) => ({
             id,
-            value: name,
+            value: `${name}${!accountNames ? "" : ` (${accountNames})`}`,
             link: `/people/${id}`,
           }))}
         />

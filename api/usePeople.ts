@@ -1,19 +1,69 @@
 import { type Schema } from "@/amplify/data/resource";
+import { getAccounts } from "@/helpers/person/accounts";
 import {
   filterPersonByQuery,
   limitItems,
   mapPersonToSuggestion,
   SuggestionItem,
 } from "@/helpers/ui-notes-writer/suggestions";
-import { generateClient } from "aws-amplify/data";
-import { filter, flow, join, map, sortBy } from "lodash/fp";
+import { generateClient, SelectionSet } from "aws-amplify/data";
+import { filter, flow, join, map, some, sortBy } from "lodash/fp";
 import useSWR from "swr";
-import { Account, fetchAccounts } from "./ContextAccounts";
 import { handleApiErrors } from "./globals";
-import { mapPerson, Person, selectionSet } from "./usePerson";
+import { fetchUser, User } from "./useUser";
 const client = generateClient<Schema>();
 
+export type LeanPerson = {
+  id: string;
+  name: string;
+  howToSay?: string;
+  accountNames?: string;
+  isPeerOfUser?: boolean;
+  updatedAt: Date;
+};
+
+const selectionSet = [
+  "id",
+  "name",
+  "howToSay",
+  "updatedAt",
+  "accounts.id",
+  "accounts.startDate",
+  "accounts.endDate",
+  "accounts.position",
+  "accounts.account.id",
+  "accounts.account.name",
+] as const;
+
+type PersonData = SelectionSet<Schema["Person"]["type"], typeof selectionSet>;
+
+const getCurrentAccounts = flow(
+  getAccounts,
+  filter((pa) => pa.isCurrent)
+);
+
+const mapPerson =
+  (user: User) =>
+  ({ id, name, updatedAt, howToSay, accounts }: PersonData): LeanPerson => ({
+    id,
+    name,
+    howToSay: howToSay ?? undefined,
+    updatedAt: new Date(updatedAt),
+    accountNames: flow(
+      getCurrentAccounts,
+      map((pa) => pa.accountName),
+      join(", ")
+    )(accounts),
+    isPeerOfUser: !user.currentAccountId
+      ? undefined
+      : flow(
+          getCurrentAccounts,
+          some((pa) => pa.accountId === user.currentAccountId)
+        )(accounts),
+  });
+
 const fetchPeople = async () => {
+  const user = await fetchUser();
   const { data, errors } = await client.models.Person.list({
     limit: 2000,
     selectionSet,
@@ -24,7 +74,7 @@ const fetchPeople = async () => {
   }
   try {
     return flow(
-      map(mapPerson),
+      map(mapPerson(user)),
       sortBy((p) => -p.updatedAt.getTime())
     )(data);
   } catch (error) {
@@ -33,35 +83,17 @@ const fetchPeople = async () => {
   }
 };
 
-type QueryPersonMemo = {
-  people: Person[] | undefined;
-  accounts: Account[] | undefined;
-};
-
-const queryPersonMemo: QueryPersonMemo = {
-  people: undefined,
-  accounts: undefined,
-};
+let queryPeopleMemo: LeanPerson[] | undefined;
 
 export const queryPerson = async (query: string): Promise<SuggestionItem[]> => {
-  if (!queryPersonMemo.people) {
-    queryPersonMemo.people = await fetchPeople();
+  if (!queryPeopleMemo) {
+    queryPeopleMemo = await fetchPeople();
   }
-  if (!queryPersonMemo.accounts) {
-    queryPersonMemo.accounts = await fetchAccounts();
-  }
-  const { people, accounts } = queryPersonMemo;
-  const getAccountNamesByIds = (ids: string[]) =>
-    flow(
-      filter((a: Account) => ids.includes(a.id)),
-      map((a) => a.name),
-      join(", ")
-    )(accounts);
   return flow(
     filter(filterPersonByQuery(query)),
-    map(mapPersonToSuggestion(getAccountNamesByIds)),
+    map(mapPersonToSuggestion),
     limitItems(7)
-  )(people);
+  )(queryPeopleMemo);
 };
 
 const usePeople = () => {
@@ -73,13 +105,10 @@ const usePeople = () => {
   } = useSWR("/api/people", fetchPeople);
 
   const createPerson = async (name: string) => {
-    const newPerson: Person = {
+    const newPerson: LeanPerson = {
       id: crypto.randomUUID(),
       name,
       updatedAt: new Date(),
-      details: [],
-      accounts: [],
-      relationships: [],
     };
     const updated = [...(people || []), newPerson];
     mutatePeople(updated, false);
@@ -90,20 +119,18 @@ const usePeople = () => {
     return data?.id;
   };
 
-  const personName = (person?: Person) =>
+  const personName = (person?: LeanPerson) =>
     !person
       ? ""
       : `${person.name}${!person.howToSay ? "" : ` (say: ${person.howToSay})`}${
-          person.accounts.length === 0
-            ? ""
-            : ` (${person.accounts.map((a) => a.accountName)})`
+          !person.accountNames ? "" : ` (${person.accountNames})`
         }`;
 
   const getNamesByIds = (personIds?: string[]) =>
     personIds &&
     people &&
     flow(
-      filter((p: Person) => personIds.includes(p.id)),
+      filter((p: LeanPerson) => personIds.includes(p.id)),
       map(personName),
       join(", ")
     )(people);

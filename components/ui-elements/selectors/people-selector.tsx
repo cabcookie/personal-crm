@@ -31,9 +31,9 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
       noSearchResultMsg="No person found."
       onChange={onChange}
       onCreate={allowNewPerson ? onCreate : undefined}
-      options={people?.map(({ id, name }) => ({
+      options={people?.map(({ id, name, accountNames }) => ({
         value: id,
-        label: name,
+        label: `${name}${!accountNames ? "" : ` (${accountNames})`}`,
       }))}
       disabled={disabled}
     />

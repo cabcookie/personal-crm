@@ -1,5 +1,8 @@
-import { RELATIONSHIP_TYPES, TRelationshipTypes } from "@/api/usePerson";
 import ComboBox from "@/components/combo-box/combo-box";
+import {
+  RELATIONSHIP_TYPES,
+  TRelationshipTypes,
+} from "@/helpers/person/relationships";
 import { capitalize } from "lodash";
 import { FC } from "react";
 

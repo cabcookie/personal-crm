@@ -59,7 +59,7 @@ const mapUser = (user: AuthUser, profileData: UserData | null): User => ({
   )(profileData),
 });
 
-const fetchUser = async () => {
+export const fetchUser = async () => {
   const user = await getCurrentUser();
   const { data, errors } = await client.models.User.get(
     {

@@ -1,19 +1,25 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { getDateOrUndefined, toISODateString } from "@/helpers/functional";
-import { SelectionSet, generateClient } from "aws-amplify/data";
-import { getDate, getMonth, getYear, isFuture } from "date-fns";
-import { get, indexOf } from "lodash";
-import { flow, map, replace, sortBy, union } from "lodash/fp";
 import {
-  AtSign,
-  Building,
-  ExternalLink,
-  Instagram,
-  Linkedin,
-  Mail,
-  Phone,
-} from "lucide-react";
+  getAccounts,
+  PersonAccount,
+  PersonAccountCreateProps,
+  PersonAccountUpdateProps,
+} from "@/helpers/person/accounts";
+import {
+  PersonContactDetailsCreateProps,
+  PersonContactDetailsUpdateProps,
+  PersonDetail,
+  personDetailsLabels,
+  TDetailLabel,
+} from "@/helpers/person/details";
+import {
+  getRelationships,
+  getRelationType,
+  PersonRelationship,
+} from "@/helpers/person/relationships";
+import { generateClient, SelectionSet } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -80,235 +86,10 @@ export const selectionSet = [
   "relationshipsTo.person.relationshipsTo.person.dateOfDeath",
 ] as const;
 
-export type TDetailLabel =
-  | "linkedIn"
-  | "phonePrivate"
-  | "phoneWork"
-  | "emailPrivate"
-  | "emailWork"
-  | "salesforce"
-  | "instagram"
-  | "amazonalias";
-
-export const RELATIONSHIP_TYPES = [
-  "spouse",
-  "fiance",
-  "partner",
-  "child",
-  "parent",
-  "smallgroup",
-  "friend",
-] as const;
-export type TRelationshipTypes = (typeof RELATIONSHIP_TYPES)[number];
-
-const orderRelationShip = (relationType: TRelationshipTypes) =>
-  indexOf(RELATIONSHIP_TYPES, relationType);
-
-type OtherInterestingRelation = {
-  relationName: TRelationshipTypes;
-  label?: string;
-  labelOfOtherDirection?: string;
-};
-
-type RelationshipType = {
-  name: TRelationshipTypes;
-  nameOfOtherDirection: TRelationshipTypes;
-  hasAnniversary: boolean;
-  nameOfAnniversary?: string;
-  hasEndDate: boolean;
-  otherInterestingRelation: OtherInterestingRelation[];
-};
-
-const makeOtherInterestingRelation = (
-  relationName: TRelationshipTypes,
-  label: string | undefined,
-  labelOfOtherDirection: string | undefined
-): OtherInterestingRelation => ({
-  relationName,
-  label,
-  labelOfOtherDirection,
-});
-
-export const RELATIONSHIPS: RelationshipType[] = [
-  {
-    name: "parent",
-    nameOfOtherDirection: "child",
-    hasAnniversary: false,
-    hasEndDate: false,
-    otherInterestingRelation: [
-      makeOtherInterestingRelation("parent", undefined, "Grand-parent"),
-      makeOtherInterestingRelation("child", "Grand-child", "Sibling"),
-    ],
-  },
-  {
-    name: "spouse",
-    nameOfOtherDirection: "spouse",
-    hasAnniversary: true,
-    nameOfAnniversary: "Wedding",
-    hasEndDate: true,
-    otherInterestingRelation: [],
-  },
-  {
-    name: "fiance",
-    nameOfOtherDirection: "fiance",
-    hasAnniversary: true,
-    nameOfAnniversary: "Engagement",
-    hasEndDate: true,
-    otherInterestingRelation: [],
-  },
-  {
-    name: "partner",
-    nameOfOtherDirection: "partner",
-    hasAnniversary: true,
-    nameOfAnniversary: "Anniversary",
-    hasEndDate: true,
-    otherInterestingRelation: [],
-  },
-  {
-    name: "friend",
-    nameOfOtherDirection: "friend",
-    hasAnniversary: true,
-    nameOfAnniversary: "Friendship",
-    hasEndDate: true,
-    otherInterestingRelation: [],
-  },
-  {
-    name: "smallgroup",
-    nameOfOtherDirection: "smallgroup",
-    hasAnniversary: true,
-    nameOfAnniversary: "Membership",
-    hasEndDate: true,
-    otherInterestingRelation: [],
-  },
-] as const;
-
-export type TPersonDetailTypes = {
-  fieldLabel: TDetailLabel;
-  formLabel: string;
-  type: "url" | "phone" | "email" | "string";
-  buildLabel?: (label: string) => string;
-  buildLink?: (label: string) => string;
-  Icon: typeof Phone;
-};
-
-export const personDetailsLabels: TPersonDetailTypes[] = [
-  {
-    fieldLabel: "linkedIn",
-    formLabel: "LinkedIn profile",
-    type: "url",
-    buildLabel: flow(
-      decodeURIComponent,
-      replace(
-        /^(https?:\/\/)?(www\.)?linkedin\.com\/(in\/[a-zA-Z0-9-öäüÖÄÜß]+)\/?$/,
-        "$3"
-      )
-    ),
-    buildLink: (label) => label,
-    Icon: Linkedin,
-  },
-  {
-    fieldLabel: "phonePrivate",
-    formLabel: "Phone (private)",
-    type: "phone",
-    buildLink: (label) => `tel:${label}`,
-    Icon: Phone,
-  },
-  {
-    fieldLabel: "phoneWork",
-    formLabel: "Phone (work)",
-    type: "phone",
-    buildLink: (label) => `tel:${label}`,
-    Icon: Building,
-  },
-  {
-    fieldLabel: "emailPrivate",
-    formLabel: "Email (private)",
-    type: "email",
-    buildLink: (label) => `mailto:${label}`,
-    Icon: Mail,
-  },
-  {
-    fieldLabel: "emailWork",
-    formLabel: "Email (Work)",
-    type: "email",
-    buildLink: (label) => `mailto:${label.toLowerCase()}`,
-    Icon: Building,
-  },
-  {
-    fieldLabel: "salesforce",
-    formLabel: "Salesforce link",
-    type: "url",
-    Icon: ExternalLink,
-  },
-  {
-    fieldLabel: "instagram",
-    formLabel: "Instagram profile",
-    type: "url",
-    Icon: Instagram,
-  },
-  {
-    fieldLabel: "amazonalias",
-    formLabel: "Amazon Alias",
-    type: "string",
-    buildLink: (label) => `https://phonetool.amazon.com/users/${label}`,
-    Icon: AtSign,
-  },
-] as const;
-
-type PersonData = SelectionSet<Schema["Person"]["type"], typeof selectionSet>;
-type AccountData = PersonData["accounts"][number];
-
-type PersonAccountChangeProps = {
-  startDate?: Date;
-  endDate?: Date;
-  position?: string;
-  accountId?: string;
-};
-
-export type PersonAccountCreateProps = {
-  accountId: string;
-} & PersonAccountChangeProps;
-
-export type PersonAccountUpdateProps = {
-  personAccountId: string;
-} & PersonAccountChangeProps;
-
-export type PersonContactDetailsUpdateProps =
-  PersonContactDetailsCreateProps & { id: string };
-
-export type PersonContactDetailsCreateProps = {
-  label: string;
-  detail: string;
-};
-
-export type PersonAccount = {
-  personAccountId: string;
-  accountId: string;
-  accountName: string;
-  startDate?: Date;
-  endDate?: Date;
-  position?: string;
-  isCurrent: boolean;
-};
-
-export type PersonDetail = {
-  id: string;
-  label: string;
-  detail: string;
-};
-
-export type PersonRelationship = {
-  id: string;
-  relatedPerson?: {
-    id: string;
-    name: string;
-  };
-  nameOfRelationship?: TRelationshipTypes;
-  nameOfAnniversary?: string;
-  anniversary?: Date;
-  endDate?: Date;
-  direction: "from" | "to";
-};
+export type PersonData = SelectionSet<
+  Schema["Person"]["type"],
+  typeof selectionSet
+>;
 
 export type Person = {
   id: string;
@@ -321,117 +102,6 @@ export type Person = {
   dateOfBirth?: Date;
   updatedAt: Date;
 };
-
-const getRelationTypeName = (
-  fromDirection: boolean,
-  name: TRelationshipTypes,
-  nameOfOtherDirection: TRelationshipTypes,
-  relationTypeName: TRelationshipTypes
-): TRelationshipTypes =>
-  (fromDirection && relationTypeName === name) ||
-  (!fromDirection && relationTypeName === nameOfOtherDirection)
-    ? name
-    : nameOfOtherDirection;
-
-const findRelationType = (name: TRelationshipTypes | undefined | null) =>
-  RELATIONSHIPS.find((r) => r.name === name || r.nameOfOtherDirection === name);
-
-const getRelationType = (
-  direction: "from" | "to",
-  name: TRelationshipTypes | undefined | null
-): RelationshipType | undefined => {
-  if (!name) return;
-  const relationType = findRelationType(name);
-  if (!relationType) return;
-  return {
-    name: getRelationTypeName(
-      direction === "from",
-      relationType.name,
-      relationType.nameOfOtherDirection,
-      name
-    ),
-    nameOfOtherDirection: getRelationTypeName(
-      direction === "from",
-      relationType.nameOfOtherDirection,
-      relationType.name,
-      name
-    ),
-    nameOfAnniversary: relationType.nameOfAnniversary,
-    hasAnniversary: relationType.hasAnniversary,
-    hasEndDate: relationType.hasEndDate,
-  } as RelationshipType;
-};
-
-type MinimalPersonData = {
-  id: string;
-  name: string;
-  birthday?: string | null;
-  dateOfDeath?: string | null;
-};
-
-type MinimalRelationData = {
-  id: string;
-  typeName?: TRelationshipTypes | null;
-  date?: string | null;
-  endDate?: string | null;
-};
-
-type MapRelationship =
-  | {
-      direction: "from";
-      relationship: MinimalRelationData & {
-        relatedPerson?: MinimalPersonData;
-        person?: never;
-      };
-    }
-  | {
-      direction: "to";
-      relationship: MinimalRelationData & {
-        person?: MinimalPersonData;
-        relatedPerson?: never;
-      };
-    };
-
-const getRelationDate = (
-  direction: "from" | "to",
-  dateName: "birthday" | "dateOfDeath",
-  typeName: TRelationshipTypes | undefined | null,
-  date: string | undefined | null,
-  person: MinimalPersonData | undefined,
-  relatedPerson: MinimalPersonData | undefined
-) =>
-  typeName === "child" || typeName === "parent"
-    ? direction === "from"
-      ? getDateOrUndefined(get(relatedPerson, dateName))
-      : getDateOrUndefined(get(person, dateName))
-    : getDateOrUndefined(date);
-
-const mapRelationship = ({
-  direction,
-  relationship: { id, typeName, date, endDate, person, relatedPerson },
-}: MapRelationship): PersonRelationship => ({
-  direction,
-  id,
-  anniversary: getRelationDate(
-    direction,
-    "birthday",
-    typeName,
-    date,
-    person,
-    relatedPerson
-  ),
-  endDate: getRelationDate(
-    direction,
-    "dateOfDeath",
-    typeName,
-    endDate,
-    person,
-    relatedPerson
-  ),
-  nameOfAnniversary: findRelationType(typeName)?.nameOfAnniversary,
-  nameOfRelationship: getRelationType(direction, typeName)?.name,
-  relatedPerson: person ?? relatedPerson,
-});
 
 export const mapPerson = ({
   id,
@@ -448,46 +118,12 @@ export const mapPerson = ({
   id,
   name,
   howToSay: howToSay || undefined,
-  relationships: flow(
-    union(
-      relationshipsFrom.map((relationship) =>
-        mapRelationship({ direction: "from", relationship })
-      )
-    ),
-    union(
-      relationshipsTo.map((relationship) =>
-        mapRelationship({ direction: "to", relationship })
-      )
-    ),
-    sortBy(({ nameOfRelationship, anniversary }) =>
-      !nameOfRelationship
-        ? 0
-        : [
-            [orderRelationShip(nameOfRelationship), 1],
-            [!anniversary ? 0 : getYear(anniversary), 10000],
-            [!anniversary ? 0 : getMonth(anniversary), 100],
-            [!anniversary ? 0 : getDate(anniversary), 100],
-          ].reduce((acc, cur) => acc * cur[1] + cur[0], 0)
-    )
-  )([]),
-  dateOfBirth: !birthday ? undefined : new Date(birthday),
-  dateOfDeath: !dateOfDeath ? undefined : new Date(dateOfDeath),
+  relationships: getRelationships(relationshipsFrom, relationshipsTo),
+  dateOfBirth: getDateOrUndefined(birthday),
+  dateOfDeath: getDateOrUndefined(dateOfDeath),
   details,
   updatedAt: new Date(updatedAt),
-  accounts: flow(
-    map(
-      (a: AccountData): PersonAccount => ({
-        personAccountId: a.id,
-        accountId: a.account.id,
-        accountName: a.account.name,
-        startDate: !a.startDate ? undefined : new Date(a.startDate),
-        endDate: !a.endDate ? undefined : new Date(a.endDate),
-        position: a.position || undefined,
-        isCurrent: !a.endDate || isFuture(new Date(a.endDate)),
-      })
-    ),
-    sortBy((a) => -(a.startDate?.getTime() || 0))
-  )(accounts),
+  accounts: getAccounts(accounts),
 });
 
 const fetchPerson = (personId?: string) => async () => {
@@ -560,18 +196,28 @@ const usePerson = (personId?: string) => {
     return data.id;
   };
 
-  const createRelationship = async () => {
+  const createRelationship = async ({
+    relatedPerson,
+    nameOfRelationship,
+  }: Partial<Omit<PersonRelationship, "id">>) => {
     if (!person) return;
     const updated: Person = {
       ...person,
       relationships: [
         ...person.relationships,
-        { id: crypto.randomUUID(), direction: "from" },
+        {
+          id: crypto.randomUUID(),
+          direction: "from",
+          relatedPerson,
+          nameOfRelationship,
+        },
       ],
     };
     mutate(updated, false);
     const { data, errors } = await client.models.PersonRelationship.create({
       personId: person.id,
+      relatedPersonId: relatedPerson?.id,
+      typeName: nameOfRelationship,
     });
     if (errors) handleApiErrors(errors, "Creating person relationship failed");
     mutate(updated);
@@ -587,7 +233,8 @@ const usePerson = (personId?: string) => {
     relatedPerson,
   }: Partial<PersonRelationship> & { id: string }) => {
     if (!person) return;
-    if (id === "NEW") return createRelationship();
+    if (id === "NEW")
+      return createRelationship({ relatedPerson, nameOfRelationship });
 
     const updRelation = (() => {
       const relationship = person.relationships.find((r) => r.id === id);

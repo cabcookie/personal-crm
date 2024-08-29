@@ -1,9 +1,9 @@
+import { Person } from "@/api/usePerson";
 import {
-  Person,
   PersonAccount,
   PersonAccountCreateProps,
   PersonAccountUpdateProps,
-} from "@/api/usePerson";
+} from "@/helpers/person/accounts";
 import { format } from "date-fns";
 import { filter, flatMap, flow } from "lodash/fp";
 import { Trash2 } from "lucide-react";

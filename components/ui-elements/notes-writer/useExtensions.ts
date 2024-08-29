@@ -1,4 +1,3 @@
-import { useAccountsContext } from "@/api/ContextAccounts";
 import usePeople from "@/api/usePeople";
 import {
   filterPersonByQuery,
@@ -29,7 +28,6 @@ const useExtensions = ({
   placeholder = "Start taking notes...",
 }: UseExtensionsProps): EditorOptions["extensions"] => {
   const { people } = usePeople();
-  const { getAccountNamesByIds } = useAccountsContext();
 
   const extensions = useMemo(() => {
     return [
@@ -68,8 +66,8 @@ const useExtensions = ({
           items: ({ query }) =>
             flow(
               filter(filterPersonByQuery(query)),
-              map(mapPersonToSuggestion(getAccountNamesByIds)),
-              limitItems(5)
+              map(mapPersonToSuggestion),
+              limitItems(7)
             )(people),
           render: renderer,
         },
@@ -84,7 +82,7 @@ const useExtensions = ({
       }),
       LinkBubbleMenuHandler,
     ];
-  }, [getAccountNamesByIds, people, placeholder]);
+  }, [people, placeholder]);
 
   return extensions;
 };

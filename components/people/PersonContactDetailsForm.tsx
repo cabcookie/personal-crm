@@ -4,7 +4,7 @@ import {
   PersonDetail,
   personDetailsLabels,
   TDetailLabel,
-} from "@/api/usePerson";
+} from "@/helpers/person/details";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit, PlusCircle } from "lucide-react";
 import { FC, useEffect, useState } from "react";

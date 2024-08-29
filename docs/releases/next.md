@@ -1,7 +1,6 @@
-# Beziehungen zwischen Personen darstellen (Version :VERSION)
+# Weitere Beziehungen werden angezeigt (Version :VERSION)
 
-- Beziehungen zwischen Menschen können abgebildet werden (Partner, Ehe etc.).
-- Beim Bearbeiten einer Person sind die Jahrestage jetzt nicht mehr mit im Popup, sondern ähnlich wie bei den Projektdaten in dem Accordion. Das ist übersichtlicher.
+- Beziehungen wie Großeltern, Enkel, Geschwister und Kinder des Partners werden angezeigt.
 
 ## In Arbeit
 
