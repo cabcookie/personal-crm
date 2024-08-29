@@ -79,6 +79,7 @@ const usePeople = () => {
       updatedAt: new Date(),
       details: [],
       accounts: [],
+      relationships: [],
     };
     const updated = [...(people || []), newPerson];
     mutatePeople(updated, false);
