@@ -20,8 +20,8 @@ if (backendType !== "sandbox") {
    * deletion protection and backup enabled. CloudFormation always runs into
    * issues when enabled right from the get-go and Amplify deployments fail.
    */
-  const { PersonRelationship: _pr, ...restTables } = amplifyDynamoDbTables;
-  Object.values(restTables).forEach((table) => {
+  // const { PersonRelationship: _pr, ...restTables } = amplifyDynamoDbTables;
+  Object.values(amplifyDynamoDbTables).forEach((table) => {
     table.pointInTimeRecoveryEnabled = true;
     table.deletionProtectionEnabled = true;
     table.applyRemovalPolicy(RemovalPolicy.RETAIN);
