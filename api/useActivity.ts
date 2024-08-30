@@ -34,6 +34,8 @@ export type Activity = {
   projectActivityIds: string[];
   noteBlockIds: (string | null)[] | null;
   oldFormatVersion: boolean;
+  hasOpenTodos: boolean;
+  hasClosedTodos: boolean;
 };
 
 const selectionSet = [
@@ -77,6 +79,8 @@ export const mapActivity = (a: ActivityData): Activity => ({
   projectIds: a.forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: a.forProjects.map(({ id }) => id),
   oldFormatVersion: !a.formatVersion || a.formatVersion < 3,
+  hasOpenTodos: a.noteBlocks.some((b) => b.todo?.status === "OPEN"),
+  hasClosedTodos: a.noteBlocks.some((b) => b.todo?.status === "DONE"),
 });
 
 const fetchActivity =
