@@ -1,9 +1,9 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { Activity } from "@/api/useActivity";
 import { Meeting } from "@/api/useMeetings";
-import useMeetingTodos from "@/api/useMeetingTodos";
 import usePeople from "@/api/usePeople";
 import { format } from "date-fns";
+import { some } from "lodash";
 import { flatMap, flow, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityFormatBadge from "../activities/activity-format-badge";
@@ -19,7 +19,6 @@ type MeetingAccordionItemProps = {
 const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
   const { getNamesByIds } = usePeople();
   const { getProjectNamesByIds } = useProjectsContext();
-  const { meetingTodos } = useMeetingTodos(meeting.id);
 
   return (
     <DefaultAccordionItem
@@ -30,8 +29,8 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
       badge={
         <>
           <TaskBadge
-            hasOpenTasks={meetingTodos?.some((t) => !t.done)}
-            hasClosedTasks={meetingTodos?.every((t) => t.done)}
+            hasOpenTasks={some(meeting.activities, "hasOpenTodos")}
+            hasClosedTasks={some(meeting.activities, "hasClosedTodos")}
           />
           {meeting.hasOldVersionFormattedActivities && <ActivityFormatBadge />}
         </>

@@ -1,6 +1,8 @@
-import { useProjectsContext } from "@/api/ContextProjects";
+import { useAccountsContext } from "@/api/ContextAccounts";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
+import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import ActivityFormatBadge from "../activities/activity-format-badge";
@@ -13,7 +15,8 @@ type MeetingActivityListProps = {
 };
 
 const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
-  const { getProjectNamesByIds } = useProjectsContext();
+  const { projects } = useProjectsContext();
+  const { getAccountNamesByIds } = useAccountsContext();
   const { meetingTodos } = useMeetingTodos(meeting.id);
 
   return meeting.activities.length === 0 ? (
@@ -21,25 +24,35 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
       Select a project to start taking notes!
     </div>
   ) : (
-    meeting.activities.map((a) => (
+    meeting.activities.map((a, idx) => (
       <DefaultAccordionItem
         value={a.id}
         key={a.id}
         badge={
           <>
             <TaskBadge
-              hasOpenTasks={meetingTodos?.some((t) => !t.done)}
-              hasClosedTasks={
-                meetingTodos &&
-                meetingTodos.length > 0 &&
-                meetingTodos.every((t) => t.done)
-              }
+              hasOpenTasks={a.hasOpenTodos}
+              hasClosedTasks={a.hasClosedTodos}
             />
             {a.oldFormatVersion && <ActivityFormatBadge />}
           </>
         }
-        triggerTitle={getProjectNamesByIds(a.projectIds)}
-        triggerSubTitle={`Next actions: ${getTodoText(meetingTodos)}`}
+        triggerTitle={`Topic ${idx + 1}`}
+        triggerSubTitle={[
+          ...flow(
+            (input: Project[] | undefined) => input,
+            filter((p) => a.projectIds.includes(p.id)),
+            map(
+              (p) =>
+                `${p.project}${
+                  !p.accountIds
+                    ? ""
+                    : ` (${getAccountNamesByIds(p.accountIds)})`
+                }`
+            )
+          )(projects),
+          `Next actions: ${getTodoText(meetingTodos)}`,
+        ]}
       >
         <ActivityComponent
           activityId={a.id}
