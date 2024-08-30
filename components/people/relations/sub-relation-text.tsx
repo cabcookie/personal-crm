@@ -1,18 +1,7 @@
-import {
-  MAX_ORDER_RELATIONSHIP_TYPE,
-  PersonRelationship,
-  PersonSubRelationship,
-  SUB_RELATIONSHIP_TYPES,
-  TSubRelationshipTypes,
-} from "@/helpers/person/relationships";
-import {
-  differenceInYears,
-  format,
-  getDate,
-  getMonth,
-  getYear,
-} from "date-fns";
-import { capitalize, indexOf } from "lodash";
+import { PersonRelationship } from "@/helpers/person/relationships";
+import { getRelationValue, notSelf } from "@/helpers/person/sub-relationships";
+import { differenceInYears, format } from "date-fns";
+import { capitalize } from "lodash";
 import {
   compact,
   filter,
@@ -33,24 +22,6 @@ type SubRelationshipsProps = {
     relationship: Partial<PersonRelationship> & { id: string }
   ) => Promise<string | undefined>;
 };
-
-const notSelf = (personId: string) => (relation: PersonSubRelationship) =>
-  relation.personId !== personId;
-
-const orderRelationShip = (relationType: TSubRelationshipTypes | undefined) =>
-  !relationType
-    ? MAX_ORDER_RELATIONSHIP_TYPE
-    : indexOf(SUB_RELATIONSHIP_TYPES, relationType);
-
-const getRelationValue = ({ label, birthday }: PersonSubRelationship) =>
-  !label
-    ? MAX_ORDER_RELATIONSHIP_TYPE
-    : [
-        [orderRelationShip(label), 1],
-        [!birthday ? 0 : getYear(birthday), 10000],
-        [!birthday ? 0 : getMonth(birthday), 100],
-        [!birthday ? 0 : getDate(birthday), 100],
-      ].reduce((acc, cur) => acc * cur[1] + cur[0], 0);
 
 const SubRelationships: FC<SubRelationshipsProps> = ({
   ownPersonId,
@@ -81,7 +52,7 @@ const SubRelationships: FC<SubRelationshipsProps> = ({
             </span>
           </>
         )}
-        {label === "child of spouse" && (
+        {label === "spouse's child" && (
           <span
             className="text-xs text-blue-400 hover:text-blue-600 hover:underline hover:underline-offset-2 hover:cursor-pointer"
             onClick={() =>
@@ -92,7 +63,21 @@ const SubRelationships: FC<SubRelationshipsProps> = ({
               })
             }
           >
-            make own
+            make own child
+          </span>
+        )}
+        {label === "parent's spouse" && (
+          <span
+            className="text-xs text-blue-400 hover:text-blue-600 hover:underline hover:underline-offset-2 hover:cursor-pointer"
+            onClick={() =>
+              updateRelationship({
+                id: "NEW",
+                relatedPerson: { id: personId, name: personName },
+                nameOfRelationship: "parent",
+              })
+            }
+          >
+            make own parent
           </span>
         )}
       </div>

@@ -1,6 +1,6 @@
 # Weitere Beziehungen werden angezeigt (Version :VERSION)
 
-- Beziehungen wie Großeltern, Enkel, Geschwister und Kinder des Partners werden angezeigt.
+- Beziehungen wie Ehepartner und Kinder von Freunden sowie Freunde des Ehepartners werden angezeigt.
 
 ## In Arbeit
 
