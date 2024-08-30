@@ -11,7 +11,7 @@ import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
-import { filter, flow, get, join, map, sortBy } from "lodash/fp";
+import { filter, flow, join, map, sortBy } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
@@ -506,7 +506,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       : flow(
           filter((p: Project) => projectIds.includes(p.id)),
           filter((p) => !p.done),
-          map(get("project")),
+          map("project"),
           join(", ")
         )(projects);
 

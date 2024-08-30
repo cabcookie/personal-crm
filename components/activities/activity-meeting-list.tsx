@@ -2,7 +2,7 @@ import { Meeting } from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { Person } from "@/api/usePerson";
 import { format } from "date-fns";
-import { filter, flow, get, map } from "lodash/fp";
+import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
 import MeetingAccordionItem from "../meetings/MeetingAccordionItem";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -31,7 +31,7 @@ const ActivityMeetingList: FC<ActivityMeetingListProps> = ({
             filter(
               (person: Person) => !!meeting?.participantIds.includes(person.id)
             ),
-            map(get("name"))
+            map("name")
           )(people),
         ]}
         className="tracking-tight"

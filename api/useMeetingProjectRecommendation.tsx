@@ -18,9 +18,9 @@ const fetchPerson = async (personId: string) => {
   }
   return flow(
     get("meetings"),
-    flatMap(get("meeting.activities")),
-    flatMap(get("forProjects")),
-    flatMap(get("projectsId"))
+    flatMap("meeting.activities"),
+    flatMap("forProjects"),
+    flatMap("projectsId")
   )(data);
 };
 

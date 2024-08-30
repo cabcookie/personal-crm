@@ -1,19 +1,25 @@
-import useMeetings from "@/api/useMeetings";
 import MainLayout from "@/components/layouts/MainLayout";
 import MeetingDateList from "@/components/meetings/meeting-date-list";
+import MeetingFilter from "@/components/meetings/meeting-filter";
 import MeetingPagination from "@/components/meetings/meeting-pagination";
-import useMeetingPagination from "@/components/meetings/useMeetingPagination";
+import {
+  useMeetingFilter,
+  withMeetingFilter,
+} from "@/components/meetings/useMeetingFilter";
 import { useContextContext } from "@/contexts/ContextContext";
 import { useRouter } from "next/router";
 
-export default function MeetingsPage() {
+const MeetingsPage = () => {
   const { context } = useContextContext();
-  const { fromDate, toDate, handleNextClick, handlePrevClick } =
-    useMeetingPagination();
-  const { meetings, meetingDates, createMeeting } = useMeetings({
-    context,
-    startDate: fromDate,
-  });
+  const {
+    createMeeting,
+    meetingDates,
+    meetings,
+    fromDate,
+    toDate,
+    handleNextClick,
+    handlePrevClick,
+  } = useMeetingFilter();
   const router = useRouter();
 
   const createAndOpenNewMeeting = async () => {
@@ -28,6 +34,8 @@ export default function MeetingsPage() {
       sectionName="Meetings"
       addButton={{ label: "New", onClick: createAndOpenNewMeeting }}
     >
+      <MeetingFilter />
+
       <MeetingPagination
         {...{ handleNextClick, handlePrevClick, fromDate, toDate }}
       />
@@ -36,4 +44,6 @@ export default function MeetingsPage() {
       ))}
     </MainLayout>
   );
-}
+};
+
+export default withMeetingFilter(MeetingsPage);

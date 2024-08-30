@@ -1,6 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
-import { filter, flatMap, flow, get, map, sortBy } from "lodash/fp";
+import { filter, flatMap, flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -50,7 +50,7 @@ const fetchAccountActivities = (accountId?: string) => async () => {
   try {
     return flow(
       flatMap((d: ActivityData) => d.projects.activities),
-      map(get("activity")),
+      map("activity"),
       filter((a) => !!a),
       map(mapActivity),
       sortBy((a: AccountActivity) => -a.finishedOn.getTime())

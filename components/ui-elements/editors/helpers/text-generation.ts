@@ -103,7 +103,7 @@ export const getTextFromJsonContent = (json?: JSONContent | string) =>
 
 export const getTodoText: (todos: Todo[] | undefined) => string = flow(
   filter((t) => !t.done),
-  map(get("todo")),
+  map("todo"),
   map(getTextFromJsonContent),
   map(trim),
   join(", ")

@@ -1,6 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useContextContext } from "@/contexts/ContextContext";
-import { flow, get, map } from "lodash/fp";
+import { flow, map } from "lodash/fp";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
@@ -60,10 +60,7 @@ const ProjectAccountDetails: FC<ProjectAccountDetailsProps> = ({
         isVisible={isVisible}
         value={title}
         triggerTitle={title}
-        triggerSubTitle={flow(
-          map(getAccountById),
-          map(get("name"))
-        )(accountIds)}
+        triggerSubTitle={flow(map(getAccountById), map("name"))(accountIds)}
       >
         {accountIds.map((id) => (
           <AccountName

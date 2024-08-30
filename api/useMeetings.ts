@@ -9,7 +9,7 @@ import {
 } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { flow } from "lodash";
-import { get, map, sortBy, uniq } from "lodash/fp";
+import { get, map, some, sortBy, uniq } from "lodash/fp";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -26,6 +26,7 @@ export type Meeting = {
   participantIds: string[];
   activities: Activity[];
   hasOldVersionFormattedActivities: boolean;
+  hasOpenTodos: boolean;
 };
 
 export const meetingSelectionSet = [
@@ -86,6 +87,13 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   hasOldVersionFormattedActivities: activities.some(
     (a) => !a.formatVersion || a.formatVersion < 3
   ),
+  hasOpenTodos: some(
+    flow(
+      get("noteBlocks"),
+      map("todo.status"),
+      some((b) => b === "OPEN")
+    )
+  )(activities),
 });
 
 const calculateToDate = (startDate: string) =>
@@ -209,6 +217,7 @@ const useMeetings = ({
       participantMeetingIds: [],
       activities: [],
       hasOldVersionFormattedActivities: false,
+      hasOpenTodos: false,
     };
     const updatedMeetings = [newMeeting, ...(meetings || [])];
     mutateMeetings(updatedMeetings, false);
@@ -223,7 +232,7 @@ const useMeetings = ({
   };
 
   useEffect(() => {
-    flow(map(get("meetingDayStr")), uniq, setMeetingDates)(meetings);
+    flow(map("meetingDayStr"), uniq, setMeetingDates)(meetings);
   }, [meetings]);
 
   return {
