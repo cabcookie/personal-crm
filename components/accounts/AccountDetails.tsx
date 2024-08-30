@@ -7,7 +7,7 @@ import {
   make2YearsRevenueText,
 } from "@/helpers/projects";
 import { Editor } from "@tiptap/core";
-import { filter, flow, get, map } from "lodash/fp";
+import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
 import CrmLink from "../crm/CrmLink";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -158,7 +158,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
               `Quota: ${formatRevenue(account.latestQuota)}`,
             ...flow(
               filter((t: Territory) => account.territoryIds.includes(t.id)),
-              map(get("name"))
+              map("name")
             )(territories),
           ]}
           isVisible={!!showTerritories && account.territoryIds.length > 0}

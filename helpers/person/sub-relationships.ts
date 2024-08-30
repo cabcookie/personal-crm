@@ -101,7 +101,7 @@ export const getGrandChilds = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand child"))
@@ -109,7 +109,7 @@ export const getGrandChilds = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand child"))
@@ -120,7 +120,7 @@ export const getGrandChilds = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand child"))
@@ -128,7 +128,7 @@ export const getGrandChilds = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand child"))
@@ -146,7 +146,7 @@ export const getFriendSpouse = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterSpouse),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's spouse"))
@@ -154,7 +154,7 @@ export const getFriendSpouse = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterSpouse),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's spouse"))
@@ -165,7 +165,7 @@ export const getFriendSpouse = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterSpouse),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's spouse"))
@@ -173,7 +173,7 @@ export const getFriendSpouse = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterSpouse),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's spouse"))
@@ -191,7 +191,7 @@ export const getSpousesFriends = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterFriend),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's friend"))
@@ -199,7 +199,7 @@ export const getSpousesFriends = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterFriend),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's friend"))
@@ -210,7 +210,7 @@ export const getSpousesFriends = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterFriend),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's friend"))
@@ -218,7 +218,7 @@ export const getSpousesFriends = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterFriend),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's friend"))
@@ -236,7 +236,7 @@ export const getFriendsChilds = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's child"))
@@ -244,7 +244,7 @@ export const getFriendsChilds = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's child"))
@@ -255,7 +255,7 @@ export const getFriendsChilds = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's child"))
@@ -263,7 +263,7 @@ export const getFriendsChilds = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("friend's child"))
@@ -281,7 +281,7 @@ export const getParentsSpouse = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterSpouse),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("parent's spouse"))
@@ -289,7 +289,7 @@ export const getParentsSpouse = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterSpouse),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("parent's spouse"))
@@ -300,7 +300,7 @@ export const getParentsSpouse = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterSpouse),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("parent's spouse"))
@@ -308,7 +308,7 @@ export const getParentsSpouse = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterSpouse),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("parent's spouse"))
@@ -326,7 +326,7 @@ export const getSpousesChilds = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's child"))
@@ -334,7 +334,7 @@ export const getSpousesChilds = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's child"))
@@ -345,7 +345,7 @@ export const getSpousesChilds = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's child"))
@@ -353,7 +353,7 @@ export const getSpousesChilds = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("spouse's child"))
@@ -371,7 +371,7 @@ export const getGrandParents = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterParent),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand parent"))
@@ -379,7 +379,7 @@ export const getGrandParents = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterChild),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand parent"))
@@ -390,7 +390,7 @@ export const getGrandParents = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterParent),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand parent"))
@@ -398,7 +398,7 @@ export const getGrandParents = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterChild),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("grand parent"))
@@ -416,7 +416,7 @@ export const getSiblings = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("sibling"))
@@ -424,7 +424,7 @@ export const getSiblings = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("sibling"))
@@ -435,7 +435,7 @@ export const getSiblings = (
         ...(flow(
           get("relationshipsFrom"),
           filter(filterChild),
-          map(get("relatedPerson")),
+          map("relatedPerson"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("sibling"))
@@ -443,7 +443,7 @@ export const getSiblings = (
         ...(flow(
           get("relationshipsTo"),
           filter(filterParent),
-          map(get("person")),
+          map("person"),
           compact,
           filter(filterAlivePerson),
           map(mapRelatedPersonData("sibling"))

@@ -9,7 +9,7 @@ import {
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { filter, flow, get, join, map, sortBy, sum } from "lodash/fp";
+import { filter, flow, join, map, sortBy, sum } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -436,7 +436,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
       ? 0
       : flow(
           filter((a: Account) => a.controller?.id === controllerId),
-          map(get("pipeline")),
+          map("pipeline"),
           sum
         )(accounts);
 

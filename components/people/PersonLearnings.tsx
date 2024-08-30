@@ -1,7 +1,7 @@
 import usePersonLearnings from "@/api/usePersonLearnings";
 import { Editor, JSONContent } from "@tiptap/core";
 import { debounce } from "lodash";
-import { flow, get, map } from "lodash/fp";
+import { flow, map } from "lodash/fp";
 import { PlusCircle } from "lucide-react";
 import { FC, useState } from "react";
 import LearningComponent from "../learnings/LearningComponent";
@@ -69,7 +69,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
         learnings &&
         flow(
           (l) => l.slice(0, 2),
-          map(get("learning")),
+          map("learning"),
           map(getTextFromJsonContent)
         )(learnings)
       }

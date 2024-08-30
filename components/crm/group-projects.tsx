@@ -87,7 +87,7 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
       </div>
 
       {flow(
-        map(get(propertyName)),
+        map(propertyName),
         uniq,
         compact,
         sortBy(flow(companyPipeline(crmProjects, propertyName), invertSign)),

@@ -91,7 +91,7 @@ export const getTodos = (content: JSONContent): JSONContent[] =>
   flow(
     get("content"),
     filter((c: JSONContent) => c.type === "taskList"),
-    flatMap(get("content"))
+    flatMap("content")
   )(content);
 
 export const getTodoCreationSet = (

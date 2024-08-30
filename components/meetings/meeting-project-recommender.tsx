@@ -50,7 +50,7 @@ const MeetingProjectRecommender: FC<MeetingProjectRecommenderProps> = ({
     flow(
       filter(
         filterOutProjectIds(
-          flow(get("activities"), flatMap(get("projectIds")))(meeting)
+          flow(get("activities"), flatMap("projectIds"))(meeting)
         )
       ),
       map(getProjectById),

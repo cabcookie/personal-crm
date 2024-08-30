@@ -2,7 +2,6 @@ import { type Schema } from "@/amplify/data/resource";
 import { Context } from "@/contexts/ContextContext";
 import {
   addDaysToDate,
-  logFp,
   makeDate,
   newDateString,
   newDateTimeString,
@@ -92,7 +91,6 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
     flow(
       get("noteBlocks"),
       map("todo.status"),
-      logFp("todo.statuses"),
       some((b) => b === "OPEN")
     )
   )(activities),
@@ -234,7 +232,7 @@ const useMeetings = ({
   };
 
   useEffect(() => {
-    flow(map(get("meetingDayStr")), uniq, setMeetingDates)(meetings);
+    flow(map("meetingDayStr"), uniq, setMeetingDates)(meetings);
   }, [meetings]);
 
   return {

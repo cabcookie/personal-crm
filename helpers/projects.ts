@@ -3,17 +3,7 @@ import { CrmDataProps, Project } from "@/api/ContextProjects";
 import { STAGES_PROBABILITY, TCrmStages } from "@/api/useCrmProject";
 import { ProjectFilters } from "@/components/accounts/ProjectList";
 import { differenceInCalendarMonths } from "date-fns";
-import {
-  filter,
-  flatMap,
-  flow,
-  get,
-  map,
-  max,
-  round,
-  sortBy,
-  sum,
-} from "lodash/fp";
+import { filter, flatMap, flow, map, max, round, sortBy, sum } from "lodash/fp";
 import { calcOrder } from "./accounts";
 import { formatRevenue } from "./functional";
 
@@ -83,9 +73,9 @@ export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
 
 export const calcPipeline = (projects: CalcPipelineProps[]): number =>
   flow(
-    map(get("projects")),
+    map("projects"),
     filter((p: ProjectProps) => !p?.done),
-    map(get("crmProjects")),
+    map("crmProjects"),
     flatMap(map(mapPipelineFields)),
     filter((d) => !!d),
     map(calcRevenueTwoYears),
@@ -100,7 +90,7 @@ export const updateProjectOrder =
     ...project,
     order: flow(
       filter((a: Account) => project.accountIds.includes(a.id)),
-      map(get("latestQuota")),
+      map("latestQuota"),
       max,
       calcProjectOrder(project.pipeline)
     )(accounts),

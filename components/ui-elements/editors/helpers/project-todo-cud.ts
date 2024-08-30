@@ -45,7 +45,7 @@ const mapTodo = (todo: JSONContent): TTodoData => ({
 });
 
 const getProjects = (content: JSONContent): undefined | string[] =>
-  flow(get("attrs.projects"), map(get("projectsId")))(content);
+  flow(get("attrs.projects"), map("projectsId"))(content);
 
 const mapProjectTodos = (
   content: JSONContent

@@ -4,7 +4,7 @@ import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
 import usePeople from "@/api/usePeople";
 import { format } from "date-fns";
-import { flatMap, flow, get, map } from "lodash/fp";
+import { flatMap, flow, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityFormatBadge from "../activities/activity-format-badge";
 import TaskBadge from "../task/TaskBadge";
@@ -46,7 +46,7 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
           )(meeting.activities)}`,
         meeting.activities.length > 0 &&
           `Notes: ${flow(
-            map(get("notes")),
+            map("notes"),
             map(getTextFromJsonContent)
           )(meeting.activities)}`,
       ]}
