@@ -1,4 +1,7 @@
-import { PersonRelationship } from "@/helpers/person/relationships";
+import {
+  PersonRelationship,
+  TRelationshipTypes,
+} from "@/helpers/person/relationships";
 import { differenceInYears, format } from "date-fns";
 import { capitalize } from "lodash";
 import { Edit, Trash2 } from "lucide-react";
@@ -28,18 +31,27 @@ const RelationText: FC<RelationTextProps> = ({
     </Link>
     {endDate ? (
       <span>
-        {(nameOfRelationship === "child" ||
-          nameOfRelationship === "parent") && (
-          <FaCross className="w-[0.7rem] h-[0.7rem] inline-block -translate-y-0.5" />
-        )}
+        {nameOfRelationship &&
+          (
+            ["child", "parent", "smallgroup", "friend"] as TRelationshipTypes[]
+          ).includes(nameOfRelationship) && (
+            <FaCross className="w-[0.7rem] h-[0.7rem] inline-block -translate-y-0.5" />
+          )}
         {format(endDate, "PP")}
       </span>
     ) : (
       anniversary && (
         <>
           <span>
-            {(nameOfRelationship === "child" ||
-              nameOfRelationship === "parent") &&
+            {nameOfRelationship &&
+              (
+                [
+                  "child",
+                  "parent",
+                  "smallgroup",
+                  "friend",
+                ] as TRelationshipTypes[]
+              ).includes(nameOfRelationship) &&
               "*"}
             {nameOfRelationship === "spouse" && (
               <LiaRingSolid className="w-3 h-3 inline-block -translate-y-0.5" />
