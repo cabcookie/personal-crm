@@ -1,6 +1,6 @@
-# Verbesserungen bei der Darstellung von Meetings (Version :VERSION)
+# Kleine Optimierungen in Visualisierung für Meetings und Kontakte (Version :VERSION)
 
-- Es war sehr irritierend, wenn man in einem Meeting eines der Projekte aufgeklappt hat und dann der Projektname ein weiteres Mal erschien. Nun zählen wir die Themen auf und im Untertitel werden dann die Projekte genannt. Wenn man das Topic dann aufklappt, werden die Projektnamen angezeigt und Akkordions, die die Ansicht weiterer Details ermöglichen.
+- Akkordion-Inhalte sahen immer etwas komisch aus, da sie weniger eingerückt waren, als der Kopf des Akkordions.
 
 ## In Arbeit
 
@@ -12,8 +12,10 @@
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.
 - Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.
+- Bei Next Actions in Meeting und Projekten Link anbieten, um schnell dorthin springen zu können und die gesamte Aktivität zu sehen.
 
 ## Fehler
 
 - Wenn eine Kontakt mehrere Einträge in seiner Arbeitshistorie bei der gleichen Firma hat, taucht er bei der Firma mehrmals als Kontakt auf.
 - Der Cost Explorer Link ist fehlerhaft.
+- Mir scheint, dass Links in Notizen nicht sauber gespeichert werden.
