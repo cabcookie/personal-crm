@@ -56,7 +56,7 @@ const PersonDates: FC<PersonDatesProps> = ({ person, updateDateFn }) =>
           `Date of death: ${format(person.dateOfDeath, "PPP")}`,
       ]}
     >
-      <div className="space-y-4 px-1 md:px-2">
+      <div className="space-y-4">
         <PersonDateHelper
           label="Date of Birth"
           value={person.dateOfBirth}

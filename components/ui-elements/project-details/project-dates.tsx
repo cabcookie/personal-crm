@@ -45,7 +45,7 @@ const ProjectDates: FC<ProjectDatesProps> = ({
       onHoldTill && `On hold till: ${format(onHoldTill, "PPP")}`,
     ]}
   >
-    <div className="space-y-4 px-1 md:px-2">
+    <div className="space-y-4">
       <ProjectDatesHelper
         title="Due on"
         date={dueOn}

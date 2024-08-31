@@ -49,6 +49,22 @@ type PersonRelationshipsProps = {
   deleteRelationship: (id: string) => Promise<string | undefined>;
 };
 
+const validRelations = ({
+  nameOfRelationship,
+  relatedPerson,
+  endDate,
+}: PersonRelationship) =>
+  !!nameOfRelationship && !!relatedPerson?.name && !endDate;
+
+const relationText = ({
+  nameOfRelationship,
+  relatedPerson,
+  anniversary,
+}: PersonRelationship) =>
+  `${capitalize(nameOfRelationship)}: ${relatedPerson?.name}${
+    !anniversary ? "" : ` (${differenceInYears(new Date(), anniversary)}y)`
+  }`;
+
 const PersonRelationships: FC<PersonRelationshipsProps> = ({
   ownPersonId,
   relationships,
@@ -65,20 +81,9 @@ const PersonRelationships: FC<PersonRelationshipsProps> = ({
     <DefaultAccordionItem
       value="relationships"
       triggerTitle="Relations"
-      triggerSubTitle={relationships
-        .filter(
-          (r) => !!r.nameOfRelationship && !!r.relatedPerson?.name && !r.endDate
-        )
-        .map(
-          (r) =>
-            `${capitalize(r.nameOfRelationship)}: ${r.relatedPerson?.name}${
-              !r.anniversary
-                ? ""
-                : ` (${differenceInYears(new Date(), r.anniversary)}y)`
-            }`
-        )}
+      triggerSubTitle={relationships.filter(validRelations).map(relationText)}
     >
-      <div className="space-y-4 px-1 md:px-2">
+      <div className="space-y-4">
         <Button
           size="sm"
           className="gap-1"
