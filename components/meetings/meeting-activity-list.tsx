@@ -2,7 +2,7 @@ import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
-import { filter, flow, map } from "lodash/fp";
+import { filter, flow, identity, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import ActivityFormatBadge from "../activities/activity-format-badge";
@@ -40,7 +40,7 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
         triggerTitle={`Topic ${idx + 1}`}
         triggerSubTitle={[
           ...flow(
-            (input: Project[] | undefined) => input,
+            identity<Project[] | undefined>,
             filter((p) => a.projectIds.includes(p.id)),
             map(
               (p) =>
