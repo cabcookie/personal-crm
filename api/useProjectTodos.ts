@@ -2,6 +2,8 @@ import { type Schema } from "@/amplify/data/resource";
 import { makeProjectIdTodoStatus } from "@/components/ui-elements/editors/helpers/project-todo-cud";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
+import { format } from "date-fns";
+import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -12,6 +14,7 @@ export type Todo = {
   doneOn: Date | null;
   activityId: string;
   blockId?: string;
+  updatedAt: Date;
 };
 
 export type ProjectTodo = Todo & {
@@ -25,6 +28,7 @@ const selectionSet = [
   "todo.status",
   "todo.doneOn",
   "todo.activity.activityId",
+  "updatedAt",
 ] as const;
 
 type ProjectTodoData = SelectionSet<
@@ -41,6 +45,7 @@ const mapProjectTodo = ({
     status,
     todo,
   },
+  updatedAt,
 }: ProjectTodoData): ProjectTodo => ({
   projectTodoId,
   todoId,
@@ -48,7 +53,25 @@ const mapProjectTodo = ({
   done: status === "DONE",
   doneOn: !doneOn ? null : new Date(doneOn),
   activityId,
+  updatedAt: new Date(updatedAt),
 });
+
+const makeDateNumber = (date: Date) => parseInt(format(date, "yyyyMMdd"));
+
+interface GetTodoOrder {
+  done: boolean;
+  doneOn: Date | null;
+  updatedAt: Date;
+}
+export const getTodoOrder = <T extends GetTodoOrder>({
+  done,
+  doneOn,
+  updatedAt,
+}: T) =>
+  [
+    [done ? 0 : 1, 1],
+    [makeDateNumber(doneOn ?? updatedAt), 100000000],
+  ].reduce((acc, curr) => acc * curr[1] - curr[0], 0);
 
 const fetchProjectTodos = (projectId: string | undefined) => async () => {
   if (!projectId) return;
@@ -64,7 +87,7 @@ const fetchProjectTodos = (projectId: string | undefined) => async () => {
   if (errors) throw errors;
   if (!data) throw new Error("fetchProjectTodos didn't retrieve data");
   try {
-    return data.map(mapProjectTodo);
+    return flow(map(mapProjectTodo), sortBy(getTodoOrder<ProjectTodo>))(data);
   } catch (error) {
     console.error("fetchProjectTodos", { error });
     throw error;

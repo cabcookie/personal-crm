@@ -4,13 +4,37 @@ import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
 import useExtensions from "./useExtensions";
 
+const getParagraphWithLinkToActivity = (activityId: string): JSONContent => ({
+  type: "paragraph",
+  content: [
+    {
+      type: "text",
+      marks: [
+        { type: "italic" },
+        {
+          type: "link",
+          attrs: {
+            rel: "noopener noreferrer nofollow",
+            href: `/activities/${activityId}`,
+          },
+        },
+      ],
+      text: "Details",
+    },
+  ],
+});
+
 const getTodoEditorContent = (todos: Todo[]): JSONContent => ({
   type: "doc",
   content: [
     {
       type: "taskList",
-      content: todos.map(({ todo, todoId, blockId }) => ({
+      content: todos.map(({ todo, todoId, blockId, activityId }) => ({
         ...todo,
+        content: [
+          ...(todo.content ?? []),
+          getParagraphWithLinkToActivity(activityId),
+        ],
         attrs: {
           ...todo.attrs,
           blockId,
