@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { Activity } from "@/api/useActivity";
+import { Activity, ProjectLinkData } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/api";
@@ -9,75 +9,109 @@ import {
   flatMap,
   flow,
   get,
-  isEqual,
+  identity,
+  includes,
   map,
-  some,
+  replace,
 } from "lodash/fp";
 import { getTodos } from "./todos-cud";
 import TransactionError from "./transaction-error";
 const client = generateClient<Schema>();
 
-type TProjectData = {
-  projectId: string;
-};
-
 type TTodoData = {
+  projects: ProjectLinkData[] | undefined;
   todoId: string;
   done: boolean;
 };
 
-type TProjectTodoData = TProjectData & TTodoData;
+type TProjectTodoData = {
+  todoId: string;
+  projectTodoId?: string;
+  projectId: string;
+  done: boolean;
+};
 
-const mapProjectTodoData =
-  (projects: string[] | undefined) =>
-  ({ done, todoId }: TTodoData): TProjectTodoData[] | undefined =>
-    projects?.map(
-      (projectId): TProjectTodoData => ({
-        todoId,
-        done,
-        projectId,
-      })
-    );
+const existingProjects =
+  (projects: ProjectLinkData[]) => (project: ProjectLinkData) =>
+    flow(map("projectsId"), includes(get("projectsId")(project)))(projects);
 
-const mapTodo = (todo: JSONContent): TTodoData => ({
-  todoId: todo.attrs?.todoId,
-  done: todo.attrs?.checked,
-});
+const notExistingProjects =
+  (projects: ProjectLinkData[]) => (project: ProjectLinkData) =>
+    flow(
+      identity<ProjectLinkData[]>,
+      map("projectsId"),
+      includes(project.projectsId),
+      not
+    )(projects);
 
-const getProjects = (content: JSONContent): undefined | string[] =>
-  flow(get("attrs.projects"), map("projectsId"))(content);
+const omitId = ({ projectsId }: ProjectLinkData) => ({ projectsId });
 
-const mapProjectTodos = (
-  content: JSONContent
-): ((todo: TTodoData) => TProjectTodoData[] | undefined) =>
-  flow(getProjects, mapProjectTodoData)(content);
+const mapCreateTodo =
+  (projects: ProjectLinkData[]) =>
+  (todo: JSONContent): TTodoData => ({
+    todoId: todo.attrs?.todoId,
+    projects: [
+      ...flow(get("projects"), filter(existingProjects(projects)))(todo.attrs),
+      ...flow(
+        filter(notExistingProjects(get("projects")(todo.attrs))),
+        map(omitId)
+      )(projects),
+    ],
+    done: todo.attrs?.checked,
+  });
 
-const getProjectTodos = (content: JSONContent) =>
+const mapDeleteTodo =
+  (projects: ProjectLinkData[]) =>
+  (todo: JSONContent): TTodoData => ({
+    todoId: todo.attrs?.todoId,
+    projects: flow(
+      get("projects"),
+      filter(notExistingProjects(projects))
+    )(todo.attrs),
+    done: todo.attrs?.checked,
+  });
+
+const mapProjectTodos = (todo: TTodoData): TProjectTodoData[] | undefined =>
   flow(
-    getTodos,
-    map(mapTodo),
-    flatMap(mapProjectTodos(content)),
-    compact
-  )(content);
+    identity<TTodoData>,
+    get("projects"),
+    map(
+      ({ id, projectsId }): TProjectTodoData => ({
+        projectTodoId: id,
+        todoId: todo.todoId,
+        projectId: projectsId,
+        done: todo.done,
+      })
+    )
+  )(todo);
 
-const existingRecords =
-  (filteredByRecords: TProjectTodoData[]) =>
-  (referenceRecord: TProjectTodoData) =>
-    some(isEqual(referenceRecord))(filteredByRecords);
+const existingProjectTodo = (projectTodo: TProjectTodoData) =>
+  !projectTodo.projectTodoId;
 
-const filterExisting = flow(getProjectTodos, existingRecords);
-
-const filterMissingRecords = (filteredByRecords: JSONContent) =>
-  filter(flow(filterExisting(filteredByRecords), not));
-
-const getChangeSet = (
-  referenceRecords: JSONContent,
-  filteredByRecords: JSONContent
+const getCreateSet = (
+  content: JSONContent,
+  projects: ProjectLinkData[]
 ): TProjectTodoData[] =>
   flow(
-    getProjectTodos,
-    filterMissingRecords(filteredByRecords)
-  )(referenceRecords);
+    identity<JSONContent>,
+    getTodos,
+    map(mapCreateTodo(projects)),
+    flatMap(mapProjectTodos),
+    compact,
+    filter(existingProjectTodo)
+  )(content);
+
+const getDeleteSet = (
+  content: JSONContent,
+  projects: ProjectLinkData[]
+): TProjectTodoData[] =>
+  flow(
+    identity<JSONContent>,
+    getTodos,
+    map(mapDeleteTodo(projects)),
+    flatMap(mapProjectTodos),
+    compact
+  )(content);
 
 const createProjectTodo = async ({
   todoId,
@@ -102,28 +136,19 @@ const createProjectTodo = async ({
     );
 };
 
+export const replaceProjectIdTodoStatus = flow(
+  identity<string>,
+  replace("-DONE", ""),
+  replace("-OPEN", "")
+);
+
 export const makeProjectIdTodoStatus = ({
   projectId,
   done,
-}: Omit<TProjectTodoData, "todoId">) =>
+}: Pick<TProjectTodoData, "done" | "projectId">) =>
   `${projectId}-${done ? "DONE" : "OPEN"}`;
 
-const getProjectTodoId = async ({ todoId, projectId }: TProjectTodoData) => {
-  if (!todoId || !projectId) return;
-  const { data, errors } =
-    await client.models.ProjectTodo.listProjectTodoByTodoId({ todoId });
-  if (errors)
-    throw new TransactionError(
-      "Getting todos from todoId failed",
-      null,
-      "getProjectTodo",
-      errors
-    );
-  return data.find((d) => d.projectIdTodoStatus.includes(projectId))?.id;
-};
-
-const deleteProjectTodo = async (projectTodoData: TProjectTodoData) => {
-  const projectTodoId = await getProjectTodoId(projectTodoData);
+const deleteProjectTodo = async ({ projectTodoId }: TProjectTodoData) => {
   if (!projectTodoId) return;
   const { data, errors } = await client.models.ProjectTodo.delete({
     id: projectTodoId,
@@ -148,9 +173,15 @@ export const createAndDeleteProjectTodos = async (
   activity: Activity
 ) => {
   await Promise.all(
-    flow(getChangeSet, map(createProjectTodo))(editor.getJSON(), activity.notes)
+    flow(getCreateSet, map(createProjectTodo))(
+      editor.getJSON(),
+      activity.projects
+    )
   );
   await Promise.all(
-    flow(getChangeSet, map(deleteProjectTodo))(activity.notes, editor.getJSON())
+    flow(getDeleteSet, map(deleteProjectTodo))(
+      editor.getJSON(),
+      activity.projects
+    )
   );
 };

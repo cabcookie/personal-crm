@@ -24,6 +24,11 @@ export type TempIdMapping = {
   id: string;
 };
 
+export type ProjectLinkData = {
+  id: string;
+  projectsId: string;
+};
+
 export type Activity = {
   id: string;
   notes: JSONContent;
@@ -32,6 +37,7 @@ export type Activity = {
   updatedAt: Date;
   projectIds: string[];
   projectActivityIds: string[];
+  projects: ProjectLinkData[];
   noteBlockIds: (string | null)[] | null;
   oldFormatVersion: boolean;
   hasOpenTodos: boolean;
@@ -57,6 +63,8 @@ const selectionSet = [
   "noteBlocks.todo.todo",
   "noteBlocks.todo.status",
   "noteBlocks.todo.doneOn",
+  "noteBlocks.todo.projects.id",
+  "noteBlocks.todo.projects.projectIdTodoStatus",
   "noteBlocks.people.id",
   "noteBlocks.people.personId",
 ] as const;
@@ -78,6 +86,7 @@ export const mapActivity = (a: ActivityData): Activity => ({
   updatedAt: new Date(a.updatedAt),
   projectIds: a.forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: a.forProjects.map(({ id }) => id),
+  projects: a.forProjects,
   oldFormatVersion: !a.formatVersion || a.formatVersion < 3,
   hasOpenTodos: a.noteBlocks.some((b) => b.todo?.status === "OPEN"),
   hasClosedTodos: a.noteBlocks.some((b) => b.todo?.status === "DONE"),
@@ -195,6 +204,7 @@ const useActivity = (activityId?: string) => {
       await createAndDeleteProjectTodos(editor, activity);
 
       const content = editor.getJSON();
+
       mutateActivity(
         {
           ...activity,

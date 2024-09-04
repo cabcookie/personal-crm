@@ -55,6 +55,8 @@ export const meetingSelectionSet = [
   "activities.noteBlocks.todo.todo",
   "activities.noteBlocks.todo.status",
   "activities.noteBlocks.todo.doneOn",
+  "activities.noteBlocks.todo.projects.id",
+  "activities.noteBlocks.todo.projects.projectIdTodoStatus",
   "activities.noteBlocks.people.id",
   "activities.noteBlocks.people.personId",
 ] as const;
@@ -82,7 +84,7 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   participantIds: participants.map(({ personId }) => personId),
   activities: flow(
     map(mapActivity),
-    sortBy((a) => -a.finishedOn.getTime())
+    sortBy((a) => a.finishedOn.getTime())
   )(activities),
   hasOldVersionFormattedActivities: activities.some(
     (a) => !a.formatVersion || a.formatVersion < 3

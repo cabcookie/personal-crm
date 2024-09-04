@@ -70,7 +70,6 @@ export const TaskItem = Node.create<TaskItemOptions>({
         keepOnSplit: false,
         parseHTML: (element) => {
           const dataChecked = element.getAttribute("data-checked");
-
           return dataChecked == null || dataChecked === "true";
         },
         renderHTML: (attributes) => ({
@@ -91,6 +90,9 @@ export const TaskItem = Node.create<TaskItemOptions>({
           "data-todo-id": attrs.todoId ?? null,
         }),
       },
+      projects: {
+        default: [],
+      },
     };
   },
 
@@ -108,6 +110,8 @@ export const TaskItem = Node.create<TaskItemOptions>({
       "li",
       mergeAttributes(this.options.HTMLAttributes, HTMLAttributes, {
         "data-type": this.name,
+        "data-block-id": node.attrs.blockId,
+        "data-todo-id": node.attrs.todoId,
       }),
       [
         "label",

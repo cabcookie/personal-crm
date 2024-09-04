@@ -2,10 +2,9 @@
 
 - Akkordion-Inhalte sahen immer etwas komisch aus, da sie weniger eingerückt waren, als der Kopf des Akkordions.
 - Bei Next Actions in Meeting und Projekten Link zur Aktivität anbieten, um schnell dorthin springen zu können und mehr Kontext zu erhalten.
+- Todos tauchten manchmal in der Tagesplanung nicht auf. Das lag daran, dass Projekte nicht korrekt verlinkt worden sind.
 
 ## In Arbeit
-
-- Todos tauchen manchmal in der Tagesplanung nicht auf.
 
 ## Geplant
 

@@ -151,7 +151,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
   ) => {
     const noteBlockIds = compact(blockIds);
     if (noteBlockIds.length === 0) return;
-    const { data, errors } = await client.models.Activity.update({
+    const { errors } = await client.models.Activity.update({
       id: activityId,
       noteBlockIds,
     });
@@ -162,7 +162,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
     activityId: string,
     projectId: string
   ) => {
-    const { data, errors } = await client.models.ProjectActivity.create({
+    const { errors } = await client.models.ProjectActivity.create({
       activityId,
       projectsId: projectId,
     });
@@ -183,7 +183,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
   };
 
   const createNoteBlockPerson = async (blockId: string, personId: string) => {
-    const { data, errors } = await client.models.NoteBlockPerson.create({
+    const { errors } = await client.models.NoteBlockPerson.create({
       noteBlockId: blockId,
       personId,
     });
