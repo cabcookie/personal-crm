@@ -2,7 +2,16 @@ import { PersonRelationship } from "@/helpers/person/relationships";
 import { getRelationValue, notSelf } from "@/helpers/person/sub-relationships";
 import { differenceInYears, format } from "date-fns";
 import { capitalize } from "lodash";
-import { compact, filter, flatMap, flow, map, sortBy, uniqBy } from "lodash/fp";
+import {
+  compact,
+  filter,
+  flatMap,
+  flow,
+  identity,
+  map,
+  sortBy,
+  uniqBy,
+} from "lodash/fp";
 import Link from "next/link";
 import { FC } from "react";
 
@@ -20,7 +29,7 @@ const SubRelationships: FC<SubRelationshipsProps> = ({
   updateRelationship,
 }) => {
   return flow(
-    (input: PersonRelationship[]) => input,
+    identity<PersonRelationship[]>,
     flatMap("subRelations"),
     compact,
     uniqBy("personId"),

@@ -74,7 +74,7 @@ const PersonLearnings: FC<PersonLearningsProps> = ({ personId }) => {
         )(learnings)
       }
     >
-      <div className="space-y-4 px-1 md:px-2">
+      <div className="space-y-4">
         <Button size="sm" className="gap-1" onClick={handleCreate}>
           <PlusCircle className="w-4 h-4" />
           Learning

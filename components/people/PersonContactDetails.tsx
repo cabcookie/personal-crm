@@ -46,7 +46,7 @@ const PersonContactDetails: FC<PersonContactDetailsProps> = ({
       triggerTitle="Contact details"
       triggerSubTitle={person.details.map(buildLabel)}
     >
-      <div className="space-y-4 px-1 md:px-2">
+      <div className="space-y-4">
         <PersonContactDetailsForm
           personName={person.name}
           onCreate={onCreate}

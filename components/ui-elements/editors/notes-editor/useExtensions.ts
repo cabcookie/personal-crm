@@ -52,14 +52,6 @@ const useExtensions = (): EditorOptions["extensions"] => {
           return {
             projects: {
               default: [],
-              parseHTML: (element) => {
-                const projects = element.getAttribute("data-projects");
-                if (projects === null) return null;
-                return JSON.parse(projects);
-              },
-              renderHTML: (attrs) => ({
-                "data-projects": JSON.stringify(attrs.projects),
-              }),
             },
           };
         },

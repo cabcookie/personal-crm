@@ -1,7 +1,8 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
+import { flow, sortBy } from "lodash/fp";
 import useSWR from "swr";
-import { Todo } from "./useProjectTodos";
+import { getTodoOrder, Todo } from "./useProjectTodos";
 const client = generateClient<Schema>();
 
 type MeetingTodo = Todo & {
@@ -17,6 +18,7 @@ const selectionSet = [
   "activities.noteBlocks.todo.todo",
   "activities.noteBlocks.todo.status",
   "activities.noteBlocks.todo.doneOn",
+  "activities.noteBlocks.updatedAt",
 ] as const;
 
 type MeetingTodoData = SelectionSet<
@@ -35,6 +37,7 @@ const mapMeetingTodo = ({
         ({
           id: blockId,
           todo: { id: todoId, doneOn, status, todo },
+          updatedAt,
         }): MeetingTodo => ({
           meetingId,
           todoId,
@@ -43,6 +46,7 @@ const mapMeetingTodo = ({
           doneOn: !doneOn ? null : new Date(doneOn),
           activityId,
           blockId,
+          updatedAt: new Date(updatedAt),
         })
       )
   );
@@ -59,8 +63,7 @@ const fetchMeetingTodos = (meetingId: string | undefined) => async () => {
   if (!data) throw new Error("fetchMeetingTodos didn't retrieve data");
 
   try {
-    const result = mapMeetingTodo(data);
-    return result;
+    return flow(mapMeetingTodo, sortBy(getTodoOrder<MeetingTodo>))(data);
   } catch (error) {
     console.error("fetchMeetingTodos", { error });
     throw error;

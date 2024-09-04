@@ -45,7 +45,7 @@ const PersonAccounts: FC<PersonAccountsProps> = ({
         ])
       )(person.accounts)}
     >
-      <div className="space-y-4 px-1 md:px-2">
+      <div className="space-y-4">
         <PersonAccountForm personName={person.name} onCreate={onCreate} />
 
         {person.accounts.map((pa) => (
