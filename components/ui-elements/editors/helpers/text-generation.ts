@@ -1,3 +1,5 @@
+import { Project } from "@/api/ContextProjects";
+import { MeetingTodo } from "@/api/useMeetingTodos";
 import { Todo } from "@/api/useProjectTodos";
 import { generateText, JSONContent } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
@@ -6,7 +8,7 @@ import Mention from "@tiptap/extension-mention";
 import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
-import { filter, flow, get, join, map, trim } from "lodash/fp";
+import { filter, flow, get, identity, join, map, trim } from "lodash/fp";
 import { TaskItem } from "../extensions/tasks/task-item";
 
 const filterS3ImageNodes = (nodes: JSONContent[]): JSONContent[] =>
@@ -100,6 +102,34 @@ export const getTextFromJsonContent = (json?: JSONContent | string) =>
         },
         MyExtensions
       );
+
+export const getTopicTodos = (
+  topicProjectIds: string[],
+  meetingTodos: MeetingTodo[] | undefined
+) =>
+  flow(
+    identity<MeetingTodo[] | undefined>,
+    filter((t) => t.projectIds.some((id) => topicProjectIds.includes(id))),
+    getTodoText
+  )(meetingTodos);
+
+export const getTopicProjects = (
+  topicProjectIds: string[],
+  projects: Project[] | undefined,
+  getAccountNamesByIds: (accountIds: string[]) => string
+) =>
+  flow(
+    identity<Project[] | undefined>,
+    filter((p) => topicProjectIds.includes(p.id)),
+    map(
+      (p) =>
+        `${p.project}${
+          !p.accountIds || p.accountIds.length === 0
+            ? ""
+            : ` (${getAccountNamesByIds(p.accountIds)})`
+        }`
+    )
+  )(projects);
 
 export const getTodoText: (todos: Todo[] | undefined) => string = flow(
   filter((t) => !t.done),
