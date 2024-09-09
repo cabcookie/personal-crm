@@ -55,7 +55,7 @@ type AccountPerson = {
   name: string;
 };
 
-const mapPersonId = ({
+const personName = ({
   person: { id, name },
   position,
 }: PersonAccountData): AccountPerson => ({
@@ -82,7 +82,7 @@ const fetchPeople = (accountId?: string) => async () => {
       identity<PersonAccountData[] | undefined>,
       filter((pa) => !pa.endDate || isFuture(new Date(pa.endDate))),
       sortBy(getLatestUpdate),
-      map(mapPersonId),
+      map(personName),
       uniq
     )(data);
   } catch (error) {
