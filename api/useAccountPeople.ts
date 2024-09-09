@@ -1,11 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
-import { flow, get, map, max, sortBy, uniq } from "lodash/fp";
+import { isFuture } from "date-fns";
+import { filter, flow, get, identity, map, max, sortBy, uniq } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 const selectionSet = [
+  "startDate",
+  "endDate",
+  "position",
   "person.id",
   "person.name",
   "person.updatedAt",
@@ -51,9 +55,12 @@ type AccountPerson = {
   name: string;
 };
 
-const mapPersonId = ({ person }: PersonAccountData): AccountPerson => ({
-  id: person.id,
-  name: person.name,
+const mapPersonId = ({
+  person: { id, name },
+  position,
+}: PersonAccountData): AccountPerson => ({
+  id,
+  name: `${name}${!position ? "" : ` (${position})`}`,
 });
 
 const fetchPeople = (accountId?: string) => async () => {
@@ -71,7 +78,13 @@ const fetchPeople = (accountId?: string) => async () => {
     throw errors;
   }
   try {
-    return flow(sortBy(getLatestUpdate), map(mapPersonId), uniq)(data);
+    return flow(
+      identity<PersonAccountData[] | undefined>,
+      filter((pa) => !pa.endDate || isFuture(new Date(pa.endDate))),
+      sortBy(getLatestUpdate),
+      map(mapPersonId),
+      uniq
+    )(data);
   } catch (error) {
     console.error("fetchPeople", { error });
     throw error;

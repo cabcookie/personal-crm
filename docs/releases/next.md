@@ -3,10 +3,10 @@
 - Die Zuordnung von Aufgaben zu Projekten ist nun stabiler.
 - Aufgaben zu Projekten ("Next Actions") werden nun stabiler angezeigt.
 - In Meetings werden im Untertitel für Projekte ohne Zuordnung von Kunden keine leeren Klammern mehr gezeigt.
+- Kontakte tauchen in der Account-Ansicht nur noch auf, wenn sie aktuell dort arbeiten.
+- Position eines Kontakts taucht wieder in Teilnehmerliste von Meetings auf und an anderen Stellen, an denen der Kontakt erwähnt wird.
 
 ## In Arbeit
-
-- Wenn eine Kontakt mehrere Einträge in seiner Arbeitshistorie bei der gleichen Firma hat, taucht er bei der Firma mehrmals als Kontakt auf.
 
 ## Geplant
 

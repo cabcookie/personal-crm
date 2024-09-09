@@ -1,4 +1,5 @@
 import useAccountPeople from "@/api/useAccountPeople";
+import { map } from "lodash";
 import { FC } from "react";
 import PeopleList from "../people/PeopleList";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -18,7 +19,7 @@ const AccountPeople: FC<AccountPeopleProps> = ({
     <DefaultAccordionItem
       value="Contacts"
       triggerTitle="Contacts"
-      triggerSubTitle={people?.map((p) => p.name)}
+      triggerSubTitle={map(people, "name")}
       isVisible={isVisible}
     >
       <PeopleList personIds={people?.map((p) => p.id)} />
