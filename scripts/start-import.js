@@ -2,7 +2,6 @@ const {
   ScanCommand,
   UpdateItemCommand,
   DynamoDBClient,
-  QueryCommand,
 } = require("@aws-sdk/client-dynamodb");
 const {
   mapMeetingIdForActivity,
@@ -18,8 +17,6 @@ const {
 const { getTable, getEnvironment } = require("./import-data/environments");
 const { getAwsProfile } = require("./helpers/get-aws-profile");
 const { fromIni } = require("@aws-sdk/credential-providers");
-const { flow, map, uniq } = require("lodash/fp");
-const { getProjectIds, mapProjectTodo } = require("./helpers/add-project-todo");
 
 const importData = async () => {
   // Account
@@ -240,45 +237,6 @@ const fillFinishedOn = async () => {
   );
 };
 
-const addProjectsToTodos = async () => {
-  const NoteBlock = getTable("NoteBlock");
-  const log = stdLog(`[addProjectsToTodos]:`);
-  log("Start processing…");
-  const region = getEnvironment().region;
-  const profile = getAwsProfile();
-  const client = new DynamoDBClient({
-    region,
-    credentials: fromIni({ profile }),
-  });
-  const noteBlocks = await client.send(
-    new QueryCommand({
-      TableName: NoteBlock,
-      IndexName: "noteBlocksByType",
-      KeyConditionExpression: "#type = :noteType",
-      ExpressionAttributeNames: {
-        "#type": "type",
-      },
-      ExpressionAttributeValues: {
-        ":noteType": { S: "taskItem" },
-      },
-      Limit: 5000,
-    })
-  );
-  const activityIds = flow(map("activityId.S"), uniq)(noteBlocks.Items);
-  const projectActivities = await Promise.all(activityIds.map(getProjectIds));
-  await Promise.all(
-    flow(
-      map(({ activityId, todoId }) => ({
-        todoId: todoId.S,
-        projectIds: projectActivities.find(
-          ({ activityId: id }) => id === activityId.S
-        ).projectIds,
-      })),
-      map(mapProjectTodo)
-    )(noteBlocks.Items)
-  );
-};
-
 /**
  * Importing data requires the files mentioned in the importData function to exist.
  * Like:
@@ -298,4 +256,3 @@ const addProjectsToTodos = async () => {
 // importData();
 // logTables();
 // fillFinishedOn();
-// addProjectsToTodos();

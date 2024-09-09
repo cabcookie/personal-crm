@@ -34,11 +34,9 @@ const TodayPage = () => {
             No open todo list.
           </div>
         ) : (
-          flow(
-            map((plan: DailyPlan) => (
-              <DailyPlanComponent key={plan.id} dailyPlan={plan} />
-            ))
-          )(contextDailyPlans)
+          map((plan: DailyPlan) => (
+            <DailyPlanComponent key={plan.id} dailyPlan={plan} />
+          ))(contextDailyPlans)
         )}
       </div>
     </MainLayout>

@@ -1,10 +1,11 @@
-# Kleine Optimierungen in Visualisierung für Meetings und Kontakte (Version :VERSION)
+# Fehlerbehebungen Aufgaben/Projekte, Kontakte und Projekte (Version :VERSION)
 
-- Akkordion-Inhalte sahen immer etwas komisch aus, da sie weniger eingerückt waren, als der Kopf des Akkordions.
-- Bei Next Actions in Meeting und Projekten Link zur Aktivität anbieten, um schnell dorthin springen zu können und mehr Kontext zu erhalten.
-- Todos tauchten manchmal in der Tagesplanung nicht auf. Das lag daran, dass Projekte nicht korrekt verlinkt worden sind.
+- Die Zuordnung von Aufgaben zu Projekten ist nun stabiler.
 
 ## In Arbeit
+
+- Wenn eine Kontakt mehrere Einträge in seiner Arbeitshistorie bei der gleichen Firma hat, taucht er bei der Firma mehrmals als Kontakt auf.
+- Wenn kein Account an einem Projekt oder einer Person hängt, tauchen manchmal leere Klammern auf.
 
 ## Geplant
 
@@ -18,8 +19,6 @@
 
 ## Fehler
 
-- Wenn eine Kontakt mehrere Einträge in seiner Arbeitshistorie bei der gleichen Firma hat, taucht er bei der Firma mehrmals als Kontakt auf.
 - Der Cost Explorer Link ist fehlerhaft.
 - Mir scheint, dass Links in Notizen nicht sauber gespeichert werden.
 - Notizen zeigen hier und da immer noch den Status, dass sie nicht im Einklang mit der Datenbank sind.
-- Wenn kein Account an einem Projekt oder einer Person hängt, tauchen manchmal leere Klammern auf.

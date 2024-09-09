@@ -1,9 +1,8 @@
 import { type Schema } from "@/amplify/data/resource";
-import { makeProjectIdTodoStatus } from "@/components/ui-elements/editors/helpers/project-todo-cud";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
-import { flow, map, sortBy } from "lodash/fp";
+import { filter, flatMap, flow, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -18,43 +17,42 @@ export type Todo = {
 };
 
 export type ProjectTodo = Todo & {
-  projectTodoId: string;
+  projectActivityId: string;
 };
 
 const selectionSet = [
   "id",
-  "todo.id",
-  "todo.todo",
-  "todo.status",
-  "todo.doneOn",
-  "todo.activity.activityId",
-  "updatedAt",
+  "activity.id",
+  "activity.noteBlocks.todo.id",
+  "activity.noteBlocks.todo.todo",
+  "activity.noteBlocks.todo.status",
+  "activity.noteBlocks.todo.doneOn",
+  "activity.noteBlocks.todo.updatedAt",
 ] as const;
 
-type ProjectTodoData = SelectionSet<
-  Schema["ProjectTodo"]["type"],
+type ProjectActivityData = SelectionSet<
+  Schema["ProjectActivity"]["type"],
   typeof selectionSet
 >;
 
 const mapProjectTodo = ({
-  id: projectTodoId,
-  todo: {
-    id: todoId,
-    activity: { activityId },
-    doneOn,
-    status,
-    todo,
-  },
-  updatedAt,
-}: ProjectTodoData): ProjectTodo => ({
-  projectTodoId,
-  todoId,
-  todo: JSON.parse(todo as any),
-  done: status === "DONE",
-  doneOn: !doneOn ? null : new Date(doneOn),
-  activityId,
-  updatedAt: new Date(updatedAt),
-});
+  id: projectActivityId,
+  activity: { id: activityId, noteBlocks },
+}: ProjectActivityData): ProjectTodo[] =>
+  flow(
+    identity<ProjectActivityData["activity"]["noteBlocks"]>,
+    filter((b) => !!b.todo),
+    map("todo"),
+    map(({ id: todoId, todo, status, doneOn, updatedAt }) => ({
+      projectActivityId,
+      todoId,
+      todo: JSON.parse(todo as any),
+      done: status === "DONE",
+      doneOn: !doneOn ? null : new Date(doneOn),
+      activityId,
+      updatedAt: new Date(updatedAt),
+    }))
+  )(noteBlocks);
 
 const makeDateNumber = (date: Date) => parseInt(format(date, "yyyyMMdd"));
 
@@ -75,19 +73,20 @@ export const getTodoOrder = <T extends GetTodoOrder>({
 
 const fetchProjectTodos = (projectId: string | undefined) => async () => {
   if (!projectId) return;
-  const projectIdTodoStatus = makeProjectIdTodoStatus({
-    projectId,
-    done: false,
-  });
   const { data, errors } =
-    await client.models.ProjectTodo.listProjectTodoByProjectIdTodoStatus(
-      { projectIdTodoStatus },
+    await client.models.ProjectActivity.listProjectActivityByProjectsId(
+      {
+        projectsId: projectId,
+      },
       { selectionSet }
     );
   if (errors) throw errors;
   if (!data) throw new Error("fetchProjectTodos didn't retrieve data");
   try {
-    return flow(map(mapProjectTodo), sortBy(getTodoOrder<ProjectTodo>))(data);
+    return flow(
+      flatMap(mapProjectTodo),
+      sortBy(getTodoOrder<ProjectTodo>)
+    )(data);
   } catch (error) {
     console.error("fetchProjectTodos", { error });
     throw error;
