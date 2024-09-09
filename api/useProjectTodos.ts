@@ -1,8 +1,18 @@
 import { type Schema } from "@/amplify/data/resource";
+import { not } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
-import { filter, flatMap, flow, identity, map, sortBy } from "lodash/fp";
+import {
+  filter,
+  flatMap,
+  flow,
+  get,
+  identity,
+  isNil,
+  map,
+  sortBy,
+} from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -37,22 +47,23 @@ type ProjectActivityData = SelectionSet<
 
 const mapProjectTodo = ({
   id: projectActivityId,
-  activity: { id: activityId, noteBlocks },
+  activity,
 }: ProjectActivityData): ProjectTodo[] =>
   flow(
-    identity<ProjectActivityData["activity"]["noteBlocks"]>,
-    filter((b) => !!b.todo),
+    identity<ProjectActivityData["activity"]>,
+    get("noteBlocks"),
     map("todo"),
+    filter(flow(isNil, not)),
     map(({ id: todoId, todo, status, doneOn, updatedAt }) => ({
       projectActivityId,
       todoId,
       todo: JSON.parse(todo as any),
       done: status === "DONE",
       doneOn: !doneOn ? null : new Date(doneOn),
-      activityId,
+      activityId: activity.id,
       updatedAt: new Date(updatedAt),
     }))
-  )(noteBlocks);
+  )(activity);
 
 const makeDateNumber = (date: Date) => parseInt(format(date, "yyyyMMdd"));
 

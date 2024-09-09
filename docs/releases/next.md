@@ -1,11 +1,12 @@
 # Fehlerbehebungen Aufgaben/Projekte, Kontakte und Projekte (Version :VERSION)
 
 - Die Zuordnung von Aufgaben zu Projekten ist nun stabiler.
+- Aufgaben zu Projekten ("Next Actions") werden nun stabiler angezeigt.
+- In Meetings werden im Untertitel für Projekte ohne Zuordnung von Kunden keine leeren Klammern mehr gezeigt.
 
 ## In Arbeit
 
 - Wenn eine Kontakt mehrere Einträge in seiner Arbeitshistorie bei der gleichen Firma hat, taucht er bei der Firma mehrmals als Kontakt auf.
-- Wenn kein Account an einem Projekt oder einer Person hängt, tauchen manchmal leere Klammern auf.
 
 ## Geplant
 

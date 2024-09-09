@@ -1,7 +1,7 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
-import useMeetingTodos from "@/api/useMeetingTodos";
+import useMeetingTodos, { MeetingTodo } from "@/api/useMeetingTodos";
 import { filter, flow, identity, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
@@ -45,13 +45,21 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
             map(
               (p) =>
                 `${p.project}${
-                  !p.accountIds
+                  !p.accountIds || p.accountIds.length === 0
                     ? ""
                     : ` (${getAccountNamesByIds(p.accountIds)})`
                 }`
             )
           )(projects),
-          `Next actions: ${getTodoText(meetingTodos)}`,
+          `Next actions: ${
+            flow(
+              identity<MeetingTodo[] | undefined>,
+              filter((t) =>
+                t.projectIds.some((id) => a.projectIds.includes(id))
+              ),
+              getTodoText
+            )(meetingTodos) || "none"
+          }`,
         ]}
       >
         <ActivityComponent
