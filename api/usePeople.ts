@@ -51,7 +51,7 @@ const mapPerson =
     updatedAt: new Date(updatedAt),
     accountNames: flow(
       getCurrentAccounts,
-      map((pa) => pa.accountName),
+      map((pa) => `${pa.accountName}${!pa.position ? "" : `, ${pa.position}`}`),
       join(", ")
     )(accounts),
     isPeerOfUser: !user.currentAccountId

@@ -73,7 +73,9 @@ const MeetingProjectRecommender: FC<MeetingProjectRecommenderProps> = ({
             onClick={() => addProjectToMeeting(id)}
           >
             {project}
-            {accountIds && ` (${getAccountNamesByIds(accountIds)})`}
+            {accountIds &&
+              accountIds.length > 0 &&
+              ` (${getAccountNamesByIds(accountIds)})`}
           </span>
         ))}
       </div>

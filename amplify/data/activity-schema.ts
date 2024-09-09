@@ -41,20 +41,6 @@ const activitySchema = {
     })
     .secondaryIndexes((index) => [index("type")])
     .authorization((allow) => [allow.owner()]),
-  ProjectTodo: a
-    .model({
-      owner: a
-        .string()
-        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      todoId: a.id().required(),
-      todo: a.belongsTo("Todo", "todoId"),
-      projectIdTodoStatus: a.string().required(),
-    })
-    .secondaryIndexes((index) => [
-      index("projectIdTodoStatus"),
-      index("todoId"),
-    ])
-    .authorization((allow) => [allow.owner()]),
   Todo: a
     .model({
       owner: a
@@ -64,7 +50,6 @@ const activitySchema = {
       status: a.ref("TodoStatus").required(),
       doneOn: a.date(),
       activity: a.hasOne("NoteBlock", "todoId"),
-      projects: a.hasMany("ProjectTodo", "todoId"),
       dailyTodos: a.hasMany("DailyPlanTodo", "todoId"),
     })
     .secondaryIndexes((index) => [index("status")])

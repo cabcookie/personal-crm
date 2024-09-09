@@ -1,14 +1,16 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
-import { Project, useProjectsContext } from "@/api/ContextProjects";
+import { useProjectsContext } from "@/api/ContextProjects";
 import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
-import { filter, flow, identity, map } from "lodash/fp";
 import { FC } from "react";
 import ActivityComponent from "../activities/activity";
 import ActivityFormatBadge from "../activities/activity-format-badge";
 import TaskBadge from "../task/TaskBadge";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { getTodoText } from "../ui-elements/editors/helpers/text-generation";
+import {
+  getTopicProjects,
+  getTopicTodos,
+} from "../ui-elements/editors/helpers/text-generation";
 
 type MeetingActivityListProps = {
   meeting: Meeting;
@@ -39,19 +41,8 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
         }
         triggerTitle={`Topic ${idx + 1}`}
         triggerSubTitle={[
-          ...flow(
-            identity<Project[] | undefined>,
-            filter((p) => a.projectIds.includes(p.id)),
-            map(
-              (p) =>
-                `${p.project}${
-                  !p.accountIds
-                    ? ""
-                    : ` (${getAccountNamesByIds(p.accountIds)})`
-                }`
-            )
-          )(projects),
-          `Next actions: ${getTodoText(meetingTodos)}`,
+          ...getTopicProjects(a.projectIds, projects, getAccountNamesByIds),
+          `Next actions: ${getTopicTodos(a.projectIds, meetingTodos)}`,
         ]}
       >
         <ActivityComponent

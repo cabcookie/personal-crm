@@ -7,7 +7,6 @@ import {
   getPeopleMentioned,
   getPersonId,
 } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
-import { makeProjectIdTodoStatus } from "@/components/ui-elements/editors/helpers/project-todo-cud";
 import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
 import { useToast } from "@/components/ui/use-toast";
 import { newDateString, toISODateTimeString } from "@/helpers/functional";
@@ -81,19 +80,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
     return data?.id;
   };
 
-  const createProjectTodo = async (
-    todoId: string,
-    projectIdTodoStatus: string
-  ) => {
-    const { data, errors } = await client.models.ProjectTodo.create({
-      projectIdTodoStatus,
-      todoId,
-    });
-    if (errors) handleApiErrors(errors, "Linking project/todo failed");
-    return data?.id;
-  };
-
-  const createTodo = async (block: JSONContent, projectId: string) => {
+  const createTodo = async (block: JSONContent) => {
     if (block.type !== "taskItem") return;
     const { data, errors } = await client.models.Todo.create({
       status: block.attrs?.checked ? "DONE" : "OPEN",
@@ -102,20 +89,15 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
     });
     if (errors) handleApiErrors(errors, "Creating todo failed");
     if (!data) return;
-    await createProjectTodo(
-      data.id,
-      makeProjectIdTodoStatus({ projectId, done: !!block.attrs?.checked })
-    );
     return data.id;
   };
 
   const createNoteBlock = async (
     activityId: string,
     block: JSONContent,
-    projectId: string,
     parentType?: string
   ) => {
-    const todoId = await createTodo(block, projectId);
+    const todoId = await createTodo(block);
     const { data, errors } = await client.models.NoteBlock.create({
       activityId,
       formatVersion: 3,
@@ -203,9 +185,9 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
         blocks.flatMap((block) =>
           LIST_TYPES.includes(block.type ?? "")
             ? block.content?.map((subBlock) =>
-                createNoteBlock(activityId, subBlock, projectId, block.type)
+                createNoteBlock(activityId, subBlock, block.type)
               )
-            : createNoteBlock(activityId, block, projectId)
+            : createNoteBlock(activityId, block)
         )
       );
       await updateActivityBlockIds(activityId, blockIds);

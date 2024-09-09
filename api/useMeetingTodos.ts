@@ -1,18 +1,21 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
+import { map } from "lodash";
 import { flow, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { getTodoOrder, Todo } from "./useProjectTodos";
 const client = generateClient<Schema>();
 
-type MeetingTodo = Todo & {
+export type MeetingTodo = Todo & {
   meetingId: string;
+  projectIds: string[];
   blockId: string;
 };
 
 const selectionSet = [
   "id",
   "activities.id",
+  "activities.forProjects.projectsId",
   "activities.noteBlocks.id",
   "activities.noteBlocks.todo.id",
   "activities.noteBlocks.todo.todo",
@@ -30,7 +33,7 @@ const mapMeetingTodo = ({
   id: meetingId,
   activities,
 }: MeetingTodoData): MeetingTodo[] =>
-  activities.flatMap(({ id: activityId, noteBlocks }) =>
+  activities.flatMap(({ id: activityId, noteBlocks, forProjects }) =>
     noteBlocks
       .filter((b) => !!b.todo)
       .flatMap(
@@ -46,6 +49,7 @@ const mapMeetingTodo = ({
           doneOn: !doneOn ? null : new Date(doneOn),
           activityId,
           blockId,
+          projectIds: map(forProjects, "projectsId"),
           updatedAt: new Date(updatedAt),
         })
       )

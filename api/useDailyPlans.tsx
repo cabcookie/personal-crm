@@ -7,6 +7,7 @@ import { toISODateString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
+import { map } from "lodash";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -43,8 +44,7 @@ const selectionSet = [
   "todos.todo.status",
   "todos.todo.activity.type",
   "todos.todo.activity.activity.id",
-  "todos.todo.activity.activityId",
-  "todos.todo.projects.projectIdTodoStatus",
+  "todos.todo.activity.activity.forProjects.projectsId",
 ] as const;
 
 type DailyPlanData = SelectionSet<
@@ -58,19 +58,18 @@ const mapDailyPlanTodo: (
   id: recordId,
   todo: {
     id: todoId,
-    projects,
     status,
     todo,
-    activity: { activityId },
+    activity: {
+      activity: { id: activityId, forProjects: projects },
+    },
   },
 }) => ({
   recordId,
   todoId,
   todo: JSON.parse(todo as any),
   done: status === "DONE",
-  projectIds: projects.map((p) =>
-    p.projectIdTodoStatus.replaceAll("-DONE", "").replaceAll("-OPEN", "")
-  ),
+  projectIds: map(projects, "projectsId"),
   activityId,
 });
 
@@ -194,38 +193,6 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
-  type ProjectTodoMapping = {
-    recordId: string;
-    projectId: string;
-  };
-
-  const updateTodoProjectStatus =
-    (newIsDone: boolean) =>
-    async ({ recordId, projectId }: ProjectTodoMapping) => {
-      const { data, errors } = await client.models.ProjectTodo.update({
-        id: recordId,
-        projectIdTodoStatus: `${projectId}-${newIsDone ? "DONE" : "OPEN"}`,
-      });
-      if (errors)
-        handleApiErrors(errors, "Updating todo's project status failed");
-      return data?.id;
-    };
-
-  const getTodoProjects = async (
-    todoId: string
-  ): Promise<ProjectTodoMapping[] | undefined> => {
-    const { data, errors } =
-      await client.models.ProjectTodo.listProjectTodoByTodoId({ todoId });
-    if (errors) handleApiErrors(errors, "Reading todo's project IDs failed");
-    if (!data) return;
-    return data.map((d) => ({
-      recordId: d.id,
-      projectId: d.projectIdTodoStatus
-        .replaceAll("-DONE", "")
-        .replaceAll("-OPEN", ""),
-    }));
-  };
-
   const updateTodoStatus = async (todoId: string, newIsDone: boolean) => {
     const updated: DailyPlan[] | undefined = dailyPlans?.map((p) => ({
       ...p,
@@ -246,10 +213,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     if (errors) handleApiErrors(errors, "Updating todo status failed");
     if (updated) mutate(updated);
     if (!data) return;
-    const projects = await getTodoProjects(todoId);
-    if (!projects) return;
-    await Promise.all(projects.map(updateTodoProjectStatus(newIsDone)));
-    return data?.id;
+    return data.id;
   };
 
   const updateDailyPlanStatus = async (

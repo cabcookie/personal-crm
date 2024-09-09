@@ -6,7 +6,6 @@ import {
 import { getBlockIds } from "@/components/ui-elements/editors/helpers/blocks";
 import { addAttrsInEditorContent } from "@/components/ui-elements/editors/helpers/cleanup-attrs";
 import { deleteAndCreateMentionedPeople } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
-import { createAndDeleteProjectTodos } from "@/components/ui-elements/editors/helpers/project-todo-cud";
 import TransactionError from "@/components/ui-elements/editors/helpers/transaction-error";
 import { transformNotesVersion } from "@/components/ui-elements/editors/helpers/transformers";
 import { UpdateNotesFunction } from "@/components/ui-elements/editors/helpers/update-notes";
@@ -63,8 +62,6 @@ const selectionSet = [
   "noteBlocks.todo.todo",
   "noteBlocks.todo.status",
   "noteBlocks.todo.doneOn",
-  "noteBlocks.todo.projects.id",
-  "noteBlocks.todo.projects.projectIdTodoStatus",
   "noteBlocks.people.id",
   "noteBlocks.people.personId",
 ] as const;
@@ -199,9 +196,6 @@ const useActivity = (activityId?: string) => {
 
       /* Update todos and blocks where neccessary */
       await updateBlocksAndTodos(editor, activity);
-
-      /* Create or delete todo projects where neccessary */
-      await createAndDeleteProjectTodos(editor, activity);
 
       const content = editor.getJSON();
 

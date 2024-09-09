@@ -90,9 +90,6 @@ export const TaskItem = Node.create<TaskItemOptions>({
           "data-todo-id": attrs.todoId ?? null,
         }),
       },
-      projects: {
-        default: [],
-      },
     };
   },
 

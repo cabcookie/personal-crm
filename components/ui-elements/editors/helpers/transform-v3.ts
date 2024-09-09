@@ -1,7 +1,6 @@
 import { ActivityData, NoteBlockData } from "@/api/useActivity";
 import { JSONContent } from "@tiptap/core";
-import { compact, flow, get, identity, last, map, reduce } from "lodash/fp";
-import { replaceProjectIdTodoStatus } from "./project-todo-cud";
+import { compact, flow, identity, last, reduce } from "lodash/fp";
 
 const mapPeople =
   (block: NoteBlockData) =>
@@ -66,15 +65,6 @@ const mapTodoBlock = (block: NoteBlockData): JSONContent => {
       ...content.attrs,
       todoId: block.todo.id,
       blockId: block.id,
-      projects: flow(
-        identity<NoteBlockData>,
-        get("todo"),
-        get("projects"),
-        map(({ id, projectIdTodoStatus }) => ({
-          id,
-          projectsId: replaceProjectIdTodoStatus(projectIdTodoStatus),
-        }))
-      )(block),
     },
     ...mapContentPeople(content.content, block),
   };
