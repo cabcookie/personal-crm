@@ -39,6 +39,7 @@ const schema = a
         context: a.ref("Context"),
         topic: a.string().required(),
         meetingOn: a.datetime(),
+        immediateTasksDone: a.boolean(),
         participants: a.hasMany("MeetingParticipant", "meetingId"),
         activities: a.hasMany("Activity", "meetingActivitiesId"),
       })

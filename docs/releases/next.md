@@ -1,10 +1,10 @@
-# Fehler in Meeting Aufgaben beheben (Version :VERSION)
+# Schnelleres Erstellen von 1:1 Meetings (Version :VERSION)
 
-- Für Meetings können nun wieder die Aufgaben angezeigt werden.
+- Meetings können nun direkt aus dem Navigationsmenü gestartet werden, mit bereits einem Teilnehmer eingerichtet. Das Meeting enthält dann den Namen des Teilnehmers (z.B. bei Horst Müller von Musterfirma würde es heißen „Meet Horst/Musterfirms“).
 
 ## In Arbeit
 
-- Es wäre richtig cool, bereits aus dem Navigationsmenü ein Meeting zu starten mit einem Teilnehmer bereits hinzugefügt. Z.B. ich suche nach "Horst Müller" und bekomme angeboten, seinen Kontakt zu öffnen oder ein Meeting mit ihm zu starten. Dann wird ein neues Meeting erstellt, Horst Müller als Teilnehmer hinzugefügt und das Meeting heißt z.B. "Sync Horst Müller".
+- Wenn ich meine, dass ich im Anschluss an ein Meeting alle möglichen Aufgaben erledigt habe, dann möchte ich das Meeting als erledigt markieren. Die restlichen Aufgaben tauchen weiterhin in den Projekten auf, aber in den Meetings tauchen wenigstens nicht mehr unerledigte Aufgaben auf, die ich im Moment gar nicht erledigen kann.
 - Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
 - Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
 - Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.

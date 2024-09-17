@@ -28,6 +28,7 @@ import {
 } from "../ui/command";
 import { DialogDescription, DialogTitle } from "../ui/dialog";
 import ContextSwitcher from "./ContextSwitcher";
+import CreateOneOnOneMeeting from "./CreateOneOnOneMeeting";
 import SearchableDataGroup from "./SearchableDataGroup";
 
 type UrlNavigationItem = {
@@ -238,6 +239,7 @@ const NavigationMenu = () => {
               link: `/projects/${id}`,
             }))}
         />
+        <CreateOneOnOneMeeting metaPressed={metaPressed} items={people} />
         {createItemsNavigation.map(({ label, action }, index) => (
           <CommandItem key={index} forceMount={true} onSelect={action}>
             <Plus className="mr-2 h-4 w-4" />

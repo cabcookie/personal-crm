@@ -231,6 +231,28 @@ const useMeetings = ({
     return data?.id;
   };
 
+  const createMeetingParticipant = async (
+    meetingId: string,
+    personId: string
+  ) => {
+    const updated: Meeting[] | undefined = meetings?.map((meeting) =>
+      meeting.id !== meetingId
+        ? meeting
+        : {
+            ...meeting,
+            participantIds: [...(meeting?.participantIds || []), personId],
+          }
+    );
+    if (updated) mutateMeetings(updated, false);
+    const { data, errors } = await client.models.MeetingParticipant.create({
+      personId,
+      meetingId: meetingId,
+    });
+    if (errors) handleApiErrors(errors, "Error adding meeting participant");
+    if (updated) mutateMeetings(updated);
+    return data?.meetingId;
+  };
+
   useEffect(() => {
     flow(map("meetingDayStr"), uniq, setMeetingDates)(meetings);
   }, [meetings]);
@@ -241,6 +263,7 @@ const useMeetings = ({
     loadingMeetings,
     meetingDates,
     createMeeting,
+    createMeetingParticipant,
   };
 };
 
