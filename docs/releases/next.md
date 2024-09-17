@@ -1,17 +1,17 @@
-# Die tägliche Todoliste repariert (Version :VERSION)
+# Fehler in Meeting Aufgaben beheben (Version :VERSION)
 
-- Die tägliche Todoliste wird wieder angezeigt und verwaiste Aufgaben (solche, die nicht mehr mit einer Aktivität verlinkt sind) tauchen darin nicht mehr auf.
-- Verwaiste Blöcke werden als solche gekennzeichnet.
+- Für Meetings können nun wieder die Aufgaben angezeigt werden.
 
 ## In Arbeit
 
+- Es wäre richtig cool, bereits aus dem Navigationsmenü ein Meeting zu starten mit einem Teilnehmer bereits hinzugefügt. Z.B. ich suche nach "Horst Müller" und bekomme angeboten, seinen Kontakt zu öffnen oder ein Meeting mit ihm zu starten. Dann wird ein neues Meeting erstellt, Horst Müller als Teilnehmer hinzugefügt und das Meeting heißt z.B. "Sync Horst Müller".
 - Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
 - Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
+- Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.
 
 ## Geplant
 
 - Bei Accounts sollten auch Projekte auftauchen, bei denen der Account als Partner engagiert ist; das gleiche gilt auch für die Notizen.
-- Es wäre richtig cool, bereits aus dem Navigationsmenü ein Meeting zu starten mit einem Teilnehmer bereits hinzugefügt. Z.B. ich suche nach "Horst Müller" und bekomme angeboten, seinen Kontakt zu öffnen oder ein Meeting mit ihm zu starten. Dann wird ein neues Meeting erstellt, Horst Müller als Teilnehmer hinzugefügt und das Meeting heißt z.B. "Sync Horst Müller".
 - Ich möchte Kontaktdetails in die Zwischenablage kopieren können.
 - Ich möchte einfach nur ein Kontaktdetail in das Formular kopieren und das Formular entscheidet automatisch anhand des Inhalts und anhand des Kontexts, um welche Information es sich wahrscheinlich handelt. Wenn die Information eindeutig ist, wird der Inhalt direkt gespeichert und das Formular direkt geschlossen.
 - Weitere persönliche Jahrestage abbilden (Tauftag, Taufentscheidung etc.).

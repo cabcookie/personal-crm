@@ -13,6 +13,16 @@ export interface TodoData {
   doneOn: string | null;
 }
 
+interface ActivityData {
+  noteBlocks: {
+    id: string;
+    todo: {
+      id: string;
+    };
+  }[];
+  noteBlockIds: string[] | null;
+}
+
 export const getTodoId = <T extends TodoData>(todo: T) => get("id")(todo);
 
 export const getTodoJson = flow(identity<TodoData>, get("todo"), JSON.parse);
@@ -37,15 +47,12 @@ export const getTodoActivityId = flow(
   get("activity.activity.id")
 );
 
-export const todoIsOrphan = (
-  todo: TodoData,
-  activity: ProjectActivityData["activity"]
-) =>
+export const todoIsOrphan = (todo: TodoData, activity: ActivityData) =>
   flow(
-    identity<ProjectActivityData["activity"]>,
+    identity<ActivityData>,
     get("noteBlocks"),
     filter(
-      (noteBlock: ProjectActivityData["activity"]["noteBlocks"][number]) =>
+      (noteBlock: ActivityData["noteBlocks"][number]) =>
         flow(get("todo.id"))(noteBlock) === todo.id &&
         flow(get("noteBlockIds"), includes(noteBlock.id))(activity)
     ),
