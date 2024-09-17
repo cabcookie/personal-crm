@@ -1,4 +1,5 @@
 import { EditorOptions, mergeAttributes } from "@tiptap/core";
+import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import Mention from "@tiptap/extension-mention";
 import TaskList from "@tiptap/extension-task-list";
@@ -19,6 +20,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
         codeBlock: false,
         blockquote: false,
       }),
+      Highlight,
       TaskList,
       TaskItem.configure({
         HTMLAttributes: {

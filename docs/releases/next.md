@@ -1,15 +1,17 @@
 # Die tägliche Todoliste repariert (Version :VERSION)
 
 - Die tägliche Todoliste wird wieder angezeigt und verwaiste Aufgaben (solche, die nicht mehr mit einer Aktivität verlinkt sind) tauchen darin nicht mehr auf.
+- Verwaiste Blöcke werden als solche gekennzeichnet.
 
 ## In Arbeit
 
-- Manche Aufgaben tauchen immernoch mehrmals in der Next Actions Liste auf oder als unerledigt. Grund könnte sein, dass ein verwaister NoteBlock besteht, der in der Aktivity nicht mehr in der noteBlockIds Liste auftaucht. Was will ich damit machen? Eine Möglichkeit: Solche Einträge als verweist markieren und eine Option anbieten, um eine neue Activity dafür zu erzeugen oder aber den NoteBlock zu löschen.
 - Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
 - Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
 
 ## Geplant
 
+- Bei Accounts sollten auch Projekte auftauchen, bei denen der Account als Partner engagiert ist; das gleiche gilt auch für die Notizen.
+- Es wäre richtig cool, bereits aus dem Navigationsmenü ein Meeting zu starten mit einem Teilnehmer bereits hinzugefügt. Z.B. ich suche nach "Horst Müller" und bekomme angeboten, seinen Kontakt zu öffnen oder ein Meeting mit ihm zu starten. Dann wird ein neues Meeting erstellt, Horst Müller als Teilnehmer hinzugefügt und das Meeting heißt z.B. "Sync Horst Müller".
 - Ich möchte Kontaktdetails in die Zwischenablage kopieren können.
 - Ich möchte einfach nur ein Kontaktdetail in das Formular kopieren und das Formular entscheidet automatisch anhand des Inhalts und anhand des Kontexts, um welche Information es sich wahrscheinlich handelt. Wenn die Information eindeutig ist, wird der Inhalt direkt gespeichert und das Formular direkt geschlossen.
 - Weitere persönliche Jahrestage abbilden (Tauftag, Taufentscheidung etc.).
@@ -20,10 +22,8 @@
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
 - Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
 - Bei Personen sollen unter Notizen nicht nur die Meetings auftauchen, an denen sie partizipiert haben, sondern auch wenn sie erwähnt wurden.
-- Es wäre richtig cool, bereits aus dem Navigationsmenü ein Meeting zu starten mit einem Teilnehmer bereits hinzugefügt. Z.B. ich suche nach "Horst Müller" und bekomme angeboten, seinen Kontakt zu öffnen oder ein Meeting mit ihm zu starten. Dann wird ein neues Meeting erstellt, Horst Müller als Teilnehmer hinzugefügt und das Meeting heißt z.B. "Sync Horst Müller".
 - Eine Checkliste einführen für das wöchentliche oder tägliche Planen.
 - Es wäre klasse, kommende Meetings in dem CRM zu vermerken.
-- Bei Accounts sollten auch Projekte auftauchen, bei denen der Account als Partner engagiert ist; das gleiche gilt auch für die Notizen.
 - Ich möchte eine Möglichkeit haben, um zu dokumentieren, was ein Kunde mit einem Partner macht und mir dazu auch schnell eine Übersicht/Matrix erstellen können.
 
 ## Fehler

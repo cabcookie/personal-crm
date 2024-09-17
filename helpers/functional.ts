@@ -1,4 +1,5 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
+import { flow, isNil } from "lodash/fp";
 
 export const addDaysToDate = (days: number) => (date: Date) =>
   addDays(date, days);
@@ -16,6 +17,7 @@ export const toISODateTimeString = (date: Date) =>
   format(date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx");
 export const toISODateString = (date: Date) => format(date, "yyyy-MM-dd");
 export const not = (val: boolean) => !val;
+export const isNotNil = flow(isNil, not);
 export const usdCurrency = new Intl.NumberFormat("en-US", {
   currency: "USD",
   style: "currency",
@@ -43,6 +45,8 @@ export const newDateTimeString = (): string => toISODateTimeString(new Date());
 export const newDateString = (): string => toISODateString(new Date());
 export const getDateOrUndefined = (date?: string | null) =>
   !date ? undefined : new Date(date);
+export const getDateOrNull = (date?: string | null) =>
+  !date ? null : new Date(date);
 export const truncateMiddle = (text: string, length = 20): string => {
   if (text.length <= length) return text;
   const half = Math.floor(length / 2);
