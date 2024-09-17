@@ -1,7 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
+import {
+  getTodoDoneOn,
+  getTodoId,
+  getTodoJson,
+  getTodoStatus,
+  todoIsOrphan,
+} from "@/helpers/todos";
 import { generateClient, SelectionSet } from "aws-amplify/data";
-import { map } from "lodash";
-import { flow, sortBy } from "lodash/fp";
+import { filter, flatMap, flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { getTodoOrder, Todo } from "./useProjectTodos";
 const client = generateClient<Schema>();
@@ -16,6 +22,7 @@ const selectionSet = [
   "id",
   "activities.id",
   "activities.forProjects.projectsId",
+  "activities.noteBlockIds",
   "activities.noteBlocks.id",
   "activities.noteBlocks.todo.id",
   "activities.noteBlocks.todo.todo",
@@ -33,27 +40,28 @@ const mapMeetingTodo = ({
   id: meetingId,
   activities,
 }: MeetingTodoData): MeetingTodo[] =>
-  activities.flatMap(({ id: activityId, noteBlocks, forProjects }) =>
-    noteBlocks
-      .filter((b) => !!b.todo)
-      .flatMap(
-        ({
-          id: blockId,
-          todo: { id: todoId, doneOn, status, todo },
-          updatedAt,
-        }): MeetingTodo => ({
-          meetingId,
-          todoId,
-          todo: JSON.parse(todo as any),
-          done: status === "DONE",
-          doneOn: !doneOn ? null : new Date(doneOn),
-          activityId,
-          blockId,
-          projectIds: map(forProjects, "projectsId"),
-          updatedAt: new Date(updatedAt),
-        })
-      )
-  );
+  flow(
+    identity<typeof activities>,
+    flatMap(({ id: activityId, noteBlocks, noteBlockIds, forProjects }) =>
+      flow(
+        filter(get("todo")),
+        flatMap(
+          ({ id: blockId, todo, updatedAt }): MeetingTodo => ({
+            meetingId,
+            todoId: getTodoId(todo),
+            todo: getTodoJson(todo),
+            done: getTodoStatus(todo),
+            doneOn: getTodoDoneOn(todo),
+            activityId,
+            blockId,
+            projectIds: map("projectsId")(forProjects),
+            isOrphan: todoIsOrphan(todo, { noteBlockIds, noteBlocks }),
+            updatedAt: new Date(updatedAt),
+          })
+        )
+      )(noteBlocks)
+    )
+  )(activities);
 
 const fetchMeetingTodos = (meetingId: string | undefined) => async () => {
   if (!meetingId) return [];
