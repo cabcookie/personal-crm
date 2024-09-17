@@ -6,7 +6,7 @@ import { getDateOrNull } from "./functional";
 
 type DailyPlanTodoData = DailyPlanData["todos"][number]["todo"];
 
-interface TodoData {
+export interface TodoData {
   id: string;
   todo: DailyPlanTodoData["todo"];
   status: DailyPlanTodoData["status"];
