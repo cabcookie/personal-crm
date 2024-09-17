@@ -3,6 +3,7 @@ import { handleApiErrors } from "@/api/globals";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
+import { getTodos } from "@/helpers/dailyplans";
 import { toISODateString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
@@ -47,31 +48,10 @@ const selectionSet = [
   "todos.todo.activity.activity.forProjects.projectsId",
 ] as const;
 
-type DailyPlanData = SelectionSet<
+export type DailyPlanData = SelectionSet<
   Schema["DailyPlan"]["type"],
   typeof selectionSet
 >;
-
-const mapDailyPlanTodo: (
-  todo: DailyPlanData["todos"][number]
-) => DailyPlanTodo = ({
-  id: recordId,
-  todo: {
-    id: todoId,
-    status,
-    todo,
-    activity: {
-      activity: { id: activityId, forProjects: projects },
-    },
-  },
-}) => ({
-  recordId,
-  todoId,
-  todo: JSON.parse(todo as any),
-  done: status === "DONE",
-  projectIds: map(projects, "projectsId"),
-  activityId,
-});
 
 const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   id,
@@ -86,7 +66,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   dayGoal,
   context: context || "work",
   status,
-  todos: todos.map(mapDailyPlanTodo),
+  todos: getTodos(todos),
 });
 
 const fetchDailyPlans =
@@ -99,7 +79,7 @@ const fetchDailyPlans =
     if (errors) throw errors;
     if (!data) throw new Error("No daily tasks list fetched");
     try {
-      return data.map(mapDailyPlan);
+      return map(data, mapDailyPlan);
     } catch (error) {
       console.error("fetchDailyPlans", { error });
       throw error;
