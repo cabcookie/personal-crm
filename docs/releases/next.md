@@ -1,6 +1,6 @@
-# Meetings erledigt markieren (Version :VERSION)
+# Filter Meetings korrigieren (Version :VERSION)
 
-- Wenn für eine Besprechung alle Aufgaben erledigt sind, die direkt im Anschluss erledigbar sind, kann das Meeting als erledigt markiert werden. Sollten noch Aufgaben offen sein, so tauchen diese weiterhin in den Projekten auf.
+- Wenn auf der Meetings-Listenseite der Filter auf "With Todos" gesetzt wird, werden die Meetings, die als erledigt markiert wurden, nicht mehr angezeigt.
 
 ## In Arbeit
 

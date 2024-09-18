@@ -46,7 +46,8 @@ export type TMeetingFilters = (typeof MEETING_FILTERS)[number];
 const isValidMeetingFilter = (filter: string): filter is TMeetingFilters =>
   MEETING_FILTERS.includes(filter as TMeetingFilters);
 
-const hasTodos = (meeting: Meeting) => meeting.hasOpenTodos;
+const hasTodos = (meeting: Meeting) =>
+  !meeting.immediateTasksDone && meeting.hasOpenTodos;
 
 const hasOldVersion = (meeting: Meeting) =>
   meeting.hasOldVersionFormattedActivities;
