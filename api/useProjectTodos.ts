@@ -10,7 +10,16 @@ import {
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
-import { filter, flatMap, flow, get, identity, map, sortBy } from "lodash/fp";
+import {
+  filter,
+  flatMap,
+  flow,
+  get,
+  identity,
+  includes,
+  map,
+  sortBy,
+} from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -46,6 +55,17 @@ export type ProjectActivityData = SelectionSet<
   typeof selectionSet
 >;
 
+const activeNoteBlock = (activity: ProjectActivityData["activity"]) =>
+  flow(
+    identity<ProjectActivityData["activity"]["noteBlocks"][number]>,
+    (noteBlock) =>
+      flow(
+        identity<ProjectActivityData["activity"]>,
+        get("noteBlockIds"),
+        includes(noteBlock.id)
+      )(activity)
+  );
+
 const mapProjectTodo = ({
   id: projectActivityId,
   activity,
@@ -53,6 +73,7 @@ const mapProjectTodo = ({
   flow(
     identity<ProjectActivityData["activity"]>,
     get("noteBlocks"),
+    filter(activeNoteBlock(activity)),
     map("todo"),
     filter(isNotNil),
     map(
