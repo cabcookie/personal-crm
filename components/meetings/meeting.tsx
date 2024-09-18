@@ -1,9 +1,10 @@
 import useMeeting from "@/api/useMeeting";
-import { Meeting } from "@/api/useMeetings";
+import useMeetings, { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
-import { Context } from "@/contexts/ContextContext";
+import { Context, useContextContext } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
+import { CheckCircle2, Circle } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -14,6 +15,7 @@ import DateSelector from "../ui-elements/selectors/date-selector";
 import PeopleSelector from "../ui-elements/selectors/people-selector";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
 import { Accordion } from "../ui/accordion";
+import { Button } from "../ui/button";
 import MeetingActivityList from "./meeting-activity-list";
 import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
@@ -34,6 +36,8 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   showMeetingDate,
   addProjects,
 }) => {
+  const { context } = useContextContext();
+  const { updateImmediateTasksDoneStatus } = useMeetings({ context });
   const [meetingContext, setMeetingContext] = useState(meeting?.context);
   const {
     createMeetingActivity,
@@ -74,11 +78,36 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     });
   };
 
+  const handleUpdateImmediateTasksDone = () => {
+    if (!meeting) return;
+    updateImmediateTasksDoneStatus(meeting.id, !meeting.immediateTasksDone);
+  };
+
   const handleSelectProject = (projectId: string | null) =>
     projectId && createMeetingActivity(projectId);
 
   return (
     <div className="space-y-2">
+      <Button
+        onClick={handleUpdateImmediateTasksDone}
+        variant="outline"
+        size="sm"
+        className="gap-1"
+      >
+        {meeting?.immediateTasksDone && (
+          <>
+            <Circle className="w-4 h-4" />
+            Set meeting open
+          </>
+        )}
+        {!meeting?.immediateTasksDone && (
+          <>
+            <CheckCircle2 className="w-4 h-4" />
+            Confirm meeting done
+          </>
+        )}
+      </Button>
+
       {showContext && (
         <div className="space-y-2">
           <h3 className="mx-2 md:mx-4 font-semibold tracking-tight">Context</h3>
