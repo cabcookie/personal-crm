@@ -1,6 +1,4 @@
-# Filter Meetings korrigieren (Version :VERSION)
-
-- Wenn auf der Meetings-Listenseite der Filter auf "With Todos" gesetzt wird, werden die Meetings, die als erledigt markiert wurden, nicht mehr angezeigt.
+# Verwaiste Aufgaben in Tagesplanung kennzeichnen (Version :VERSION)
 
 ## In Arbeit
 

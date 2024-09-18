@@ -25,7 +25,9 @@ const filterTodos = (
   flow(
     filter(
       (pt: ProjectTodo) =>
-        !pt.done && !dailyPlan.todos.map((t) => t.todoId).includes(pt.todoId)
+        !pt.done &&
+        !pt.isOrphan &&
+        !dailyPlan.todos.map((t) => t.todoId).includes(pt.todoId)
     ),
     setFilteredTodos
   )(projectTodos);

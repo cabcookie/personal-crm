@@ -1,3 +1,4 @@
+import { getTodoContent } from "@/helpers/todos";
 import { JSONContent } from "@tiptap/core";
 import { FC, ReactNode } from "react";
 import SimpleReadOnly from "../ui-elements/editors/simple-visualizer/SimpleReadOnly";
@@ -36,32 +37,6 @@ type TodoForDecisionProps = (
   children?: ReactNode;
 };
 
-const addLinkToActivity = (content: JSONContent[], activityId: string) => [
-  ...content,
-  {
-    type: "paragraph",
-    content: [
-      {
-        marks: [
-          {
-            type: "link",
-            attrs: {
-              rel: "noopener noreferrer nofollow",
-              href: `/activities/${activityId}`,
-              class:
-                "no-underline text-blue-400 hover:text-blue-600 hover:underline hover:underline-offset-2",
-              target: "_blank",
-            },
-          },
-          { type: "italic" },
-        ],
-        text: "Link to Notes",
-        type: "text",
-      },
-    ],
-  },
-];
-
 const TodoForDecision: FC<TodoForDecisionProps> = ({
   content,
   putTodoOnDailyPlan,
@@ -94,7 +69,9 @@ const TodoForDecision: FC<TodoForDecisionProps> = ({
         )}
 
         <div className="flex-1">
-          <SimpleReadOnly content={addLinkToActivity(content, activityId)} />
+          <SimpleReadOnly
+            content={getTodoContent(content, false, activityId)}
+          />
           {children}
         </div>
       </div>

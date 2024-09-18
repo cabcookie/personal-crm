@@ -90,6 +90,17 @@ const getTodoOrphanParagraph = (): JSONContent => ({
   ],
 });
 
+export const getTodoContent = (
+  content: JSONContent[] | undefined,
+  isOrphan: boolean,
+  activityId: string
+) => [
+  ...(content || []),
+  isOrphan
+    ? getTodoOrphanParagraph()
+    : getParagraphWithLinkToActivity(activityId),
+];
+
 export const getTodoEditorContent = (todos: Todo[]): JSONContent => ({
   type: "doc",
   content: [
@@ -97,12 +108,7 @@ export const getTodoEditorContent = (todos: Todo[]): JSONContent => ({
       type: "taskList",
       content: todos.map(({ todo, todoId, blockId, activityId, isOrphan }) => ({
         ...todo,
-        content: [
-          ...(todo.content ?? []),
-          isOrphan
-            ? getTodoOrphanParagraph()
-            : getParagraphWithLinkToActivity(activityId),
-        ],
+        content: getTodoContent(todo.content, isOrphan, activityId),
         attrs: {
           ...todo.attrs,
           blockId,
