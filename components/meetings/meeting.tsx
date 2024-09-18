@@ -1,10 +1,10 @@
 import useMeeting from "@/api/useMeeting";
-import useMeetings, { Meeting } from "@/api/useMeetings";
+import { Meeting } from "@/api/useMeetings";
 import useMeetingTodos from "@/api/useMeetingTodos";
-import { Context, useContextContext } from "@/contexts/ContextContext";
+import { Context } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
-import { CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -36,16 +36,19 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   showMeetingDate,
   addProjects,
 }) => {
-  const { context } = useContextContext();
-  const { updateImmediateTasksDoneStatus } = useMeetings({ context });
   const [meetingContext, setMeetingContext] = useState(meeting?.context);
+  const [immediateTasksDone, setImmediateTasksDone] = useState(
+    !!meeting?.immediateTasksDone
+  );
   const {
     createMeetingActivity,
     removeMeetingParticipant,
     updateMeetingContext,
     updateMeeting,
     createMeetingParticipant,
+    updateImmediateTasksDoneStatus,
   } = useMeeting(meeting?.id);
+  const [savingStatus, setSavingStatus] = useState(false);
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
   );
@@ -78,13 +81,22 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     });
   };
 
-  const handleUpdateImmediateTasksDone = () => {
-    if (!meeting) return;
-    updateImmediateTasksDoneStatus(meeting.id, !meeting.immediateTasksDone);
+  const handleUpdateImmediateTasksDone = async () => {
+    const newStatus = !meeting?.immediateTasksDone;
+    setSavingStatus(true);
+    const result = await updateImmediateTasksDoneStatus(newStatus);
+    if (result) {
+      setImmediateTasksDone(newStatus);
+      setSavingStatus(false);
+    }
   };
 
   const handleSelectProject = (projectId: string | null) =>
     projectId && createMeetingActivity(projectId);
+
+  useEffect(() => {
+    setImmediateTasksDone(!!meeting?.immediateTasksDone);
+  }, [meeting?.immediateTasksDone]);
 
   return (
     <div className="space-y-2">
@@ -93,14 +105,19 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
         variant="outline"
         size="sm"
         className="gap-1"
+        disabled={savingStatus}
       >
-        {meeting?.immediateTasksDone && (
+        {savingStatus ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Saving…
+          </>
+        ) : immediateTasksDone ? (
           <>
             <Circle className="w-4 h-4" />
             Set meeting open
           </>
-        )}
-        {!meeting?.immediateTasksDone && (
+        ) : (
           <>
             <CheckCircle2 className="w-4 h-4" />
             Confirm meeting done
