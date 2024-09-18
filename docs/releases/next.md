@@ -1,10 +1,9 @@
-# Schnelleres Erstellen von 1:1 Meetings (Version :VERSION)
+# Meetings erledigt markieren (Version :VERSION)
 
-- Meetings können nun direkt aus dem Navigationsmenü gestartet werden, mit bereits einem Teilnehmer eingerichtet. Das Meeting enthält dann den Namen des Teilnehmers (z.B. bei Horst Müller von Musterfirma würde es heißen „Meet Horst/Musterfirms“).
+- Wenn für eine Besprechung alle Aufgaben erledigt sind, die direkt im Anschluss erledigbar sind, kann das Meeting als erledigt markiert werden. Sollten noch Aufgaben offen sein, so tauchen diese weiterhin in den Projekten auf.
 
 ## In Arbeit
 
-- Wenn ich meine, dass ich im Anschluss an ein Meeting alle möglichen Aufgaben erledigt habe, dann möchte ich das Meeting als erledigt markieren. Die restlichen Aufgaben tauchen weiterhin in den Projekten auf, aber in den Meetings tauchen wenigstens nicht mehr unerledigte Aufgaben auf, die ich im Moment gar nicht erledigen kann.
 - Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
 - Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
 - Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.

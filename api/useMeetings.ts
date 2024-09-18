@@ -27,6 +27,7 @@ export type Meeting = {
   activities: Activity[];
   hasOldVersionFormattedActivities: boolean;
   hasOpenTodos: boolean;
+  immediateTasksDone?: boolean;
 };
 
 export const meetingSelectionSet = [
@@ -34,6 +35,7 @@ export const meetingSelectionSet = [
   "topic",
   "context",
   "meetingOn",
+  "immediateTasksDone",
   "createdAt",
   "participants.id",
   "participants.personId",
@@ -72,6 +74,7 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   createdAt,
   participants,
   activities,
+  immediateTasksDone,
 }) => ({
   id,
   topic,
@@ -94,6 +97,7 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
       some((b) => b === "OPEN")
     )
   )(activities),
+  immediateTasksDone: !!immediateTasksDone,
 });
 
 const calculateToDate = (startDate: string) =>
@@ -253,6 +257,28 @@ const useMeetings = ({
     return data?.meetingId;
   };
 
+  const updateImmediateTasksDoneStatus = async (
+    meetingId: string,
+    done: boolean
+  ) => {
+    const updated: Meeting[] | undefined = meetings?.map((meeting) =>
+      meeting.id !== meetingId
+        ? meeting
+        : {
+            ...meeting,
+            immediateTasksDone: done,
+          }
+    );
+    if (updated) mutateMeetings(updated, false);
+    const { data, errors } = await client.models.Meeting.update({
+      id: meetingId,
+      immediateTasksDone: done,
+    });
+    if (errors) handleApiErrors(errors, "Error updating meeting task status");
+    if (updated) mutateMeetings(updated);
+    return data?.id;
+  };
+
   useEffect(() => {
     flow(map("meetingDayStr"), uniq, setMeetingDates)(meetings);
   }, [meetings]);
@@ -264,6 +290,7 @@ const useMeetings = ({
     meetingDates,
     createMeeting,
     createMeetingParticipant,
+    updateImmediateTasksDoneStatus,
   };
 };
 
