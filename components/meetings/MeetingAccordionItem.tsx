@@ -30,10 +30,13 @@ const MeetingAccordionItem: FC<MeetingAccordionItemProps> = ({ meeting }) => {
         <>
           <TaskBadge
             hasOpenTasks={
-              !meeting.immediateTasksDone ||
+              !meeting.immediateTasksDone &&
               some(meeting.activities, "hasOpenTodos")
             }
-            hasClosedTasks={some(meeting.activities, "hasClosedTodos")}
+            hasClosedTasks={
+              meeting.immediateTasksDone ||
+              some(meeting.activities, "hasClosedTodos")
+            }
           />
           {meeting.hasOldVersionFormattedActivities && <ActivityFormatBadge />}
         </>

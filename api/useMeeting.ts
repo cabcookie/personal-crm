@@ -183,6 +183,19 @@ const useMeeting = (meetingId?: string) => {
     router.replace("/meetings");
   };
 
+  const updateImmediateTasksDoneStatus = async (done: boolean) => {
+    if (!meeting) return;
+    const updated: Meeting = { ...meeting, immediateTasksDone: done };
+    mutateMeeting(updated, false);
+    const { data, errors } = await client.models.Meeting.update({
+      id: meeting.id,
+      immediateTasksDone: done,
+    });
+    if (errors) handleApiErrors(errors, "Error updating meeting task status");
+    mutateMeeting(updated);
+    return data?.id;
+  };
+
   return {
     meeting,
     errorMeeting,
@@ -194,6 +207,7 @@ const useMeeting = (meetingId?: string) => {
     updateMeetingContext,
     deleteMeetingActivity,
     deleteMeeting,
+    updateImmediateTasksDoneStatus,
   };
 };
 
