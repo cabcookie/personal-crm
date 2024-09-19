@@ -1,10 +1,9 @@
-import useDailyPlans, { DailyPlan, DailyPlanTodo } from "@/api/useDailyPlans";
+import useDailyPlans, { DailyPlan } from "@/api/useDailyPlans";
+import { useTodosProjects } from "@/helpers/useTodosProjects";
 import { format } from "date-fns";
-import { flow, map, size, sortBy } from "lodash/fp";
 import { FC } from "react";
 import { Checkbox } from "../ui/checkbox";
-import TodoForDecision from "./TodoForDecision";
-import TodoProjectInfos from "./TodoProjectInfos";
+import DailyPlanProject from "./DailyPlanProject";
 
 type DailyPlanComponentProps = {
   dailyPlan: DailyPlan;
@@ -13,7 +12,8 @@ type DailyPlanComponentProps = {
 const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
   dailyPlan: { id: dailyPlanId, status, day, dayGoal, todos },
 }) => {
-  const { updateTodoStatus, finishDailyTaskList } = useDailyPlans("OPEN");
+  const projects = useTodosProjects(todos);
+  const { finishDailyTaskList } = useDailyPlans("OPEN");
 
   return (
     <div className="space-y-8">
@@ -28,30 +28,7 @@ const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
         </h2>
       </div>
 
-      {size(todos) === 0 ? (
-        <div className="mx-2 md:mx-4 my-8 font-semibold text-sm text-muted-foreground md:text-center">
-          No open todos.
-        </div>
-      ) : (
-        <div className="ml-7">
-          {flow(
-            sortBy((t: DailyPlanTodo) => (t.done ? 1 : 0)),
-            map(
-              ({ todo: { content }, todoId, activityId, done, projectIds }) => (
-                <TodoForDecision
-                  key={todoId}
-                  activityId={activityId}
-                  content={content}
-                  todoStatus={done}
-                  finishTodoOnDailyPlan={() => updateTodoStatus(todoId, !done)}
-                >
-                  <TodoProjectInfos projectIds={projectIds} />
-                </TodoForDecision>
-              )
-            )
-          )(todos)}
-        </div>
-      )}
+      <DailyPlanProject className="ml-7" projects={projects} todos={todos} />
     </div>
   );
 };

@@ -1,4 +1,6 @@
-# Verwaiste Aufgaben in Tagesplanung kennzeichnen (Version :VERSION)
+# Tages-Aufgabenliste vereinfachen (Version :VERSION)
+
+- In der Tages-Aufgabenliste werden die Aufgaben in Projekten gruppiert. Die Projekte sind automatisch nach ihrer errechneten Wichtigkeit sortiert.
 
 ## In Arbeit
 

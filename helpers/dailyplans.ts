@@ -7,7 +7,7 @@ import {
   getTodoStatus,
   TodoData,
 } from "@/helpers/todos";
-import { filter, flow, get, identity, map } from "lodash/fp";
+import { filter, flatMap, flow, get, identity, map, uniq } from "lodash/fp";
 
 const mapDailyPlanTodo: (todo: {
   id: string;
@@ -20,6 +20,12 @@ const mapDailyPlanTodo: (todo: {
   projectIds: getTodoProjectIds(todo),
   activityId: getTodoActivityId(todo),
 });
+
+export const getTodosProjectIds = flow(
+  identity<DailyPlanTodo[]>,
+  flatMap("projectIds"),
+  uniq
+);
 
 export const getTodos = flow(
   identity<DailyPlanData["todos"]>,
