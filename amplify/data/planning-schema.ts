@@ -49,6 +49,7 @@ const planningSchema = {
       dailyPlan: a.belongsTo("DailyPlan", "dailyPlanId"),
       todoId: a.id().required(),
       todo: a.belongsTo("Todo", "todoId"),
+      postPoned: a.boolean(),
     })
     .authorization((allow) => [allow.owner()]),
 };
