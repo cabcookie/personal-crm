@@ -20,6 +20,7 @@ export type DailyPlanTodo = {
   todoId: string;
   todo: JSONContent;
   done: boolean;
+  postPoned: boolean;
   projectIds: string[];
   activityId: string;
 };
@@ -40,6 +41,7 @@ const selectionSet = [
   "context",
   "status",
   "todos.id",
+  "todos.postPoned",
   "todos.todo.id",
   "todos.todo.todo",
   "todos.todo.status",
@@ -196,6 +198,24 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
+  const postponeTodo = async (recordId: string, newPostponedState: boolean) => {
+    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) => ({
+      ...p,
+      todos: p.todos.map((t) =>
+        t.recordId !== recordId ? t : { ...t, postPoned: newPostponedState }
+      ),
+    }));
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanTodo.update({
+      id: recordId,
+      postPoned: newPostponedState,
+    });
+    if (errors)
+      handleApiErrors(errors, "Updating todo's postPoned state failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const updateDailyPlanStatus = async (
     dailyPlanId: string,
     status: "DONE" | "OPEN",
@@ -264,6 +284,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     addTodoToDailyPlan,
     removeTodoFromDailyPlan,
     updateTodoStatus,
+    postponeTodo,
   };
 };
 

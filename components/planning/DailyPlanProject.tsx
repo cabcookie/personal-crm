@@ -15,6 +15,8 @@ import {
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
+import { Button } from "../ui/button";
+import PostPonedTodo from "./PostPonedTodo";
 import ProjectInformation from "./ProjectInformation";
 import TodoForDecision from "./TodoForDecision";
 
@@ -29,7 +31,7 @@ const DailyPlanProject: FC<DailyPlanProjectProps> = ({
   todos,
   className,
 }) => {
-  const { updateTodoStatus } = useDailyPlans("OPEN");
+  const { updateTodoStatus, postponeTodo } = useDailyPlans("OPEN");
 
   return size(todos) === 0 ? (
     <div className="mx-2 md:mx-4 my-8 font-semibold text-sm text-muted-foreground md:text-center">
@@ -49,16 +51,42 @@ const DailyPlanProject: FC<DailyPlanProjectProps> = ({
           identity<DailyPlanTodo[]>,
           filter(flow(get("projectIds"), includes(project.id))),
           compact,
-          sortBy((t) => (t?.done ? 1 : 0)),
-          map(({ todo: { content }, todoId, activityId, done }) => (
-            <TodoForDecision
-              key={todoId}
-              activityId={activityId}
-              content={content}
-              todoStatus={done}
-              finishTodoOnDailyPlan={() => updateTodoStatus(todoId, !done)}
-            />
-          ))
+          sortBy((t) => (t?.postPoned ? 2 : t?.done ? 1 : 0)),
+          map(
+            ({
+              todo: { content },
+              todoId,
+              activityId,
+              done,
+              postPoned,
+              recordId,
+            }) =>
+              !postPoned ? (
+                <TodoForDecision
+                  key={todoId}
+                  activityId={activityId}
+                  content={content}
+                  todoStatus={done}
+                  finishTodoOnDailyPlan={() => updateTodoStatus(todoId, !done)}
+                >
+                  {!done && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => postponeTodo(recordId, true)}
+                    >
+                      Not today
+                    </Button>
+                  )}
+                </TodoForDecision>
+              ) : (
+                <PostPonedTodo
+                  done={done}
+                  content={content}
+                  postponeTodo={() => postponeTodo(recordId, false)}
+                />
+              )
+          )
         )(todos)}
       </div>
     ))(projects)

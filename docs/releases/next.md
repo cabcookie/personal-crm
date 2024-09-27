@@ -1,8 +1,9 @@
 # Todoliste nachträglich ändern (Version :VERSION)
 
+- Aufgaben können nun markiert werden, wenn sie am aktuellen Tag doch nicht erledigt werden sollen. Und man kann diese Entscheidung auch wieder rückgängig machen.
+
 ## In Arbeit
 
-- Todos als "doch nicht" markieren, wenn ich sie heute doch nicht erledigen kann.
 - Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
 
 ## Geplant

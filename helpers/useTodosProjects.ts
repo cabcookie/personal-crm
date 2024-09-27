@@ -9,7 +9,7 @@ const allTodosDone = (todos: DailyPlanTodo[]) => (p: Project) =>
   flow(
     identity<DailyPlanTodo[]>,
     filter((t) => t.projectIds.includes(p.id)),
-    every((t) => t.done)
+    every((t) => t.done || t.postPoned)
   )(todos)
     ? 1
     : 0;
