@@ -81,6 +81,7 @@ const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
                 todo: t.todo,
                 todoId: t.todoId,
                 activityId: t.activityId,
+                postPoned: false,
               })
             }
             activityId={t.activityId}
