@@ -81,6 +81,7 @@ const DailyPlanProject: FC<DailyPlanProjectProps> = ({
                 </TodoForDecision>
               ) : (
                 <PostPonedTodo
+                  key={todoId}
                   done={done}
                   content={content}
                   postponeTodo={() => postponeTodo(recordId, false)}
