@@ -24,22 +24,27 @@ export const applyPastePropsAndUiAttrs = (
   editor: Editor | null,
   content: JSONContent | undefined,
   readonly: boolean | undefined,
-  showSaveStatus: boolean | undefined = true
+  showSaveStatus: boolean | undefined = true,
+  allowPastingImages: boolean | undefined = true
 ) => {
   if (!editor) return;
   editor.setOptions({
     editorProps: {
-      handlePaste: (view, event) => {
-        if (!event.clipboardData) return false;
-        const { items } = event.clipboardData;
-        for (let i = 0; i < items.length; i++) {
-          if (items[i].type.indexOf("image") !== -1) {
-            handlePastingImage(items[i], view, editor);
-            return true;
-          }
-        }
-        return false;
-      },
+      ...(!allowPastingImages
+        ? {}
+        : {
+            handlePaste: (view, event) => {
+              if (!event.clipboardData) return false;
+              const { items } = event.clipboardData;
+              for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                  handlePastingImage(items[i], view, editor);
+                  return true;
+                }
+              }
+              return false;
+            },
+          }),
       attributes: {
         class: cn(
           "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",

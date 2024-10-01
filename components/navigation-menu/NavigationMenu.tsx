@@ -1,5 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
+import useBible from "@/api/useBible";
 import useMeetings from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
@@ -50,11 +51,12 @@ type NavigationItem = (UrlNavigationItem | ActionNavigationItem) & {
 };
 
 const NavigationMenu = () => {
-  const { isWorkContext, context } = useContextContext();
+  const { isWorkContext, isFamilyContext, context } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
   const { open: openCreateInboxItemDialog } = useCreateInboxItemContext();
   const { projects, createProject } = useProjectsContext();
   const { accounts } = useAccountsContext();
+  const { bible } = useBible();
   const { people, createPerson } = usePeople();
   const { createMeeting } = useMeetings({ context });
   const [search, setSearch] = useState("");
@@ -95,6 +97,9 @@ const NavigationMenu = () => {
   ];
 
   const otherNavigation: NavigationItem[] = [
+    ...(isFamilyContext()
+      ? [{ label: "Bible Reading", url: "/bible/books" }]
+      : []),
     { label: "Projects", url: "/projects", shortcut: "^P" },
     ...(isWorkContext()
       ? [
@@ -216,6 +221,17 @@ const NavigationMenu = () => {
             link: `/accounts/${id}`,
           }))}
         />
+        {context === "family" && (
+          <SearchableDataGroup
+            heading="Bible"
+            metaPressed={metaPressed}
+            items={bible?.map(({ id, book, section }) => ({
+              id,
+              value: `${book} (${section === "NEW" ? "NT" : "OT"})`,
+              link: `/bible/books/${id}`,
+            }))}
+          />
+        )}
         <SearchableDataGroup
           heading="People"
           metaPressed={metaPressed}

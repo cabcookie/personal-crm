@@ -1,10 +1,10 @@
-# Todoliste nachträglich ändern (Version :VERSION)
+# Bibellesen integrieren (Version :VERSION)
 
-- Aufgaben können nun markiert werden, wenn sie am aktuellen Tag doch nicht erledigt werden sollen. Und man kann diese Entscheidung auch wieder rückgängig machen.
+- Ich kann Notizen erfassen, wenn ich in der Bibel lese. Die Funktionalität ist über den Kontext "Family" über das Navigationsmenü erreichbar.
+- Im Navigationsmenü kann ich auch nach den Büchern der Bibel suchen.
+- Ein Link zu bible.com wird mit angezeigt.
 
 ## In Arbeit
-
-- Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
 
 ## Geplant
 
@@ -27,6 +27,7 @@
 
 ### Wochen-/Tagesplanung
 
+- Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
 - Wir brauchen Sticky Header für die Projekttitel.
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
