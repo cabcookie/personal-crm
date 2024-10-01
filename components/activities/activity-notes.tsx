@@ -4,7 +4,6 @@ import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem"
 import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
 import NotesEditor from "../ui-elements/editors/notes-editor/NotesEditor";
 import ActivityFormatBadge from "./activity-format-badge";
-import ActivityMetaData from "./activity-meta-data";
 
 type ActivityNotesProps = {
   activity?: Activity;
@@ -27,8 +26,6 @@ const ActivityNotes: FC<ActivityNotesProps> = ({ activity, readOnly }) => {
         readonly={readOnly}
         key={activity.id}
       />
-
-      <ActivityMetaData activity={activity} />
     </DefaultAccordionItem>
   );
 };

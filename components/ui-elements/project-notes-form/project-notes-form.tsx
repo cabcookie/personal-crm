@@ -7,7 +7,6 @@ import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { FC, useState } from "react";
-import ActivityMetaData from "../../activities/activity-meta-data";
 import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
 import { getTextFromJsonContent } from "../editors/helpers/text-generation";
 import NotesEditor from "../editors/notes-editor/NotesEditor";
@@ -93,9 +92,6 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
           <>
             <div className="mx-0 md:mx-2">
               <NotesEditor activityId={activity.id} readonly={readOnly} />
-            </div>
-            <div className="mx-2 md:mx-4">
-              <ActivityMetaData activity={activity} />
             </div>
           </>
         )

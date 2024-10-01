@@ -19,6 +19,25 @@ const { getAwsProfile } = require("./helpers/get-aws-profile");
 const { fromIni } = require("@aws-sdk/credential-providers");
 
 const importData = async () => {
+  // Books of the Bible
+  const booksOfBible = await importHandler(
+    "BookOfBible",
+    "_booksOfBible.json",
+    (item) => item
+  );
+
+  // Notes on Bible chapters
+  await importHandler(
+    "NotesBibleChapter",
+    "_notesBibleBooks.json",
+    ({ bookBibleId, notes, ...item }) => ({
+      ...item,
+      bookId: booksOfBible.find((b) => b.notionId === bookBibleId)?.id,
+      note: notes,
+      formatVersion: 1,
+    })
+  );
+
   // Account
   const accounts = await importHandler(
     "Account",

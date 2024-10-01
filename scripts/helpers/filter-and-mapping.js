@@ -39,11 +39,11 @@ const createTableItem = async (
 ) => {
   const id = uuid();
   const Item = mapObjectToDdb({
+    createdAt: new Date().toISOString(),
     ...item,
     __typename: tableName,
     id,
     owner,
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
   // log("Item", item, Item);

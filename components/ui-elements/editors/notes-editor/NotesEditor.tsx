@@ -11,6 +11,7 @@ import {
   updateEditorContent,
 } from "../helpers/editor-effects";
 import { debouncedUpdateNote } from "../helpers/update-notes";
+import MetaData from "../meta-data";
 import useExtensions from "./useExtensions";
 
 type NotesEditorProps = {
@@ -66,6 +67,7 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
       <EditorContent editor={editor} />
       {editor && <LinkBubbleMenu editor={editor} />}
       <div id="at-mention-tippy" />
+      <MetaData created={activity?.finishedOn} updated={activity?.updatedAt} />
     </>
   );
 };
