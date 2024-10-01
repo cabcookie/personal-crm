@@ -221,7 +221,7 @@ const NavigationMenu = () => {
             link: `/accounts/${id}`,
           }))}
         />
-        {context === "family" && (
+        {isFamilyContext() && (
           <SearchableDataGroup
             heading="Bible"
             metaPressed={metaPressed}
