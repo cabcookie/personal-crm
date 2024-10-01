@@ -1,24 +1,32 @@
-import { BibleBookChapter } from "@/api/useBible";
-import { debouncedUpdateNotes } from "@/helpers/bible/bible";
+import { BibleBook, BibleBookChapter } from "@/api/useBible";
+import { debouncedUpdateNotes, getChapter } from "@/helpers/bible/bible";
 import { Editor, JSONContent } from "@tiptap/core";
-import { ExternalLink } from "lucide-react";
-import Link from "next/link";
-import { FC } from "react";
+import { flow } from "lodash/fp";
+import { FC, useEffect, useState } from "react";
 import ChapterNotesEditor from "../ui-elements/editors/chapter-notes-editor/ChapterNotesEditor";
 import { emptyDocument } from "../ui-elements/editors/helpers/document";
 import MetaData from "../ui-elements/editors/meta-data";
+import LinkToBibleCom from "./link-to-bible";
 
 type ChapterNotesProps = {
-  chapter?: BibleBookChapter;
-  bookAlias?: string;
+  book?: BibleBook;
+  chapterId?: string;
   updateNotes?: (notes: JSONContent) => Promise<string | undefined>;
 };
 
 const ChapterNotes: FC<ChapterNotesProps> = ({
-  chapter,
+  book,
+  chapterId,
   updateNotes,
-  bookAlias,
 }) => {
+  const [chapter, setChapter] = useState<BibleBookChapter | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    flow(getChapter, setChapter)(book, chapterId);
+  }, [book, chapterId]);
+
   const handleNotesUpdate = (editor: Editor) => {
     if (!updateNotes) return;
     debouncedUpdateNotes({ editor, updateNotes });
@@ -28,20 +36,9 @@ const ChapterNotes: FC<ChapterNotesProps> = ({
     "Loading…"
   ) : (
     <>
-      {bookAlias && (
-        <div className="mb-2 flex">
-          <Link
-            href={`https://www.bible.com/bible/73/${bookAlias.toLowerCase()}.${
-              chapter.chapter
-            }.HFA`}
-          >
-            <div className="text-sm text-gray-400 hover:text-blue-600 hover:cursor-pointer mx-2">
-              Open on bible.com
-              <ExternalLink className="w-4 h-4 inline-block ml-1 -mt-0.5" />
-            </div>
-          </Link>
-        </div>
-      )}
+      <div className="mb-2 flex">
+        <LinkToBibleCom book={book} chapterId={chapterId} />
+      </div>
 
       <ChapterNotesEditor
         notes={chapter.notes ?? emptyDocument}

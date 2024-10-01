@@ -2,7 +2,6 @@ import { BibleBook } from "@/api/useBible";
 import useBibleBookChapter from "@/api/useBibleBookChapter";
 import ChapterNotes from "@/components/bible/chapter-notes";
 import MainLayout from "@/components/layouts/MainLayout";
-import { getChapter } from "@/helpers/bible/bible";
 import { first, flow, get } from "lodash/fp";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -39,8 +38,8 @@ const BibleBookChapterPage = () => {
       onBackBtnClick={handleBackBtnClick}
     >
       <ChapterNotes
-        chapter={getChapter(book, chapterId)}
-        bookAlias={book?.alias}
+        book={book}
+        chapterId={chapterId}
         updateNotes={updateNotes}
       />
     </MainLayout>

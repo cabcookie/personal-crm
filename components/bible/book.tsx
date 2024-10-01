@@ -30,7 +30,7 @@ const BibleBookAccordionItem: FC<BibleBookAccordionItemProps> = ({ book }) =>
           : undefined,
       ]}
     >
-      <BibleBookChapters chapters={book.chapters} bookAlias={book.alias} />
+      <BibleBookChapters book={book} />
     </DefaultAccordionItem>
   );
 

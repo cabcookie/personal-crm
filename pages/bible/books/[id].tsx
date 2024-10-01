@@ -49,7 +49,7 @@ const BibleBookPage = () => {
             <AddChapterForm book={book} addChapter={handleAddChapterClick} />
           )}
 
-          <BibleBookChapters chapters={book.chapters} bookAlias={book.alias} />
+          <BibleBookChapters book={book} />
         </div>
       )}
     </MainLayout>
