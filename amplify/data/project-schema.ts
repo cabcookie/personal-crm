@@ -99,7 +99,7 @@ const projectSchema = {
       isMarketplace: a.boolean(),
       closeDate: a.date().required(),
       projects: a.hasMany("CrmProjectProjects", "crmProjectId"),
-      confirmHygieneIssuesSolvedTill: a.date(),
+      confirmHygieneIssuesSolvedTill: a.datetime(),
       stage: a.string().required(),
       opportunityOwner: a.string(),
       nextStep: a.string(),
