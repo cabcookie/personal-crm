@@ -1,7 +1,6 @@
-import { TCrmStages } from "@/api/useCrmProject";
 import useCrmProjects, { CrmProject } from "@/api/useCrmProjects";
 import useCurrentUser, { User } from "@/api/useUser";
-import { filter, flow, some } from "lodash/fp";
+import { filter, flow } from "lodash/fp";
 import {
   ComponentType,
   createContext,
@@ -37,16 +36,7 @@ interface CrmProjectsFilterProviderProps {
   children: ReactNode;
 }
 
-const PROJECT_FILTERS = [
-  "All",
-  "No Project",
-  "Update Due",
-  "Other Owner",
-  "Differenct Account",
-  "Differenct Partner",
-  "By Partner",
-  "By Account",
-] as const;
+const PROJECT_FILTERS = ["All", "Hygiene", "By Partner", "By Account"] as const;
 
 export type TProjectFilters = (typeof PROJECT_FILTERS)[number];
 
@@ -55,67 +45,15 @@ const isValidProjectFilter = (
 ): crmFilter is TProjectFilters =>
   PROJECT_FILTERS.includes(crmFilter as TProjectFilters);
 
-const not =
-  (fn: (crm: CrmProject) => boolean) =>
-  (crm: CrmProject): boolean =>
-    !fn(crm);
-
-const hasNoProjectLinked = (crm: CrmProject): boolean =>
-  isNotClosed(crm) && (!crm.projectIds || crm.projectIds.length === 0);
-
 const hasPartnerLinked = (crm: CrmProject): boolean => !!crm.partnerName;
 
 const hasAccountLinked = (crm: CrmProject): boolean => !!crm.accountName;
 
-const isOtherOpportunityOwner =
-  (currentUser: User | undefined) =>
-  (crm: CrmProject): boolean =>
-    crm.opportunityOwner !== currentUser?.userName;
-
-const isDifferentAccountName = (crm: CrmProject): boolean =>
-  isNotClosed(crm) &&
-  not(hasNoProjectLinked)(crm) &&
-  !!crm.accountName &&
-  (!crm.projectAccountNames?.length ||
-    !crm.projectAccountNames.includes(crm.accountName));
-
-const isDifferentPartnerName = (crm: CrmProject): boolean =>
-  isNotClosed(crm) &&
-  not(hasNoProjectLinked)(crm) &&
-  !!crm.partnerName &&
-  (!crm.linkedPartnerNames?.length ||
-    !crm.linkedPartnerNames.includes(crm.partnerName));
-
-const isNotClosed = (crm: CrmProject): boolean =>
-  !(["Closed Lost", "Launched"] as TCrmStages[]).includes(crm.stage);
-
-const enableNoProjectFilter = (
-  crmProjects: CrmProject[] | undefined
-): TProjectFilters[] =>
-  some(hasNoProjectLinked)(crmProjects) ? ["No Project"] : [];
-
-const enableOtherOwnerFilter = (
-  currentUser: User | undefined,
-  crmProjects: CrmProject[] | undefined
-): TProjectFilters[] =>
-  !currentUser || !crmProjects?.some(isOtherOpportunityOwner(currentUser))
-    ? []
-    : ["Other Owner"];
-
-const enableDifferentAccountFilter = (
-  crmProjects: CrmProject[] | undefined
-): TProjectFilters[] =>
-  crmProjects?.some(isDifferentAccountName) ? ["Differenct Account"] : [];
-
-const enableDifferentPartnerFilter = (
-  crmProjects: CrmProject[] | undefined
-): TProjectFilters[] =>
-  crmProjects?.some(isDifferentPartnerName) ? ["Differenct Partner"] : [];
-
 const enableUpdateDueFilter = (
+  user: User | undefined,
   crmProjects: CrmProject[] | undefined
 ): TProjectFilters[] =>
-  crmProjects?.some(hasHygieneIssues) ? ["Update Due"] : [];
+  crmProjects?.some(hasHygieneIssues(user)) ? ["Hygiene"] : [];
 
 const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
   children,
@@ -132,19 +70,8 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
   useEffect(() => {
     if (!crmProjects) return setFiltered(null);
     if (crmFilter === "All") return setFiltered(crmProjects);
-    if (crmFilter === "Update Due")
-      return flow(filter(hasHygieneIssues), setFiltered)(crmProjects);
-    if (crmFilter === "No Project")
-      return flow(filter(hasNoProjectLinked), setFiltered)(crmProjects);
-    if (crmFilter === "Other Owner")
-      return flow(
-        filter(isOtherOpportunityOwner(user)),
-        setFiltered
-      )(crmProjects);
-    if (crmFilter === "Differenct Account")
-      return flow(filter(isDifferentAccountName), setFiltered)(crmProjects);
-    if (crmFilter === "Differenct Partner")
-      return flow(filter(isDifferentPartnerName), setFiltered)(crmProjects);
+    if (crmFilter === "Hygiene")
+      return flow(filter(hasHygieneIssues(user)), setFiltered)(crmProjects);
     if (crmFilter === "By Partner")
       return flow(filter(hasPartnerLinked), setFiltered)(crmProjects);
     if (crmFilter === "By Account")
@@ -158,13 +85,9 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
         (
           [
             "All",
-            ...enableNoProjectFilter(crmProjects),
-            ...enableDifferentAccountFilter(crmProjects),
-            ...enableDifferentPartnerFilter(crmProjects),
-            ...enableUpdateDueFilter(crmProjects),
+            ...enableUpdateDueFilter(user, crmProjects),
             "By Partner",
             "By Account",
-            ...enableOtherOwnerFilter(user, crmProjects),
           ] as TProjectFilters[]
         ).filter((t) => !!t)
       );

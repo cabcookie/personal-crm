@@ -1,6 +1,7 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useProjectTodos from "@/api/useProjectTodos";
+import useCurrentUser from "@/api/useUser";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { addDays, format } from "date-fns";
 import { flow, map, sum } from "lodash/fp";
@@ -33,6 +34,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   const { saveProjectDates } = useProjectsContext();
   const { getAccountNamesByIds } = useAccountsContext();
   const { projectTodos } = useProjectTodos(project?.id);
+  const { user } = useCurrentUser();
 
   const handlePushToNextDay = async () => {
     if (!project) return;
@@ -55,7 +57,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
         link={`/projects/${project.id}`}
         badge={
           <>
-            {project.crmProjects.some(hasHygieneIssues) && (
+            {project.crmProjects.some(hasHygieneIssues(user)) && (
               <HygieneIssueBadge />
             )}
             <TaskBadge hasOpenTasks={projectTodos && projectTodos.length > 0} />
