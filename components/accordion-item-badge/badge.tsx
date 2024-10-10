@@ -26,7 +26,9 @@ const AccordionItemBadge: FC<AccordionItemBadgeProps> = ({
         className
       )}
     />
-    <Badge className={cn("hidden md:block text-primary-foreground", className)}>
+    <Badge
+      className={cn("hidden md:block text-primary-foreground h-6", className)}
+    >
       {badgeLabel}
     </Badge>
   </>
