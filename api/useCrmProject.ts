@@ -76,6 +76,7 @@ const useCrmProject = (projectId?: string) => {
     linkedPartnerNames: _linkedPartnerName,
     projectAccountNames: _projectAccountNames,
     pipeline: _pipeline,
+    hygieneIssuesResolved: _hygieneIssuesResolved,
     ...changedProject
   }: Partial<CrmProject>) => {
     if (!crmProject) return;

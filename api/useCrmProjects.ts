@@ -228,6 +228,7 @@ const useCrmProjects = () => {
           projectIds: _projectIds,
           linkedPartnerNames: _linkedPartner,
           projectAccountNames: _accountNames,
+          hygieneIssuesResolved: _hygieneIssuesResolved,
           ...project
         }: CrmProject) => project)(project),
         closeDate: toISODateString(project.closeDate),
