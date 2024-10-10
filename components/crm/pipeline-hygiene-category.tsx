@@ -41,6 +41,10 @@ const CrmProjectsPipelineHygieneCategory: FC<
       ]}
       isVisible={!!crmProjects?.length}
     >
+      <div className="text-gray-400 font-semibold">
+        {hygieneCategory.description}
+      </div>
+
       <Accordion type="single" collapsible>
         {crmProjects?.map(({ id }) => (
           <CrmProjectAccordionItem key={id} crmProjectId={id} showProjects />
