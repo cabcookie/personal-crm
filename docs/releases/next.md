@@ -1,8 +1,6 @@
-# Bibellesen integrieren (Version :VERSION)
+# Fehlerbehebungen Importieren von geschlossenen CRM Projekten (Version :VERSION)
 
-- Ich kann Notizen erfassen, wenn ich in der Bibel lese. Die Funktionalität ist über den Kontext "Family" über das Navigationsmenü erreichbar.
-- Im Navigationsmenü kann ich auch nach den Büchern der Bibel suchen.
-- Ein Link zu bible.com wird mit angezeigt.
+- Geschlossene CRM Projekte werden beim Importieren nicht wieder als fehlend gekennzeichnet sein.
 
 ## In Arbeit
 
