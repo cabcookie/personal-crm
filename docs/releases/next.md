@@ -4,10 +4,9 @@
 - Die Badges an Projekten oder Besprechungen wurden in die Höhe gestreckt, wenn der Titel eines Akkordions zwei Zeilen hatte.
 - In den CRM Projektdetails werden die Hygiene-Probleme aufgelistet.
 - Feld in der Datenbank hinzugefügt, in dem gespeichert werden kann, bis wann eine Bestätigung gilt, dass der Nutzer die Hygiene-Probleme aufgelöst hat.
+- Für ein CRM Projekt können nun die Hygiene-Probleme als behoben markiert werden. Für eine Stunde wird der Anwender nicht mehr darauf hingewiesen. Damit kann der Anwender alle Änderungen vornehmen und schließlich die CRM Projekte neu importieren.
 
 ## In Arbeit
-
-- Für ein CRM Projekt können nun die Hygiene-Probleme als behoben markiert werden. Für eine Stunde wird der Anwender nicht mehr darauf hingewiesen. Damit kann der Anwender alle Änderungen vornehmen und schließlich die CRM Projekte neu importieren.
 
 ## Geplant
 

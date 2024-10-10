@@ -147,6 +147,7 @@ export const hygieneIssues: THygieneIssue[] = [
 
 export const hasHygieneIssues =
   (user: User | undefined) => (crmProject: CrmProject) =>
+    !crmProject.hygieneIssuesResolved &&
     hygieneIssues.some((issue) => issue.filterFn(user)(crmProject));
 
 type CrmProjectsPipelineHygieneProps = {
