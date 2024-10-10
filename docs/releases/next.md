@@ -3,6 +3,7 @@
 - Geschlossene CRM Projekte werden beim Importieren nicht wieder als fehlend gekennzeichnet sein.
 - Die Badges an Projekten oder Besprechungen wurden in die Höhe gestreckt, wenn der Titel eines Akkordions zwei Zeilen hatte.
 - In den CRM Projektdetails werden die Hygiene-Probleme aufgelistet.
+- Feld in der Datenbank hinzugefügt, in dem gespeichert werden kann, bis wann eine Bestätigung gilt, dass der Nutzer die Hygiene-Probleme aufgelöst hat. Die Funktionalität dafür ist noch nicht implementiert.
 
 ## In Arbeit
 
