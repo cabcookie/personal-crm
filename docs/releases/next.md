@@ -1,8 +1,11 @@
 # Fehlerbehebungen Importieren von geschlossenen CRM Projekten (Version :VERSION)
 
 - Geschlossene CRM Projekte werden beim Importieren nicht wieder als fehlend gekennzeichnet sein.
+- Die Badges an Projekten oder Besprechungen wurden in die Höhe gestreckt, wenn der Titel eines Akkordions zwei Zeilen hatte.
 
 ## In Arbeit
+
+- Zeige die Hygiene Probleme in den CRM Projektdetails an.
 
 ## Geplant
 
