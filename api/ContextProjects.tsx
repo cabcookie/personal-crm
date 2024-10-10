@@ -113,6 +113,7 @@ const selectionSet = [
   "crmProjects.crmProject.totalContractVolume",
   "crmProjects.crmProject.isMarketplace",
   "crmProjects.crmProject.closeDate",
+  "crmProjects.crmProject.confirmHygieneIssuesSolvedTill",
   "crmProjects.crmProject.createdAt",
   "crmProjects.crmProject.createdDate",
   "crmProjects.crmProject.stage",

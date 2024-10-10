@@ -1,9 +1,13 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
-import { toISODateString } from "@/helpers/functional";
+import {
+  addMinutesToDate,
+  toISODateString,
+  toISODateTimeString,
+} from "@/helpers/functional";
 import { calcRevenueTwoYears } from "@/helpers/projects";
 import { generateClient } from "aws-amplify/data";
-import { isUndefined, omitBy } from "lodash";
+import { flow, isUndefined, omitBy } from "lodash";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import {
@@ -129,12 +133,37 @@ const useCrmProject = (projectId?: string) => {
     return data.id;
   };
 
+  const confirmSolvingHygieneIssues = async () => {
+    if (!crmProject) return;
+    const updated: CrmProject = {
+      ...crmProject,
+      hygieneIssuesResolved: true,
+    };
+    mutate(updated, false);
+    const { data, errors } = await client.models.CrmProject.update({
+      id: crmProject.id,
+      confirmHygieneIssuesSolvedTill: flow(
+        addMinutesToDate(60),
+        toISODateTimeString
+      )(new Date()),
+    });
+    if (errors)
+      handleApiErrors(errors, "Confirming solving hygiene issues failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Hygiene issues solved",
+      description: `Hygiene issues solved for project “${crmProject.name}” confirmed. If the CRM projects are not imported within 1 hour, the status returns to show the hygiene issues.`,
+    });
+  };
+
   return {
     crmProject,
     error,
     isLoading,
     updateCrmProject,
     addProjectToCrmProject,
+    confirmSolvingHygieneIssues,
   };
 };
 

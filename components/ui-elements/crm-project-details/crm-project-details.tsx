@@ -29,6 +29,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
     crmProject,
     updateCrmProject,
     addProjectToCrmProject,
+    confirmSolvingHygieneIssues,
     isLoading,
     error,
   } = useCrmProject(crmProjectId);
@@ -73,7 +74,10 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
       ) : (
         crmProject && (
           <>
-            <HygieneIssues crmProject={crmProject} />
+            <HygieneIssues
+              crmProject={crmProject}
+              confirmSolvingIssues={confirmSolvingHygieneIssues}
+            />
 
             <CrmProjectForm
               crmProject={crmProject}

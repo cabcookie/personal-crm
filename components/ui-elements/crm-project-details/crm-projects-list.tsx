@@ -48,6 +48,7 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
       stage: stage || "Prospect",
       tcv: tcv || 0,
       crmId,
+      hygieneIssuesResolved: false,
     });
   };
 

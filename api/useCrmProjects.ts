@@ -32,6 +32,7 @@ export type CrmProject = {
   accountName?: string;
   territoryName?: string;
   pipeline?: number;
+  hygieneIssuesResolved: boolean;
   projectAccountNames?: string[];
   linkedPartnerNames?: string[];
   createdDate: Date;
@@ -45,6 +46,7 @@ export const selectionSetCrmProject = [
   "totalContractVolume",
   "isMarketplace",
   "closeDate",
+  "confirmHygieneIssuesSolvedTill",
   "createdDate",
   "createdAt",
   "projects.project.id",
@@ -85,6 +87,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   type,
   accountName,
   territoryName,
+  confirmHygieneIssuesSolvedTill,
 }) => ({
   id,
   name,
@@ -97,6 +100,9 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   projectIds: projects.map(({ project: { id } }) => id),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
   stageChangedDate: !stageChangedDate ? undefined : new Date(stageChangedDate),
+  hygieneIssuesResolved:
+    !!confirmHygieneIssuesSolvedTill &&
+    new Date(confirmHygieneIssuesSolvedTill).getTime() > new Date().getTime(),
   opportunityOwner: opportunityOwner ?? undefined,
   nextStep: nextStep ?? undefined,
   partnerName: partnerName ?? undefined,
