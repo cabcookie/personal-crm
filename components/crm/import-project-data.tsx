@@ -1,6 +1,10 @@
 import useCrmProjects, { CrmProject } from "@/api/useCrmProjects";
 import useCrmProjectsImport, { DataChanged } from "@/api/useCrmProjectsImport";
-import { diffCalDays } from "@/helpers/functional";
+import {
+  changedProjects,
+  missingProjects,
+  newProjects,
+} from "@/helpers/crm/filters";
 import { cn } from "@/lib/utils";
 import { flow, map, sum } from "lodash/fp";
 import { Loader2 } from "lucide-react";
@@ -68,32 +72,9 @@ const ImportProjectData = () => {
       return;
     }
     setChangeSet({
-      new: processedData.filter(
-        (d) => !crmProjects.some((p) => p.crmId === d.crmId)
-      ),
-      missing: crmProjects.filter(
-        (p) =>
-          p.stage !== "Closed Lost" &&
-          p.stage !== "Launched" &&
-          !processedData.some((d) => d.crmId === p.crmId)
-      ),
-      changed: processedData.filter((d) =>
-        crmProjects.some(
-          (p) =>
-            p.crmId === d.crmId &&
-            (p.name !== d.name ||
-              p.accountName !== d.accountName ||
-              flow(diffCalDays(p.closeDate), Math.abs)(d.closeDate) > 3 ||
-              flow(diffCalDays(p.createdDate), Math.abs)(d.createdDate) > 3 ||
-              p.stage !== d.stage ||
-              p.arr !== d.arr ||
-              p.nextStep !== d.nextStep ||
-              p.partnerName !== d.partnerName ||
-              p.opportunityOwner !== d.opportunityOwner ||
-              p.territoryName !== d.territoryName ||
-              p.type !== d.type)
-        )
-      ),
+      new: processedData.filter(newProjects(crmProjects)),
+      missing: crmProjects.filter(missingProjects(processedData)),
+      changed: processedData.filter(changedProjects(crmProjects)),
     });
   }, [crmProjects, processedData]);
 

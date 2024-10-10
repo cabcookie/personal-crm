@@ -1,5 +1,6 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { CrmProject } from "@/api/useCrmProjects";
+import useCurrentUser from "@/api/useUser";
 import { invertSign } from "@/helpers/functional";
 import { make2YearsRevenueText } from "@/helpers/projects";
 import { isFuture } from "date-fns";
@@ -74,6 +75,7 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
 }) => {
   const [showOnHold, setShowOnHold] = useState(false);
   const { getProjectById } = useProjectsContext();
+  const { user } = useCurrentUser();
 
   return (
     <>
@@ -107,7 +109,7 @@ const GroupCrmProjects: FC<GroupCrmProjectsProps> = ({
             badge={
               flow(
                 getCrmProjectsByAccount(propertyName, company),
-                some(hasHygieneIssues)
+                some(hasHygieneIssues(user))
               )(crmProjects) && <HygieneIssueBadge />
             }
             triggerSubTitle={[

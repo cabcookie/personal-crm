@@ -14,6 +14,7 @@ import { FC } from "react";
 import LoadingAccordionItem from "../accordion/LoadingAccordionItem";
 import ProjectSelector from "../selectors/project-selector";
 import CrmProjectForm from "./CrmProjectForm";
+import HygieneIssues from "./hygiene-issues";
 
 type CrmProjectDetailsProps = {
   crmProjectId: string;
@@ -28,6 +29,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
     crmProject,
     updateCrmProject,
     addProjectToCrmProject,
+    confirmSolvingHygieneIssues,
     isLoading,
     error,
   } = useCrmProject(crmProjectId);
@@ -72,10 +74,16 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
       ) : (
         crmProject && (
           <>
+            <HygieneIssues
+              crmProject={crmProject}
+              confirmSolvingIssues={confirmSolvingHygieneIssues}
+            />
+
             <CrmProjectForm
               crmProject={crmProject}
               onChange={updateCrmProject}
             />
+
             <div className="space-y-1">
               <LabelData label="Stage" data={crmProject.stage} />
               <LabelData label="ARR" data={formatUsdCurrency(crmProject.arr)} />

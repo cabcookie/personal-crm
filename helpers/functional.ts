@@ -1,6 +1,13 @@
-import { addDays, differenceInCalendarDays, format } from "date-fns";
+import {
+  addDays,
+  addMinutes,
+  differenceInCalendarDays,
+  format,
+} from "date-fns";
 import { flow, isNil } from "lodash/fp";
 
+export const addMinutesToDate = (mins: number) => (date: Date) =>
+  addMinutes(date, mins);
 export const addDaysToDate = (days: number) => (date: Date) =>
   addDays(date, days);
 export const toLocaleTimeString = (date?: Date) =>

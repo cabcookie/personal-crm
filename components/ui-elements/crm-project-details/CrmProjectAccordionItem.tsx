@@ -1,4 +1,5 @@
 import useCrmProject from "@/api/useCrmProject";
+import useCurrentUser from "@/api/useUser";
 import HygieneIssueBadge from "@/components/crm/hygiene-issue-badge";
 import { hasHygieneIssues } from "@/components/crm/pipeline-hygiene";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
@@ -24,6 +25,7 @@ const CrmProjectAccordionItem: FC<CrmProjectAccordionItemProps> = ({
     isLoading: loadingCrmProject,
     error: errorCrmProject,
   } = useCrmProject(crmProjectId);
+  const { user } = useCurrentUser();
 
   return loadingCrmProject ? (
     <LoadingAccordionItem
@@ -50,7 +52,7 @@ const CrmProjectAccordionItem: FC<CrmProjectAccordionItemProps> = ({
               </Badge>
             </>
           ) : (
-            hasHygieneIssues(crmProject) && <HygieneIssueBadge />
+            hasHygieneIssues(user)(crmProject) && <HygieneIssueBadge />
           )
         }
         link={`/crm-projects/${crmProject.id}`}
