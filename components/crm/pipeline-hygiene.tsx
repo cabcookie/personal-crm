@@ -72,7 +72,7 @@ export const hygieneIssues: THygieneIssue[] = [
     label: "Other owner",
     description: "Current user is not the owner of the opportunity",
     filterFn: (user) => (crm) =>
-      !!user && crm.opportunityOwner !== user.userName,
+      isOpen(crm) && !!user && crm.opportunityOwner !== user.userName,
   },
   {
     value: "wrongAccount",
@@ -101,6 +101,7 @@ export const hygieneIssues: THygieneIssue[] = [
   {
     value: "closeDatePast",
     label: "Close date past",
+    description: "Close date is in the past",
     filterFn: () => (crm) => isOpen(crm) && !isFuture(crm.closeDate),
   },
   {
