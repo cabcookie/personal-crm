@@ -1,8 +1,6 @@
-# Bibellesen integrieren (Version :VERSION)
+# Bestätigung Auflösung von Hygiene-Problemen (Version :VERSION)
 
-- Ich kann Notizen erfassen, wenn ich in der Bibel lese. Die Funktionalität ist über den Kontext "Family" über das Navigationsmenü erreichbar.
-- Im Navigationsmenü kann ich auch nach den Büchern der Bibel suchen.
-- Ein Link zu bible.com wird mit angezeigt.
+- Feld in der Datenbank hinzugefügt, in dem gespeichert werden kann, bis wann eine Bestätigung gilt, dass der Nutzer die Hygiene-Probleme aufgelöst hat. Die Funktionalität dafür ist noch nicht implementiert.
 
 ## In Arbeit
 
