@@ -1,7 +1,7 @@
 import { Account } from "@/api/ContextAccounts";
 import { CrmDataProps, Project } from "@/api/ContextProjects";
 import { STAGES_PROBABILITY, TCrmStages } from "@/api/useCrmProject";
-import { ProjectFilters } from "@/components/accounts/ProjectList";
+import { ProjectFilters } from "@/components/projects/useProjectFilter";
 import { differenceInCalendarMonths } from "date-fns";
 import { filter, flatMap, flow, map, max, round, sortBy, sum } from "lodash/fp";
 import { calcOrder } from "./accounts";
@@ -102,8 +102,29 @@ export const make2YearsRevenueText = (revenue: number) =>
 export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
   make2YearsRevenueText(flow(map(calcRevenueTwoYears), sum)(projects));
 
+export type FilterAndSortProjectsProps = {
+  projects: Project[];
+  accountId?: string;
+  projectFilter?: ProjectFilters;
+  accounts?: Account[];
+  searchText?: string;
+};
+
+type FilterProjectsProps = Pick<
+  FilterAndSortProjectsProps,
+  "accountId" | "projectFilter" | "searchText"
+>;
+
+const searchTextInProjectName = (
+  projectName: string,
+  searchText: FilterProjectsProps["searchText"]
+) =>
+  searchText
+    ? projectName.toLowerCase().includes(searchText.toLowerCase())
+    : true;
+
 const filterByProjectStatus =
-  (accountId: string | undefined, projectFilter: ProjectFilters | undefined) =>
+  ({ accountId, projectFilter }: FilterProjectsProps) =>
   ({ accountIds, done, onHoldTill }: Project) =>
     accountId
       ? accountIds.includes(accountId) && !done
@@ -111,25 +132,38 @@ const filterByProjectStatus =
         (projectFilter === "On Hold" && !done && !!onHoldTill) ||
         (projectFilter === "Done" && done);
 
+const filterBySearch =
+  ({ accountId, searchText }: FilterProjectsProps) =>
+  ({ accountIds, done, project }: Project) =>
+    accountId
+      ? accountIds.includes(accountId) &&
+        searchTextInProjectName(project, searchText) &&
+        !done
+      : searchTextInProjectName(project, searchText) && !done;
+
 export const calcPipelineByAccountId =
   (accountId: string | undefined) =>
   (projects?: Project[]): number =>
     !projects
       ? 0
       : flow(
-          filter(filterByProjectStatus(accountId, undefined)),
+          filter(filterByProjectStatus({ accountId })),
           map((p) => p.pipeline),
           sum
         )(projects);
 
-export const filterAndSortProjects = (
-  projects: Project[],
-  accountId: string | undefined,
-  projectFilter: ProjectFilters | undefined,
-  accounts: Account[] | undefined
-) =>
-  flow(
-    filter(filterByProjectStatus(accountId, projectFilter)),
+export const filterAndSortProjects = ({
+  projectFilter,
+  accountId,
+  projects,
+  accounts,
+  searchText,
+}: FilterAndSortProjectsProps) => {
+  const filterProjects = searchText ? filterBySearch : filterByProjectStatus;
+
+  return flow(
+    filter(filterProjects({ accountId, projectFilter, searchText })),
     map(updateProjectOrder(accounts)),
     sortBy((p) => -p.order)
   )(projects);
+};

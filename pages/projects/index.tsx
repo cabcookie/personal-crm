@@ -1,16 +1,18 @@
 import { useProjectsContext } from "@/api/ContextProjects";
-import ProjectList, {
-  ProjectFilters,
-  isValidProjectFilter,
-} from "@/components/accounts/ProjectList";
+import ProjectList from "@/components/accounts/ProjectList";
 import MainLayout from "@/components/layouts/MainLayout";
-import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
+import ProjectFilterBtnGrp from "@/components/projects/project-filter-btn-group";
+import {
+  useProjectFilter,
+  withProjectFilter,
+} from "@/components/projects/useProjectFilter";
+import SearchInput from "@/components/search/search-input";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/router";
-import { useState } from "react";
 
 const ProjectListPage = () => {
   const { createProject } = useProjectsContext();
-  const [filter, setFilter] = useState<ProjectFilters>("WIP");
+  const { isSearchActive } = useProjectFilter();
   const router = useRouter();
 
   const createAndOpenNewProject = async () => {
@@ -19,9 +21,6 @@ const ProjectListPage = () => {
     router.push(`/projects/${project.id}`);
   };
 
-  const onFilterChange = (newFilter: string) =>
-    isValidProjectFilter(newFilter) && setFilter(newFilter);
-
   return (
     <MainLayout
       title="Projects"
@@ -29,18 +28,20 @@ const ProjectListPage = () => {
       addButton={{ label: "New", onClick: createAndOpenNewProject }}
     >
       <div className="space-y-6">
-        <div className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2">
-          <ButtonGroup
-            values={["WIP", "On Hold", "Done"] as ProjectFilters[]}
-            selectedValue={filter}
-            onSelect={onFilterChange}
-          />
-        </div>
+        <SearchInput
+          className={cn(
+            "py-4",
+            isSearchActive &&
+              "bg-bgTransparent sticky top-[6.5rem] md:top-[8.25rem] z-[35] pb-2"
+          )}
+        />
 
-        <ProjectList filter={filter} allowPushToNextDay />
+        <ProjectFilterBtnGrp className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2" />
+
+        <ProjectList allowPushToNextDay />
       </div>
     </MainLayout>
   );
 };
 
-export default ProjectListPage;
+export default withProjectFilter(ProjectListPage);
