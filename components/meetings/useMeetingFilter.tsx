@@ -1,5 +1,7 @@
 import useMeetings, { Meeting } from "@/api/useMeetings";
-import { useContextContext } from "@/contexts/ContextContext";
+import usePeople from "@/api/usePeople";
+import { Context, useContextContext } from "@/contexts/ContextContext";
+import { createMeetingName } from "@/helpers/meetings";
 import { filter, flow, map, uniq } from "lodash/fp";
 import {
   ComponentType,
@@ -11,10 +13,16 @@ import {
 } from "react";
 import useMeetingPagination from "./useMeetingPagination";
 
+export type CreateMeetingProps = {
+  topic: string;
+  context?: Context;
+  participantId?: string;
+};
+
 interface MeetingFilterType {
   meetings: ReturnType<typeof useMeetings>["meetings"] | undefined;
   meetingDates: string[];
-  createMeeting: ReturnType<typeof useMeetings>["createMeeting"];
+  createMeeting: (props: CreateMeetingProps) => Promise<string | undefined>;
   selectedFilter: TMeetingFilters;
   availableFilters: TMeetingFilters[];
   onSelectFilter: (selectedFilter: string) => void;
@@ -59,7 +67,7 @@ const MeetingFilterProvider: FC<MeetingFilterProviderProps> = ({
   const { fromDate, toDate, handleNextClick, handlePrevClick } =
     useMeetingPagination();
 
-  const { meetings, createMeeting } = useMeetings({
+  const { meetings, createMeeting, createMeetingParticipant } = useMeetings({
     context,
     startDate: fromDate,
   });
@@ -67,6 +75,8 @@ const MeetingFilterProvider: FC<MeetingFilterProviderProps> = ({
 
   const [meetingFilter, setMeetingFilter] = useState<TMeetingFilters>("All");
   const [filtered, setFiltered] = useState<Meeting[] | undefined>(undefined);
+
+  const { people } = usePeople();
 
   useEffect(() => {
     if (!meetings) return setFiltered(undefined);
@@ -86,12 +96,28 @@ const MeetingFilterProvider: FC<MeetingFilterProviderProps> = ({
     setMeetingFilter(newFilter);
   };
 
+  const createMeetingAndParticipant = async ({
+    topic,
+    context,
+    participantId,
+  }: CreateMeetingProps) => {
+    const meetingName = !participantId
+      ? topic
+      : createMeetingName({ participantId, people });
+    if (!meetingName) return;
+    const meetingId = await createMeeting(meetingName, context);
+    if (!meetingId) return;
+    if (!participantId) return meetingId;
+    await createMeetingParticipant(meetingId, participantId);
+    return meetingId;
+  };
+
   return (
     <MeetingFilter.Provider
       value={{
         meetings: filtered,
         meetingDates,
-        createMeeting,
+        createMeeting: createMeetingAndParticipant,
         selectedFilter: meetingFilter,
         availableFilters: [...MEETING_FILTERS],
         onSelectFilter: onFilterChange,

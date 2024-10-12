@@ -10,6 +10,8 @@ import { Editor } from "@tiptap/core";
 import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
 import CrmLink from "../crm/CrmLink";
+import { ProjectFilterProvider } from "../projects/useProjectFilter";
+import { SearchProvider } from "../search/useSearch";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { debouncedUpdateAccountDetails } from "../ui-elements/account-details/account-updates-helpers";
 import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
@@ -129,7 +131,11 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           )(projects)}
           isVisible={!!showProjects}
         >
-          <ProjectList accountId={account.id} />
+          <SearchProvider>
+            <ProjectFilterProvider accountId={account.id}>
+              <ProjectList />
+            </ProjectFilterProvider>
+          </SearchProvider>
         </DefaultAccordionItem>
 
         <AccountPeople accountId={account.id} isVisible={!!showContacts} />

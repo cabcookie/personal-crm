@@ -1,6 +1,7 @@
 import useMeetings from "@/api/useMeetings";
+import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
-import { first, flow, identity, split } from "lodash/fp";
+import { createMeetingName } from "@/helpers/meetings";
 import { FC } from "react";
 import SearchableDataGroup from "./SearchableDataGroup";
 
@@ -13,26 +14,25 @@ type CreateOneOnOneMeetingProps = {
   }[];
 };
 
-const getFirstName = flow(identity<string>, split(" "), first);
-
 const CreateOneOnOneMeeting: FC<CreateOneOnOneMeetingProps> = ({
   metaPressed,
   items,
 }) => {
   const { context } = useContextContext();
   const { createMeeting, createMeetingParticipant } = useMeetings({ context });
+  const { people } = usePeople();
 
-  const handleCreate =
-    (personId: string, personName: string, accountNames: string | undefined) =>
-    async () => {
-      const meetingName = `Meet ${getFirstName(personName)}${
-        !accountNames ? "" : `/${getFirstName(accountNames)}`
-      }`;
-      const meetingId = await createMeeting(meetingName, context);
-      if (!meetingId) return;
-      await createMeetingParticipant(meetingId, personId);
-      return meetingId;
-    };
+  const handleCreate = (personId: string) => async () => {
+    const meetingName = createMeetingName({
+      people,
+      participantId: personId,
+    });
+    if (!meetingName) return;
+    const meetingId = await createMeeting(meetingName, context);
+    if (!meetingId) return;
+    await createMeetingParticipant(meetingId, personId);
+    return meetingId;
+  };
 
   return (
     <SearchableDataGroup
@@ -42,7 +42,7 @@ const CreateOneOnOneMeeting: FC<CreateOneOnOneMeetingProps> = ({
         id,
         value: `…with ${name}${!accountNames ? "" : ` (${accountNames})`}`,
         link: "/meetings",
-        processFn: handleCreate(id, name, accountNames),
+        processFn: handleCreate(id),
       }))}
     />
   );
