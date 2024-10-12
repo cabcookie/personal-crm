@@ -1,4 +1,4 @@
-# Einfacher Suchen (Projekte/Personsn) (Version :VERSION)
+# Einfacher Suchen (Projekte/Personen) (Version :VERSION)
 
 - Die Projektliste kann nun durchsucht werden.
 - Meeting mit einer einzelnen Person können nun auch in der Meetingsliste erstellt werden.
