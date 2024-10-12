@@ -1,10 +1,9 @@
 # Einfacher Suchen (Projekte/Personsn) (Version :VERSION)
 
 - Die Projektliste kann nun durchsucht werden.
+- Meeting mit einer einzelnen Person können nun auch in der Meetingsliste erstellt werden.
 
 ## In Arbeit
-
-- Ich möchte besser ein Meeting mit einer bestimmten Person starten.
 
 ## Geplant
 
