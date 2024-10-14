@@ -1,8 +1,8 @@
 import { Project } from "@/api/ContextProjects";
 import useWeekPlan from "@/api/useWeekPlan";
+import { isDeselectedForWeek, isSelectedForWeek } from "@/helpers/planning";
 import { cn } from "@/lib/utils";
-import { differenceInCalendarDays } from "date-fns";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import DecisionButton from "./DecisionButton";
 
@@ -20,6 +20,15 @@ const DecisionSection: FC<DecisionSectionProps> = ({
   const { makeProjectDecision, weekPlan } = useWeekPlan();
   const [selectedChoice, setSelectedChoice] = useState("");
 
+  useEffect(() => {
+    if (!weekPlan) return;
+    if (
+      isSelectedForWeek(weekPlan, project) ||
+      isDeselectedForWeek(weekPlan, project)
+    )
+      setSelectedChoice("");
+  }, [weekPlan]);
+
   const handleDecision = (inFocusThisWeek: boolean, choice: string) => () => {
     setSelectedChoice(choice);
     makeProjectDecision({ inFocusThisWeek, project, saveOnHoldDate });
@@ -35,7 +44,7 @@ const DecisionSection: FC<DecisionSectionProps> = ({
         <div id={`${project.id}-decision`} className="space-x-2">
           <DecisionButton
             label="Yes"
-            selected={weekPlan.projectIds.some((id) => id === project.id)}
+            selected={isSelectedForWeek(weekPlan, project)}
             makeDecision={handleDecision(true, "Yes")}
             isLoading={selectedChoice === "Yes"}
             disabled={selectedChoice !== ""}
@@ -43,13 +52,7 @@ const DecisionSection: FC<DecisionSectionProps> = ({
 
           <DecisionButton
             label="No"
-            selected={
-              !!project.onHoldTill &&
-              differenceInCalendarDays(
-                project.onHoldTill,
-                weekPlan.startDate
-              ) >= 7
-            }
+            selected={isDeselectedForWeek(weekPlan, project)}
             makeDecision={handleDecision(false, "No")}
             isLoading={selectedChoice === "No"}
             disabled={selectedChoice !== ""}

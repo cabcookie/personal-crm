@@ -105,3 +105,10 @@ export const mapAccountOrder = (account: AccountProjects): AccountProjects => ({
   order: reCalculateOrder(account),
   pipeline: calcPipeline(account.projects),
 });
+
+export const isSelectedForWeek = (weekPlan: WeeklyPlan, project: Project) =>
+  weekPlan.projectIds.some((id) => id === project.id);
+
+export const isDeselectedForWeek = (weekPlan: WeeklyPlan, project: Project) =>
+  !!project.onHoldTill &&
+  differenceInCalendarDays(project.onHoldTill, weekPlan.startDate) >= 7;
