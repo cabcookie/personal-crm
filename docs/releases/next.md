@@ -1,7 +1,6 @@
-# Einfacher Suchen (Projekte/Personen) (Version :VERSION)
+# Wochenplanung nach Accounts sortieren (WORK-Kontext) (Version :VERSION)
 
-- Die Projektliste kann nun durchsucht werden.
-- Meeting mit einer einzelnen Person können nun auch in der Meetingsliste erstellt werden.
+- Bei der Wochenplanung werden die Projekte nun nach Accounts gruppiert dargestellt. Sie sind nach Größe der Pipeline absteigend sortiert.
 
 ## In Arbeit
 
