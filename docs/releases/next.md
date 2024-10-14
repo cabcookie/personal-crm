@@ -1,6 +1,6 @@
-# Wochenplanung nach Accounts sortieren (WORK-Kontext) (Version :VERSION)
+# Involvierte Personen an Projekten zeigen (Version :VERSION)
 
-- Bei der Wochenplanung werden die Projekte nun nach Accounts gruppiert dargestellt. Sie sind nach Größe der Pipeline absteigend sortiert.
+- In den Projektdetails werden nun Personen angezeigt, die in Meetings dabei gewesen sind, bei dem das Projekt behandelt wurde.
 
 ## In Arbeit
 
@@ -46,7 +46,6 @@
 ### Projekte
 
 - Eine "Lean-Ansicht" wäre toll, zum Beispiel, wenn ich Notizen zu einem Projekt sehen möchte, dann scrolle ich einfach durch die Notizen ohne erst Akkordions aufklappen zu müssen.
-- Es ist hilfreich, wenn ich verstehe, wieviel Punkte ein Projekt hat, damit ich die Sortierung besser verstehen kann. Im Moment wundere ich mich, warum Projekte, die aus meiner Sicht wichtig sind, so weit unten in der Liste landen. Vielleicht denke ich, dass ein bestimmter Account eine hohe Relevanz hat, dass dies aber gar nicht der Fall ist.
 - Wenn ich eine Aufgabe abgeschlossen haben, möchte ich sehr häufig eine Notiz erfassen und eine Folgeaufgabe. Das ist im Moment recht kompliziert, weil ich erst ins Projekt, dann dort die Notizen aufklappen, eine neue Aktivität erzeugen und schließlich dort wieder die Notizen aufklappen, bevor ich etwas notieren kann. Besser wäre ein Button: "Done and take note" oder so.
 
 ## Fehler

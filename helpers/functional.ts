@@ -30,6 +30,14 @@ export const usdCurrency = new Intl.NumberFormat("en-US", {
   style: "currency",
   maximumFractionDigits: 0,
 });
+export const uniqArraySorted = (ids: string[]): string[] => {
+  const idMap: Record<string, number> = ids.reduce((acc, id) => {
+    acc[id] = (acc[id] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const sortedIds = Object.keys(idMap).sort((a, b) => idMap[b] - idMap[a]);
+  return sortedIds;
+};
 export const formatUsdCurrency = (val: number) => usdCurrency.format(val);
 export const formatRevenue = (revenue: number) =>
   revenue < 5000
