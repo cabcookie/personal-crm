@@ -5,13 +5,23 @@ import {
   addDaysToDate,
   newDateTimeString,
   toISODateString,
+  uniqArraySorted,
 } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
-import { filter, flow, join, map, sortBy } from "lodash/fp";
+import {
+  compact,
+  filter,
+  flatMap,
+  flow,
+  identity,
+  join,
+  map,
+  sortBy,
+} from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
@@ -84,6 +94,7 @@ export type Project = {
   activityIds: string[];
   crmProjects: CrmProject[];
   hasOldVersionedActivityFormat: boolean;
+  involvedPeopleIds: string[];
 };
 
 const selectionSet = [
@@ -106,6 +117,7 @@ const selectionSet = [
   "activities.activity.finishedOn",
   "activities.activity.formatVersion",
   "activities.activity.createdAt",
+  "activities.activity.forMeeting.participants.personId",
   "crmProjects.crmProject.id",
   "crmProjects.crmProject.name",
   "crmProjects.crmProject.crmId",
@@ -204,6 +216,14 @@ const mapProject: (project: ProjectData) => Project = ({
       sortBy((a) => -a.finishedOn.getTime()),
       map((a) => a.id)
     )(activities),
+    involvedPeopleIds: flow(
+      identity<ProjectData["activities"]>,
+      map("activity.forMeeting"),
+      compact,
+      flatMap("participants"),
+      map("personId"),
+      uniqArraySorted
+    )(activities),
     crmProjects: flow(
       map(mapCrmData),
       filter((d) => !!d)
@@ -280,6 +300,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       accountIds: [],
       activityIds: [],
       crmProjects: [],
+      involvedPeopleIds: [],
       pipeline: 0,
       order: 0,
       hasOldVersionedActivityFormat: false,

@@ -1,5 +1,6 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import ProjectInvolvedPeople from "@/components/projects/project-involved-people";
 import { Accordion } from "@/components/ui/accordion";
 import { Context } from "@/contexts/ContextContext";
 import { FC, useEffect, useState } from "react";
@@ -116,6 +117,8 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
           />
 
           <ProjectDates project={project} updateDatesFn={handleDateChange} />
+
+          <ProjectInvolvedPeople project={project} />
 
           <ProjectNextActions projectId={project.id} />
 
