@@ -8,10 +8,8 @@ import {
   usePlanAccountProjects,
   withPlanAccountProjects,
 } from "./usePlanAccountProjects";
-import { useWeekPlanContext } from "./useWeekPlanContext";
 
 const PlanWeekContextWork = () => {
-  const { weekPlan, startDate } = useWeekPlanContext();
   const { accountsProjects, loadingAccounts, errorAccounts, saveProjectDates } =
     usePlanAccountProjects();
 
@@ -37,11 +35,7 @@ const PlanWeekContextWork = () => {
             <Accordion type="single" collapsible>
               {projects.map((project) => (
                 <MakeProjectDecision
-                  startDate={startDate}
                   key={project.id}
-                  isInFocus={weekPlan?.projectIds.some(
-                    (id) => id === project.id
-                  )}
                   project={project}
                   saveOnHoldDate={(onHoldTill) =>
                     saveProjectDates({ projectId: project.id, onHoldTill })

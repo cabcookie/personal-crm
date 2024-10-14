@@ -1,6 +1,6 @@
-# Involvierte Personen an Projekten zeigen (Version :VERSION)
+# Projekt-Detailseite um Planung erweitern (Version :VERSION)
 
-- In den Projektdetails werden nun Personen angezeigt, die in Meetings dabei gewesen sind, bei dem das Projekt behandelt wurde.
+- Wenn gerade eine wöchentliche Planung im Gange ist, wird auf der Projektdetailseite die Möglichkeit geboten, für das Projekt zu entscheiden, ob es in der aktuellen Woche behandelt werden soll.
 
 ## In Arbeit
 

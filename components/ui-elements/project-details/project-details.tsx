@@ -1,5 +1,6 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
+import DecisionSection from "@/components/planning/DecisionSection";
 import ProjectInvolvedPeople from "@/components/projects/project-involved-people";
 import { Accordion } from "@/components/ui/accordion";
 import { Context } from "@/contexts/ContextContext";
@@ -83,6 +84,14 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             <ContextWarning recordContext={projectContext} />
           </RecordDetails>
         )}
+
+        <DecisionSection
+          project={project}
+          saveOnHoldDate={(onHoldTill) =>
+            saveProjectDates({ projectId: project.id, onHoldTill })
+          }
+          className="mx-1 md:mx-2"
+        />
 
         <Accordion type="single" collapsible>
           <ProjectAccountDetails
