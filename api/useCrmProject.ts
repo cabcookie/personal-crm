@@ -144,7 +144,7 @@ const useCrmProject = (projectId?: string) => {
     const { data, errors } = await client.models.CrmProject.update({
       id: crmProject.id,
       confirmHygieneIssuesSolvedTill: flow(
-        addMinutesToDate(60),
+        addMinutesToDate(4 * 60),
         toISODateTimeString
       )(new Date()),
     });
@@ -154,7 +154,7 @@ const useCrmProject = (projectId?: string) => {
     if (!data) return;
     toast({
       title: "Hygiene issues solved",
-      description: `Hygiene issues solved for project “${crmProject.name}” confirmed. If the CRM projects are not imported within 1 hour, the status returns to show the hygiene issues.`,
+      description: `Hygiene issues solved for project “${crmProject.name}” confirmed. If the CRM projects are not imported within 4 hours, the status returns to show the hygiene issues.`,
     });
   };
 
