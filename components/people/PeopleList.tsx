@@ -34,7 +34,7 @@ const PeopleList: FC<PeopleListProps> = ({
             find((p: LeanPerson) => p.id === personId),
             get("accountNames")
           )(people)}
-          onDelete={() => onDelete?.(personId)}
+          onDelete={!onDelete ? undefined : () => onDelete(personId)}
           link={`/people/${personId}`}
         >
           <PersonDetails personId={personId} showNotes={showNotes} />
