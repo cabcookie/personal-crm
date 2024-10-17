@@ -1,6 +1,6 @@
-# Projekt-Detailseite um Planung erweitern (Version :VERSION)
+# Meeting TOPs mit Aktivität verknüpfen (Version :VERSION)
 
-- Wenn gerade eine wöchentliche Planung im Gange ist, wird auf der Projektdetailseite die Möglichkeit geboten, für das Projekt zu entscheiden, ob es in der aktuellen Woche behandelt werden soll.
+- Im Meeting gibt es für jeden Topic ein Akkordion. Dem Akkordion haben wir einen Link hinzugefügt, so dass man den Topic in einem neuen Fenster öffnen kann.
 
 ## In Arbeit
 
@@ -47,6 +47,10 @@
 
 - Eine "Lean-Ansicht" wäre toll, zum Beispiel, wenn ich Notizen zu einem Projekt sehen möchte, dann scrolle ich einfach durch die Notizen ohne erst Akkordions aufklappen zu müssen.
 - Wenn ich eine Aufgabe abgeschlossen haben, möchte ich sehr häufig eine Notiz erfassen und eine Folgeaufgabe. Das ist im Moment recht kompliziert, weil ich erst ins Projekt, dann dort die Notizen aufklappen, eine neue Aktivität erzeugen und schließlich dort wieder die Notizen aufklappen, bevor ich etwas notieren kann. Besser wäre ein Button: "Done and take note" oder so.
+
+### Künstliche Intelligenz
+
+- Die Notizen und Todos mithilfe von Bedrock durchsuchbar machen ([Artikel 1](https://aws.amazon.com/de/blogs/machine-learning/build-generative-ai-agents-with-amazon-bedrock-amazon-dynamodb-amazon-kendra-amazon-lex-and-langchain/) und [Artikel 2](https://medium.com/@dminhk/adding-amazon-dynamodb-memory-to-amazon-bedrock-using-langchain-expression-language-lcel-%EF%B8%8F-1ca55407ecdb))
 
 ## Fehler
 
