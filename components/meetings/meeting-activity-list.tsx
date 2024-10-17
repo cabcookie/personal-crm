@@ -40,6 +40,7 @@ const MeetingActivityList: FC<MeetingActivityListProps> = ({ meeting }) => {
           </>
         }
         triggerTitle={`Topic ${idx + 1}`}
+        link={`/activities/${a.id}`}
         triggerSubTitle={[
           ...getTopicProjects(a.projectIds, projects, getAccountNamesByIds),
           `Next actions: ${getTopicTodos(a.projectIds, meetingTodos)}`,
