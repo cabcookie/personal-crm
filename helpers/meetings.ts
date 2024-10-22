@@ -1,8 +1,10 @@
 import { MeetingUpdateProps } from "@/api/useMeeting";
 import { Meeting } from "@/api/useMeetings";
 import { LeanPerson } from "@/api/usePeople";
+import { Context } from "@/contexts/ContextContext";
 import { debounce } from "lodash";
-import { first, flow, identity, split } from "lodash/fp";
+import { first, flow, get, identity, split } from "lodash/fp";
+import { includesNormalized, normalize } from "./functional";
 
 const getFirstName = flow(identity<string>, split(" "), first);
 const getAccountName = flow(identity<string>, split(","), first);
@@ -35,4 +37,33 @@ export const debouncedUpdateMeeting = (
       });
     },
     1500
+  );
+
+export type CreateMeetingProps = {
+  topic: string;
+  context?: Context;
+  participantId?: string;
+};
+
+export const MEETING_FILTERS = ["All", "With Todos", "Old versions"] as const;
+
+export type TMeetingFilters = (typeof MEETING_FILTERS)[number];
+
+export const isValidMeetingFilter = (
+  filter: string
+): filter is TMeetingFilters =>
+  MEETING_FILTERS.includes(filter as TMeetingFilters);
+
+export const hasTodos = (meeting: Meeting) =>
+  !meeting.immediateTasksDone && meeting.hasOpenTodos;
+
+export const hasOldVersion = (meeting: Meeting) =>
+  meeting.hasOldVersionFormattedActivities;
+
+export const topicIncludesSearchText = (searchText: string) =>
+  flow(
+    identity<Meeting>,
+    get("topic"),
+    normalize,
+    includesNormalized(searchText)
   );

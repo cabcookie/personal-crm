@@ -1,8 +1,8 @@
 import { useContextContext } from "@/contexts/ContextContext";
+import { CreateMeetingProps } from "@/helpers/meetings";
 import { FC } from "react";
 import PeopleSelector from "../ui-elements/selectors/people-selector";
 import { Label } from "../ui/label";
-import { CreateMeetingProps } from "./useMeetingFilter";
 
 type CreateOneOnOneMeetingProps = {
   createMeeting: (props: CreateMeetingProps) => void;

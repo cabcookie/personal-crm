@@ -1,6 +1,6 @@
-# Meeting TOPs mit Aktivität verknüpfen (Version :VERSION)
+# Meetings durchsuchen (Version :VERSION)
 
-- Im Meeting gibt es für jeden Topic ein Akkordion. Dem Akkordion haben wir einen Link hinzugefügt, so dass man den Topic in einem neuen Fenster öffnen kann.
+- Ähnlich wie bei Projekten können nun die Meetings durchsucht werden.
 
 ## In Arbeit
 
