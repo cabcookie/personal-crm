@@ -18,6 +18,7 @@ type MeetingPaginationProps = {
   toDate: string;
   handlePrevClick: () => void;
   handleNextClick: () => void;
+  className?: string;
 };
 
 const isToday = flow(parseISO, addDaysToDate(1), isFuture);
@@ -27,8 +28,9 @@ const MeetingPagination: FC<MeetingPaginationProps> = ({
   toDate,
   handlePrevClick,
   handleNextClick,
+  className,
 }) => (
-  <Pagination className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2">
+  <Pagination className={cn(className)}>
     <PaginationContent>
       <PaginationItem>
         <PaginationPrevious onClick={handlePrevClick} />

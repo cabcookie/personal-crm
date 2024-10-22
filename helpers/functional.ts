@@ -4,7 +4,15 @@ import {
   differenceInCalendarDays,
   format,
 } from "date-fns";
-import { flow, isNil } from "lodash/fp";
+import {
+  flow,
+  identity,
+  includes,
+  isNil,
+  replace,
+  toLower,
+  trim,
+} from "lodash/fp";
 
 export const addMinutesToDate = (mins: number) => (date: Date) =>
   addMinutes(date, mins);
@@ -70,3 +78,11 @@ export const truncateMiddle = (text: string, length = 20): string => {
 export const diffCalDays = (date1: Date) => (date2: Date) =>
   differenceInCalendarDays(date2, date1);
 export const invertSign = (value: number) => -value;
+export const normalize = flow(
+  identity<string>,
+  toLower,
+  trim,
+  replace(/\W/g, "")
+);
+export const includesNormalized = (search: string) => (toSearchIn: string) =>
+  flow(identity<string>, normalize, includes)(search)(toSearchIn);

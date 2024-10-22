@@ -27,7 +27,7 @@ const DecisionSection: FC<DecisionSectionProps> = ({
       isDeselectedForWeek(weekPlan, project)
     )
       setSelectedChoice("");
-  }, [weekPlan]);
+  }, [weekPlan, project]);
 
   const handleDecision = (inFocusThisWeek: boolean, choice: string) => () => {
     setSelectedChoice(choice);

@@ -1,16 +1,27 @@
+import { cn } from "@/lib/utils";
+import { FC } from "react";
 import ButtonGroup from "../ui-elements/btn-group/btn-group";
 import { useMeetingFilter } from "./useMeetingFilter";
 
-const MeetingFilter = () => {
-  const { availableFilters, onSelectFilter, selectedFilter } =
+type MeetingFilterBtnGrpProps = {
+  className?: string;
+};
+
+const MeetingFilterBtnGrp: FC<MeetingFilterBtnGrpProps> = ({ className }) => {
+  const { availableFilters, onSelectFilter, selectedFilter, isSearchActive } =
     useMeetingFilter();
+
   return (
-    <ButtonGroup
-      values={availableFilters}
-      selectedValue={selectedFilter}
-      onSelect={onSelectFilter}
-    />
+    !isSearchActive && (
+      <div className={cn(className)}>
+        <ButtonGroup
+          values={availableFilters}
+          selectedValue={selectedFilter}
+          onSelect={onSelectFilter}
+        />
+      </div>
+    )
   );
 };
 
-export default MeetingFilter;
+export default MeetingFilterBtnGrp;
