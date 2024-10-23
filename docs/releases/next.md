@@ -1,6 +1,10 @@
-# Meetings durchsuchen (Version :VERSION)
+# Wichtigste Kontakte anzeigen (Version :VERSION)
 
-- Ähnlich wie bei Projekten können nun die Meetings durchsucht werden.
+- Über den Menüpunkt „Count of Interactions“ lassen sich nun die Kontakte anzeigen, mit denen am meisten Interaktionen stattgefunden haben. Das gilt sowohl für Kollegen, wie für Kunden und Partner.
+
+## Fehlerbehebungen
+
+- Accounts werden beim Suchen im Navigationsmenü nur noch im Arbeits-Kontext angezeigt.
 
 ## In Arbeit
 
