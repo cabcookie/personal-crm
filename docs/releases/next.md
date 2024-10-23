@@ -1,10 +1,18 @@
-# Wichtigste Kontakte anzeigen (Version :VERSION)
+# Fehlerbehebungen an der UI (Version :VERSION)
 
-- Über den Menüpunkt „Count of Interactions“ lassen sich nun die Kontakte anzeigen, mit denen am meisten Interaktionen stattgefunden haben. Das gilt sowohl für Kollegen, wie für Kunden und Partner.
+## Tagesplanung
 
-## Fehlerbehebungen
+- Bei der Tagesplanung sind die Projekttitel nun am Kopf der Seite angeheftet.
 
-- Accounts werden beim Suchen im Navigationsmenü nur noch im Arbeits-Kontext angezeigt.
+## Inbox
+
+- Die Einträge in der Inbox zeigen nun auch Metainformationen (wann erstellt und wann bearbeitet).
+- Einträge in der Inbox sind nun durch eine Linie voneinander getrennt, um die einzelnen Einträge besser voneinander abgrenzen zu können.
+- Die Schnelleingabe für die Inbox hat nun einen Scrollbereich, damit auch längere Einträge verarbeitet werden können.
+
+## Account Details
+
+- Der Cost Explorer Link ist nun korrekt und verweist nicht mehr nur auf die Billing-Seite.
 
 ## In Arbeit
 
@@ -30,7 +38,6 @@
 ### Wochen-/Tagesplanung
 
 - Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
-- Wir brauchen Sticky Header für die Projekttitel.
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
 - Eine Checkliste einführen für das wöchentliche oder tägliche Planen.
@@ -38,8 +45,6 @@
 ### Inbox
 
 - Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.
-- Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
-- Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
 - Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.
 
 ### Besprechungen
@@ -62,14 +67,6 @@
 
 - Mir scheint, dass Links in Notizen nicht sauber gespeichert werden.
 - Notizen zeigen hier und da immer noch den Status, dass sie nicht im Einklang mit der Datenbank sind.
-
-### Inbox
-
-- Der Inbox Quick Input muss einen Scrollarea haben. Wenn die Einträge sehr lang sind (Emails) verschwindet der Save Button.
-
-### Account Details
-
-- Der Cost Explorer Link ist fehlerhaft.
 
 ### Navigation
 

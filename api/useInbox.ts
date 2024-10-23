@@ -32,6 +32,7 @@ export type Inbox = {
   note: JSONContent;
   status: InboxStatus;
   createdAt: Date;
+  updatedAt: Date;
 };
 
 type MapInboxFn = (data: Schema["Inbox"]["type"]) => Inbox;
@@ -43,6 +44,7 @@ export const mapInbox: MapInboxFn = ({
   formatVersion,
   status,
   noteJson,
+  updatedAt,
 }) => ({
   id,
   status: mapStatus(status),
@@ -52,6 +54,7 @@ export const mapInbox: MapInboxFn = ({
     notesJson: noteJson,
   }),
   createdAt: new Date(createdAt),
+  updatedAt: new Date(updatedAt),
 });
 
 const fetchInbox = async () => {

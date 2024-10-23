@@ -8,7 +8,6 @@ import DailyPlanForm from "@/components/planning/DailyPlanForm";
 import ReviewProjectForDailyPlanning from "@/components/planning/ReviewProjectForDailyPlanning";
 import TodoForDecision from "@/components/planning/TodoForDecision";
 import TodoProjectInfos from "@/components/planning/TodoProjectInfos";
-import { Accordion } from "@/components/ui/accordion";
 import { useContextContext } from "@/contexts/ContextContext";
 import { filterAndSortProjectsForDailyPlanning } from "@/helpers/planning";
 import { flow } from "lodash/fp";
@@ -90,37 +89,34 @@ const DailyPlanningPage = () => {
           </div>
         )}
 
-        <div className="mx-2 md:mx-4 my-8 font-semibold text-sm text-muted-foreground md:text-center">
+        <div className="px-2 md:px-4 my-8 font-semibold text-sm text-muted-foreground md:text-center bg-bgTransparent sticky top-[6.75rem] md:top-[8.25rem] z-[35] pb-2 md:pb-4">
           {!dailyPlan ? (
             "Set a date and a goal for your daily tasks list."
           ) : (
-            <div>
-              <div>
-                Review each project and its tasks and decide which tasks you
-                would like to focus on today.
-              </div>
+            <div className="">
+              Review each project and its tasks and decide which tasks you would
+              like to focus on today.
             </div>
           )}
         </div>
 
         {dailyPlan && (
-          <Accordion type="single" collapsible>
-            <div className="space-y-12">
-              {filteredAndSortedProjects.map((project) => (
-                <ReviewProjectForDailyPlanning
-                  key={project.id}
-                  dailyPlan={dailyPlan}
-                  project={project}
-                  updateOnHoldDate={(onHoldTill) =>
-                    saveProjectDates({ projectId: project.id, onHoldTill })
-                  }
-                  putTodoOnDailyPlan={(todo: DailyPlanTodo) =>
-                    addTodoToDailyPlan(dailyPlan.id, todo)
-                  }
-                />
-              ))}
-            </div>
-          </Accordion>
+          <div className="space-y-12">
+            {filteredAndSortedProjects.map((project) => (
+              <ReviewProjectForDailyPlanning
+                key={project.id}
+                dailyPlan={dailyPlan}
+                project={project}
+                updateOnHoldDate={(onHoldTill) =>
+                  saveProjectDates({ projectId: project.id, onHoldTill })
+                }
+                putTodoOnDailyPlan={(todo: DailyPlanTodo) =>
+                  addTodoToDailyPlan(dailyPlan.id, todo)
+                }
+                className="bg-bgTransparent sticky top-[9.5rem] md:top-[10.5rem] z-30 pb-1"
+              />
+            ))}
+          </div>
         )}
       </div>
     </MainLayout>

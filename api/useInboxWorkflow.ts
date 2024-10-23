@@ -43,6 +43,7 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
     mutate({
       id: crypto.randomUUID(),
       createdAt: new Date(),
+      updatedAt: new Date(),
       status: "new",
       note,
     });
