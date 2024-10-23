@@ -1,12 +1,21 @@
 import { AccountData } from "@/api/useInteractions";
 import { differenceInWeeks, isFuture, isPast } from "date-fns";
-import { compact, filter, flow, get, identity, map, size } from "lodash/fp";
+import {
+  compact,
+  filter,
+  flow,
+  get,
+  identity,
+  map,
+  union,
+  uniq,
+} from "lodash/fp";
 
 export type Interaction = {
   personId: string;
   positions: string;
   name: string;
-  meetings: number;
+  meetingIds: string[];
 };
 
 export const INTERACTION_TIME_FILTER = ["4", "13", "26", "52"];
@@ -38,13 +47,15 @@ const getMeetingDate = ({
 }: AccountData["person"]["meetings"][number]["meeting"]) =>
   new Date(meetingOn ?? createdAt);
 
-const isMeetingDateInRange = (weeks: number) => (date: Date) =>
-  differenceInWeeks(new Date(), date) <= weeks;
+const isMeetingDateInRange =
+  (weeks: number) =>
+  (meeting: AccountData["person"]["meetings"][number]["meeting"]) =>
+    differenceInWeeks(new Date(), getMeetingDate(meeting)) <= weeks;
 
 const mapInteraction = (
   weeks: number,
   peersOrCustomers: PeersOrCustomersFilter,
-  { positions, meetings, ...existing }: Interaction,
+  { positions, meetingIds, ...existing }: Interaction,
   ad: AccountData
 ): Interaction =>
   ({
@@ -54,16 +65,16 @@ const mapInteraction = (
       ...(peersOrCustomers === "PEERS" ? [] : [ad.account?.name ?? ""]),
       ad.position,
     ].join(", "),
-    meetings:
-      (flow(
-        identity<AccountData>,
-        get("person.meetings"),
-        map("meeting"),
-        compact,
-        map(getMeetingDate),
-        filter(isMeetingDateInRange(weeks)),
-        size
-      )(ad) ?? 0) + meetings,
+    meetingIds: flow(
+      identity<AccountData>,
+      get("person.meetings"),
+      map("meeting"),
+      compact,
+      filter(isMeetingDateInRange(weeks)),
+      map("id"),
+      union(meetingIds),
+      uniq
+    )(ad),
   } as Interaction);
 
 const interactionWithoutCurrentPerson = (
@@ -79,7 +90,7 @@ const currentPerson = (
     personId: person.id,
     positions: "",
     name: person.name,
-    meetings: 0,
+    meetingIds: [],
   };
 
 export const reduceInteractions =
@@ -101,4 +112,5 @@ export const reduceInteractions =
       [] as Interaction[]
     );
 
-export const hasMeetings = ({ meetings }: Interaction) => Boolean(meetings);
+export const hasMeetings = ({ meetingIds }: Interaction) =>
+  meetingIds.length > 0;
