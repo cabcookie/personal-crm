@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface CreateInboxItemContextType {
   state: boolean;
@@ -91,14 +92,16 @@ const CreateInboxItemDialog = () => {
             continue to focus on what matters now.
           </DialogDescription>
         </DialogHeader>
-        <InboxEditor
-          notes={editorContent}
-          saveNotes={(editor) => {
-            setEditorContent(editor.getJSON());
-          }}
-          showSaveStatus={false}
-          autoFocus
-        />
+        <ScrollArea className="max-h-80 md:max-h-[30rem] w-full">
+          <InboxEditor
+            notes={editorContent}
+            saveNotes={(editor) => {
+              setEditorContent(editor.getJSON());
+            }}
+            showSaveStatus={false}
+            autoFocus
+          />
+        </ScrollArea>
         <DialogFooter>
           <Button onClick={createInboxItem}>Save Item</Button>
           <DialogClose asChild>
