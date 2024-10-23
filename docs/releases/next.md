@@ -7,10 +7,10 @@
 ## Inbox
 
 - Die Einträge in der Inbox zeigen nun auch Metainformationen (wann erstellt und wann bearbeitet).
+- Einträge in der Inbox sind nun durch eine Linie voneinander getrennt, um die einzelnen Einträge besser voneinander abgrenzen zu können.
 
 ## In Arbeit
 
-- Einträge in der Inbox sind nun durch eine Linie voneinander getrennt, um die einzelnen Einträge besser voneinander abgrenzen zu können.
 - Die Schnelleingabe für die Inbox hat nun einen Scrollbereich, damit auch längere Einträge verarbeitet werden können.
 
 ## Geplant

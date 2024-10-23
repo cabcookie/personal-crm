@@ -47,18 +47,20 @@ const InboxPage = () => {
         <ContextSwitcher />
 
         {inbox?.map((item) => (
-          <ToProcessItem
-            key={item.id}
-            title={
-              <WorkFlowItem
-                inboxItem={item}
-                forwardUrl={`/inbox/${item.id}`}
-                mutate={mutate}
-                isLoading={isLoading}
-              />
-            }
-            actionStep={<GrCycle />}
-          />
+          <div key={item.id}>
+            <ToProcessItem
+              title={
+                <WorkFlowItem
+                  inboxItem={item}
+                  forwardUrl={`/inbox/${item.id}`}
+                  mutate={mutate}
+                  isLoading={isLoading}
+                />
+              }
+              actionStep={<GrCycle />}
+            />
+            <hr />
+          </div>
         ))}
       </div>
     </MainLayout>
