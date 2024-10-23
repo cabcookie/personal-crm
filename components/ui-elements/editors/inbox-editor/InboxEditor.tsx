@@ -7,10 +7,13 @@ import {
   applyReadOnly,
   updateEditorContent,
 } from "../helpers/editor-effects";
+import MetaData from "../meta-data";
 import useExtensions from "./useExtensions";
 
 type InboxEditorProps = {
   notes: JSONContent;
+  createdAt?: Date;
+  updatedAt?: Date;
   saveNotes?: (editor: Editor) => void;
   autoFocus?: boolean;
   readonly?: boolean;
@@ -22,6 +25,8 @@ const InboxEditor: FC<InboxEditorProps> = ({
   saveNotes,
   autoFocus,
   readonly,
+  createdAt,
+  updatedAt,
   showSaveStatus = true,
 }) => {
   const extensions = useExtensions();
@@ -54,6 +59,7 @@ const InboxEditor: FC<InboxEditorProps> = ({
       <EditorContent editor={editor} />
       {editor && <LinkBubbleMenu editor={editor} />}
       <div id="at-mention-tippy" />
+      {createdAt && <MetaData created={createdAt} updated={updatedAt} />}
     </>
   );
 };

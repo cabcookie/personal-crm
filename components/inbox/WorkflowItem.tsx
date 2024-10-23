@@ -91,7 +91,12 @@ const WorkFlowItem: FC<WorkFlowItemProps> = ({
             action={startProcessingItem}
           />
         )}
-        <InboxEditor notes={inboxItem.note} saveNotes={handleUpdate} />
+        <InboxEditor
+          notes={inboxItem.note}
+          saveNotes={handleUpdate}
+          createdAt={inboxItem.createdAt}
+          updatedAt={inboxItem.updatedAt}
+        />
       </div>
     )
   );

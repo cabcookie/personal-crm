@@ -1,15 +1,20 @@
 # Fehlerbehebungen an der UI (Version :VERSION)
 
+## Tagesplanung
+
 - Bei der Tagesplanung sind die Projekttitel nun am Kopf der Seite angeheftet.
+
+## Inbox
+
+- Die Einträge in der Inbox zeigen nun auch Metainformationen (wann erstellt und wann bearbeitet).
 
 ## In Arbeit
 
-- Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
+- Einträge in der Inbox sind nun durch eine Linie voneinander getrennt, um die einzelnen Einträge besser voneinander abgrenzen zu können.
+- Die Schnelleingabe für die Inbox hat nun einen Scrollbereich, damit auch längere Einträge verarbeitet werden können.
 
 ## Geplant
 
-- Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
-- Der Inbox Quick Input muss einen Scrollarea haben. Wenn die Einträge sehr lang sind (Emails) verschwindet der Save Button.
 - Der Cost Explorer Link ist fehlerhaft.
 
 ### Account Details
