@@ -212,15 +212,17 @@ const NavigationMenu = () => {
             </CommandItem>
           ))}
         </CommandGroup>
-        <SearchableDataGroup
-          heading="Accounts"
-          metaPressed={metaPressed}
-          items={accounts?.map(({ id, name }) => ({
-            id,
-            value: name,
-            link: `/accounts/${id}`,
-          }))}
-        />
+        {isWorkContext() && (
+          <SearchableDataGroup
+            heading="Accounts"
+            metaPressed={metaPressed}
+            items={accounts?.map(({ id, name }) => ({
+              id,
+              value: name,
+              link: `/accounts/${id}`,
+            }))}
+          />
+        )}
         {isFamilyContext() && (
           <SearchableDataGroup
             heading="Bible"
