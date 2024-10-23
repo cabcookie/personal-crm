@@ -1,15 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
-import { generateClient, SelectionSet } from "aws-amplify/data";
-import { filter, flow, sortBy } from "lodash/fp";
-import useSWR from "swr";
-import { handleApiErrors } from "./globals";
-import { fetchUser } from "./useUser";
 import {
   hasMeetings,
   isCurrentRole,
   PeersOrCustomersFilter,
   reduceInteractions,
 } from "@/helpers/interactions";
+import { generateClient, SelectionSet } from "aws-amplify/data";
+import { filter, flow, sortBy } from "lodash/fp";
+import useSWR from "swr";
+import { handleApiErrors } from "./globals";
+import { fetchUser } from "./useUser";
 const client = generateClient<Schema>();
 
 const selectionSet = [
@@ -19,6 +19,7 @@ const selectionSet = [
   "account.name",
   "person.id",
   "person.name",
+  "person.meetings.meeting.id",
   "person.meetings.meeting.meetingOn",
   "person.meetings.meeting.createdAt",
 ] as const;
@@ -57,7 +58,7 @@ const fetchInteractions =
         filter(isCurrentRole),
         reduceInteractions(weeks, peersOrCustomers),
         filter(hasMeetings),
-        sortBy(({ meetings }) => -meetings)
+        sortBy(({ meetingIds }) => -meetingIds.length)
       )(data);
     } catch (error) {
       console.error("Error in fetchInteractions", error);

@@ -19,10 +19,12 @@ const InteractionsPage = () => {
         <div>Anzahl: {interactions?.length ?? 0}</div>
 
         <div className="space-y-2">
-          {interactions?.map(({ personId, name, positions, meetings }) => (
+          {interactions?.map(({ personId, name, positions, meetingIds }) => (
             <div key={personId}>
               <span className="font-bold">{name}</span> ({positions}) -{" "}
-              <span className="font-semibold text-blue-600">{meetings}</span>{" "}
+              <span className="font-semibold text-blue-600">
+                {meetingIds.length}
+              </span>{" "}
               Interactions
             </div>
           ))}
