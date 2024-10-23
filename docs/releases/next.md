@@ -10,11 +10,13 @@
 - Einträge in der Inbox sind nun durch eine Linie voneinander getrennt, um die einzelnen Einträge besser voneinander abgrenzen zu können.
 - Die Schnelleingabe für die Inbox hat nun einen Scrollbereich, damit auch längere Einträge verarbeitet werden können.
 
+## Account Details
+
+- Der Cost Explorer Link ist nun korrekt und verweist nicht mehr nur auf die Billing-Seite.
+
 ## In Arbeit
 
 ## Geplant
-
-- Der Cost Explorer Link ist fehlerhaft.
 
 ### Account Details
 

@@ -37,7 +37,7 @@ const ListPayerAccounts: FC<ListPayerAccountsProps> = ({
               </small>
               <small className="ml-2">
                 <Link
-                  href={`https://aws-ciw-readonly.amazon.com/cost-management/home?spoofAccountId=${payer}#/`}
+                  href={`https://prod.us-east-1.ro.cmc.insights.aws.a2z.com/?spoofAccountId=${payer}#/cost-explorer?chartStyle=STACK&costAggregate=unBlendedCost&excludeForecasting=false&filter=%5B%5D&futureRelativeRange=CUSTOM&granularity=Monthly&groupBy=%5B%22LinkedAccount%22%5D&historicalRelativeRange=LAST_3_MONTHS&isDefault=true&showOnlyUncategorized=false&showOnlyUntagged=false&usageAggregate=undefined&useNormalizedUnits=false`}
                   target="_blank"
                   className="text-[--context-color] hover:text-accent-foreground hover:underline hover:underline-offset-2"
                 >
