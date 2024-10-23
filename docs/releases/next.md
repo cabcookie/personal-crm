@@ -1,14 +1,16 @@
-# Wichtigste Kontakte anzeigen (Version :VERSION)
+# Fehlerbehebungen an der UI (Version :VERSION)
 
-- Über den Menüpunkt „Count of Interactions“ lassen sich nun die Kontakte anzeigen, mit denen am meisten Interaktionen stattgefunden haben. Das gilt sowohl für Kollegen, wie für Kunden und Partner.
-
-## Fehlerbehebungen
-
-- Accounts werden beim Suchen im Navigationsmenü nur noch im Arbeits-Kontext angezeigt.
+- Bei der Tagesplanung sind die Projekttitel nun am Kopf der Seite angeheftet.
 
 ## In Arbeit
 
+- Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
+
 ## Geplant
+
+- Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
+- Der Inbox Quick Input muss einen Scrollarea haben. Wenn die Einträge sehr lang sind (Emails) verschwindet der Save Button.
+- Der Cost Explorer Link ist fehlerhaft.
 
 ### Account Details
 
@@ -30,7 +32,6 @@
 ### Wochen-/Tagesplanung
 
 - Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
-- Wir brauchen Sticky Header für die Projekttitel.
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
 - Eine Checkliste einführen für das wöchentliche oder tägliche Planen.
@@ -38,8 +39,6 @@
 ### Inbox
 
 - Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.
-- Inbox Items sind nicht sauber voneinander getrennt. Man weiß nicht genau wofür die Buttons sind. Für darüber oder drunter?
-- Bei den Inbox Items fehlen die Angaben, wann der Eintrag angelegt wurde.
 - Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.
 
 ### Besprechungen
@@ -62,14 +61,6 @@
 
 - Mir scheint, dass Links in Notizen nicht sauber gespeichert werden.
 - Notizen zeigen hier und da immer noch den Status, dass sie nicht im Einklang mit der Datenbank sind.
-
-### Inbox
-
-- Der Inbox Quick Input muss einen Scrollarea haben. Wenn die Einträge sehr lang sind (Emails) verschwindet der Save Button.
-
-### Account Details
-
-- Der Cost Explorer Link ist fehlerhaft.
 
 ### Navigation
 

@@ -15,6 +15,7 @@ type ReviewProjectForDailyPlanningProps = {
   project: Project;
   updateOnHoldDate: (onHoldTill: Date | null) => void;
   putTodoOnDailyPlan: (todo: DailyPlanTodo) => void;
+  className?: string;
 };
 
 const filterTodos = (
@@ -37,6 +38,7 @@ const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
   project,
   updateOnHoldDate,
   putTodoOnDailyPlan,
+  className,
 }) => {
   const { projectTodos } = useProjectTodos(project.id);
   const [filteredTodos, setFilteredTodos] = useState<
@@ -59,6 +61,7 @@ const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
       <ProjectTitleAndLink
         projectId={project.id}
         projectName={project.project}
+        className={className}
       />
 
       <ProjectBadges
