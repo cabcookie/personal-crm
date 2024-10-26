@@ -42,6 +42,12 @@ const accountSchema = {
       awsAccountNumber: a.id().required(),
       accountId: a.id().required(),
       account: a.belongsTo("Account", "accountId"),
+      isViaReseller: a.boolean(),
+      resellerId: a.id(),
+      reseller: a.belongsTo("Account", "resellerId"),
+      mainContactId: a.id(),
+      mainContact: a.belongsTo("Person", "mainContactId"),
+      financials: a.hasMany("PayerAccountMrr", "awsAccountNumber"),
     })
     .identifier(["awsAccountNumber"])
     .authorization((allow) => [allow.owner()]),
@@ -63,6 +69,7 @@ const accountSchema = {
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
       payerAccounts: a.hasMany("PayerAccount", "accountId"),
+      resellingAccounts: a.hasMany("PayerAccount", "resellerId"),
       people: a.hasMany("PersonAccount", "accountId"),
       partnerProjects: a.hasMany("Projects", "partnerId"),
     })

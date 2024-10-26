@@ -3,6 +3,8 @@ import {
   addMinutes,
   differenceInCalendarDays,
   format,
+  Locale,
+  parse,
 } from "date-fns";
 import {
   flow,
@@ -86,3 +88,6 @@ export const normalize = flow(
 );
 export const includesNormalized = (search: string) => (toSearchIn: string) =>
   flow(identity<string>, normalize, includes)(search)(toSearchIn);
+export const parseDate = (format: string, locale: Locale) => (date: string) =>
+  parse(date, format, new Date(), { locale });
+export const formatDateYyyyMm = (date: Date) => format(date, "yyyy-MM");
