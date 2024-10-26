@@ -1,9 +1,22 @@
 # Monatliche Umsätze der Kunden abbilden (Version :VERSION)
 
-- Datenbankschema ist erweitert, um das Hochladen von Kundenumsätzen zu unterstützen.
+## Packages aktualisiert
+
+Von "Current" auf "Latest" aktualisiert:
+
+| Package                          | Current | Wanted  | Latest  |
+| -------------------------------- | ------- | ------- | ------- |
+| @commitlint/config-conventional  | 18.6.3  | 18.6.3  | 19.5.0  |
+| @typescript-eslint/eslint-plugin | 7.18.0  | 7.18.0  | 8.11.0  |
+| @typescript-eslint/parser        | 7.18.0  | 7.18.0  | 8.11.0  |
+| commitlint                       | 18.6.1  | 18.6.1  | 19.5.0  |
+| eslint-plugin-prettier           | 4.2.1   | 4.2.1   | 5.2.1   |
+| lucide-react                     | 0.379.0 | 0.379.0 | 0.453.0 |
+| prettier                         | 2.8.8   | 2.8.8   | 3.3.3   |
 
 ## In Arbeit
 
+- Datenbankschema ist erweitert, um das Hochladen von Kundenumsätzen zu unterstützen.
 - Monatliche Umsätze der Kunden abbilden
 
 ## Geplant

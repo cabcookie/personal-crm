@@ -32,7 +32,7 @@ interface WeekPlanProviderProps {
   children: React.ReactNode;
 }
 
-export const WeekPlanProvider: FC<WeekPlanProviderProps> = ({ children }) => {
+const WeekPlanProvider: FC<WeekPlanProviderProps> = ({ children }) => {
   const {
     weekPlan,
     createWeekPlan,

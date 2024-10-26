@@ -36,8 +36,8 @@ const CompareCrmData: FC<CompareCrmDataProps> = ({
       {!originalValue
         ? "empty"
         : originalValue instanceof Date
-        ? format(originalValue, "PP")
-        : originalValue}
+          ? format(originalValue, "PP")
+          : originalValue}
       )
     </div>
   );

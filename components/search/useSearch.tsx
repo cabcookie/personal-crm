@@ -1,11 +1,4 @@
-import {
-  ComponentType,
-  createContext,
-  FC,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, FC, useContext, useEffect, useState } from "react";
 
 interface SearchType {
   searchText: string;
@@ -46,15 +39,3 @@ export const SearchProvider: FC<SearchProviderProps> = ({ children }) => {
     </Search.Provider>
   );
 };
-
-export function isSearchable<Props extends object>(
-  Component: ComponentType<Props>
-) {
-  return function WrappedProvider(componentProps: Props) {
-    return (
-      <SearchProvider>
-        <Component {...componentProps} />
-      </SearchProvider>
-    );
-  };
-}

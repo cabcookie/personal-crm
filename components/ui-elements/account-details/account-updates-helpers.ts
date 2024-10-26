@@ -24,7 +24,7 @@ export const debouncedUpdateAccountDetails = debounce(
       ...props,
       introduction: editor?.getJSON(),
     });
-    updateSavedState && updateSavedState(true);
+    updateSavedState?.(true);
   },
   1500
 );
