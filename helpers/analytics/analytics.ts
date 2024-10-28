@@ -1,6 +1,5 @@
 import { Account } from "@/api/ContextAccounts";
-import { Mrr, MrrWipData } from "@/api/useMrr";
-import { MrrFilters } from "@/components/analytics/useMrrFilter";
+import { DoneMonthData, Mrr, MrrWipData } from "@/api/useMrr";
 import { formatDateYyyyMm, formatRevenue } from "@/helpers/functional";
 import { addMonths } from "date-fns";
 import {
@@ -33,9 +32,11 @@ export type MrrDataIssue = {
 const substractMonthsFp = (noOfMonths: number) =>
   addMonths(new Date(), -noOfMonths);
 
+const plus12 = (num: number) => num + 12;
+
 export const getMinMonth = flow(
-  identity<MrrFilters>,
-  parseInt,
+  identity<number>,
+  plus12,
   substractMonthsFp,
   formatDateYyyyMm
 );
@@ -115,6 +116,11 @@ export const setPayerAccountMrrByPayer = (
   mrr: Mrr[],
   setAccounts: Dispatch<SetStateAction<Mrr[]>>
 ) => flow(identity<Mrr[]>, filter(byPayerAccount(payer)), setAccounts)(mrr);
+
+export const sortByMonth = flow(
+  identity<DoneMonthData[]>,
+  sortBy(flow(identity<DoneMonthData>, get("month"), parseMonthToInt))
+);
 
 export const setMonthsByPayer = (
   mrr: Mrr[] | undefined,

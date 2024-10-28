@@ -6,7 +6,7 @@ import {
   UpdateProgressBarFn,
 } from "@/helpers/analytics/process-upload";
 import { newDateTimeString } from "@/helpers/functional";
-import { generateClient } from "aws-amplify/data";
+import { generateClient, SelectionSet } from "aws-amplify/data";
 import { map } from "lodash/fp";
 const client = generateClient<Schema>();
 
@@ -96,3 +96,57 @@ export const createMrrRecord =
     updateProgress((current) => current + (1 / totalRecords) * 100);
     return data;
   };
+
+const monthSelectionSet = ["id", "month", "latestUploadId"] as const;
+
+type LeanMonth = SelectionSet<
+  Schema["Month"]["type"],
+  typeof monthSelectionSet
+>;
+
+export const getMonths = async (
+  startMonth: string
+): Promise<LeanMonth[] | undefined> => {
+  const { data, errors } = await client.models.Month.list({
+    filter: { month: { gt: startMonth } },
+    limit: 100,
+    selectionSet: monthSelectionSet,
+  });
+  if (errors) {
+    handleApiErrors(errors, "Loading months failed");
+    throw errors;
+  }
+  return data;
+};
+
+export type DoneMonthMrrData = SelectionSet<
+  Schema["PayerAccountMrr"]["type"],
+  typeof monthMrrSelectionSet
+>;
+
+const monthMrrSelectionSet = [
+  "id",
+  "companyName",
+  "awsAccountNumber",
+  "payerAccount.accountId",
+  "isEstimated",
+  "isReseller",
+  "mrr",
+] as const;
+
+export const getMonthMrr = async ({ id, month, latestUploadId }: LeanMonth) => {
+  const { data, errors } =
+    await client.models.PayerAccountMrr.listPayerAccountMrrByUploadId(
+      { uploadId: latestUploadId },
+      {
+        filter: { monthId: { eq: id } },
+        limit: 500,
+        selectionSet: monthMrrSelectionSet,
+      }
+    );
+  if (errors) {
+    handleApiErrors(errors, "Loading month's MRR failed");
+    throw errors;
+  }
+  return { month, payerMrrs: data };
+};

@@ -1,9 +1,19 @@
 import { type Schema } from "@/amplify/data/resource";
 import { MrrImportData } from "@/api/useMrrImport";
 import { MrrFilters } from "@/components/analytics/useMrrFilter";
-import { mapPayerMrrs } from "@/helpers/analytics/analytics";
+import {
+  getMinMonth,
+  mapPayerMrrs,
+  sortByMonth,
+} from "@/helpers/analytics/analytics";
+import {
+  DoneMonthMrrData,
+  getMonthMrr,
+  getMonths,
+} from "@/helpers/analytics/api-actions";
+import { logFp } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flatMap, flow, get, identity } from "lodash/fp";
+import { flatMap, flow, get, identity, map } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -34,7 +44,7 @@ export type Mrr = {
   isReseller: boolean;
   mrr: number;
   lastYearMrr?: number;
-  lastQMrr?: number;
+  lastPeriodMrr?: number;
 };
 
 const mapWipMrr = ({
@@ -70,10 +80,42 @@ const fetchMrrWip = async () => {
   }
 };
 
+const comparePeriods = (
+  noOfMonths: number,
+  months: MrrWipData["latestMonths"][]
+) => {
+  console.log("comparePeriods", months);
+};
+
+export type DoneMonthData = {
+  month: string;
+  payerMrrs: DoneMonthMrrData[];
+};
+
+type MonthPayerMrrs = {};
+
+const mapDoneMrr = ({ month, payerMrrs }: DoneMonthData) => ({
+  month,
+  payerMrrs: payerMrrs.map(({ payerAccount, ...rest }) => ({
+    ...rest,
+    payerAccountAccountId: payerAccount.accountId,
+  })),
+});
+
 const fetchMrrDone = (noOfMonths?: MrrFilters) => async () => {
   if (!noOfMonths) return;
+  const noOfMonthsInt = parseInt(noOfMonths);
+  const startMonth = getMinMonth(noOfMonthsInt);
+  const months = await getMonths(startMonth);
+  if (!months) return;
+  const data = await Promise.all(months.map(getMonthMrr));
+  const orderedMonths = flow(
+    map(mapDoneMrr),
+    sortByMonth,
+    logFp("fetchMrrDone")
+  )(data);
 
-  return undefined;
+  return flow(flatMap(mapWipMrr))(orderedMonths);
 };
 
 const fetchMrr =

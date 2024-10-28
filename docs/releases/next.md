@@ -20,6 +20,7 @@ Von "Current" auf "Latest" aktualisiert:
 ## In Arbeit
 
 - Monatliche Umsätze der Kunden abbilden
+- Seite für einen Payer Account einführen. Auch dort soll der Umsatz der vergangenen Monate angezeigt werden können.
 
 ## Geplant
 

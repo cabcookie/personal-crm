@@ -43,6 +43,7 @@ const analyticsSchema = {
       isReseller: a.boolean().required(),
       mrr: a.integer(),
     })
+    .secondaryIndexes((index) => [index("uploadId")])
     .authorization((allow) => [allow.owner()]),
 };
 

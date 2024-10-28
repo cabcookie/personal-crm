@@ -6,6 +6,9 @@ import ApiLoadingError from "../layouts/ApiLoadingError";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { Accordion } from "../ui/accordion";
 import AccountWithPayersAccordionItem from "./account-with-payers-accordion-item";
+import AnalyticsTable from "./analytics-table";
+import { columns } from "./analytics-table-column";
+import { getData } from "./analytics-table-example-data";
 import MrrLoading from "./mrr-loading";
 import PayerAccountIssues from "./payer-account-issues";
 
@@ -16,6 +19,7 @@ type MrrCurrentImportProps = {
 const MrrCurrentImport: FC<MrrCurrentImportProps> = ({ className }) => {
   const { mrr, isLoading, error } = useMrr("WIP");
   const [accounts, setAccounts] = useState<string[]>([]);
+  const data = getData();
 
   useEffect(() => {
     setAccountsFromMrr(mrr, setAccounts);
@@ -23,6 +27,10 @@ const MrrCurrentImport: FC<MrrCurrentImportProps> = ({ className }) => {
 
   return (
     <>
+      <div className="container mx-auto py-10">
+        <AnalyticsTable columns={columns} data={data} />
+      </div>
+
       <PayerAccountIssues mrr={mrr} />
 
       <DefaultAccordionItem
