@@ -25,8 +25,8 @@ const createDocument = ({
   formatVersion === 3
     ? transformNotesVersion3(noteBlocks, noteBlockIds)
     : formatVersion === 2
-      ? transformNotesVersion2(notesJson)
-      : transformNotesVersion1(notes);
+    ? transformNotesVersion2(notesJson)
+    : transformNotesVersion1(notes);
 
 const createAttrs = (
   content: JSONContent,

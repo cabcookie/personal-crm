@@ -34,31 +34,14 @@ const accountSchema = {
       territory: a.belongsTo("Territory", "territoryId"),
     })
     .authorization((allow) => [allow.owner()]),
-  AccountPayerAccount: a
-    .model({
-      owner: a
-        .string()
-        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      accountId: a.id().required(),
-      account: a.belongsTo("Account", "accountId"),
-      awsAccountNumberId: a.id().required(),
-      awsAccountNumber: a.belongsTo("PayerAccount", "awsAccountNumberId"),
-    })
-    .secondaryIndexes((index) => [index("awsAccountNumberId")])
-    .authorization((allow) => [allow.owner()]),
   PayerAccount: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       awsAccountNumber: a.id().required(),
-      accounts: a.hasMany("AccountPayerAccount", "awsAccountNumberId"),
-      isViaReseller: a.boolean(),
-      resellerId: a.id(),
-      reseller: a.belongsTo("Account", "resellerId"),
-      mainContactId: a.id(),
-      mainContact: a.belongsTo("Person", "mainContactId"),
-      financials: a.hasMany("PayerAccountMrr", "awsAccountNumber"),
+      accountId: a.id().required(),
+      account: a.belongsTo("Account", "accountId"),
     })
     .identifier(["awsAccountNumber"])
     .authorization((allow) => [allow.owner()]),
@@ -79,8 +62,7 @@ const accountSchema = {
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
-      payerAccounts: a.hasMany("AccountPayerAccount", "accountId"),
-      resellingAccounts: a.hasMany("PayerAccount", "resellerId"),
+      payerAccounts: a.hasMany("PayerAccount", "accountId"),
       people: a.hasMany("PersonAccount", "accountId"),
       partnerProjects: a.hasMany("Projects", "partnerId"),
     })

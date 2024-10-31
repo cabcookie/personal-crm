@@ -48,8 +48,8 @@ const PopoverContentComboBox: FC<PopoverContentComboBoxProps> = ({
         val.toLowerCase().includes(search.toLowerCase())
           ? 1
           : val === "create-new-record"
-            ? 1
-            : 0
+          ? 1
+          : 0
       }
     >
       <CommandInput

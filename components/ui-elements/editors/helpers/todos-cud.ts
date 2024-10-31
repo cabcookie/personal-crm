@@ -87,7 +87,7 @@ const mapTodoToCreationSet = (block: JSONContent): TTodoCreationSet => {
   };
 };
 
-const getTodos = (content: JSONContent): JSONContent[] =>
+export const getTodos = (content: JSONContent): JSONContent[] =>
   flow(
     get("content"),
     filter((c: JSONContent) => c.type === "taskList"),
