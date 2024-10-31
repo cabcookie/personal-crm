@@ -6,27 +6,27 @@ import {
   calcOrder,
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
+import {
+  createPayerAccountLink,
+  deletePayerAccountLink,
+  getOrCreatePayerAccount,
+} from "@/helpers/payers/api-actions";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
 import {
   filter,
+  find,
   flow,
+  identity,
   join,
   map,
   sortBy,
   sum,
-  find,
-  identity,
 } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import {
-  getOrCreatePayerAccount,
-  createPayerAccountLink,
-  getAccountPayerAccountId,
-} from "@/helpers/payers/api-actions";
 const client = generateClient<Schema>();
 
 type UpdateAccountProps = {
@@ -440,12 +440,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         : { ...a, payerAccounts: a.payerAccounts.filter((p) => p !== payer) }
     );
     if (updated) mutate(updated, false);
-    const payerAccountId = await getAccountPayerAccountId(accountId, payer);
-    if (!payerAccountId) return;
-    const { data, errors } = await client.models.AccountPayerAccount.delete({
-      id: payerAccountId,
-    });
-    if (errors) handleApiErrors(errors, "Deleting payer failed");
+    const data = await deletePayerAccountLink(accountId, payer);
     if (updated) mutate(updated);
     if (!data) return;
     toast({

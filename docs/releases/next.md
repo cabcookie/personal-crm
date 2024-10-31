@@ -5,6 +5,8 @@
 - Es werden auch Perioden vergleichen, so dass sich leicht Wachstum oder dergleichen erkennen lässt.
 - Von den Kunden und den Payer Accounts kann man direkt auf die Detailseite springen.
 - Auf der Kundenseite werden nun auch Umsätze angezeigt.
+- Payer Accounts haben nun eine eigene Seite. Dort kann ein Reseller hinzugefügt werden und die Umsätze dargestellt werden.
+- Für Reseller werden die Umsätze verknüpfter AWS Accounts angezeigt.
 
 ## Packages aktualisiert
 
@@ -21,8 +23,6 @@ Von "Current" auf "Latest" aktualisiert:
 | prettier                         | 2.8.8   | 2.8.8   | 3.3.3   |
 
 ## In Arbeit
-
-- Seite für einen Payer Account einführen. Auch dort soll der Umsatz der vergangenen Monate angezeigt werden können.
 
 ## Geplant
 

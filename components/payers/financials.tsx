@@ -1,10 +1,10 @@
-import { Account } from "@/api/ContextAccounts";
+import { Badge } from "@/components/ui/badge";
 import {
   RevenueMonth,
-  setAccountColumnDataFromMrr,
-  setAccountColumnDefFromMrr,
-  setLastMonthsAccountRevenue,
-  setTotalRevenueFromRevenueMonth,
+  setIsResellerForPayer,
+  setLastMonthsPayerRevenue,
+  setPayerColumnDataFromMrr,
+  setPayerColumnDefFromMrr,
 } from "@/helpers/analytics/account-data";
 import { formatDate, formatRevenue } from "@/helpers/functional";
 import { ColumnDef } from "@tanstack/react-table";
@@ -16,13 +16,13 @@ import MrrFilterBtnGrp from "../analytics/mrr-filter-btn-grp";
 import { useMrrFilter, withMrrFilter } from "../analytics/useMrrFilter";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
-type AccountFinancialsProps = {
-  account: Account;
+type PayerFinancialsProps = {
+  payerId: string;
   showFinancials?: boolean;
 };
 
-const AccountFinancials: FC<AccountFinancialsProps> = ({
-  account,
+const PayerFinancials: FC<PayerFinancialsProps> = ({
+  payerId,
   showFinancials,
 }) => {
   const { mrrFilter, mrr } = useMrrFilter();
@@ -32,27 +32,27 @@ const AccountFinancials: FC<AccountFinancialsProps> = ({
   const [revenueLastMonths, setRevenueLastMonths] = useState<RevenueMonth[]>(
     []
   );
-  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [isReseller, setIsReseller] = useState(false);
 
   useEffect(() => {
     flow(parseInt, setNoOfMonths)(mrrFilter);
   }, [mrrFilter]);
 
   useEffect(() => {
-    setAccountColumnDefFromMrr(mrr, noOfMonths, setColumnDef);
+    setPayerColumnDefFromMrr(mrr, noOfMonths, setColumnDef);
   }, [mrr, noOfMonths]);
 
   useEffect(() => {
-    setAccountColumnDataFromMrr(account.name, mrr, noOfMonths, setColumnData);
-  }, [mrr, noOfMonths, account]);
+    setPayerColumnDataFromMrr(payerId, mrr, noOfMonths, setColumnData);
+  }, [mrr, noOfMonths, payerId]);
 
   useEffect(() => {
-    setLastMonthsAccountRevenue(3, account.name, mrr, setRevenueLastMonths);
-  }, [mrr, account]);
+    setLastMonthsPayerRevenue(3, payerId, mrr, setRevenueLastMonths);
+  }, [mrr, payerId]);
 
   useEffect(() => {
-    setTotalRevenueFromRevenueMonth(revenueLastMonths, setTotalRevenue);
-  }, [revenueLastMonths]);
+    setIsResellerForPayer(payerId, mrr, noOfMonths, setIsReseller);
+  }, [payerId, mrr, noOfMonths]);
 
   return (
     <DefaultAccordionItem
@@ -62,14 +62,21 @@ const AccountFinancials: FC<AccountFinancialsProps> = ({
         ({ month, mrr }) =>
           `${formatDate("MMM yyyy")(month)}: ${formatRevenue(mrr)}`
       )}
-      isVisible={!!showFinancials && totalRevenue > 0}
+      isVisible={!!showFinancials}
     >
       <div className="space-y-6">
         <MrrFilterBtnGrp />
+
+        {isReseller && (
+          <div className="flex justify-start md:justify-center mb-4 md:mb-6">
+            <Badge className="bg-green-500">Reseller</Badge>
+          </div>
+        )}
+
         <AnalyticsTable columns={columnDef} data={columnData} />
       </div>
     </DefaultAccordionItem>
   );
 };
 
-export default withMrrFilter(AccountFinancials);
+export default withMrrFilter(PayerFinancials);

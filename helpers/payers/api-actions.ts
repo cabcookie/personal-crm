@@ -1,7 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
 import { generateClient } from "aws-amplify/data";
-import { flow, identity, get } from "lodash/fp";
+import { flow, get, identity } from "lodash/fp";
 const client = generateClient<Schema>();
 
 export const getOrCreatePayerAccount = async (payerId: string) => {
@@ -40,10 +40,20 @@ export const createPayerAndAccountLink = async (
   return createPayerAccountLink(accountId, payerAccountId);
 };
 
-export const getAccountPayerAccountId = async (
+export const deletePayerAccountLink = async (
   accountId: string,
-  payerId: string
+  payer: string
 ) => {
+  const payerAccountId = await getAccountPayerAccountId(accountId, payer);
+  if (!payerAccountId) return;
+  const { data, errors } = await client.models.AccountPayerAccount.delete({
+    id: payerAccountId,
+  });
+  if (errors) handleApiErrors(errors, "Deleting payer failed");
+  return data;
+};
+
+const getAccountPayerAccountId = async (accountId: string, payerId: string) => {
   const { data, errors } =
     await client.models.AccountPayerAccount.listAccountPayerAccountByAwsAccountNumberId(
       {

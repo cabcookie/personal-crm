@@ -23,7 +23,6 @@ import {
   last,
   map,
   reduce,
-  size,
   some,
   sortBy,
   sum,
@@ -61,9 +60,6 @@ export const setColumnDefFromMrr = (
 ) =>
   !mrr ? [] : flow(identity<number>, getColumnDef, setColumnDef)(noOfMonths);
 
-export const getNoOfMonths = (mrr: Mrr[] | undefined) =>
-  flow(identity<Mrr[] | undefined>, getUniqMonths, size)(mrr);
-
 export const mapPayerMrrData =
   (mrr: Mrr[], account: string, noOfMonths: number) =>
   (payer: string): AccountMrr => ({
@@ -81,6 +77,45 @@ export const getLastMonthMrrByAccountAndPayer =
 
 export const getUniqMonths = (mrr: Mrr[] | undefined) =>
   flow(identity<Mrr[] | undefined>, map("month"), uniq)(mrr);
+
+export const getAccountId = (mrr: Mrr[], account: string): string =>
+  flow(
+    identity<Mrr[]>,
+    filter(({ companyName }) => companyName === account),
+    flatMap("payerAccountAccountIds"),
+    compact,
+    get(0)
+  )(mrr) ?? "";
+
+export const getMrrMonths = (
+  mrr: Mrr[],
+  account: string,
+  payer: string | undefined,
+  noOfMonths: number
+): MonthData =>
+  flow(
+    takeNoOfMonths(noOfMonths),
+    reduce(getMrrMonthValue(mrr, account, payer, noOfMonths), {} as MonthData)
+  )(mrr);
+
+export const getLastMonthMrr = (
+  mrr: Mrr[],
+  account: string,
+  payer: string | undefined
+) => flow(getTotalMrr(account, payer, getLastMonth(mrr)), invertSign)(mrr);
+
+export const getLastMonthMrrByAccount =
+  (mrr: Mrr[]) =>
+  ({ accountOrPayer }: AccountMrr) =>
+    getLastMonthMrr(mrr, accountOrPayer, undefined);
+
+export const takeNoOfMonths = (noOfMonths: number) =>
+  flow(
+    identity<Mrr[]>,
+    getUniqMonths,
+    sortBy(parseMonthToInt),
+    takeRight(noOfMonths)
+  );
 
 const mapCompanyMrrData =
   (mrr: Mrr[], noOfMonths: number) =>
@@ -112,25 +147,6 @@ const getResellerState = (
     some((mrr) => mrr.isReseller)
   )(mrr);
 
-const takeNoOfMonths = (noOfMonths: number) =>
-  flow(
-    identity<Mrr[]>,
-    getUniqMonths,
-    sortBy(parseMonthToInt),
-    takeRight(noOfMonths)
-  );
-
-const getMrrMonths = (
-  mrr: Mrr[],
-  account: string,
-  payer: string | undefined,
-  noOfMonths: number
-): MonthData =>
-  flow(
-    takeNoOfMonths(noOfMonths),
-    reduce(getMrrMonthValue(mrr, account, payer, noOfMonths), {} as MonthData)
-  )(mrr);
-
 const getTotalMrr =
   (account: string | undefined, payer: string | undefined, month: string) =>
   (mrr: Mrr[]) =>
@@ -142,17 +158,6 @@ const getTotalMrr =
       map("mrr"),
       sum
     )(mrr);
-
-const getLastMonthMrr = (
-  mrr: Mrr[],
-  account: string,
-  payer: string | undefined
-) => flow(getTotalMrr(account, payer, getLastMonth(mrr)), invertSign)(mrr);
-
-const getLastMonthMrrByAccount =
-  (mrr: Mrr[]) =>
-  ({ accountOrPayer }: AccountMrr) =>
-    getLastMonthMrr(mrr, accountOrPayer, undefined);
 
 const getPayerMrrDataByAccount = (
   mrr: Mrr[],
@@ -167,15 +172,6 @@ const getPayerMrrDataByAccount = (
     map(mapPayerMrrData(mrr, account, noOfMonths)),
     sortBy(getLastMonthMrrByAccountAndPayer(mrr, account))
   )(mrr);
-
-const getAccountId = (mrr: Mrr[], account: string): string =>
-  flow(
-    identity<Mrr[]>,
-    filter(({ companyName }) => companyName === account),
-    flatMap("payerAccountAccountIds"),
-    compact,
-    get(0)
-  )(mrr) ?? "";
 
 const getMrrMonthValue =
   (

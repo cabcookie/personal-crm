@@ -19,6 +19,7 @@ const wipSelectionSet = [
   "latestMonths.payerMrrs.companyName",
   "latestMonths.payerMrrs.awsAccountNumber",
   "latestMonths.payerMrrs.payerAccount.accounts.accountId",
+  "latestMonths.payerMrrs.payerAccount.resellerId",
   "latestMonths.payerMrrs.isEstimated",
   "latestMonths.payerMrrs.isReseller",
   "latestMonths.payerMrrs.mrr",
@@ -37,6 +38,7 @@ export type Mrr = {
   payerAccountAccountIds?: string[];
   isEstimated: boolean;
   isReseller: boolean;
+  resellerId?: string;
   mrr: number;
   lastYearMrr?: number;
   lastPeriodMrr?: number;

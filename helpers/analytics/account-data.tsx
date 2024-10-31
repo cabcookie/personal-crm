@@ -1,17 +1,22 @@
+import { Account } from "@/api/ContextAccounts";
 import { Mrr } from "@/api/useMrr";
+import { Payer } from "@/api/usePayer";
 import {
   AccountMrr,
   getMonthName,
   MonthMrr,
 } from "@/components/analytics/analytics-table-column";
+import RenderAccountHeader from "@/components/analytics/render-account-header";
 import RenderMonthMrr from "@/components/analytics/render-month-mrr";
 import RenderPayerHeader from "@/components/analytics/render-payer-header";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   filter,
+  find,
   flow,
   identity,
   map,
+  some,
   sortBy,
   sum,
   takeRight,
@@ -19,9 +24,17 @@ import {
   uniq,
 } from "lodash/fp";
 import { Dispatch, SetStateAction } from "react";
-import { byAccount, byMonth, parseMonthToInt } from "./analytics";
 import {
+  byAccount,
+  byMonth,
+  byPayerAccount,
+  parseMonthToInt,
+} from "./analytics";
+import {
+  getAccountId,
+  getLastMonthMrr,
   getLastMonthMrrByAccountAndPayer,
+  getMrrMonths,
   getUniqMonths,
   mapPayerMrrData,
 } from "./prep-table-data";
@@ -49,14 +62,43 @@ export const setAccountColumnDataFromMrr = (
         setColumnData
       )(mrr);
 
+export const setPayerColumnDataFromMrr = (
+  payer: string,
+  mrr: Mrr[] | undefined,
+  noOfMonths: number,
+  setColumnData: Dispatch<SetStateAction<AccountMrr[]>>
+) =>
+  !mrr
+    ? []
+    : flow(
+        identity<Mrr[]>,
+        filter(byPayerAccount(payer)),
+        map("companyName"),
+        uniq,
+        map(mapCompanyMrrData(mrr, payer, noOfMonths)),
+        sortBy(getLastMonthMrrByPayer(mrr, payer)),
+        setColumnData
+      )(mrr);
+
 export const setAccountColumnDefFromMrr = (
   mrr: Mrr[] | undefined,
   noOfMonths: number,
   setColumnDef: Dispatch<SetStateAction<ColumnDef<AccountMrr>[]>>
 ) =>
-  !mrr ? [] : flow(identity<number>, getColumnDef, setColumnDef)(noOfMonths);
+  !mrr
+    ? []
+    : flow(identity<number>, getAccountColumnDef, setColumnDef)(noOfMonths);
 
-export const setLastMonthsRevenue = (
+export const setPayerColumnDefFromMrr = (
+  mrr: Mrr[] | undefined,
+  noOfMonths: number,
+  setColumnDef: Dispatch<SetStateAction<ColumnDef<AccountMrr>[]>>
+) =>
+  !mrr
+    ? []
+    : flow(identity<number>, getPayerColumnDef, setColumnDef)(noOfMonths);
+
+export const setLastMonthsAccountRevenue = (
   noOfMonths: number,
   account: string,
   mrr: Mrr[] | undefined,
@@ -73,6 +115,23 @@ export const setLastMonthsRevenue = (
         setRevenue
       )(mrr);
 
+export const setLastMonthsPayerRevenue = (
+  noOfMonths: number,
+  payer: string,
+  mrr: Mrr[] | undefined,
+  setRevenue: Dispatch<SetStateAction<RevenueMonth[]>>
+) =>
+  !mrr
+    ? []
+    : flow(
+        identity<Mrr[]>,
+        getUniqMonths,
+        sortBy(parseMonthToInt),
+        takeRight(noOfMonths),
+        map(getMonthPayerRevenue(payer, mrr)),
+        setRevenue
+      )(mrr);
+
 export const setTotalRevenueFromRevenueMonth = (
   revenueLastMonths: RevenueMonth[],
   setTotalRevenue: Dispatch<SetStateAction<number>>
@@ -84,7 +143,49 @@ export const setTotalRevenueFromRevenueMonth = (
     setTotalRevenue
   )(revenueLastMonths);
 
-const getColumnDef = (noOfMonths: number): ColumnDef<AccountMrr>[] => [
+export const setIsResellerForPayer = (
+  payer: string,
+  mrr: Mrr[] | undefined,
+  noOfMonths: number,
+  setIsReseller: Dispatch<SetStateAction<boolean>>
+) =>
+  !mrr
+    ? null
+    : flow(
+        identity<Mrr[]>,
+        getUniqMonths,
+        sortBy(parseMonthToInt),
+        takeRight(noOfMonths),
+        some(payerIsReseller(payer, mrr)),
+        setIsReseller
+      )(mrr);
+
+export const setResellerByPayer = (
+  payer: Payer | undefined,
+  accounts: Account[] | undefined,
+  setReseller: Dispatch<SetStateAction<Account | undefined>>
+) =>
+  payer?.resellerId &&
+  flow(
+    identity<Account[] | undefined>,
+    find(["id", payer.resellerId]),
+    setReseller
+  )(accounts);
+
+const payerIsReseller = (payer: string, mrr: Mrr[]) => (month: string) =>
+  flow(
+    identity<Mrr[]>,
+    filter(byPayerAccount(payer)),
+    filter(byMonth(month)),
+    some((item) => item.isReseller)
+  )(mrr);
+
+const getLastMonthMrrByPayer =
+  (mrr: Mrr[], payer: string) =>
+  ({ accountOrPayer: account }: AccountMrr) =>
+    getLastMonthMrr(mrr, account, payer);
+
+const getAccountColumnDef = (noOfMonths: number): ColumnDef<AccountMrr>[] => [
   { accessorKey: "id" },
   { accessorKey: "isReseller" },
   {
@@ -101,12 +202,37 @@ const getColumnDef = (noOfMonths: number): ColumnDef<AccountMrr>[] => [
   ...getMonthlyMrrColumnDef(noOfMonths),
 ];
 
+const getPayerColumnDef = (noOfMonths: number): ColumnDef<AccountMrr>[] => [
+  { accessorKey: "id" },
+  { accessorKey: "isReseller" },
+  {
+    accessorKey: "accountOrPayer",
+    header: "Account",
+    cell: ({ row, getValue }) => (
+      <RenderAccountHeader id={row.getValue("id")} label={getValue<string>()} />
+    ),
+  },
+  ...getMonthlyMrrColumnDef(noOfMonths),
+];
+
 const getMonthAccountRevenue =
   (account: string, mrr: Mrr[]) =>
   (month: string): RevenueMonth =>
     flow(
       identity<Mrr[]>,
       filter(byAccount(account)),
+      filter(byMonth(month)),
+      map("mrr"),
+      sum,
+      (mrrTotal) => ({ month: new Date(`${month}-01`), mrr: mrrTotal })
+    )(mrr);
+
+const getMonthPayerRevenue =
+  (payer: string, mrr: Mrr[]) =>
+  (month: string): RevenueMonth =>
+    flow(
+      identity<Mrr[]>,
+      filter(byPayerAccount(payer)),
       filter(byMonth(month)),
       map("mrr"),
       sum,
@@ -130,3 +256,13 @@ const getMonthlyMrrColumnDef = (noOfMonths: number): ColumnDef<AccountMrr>[] =>
       })
     )
   )(noOfMonths);
+
+const mapCompanyMrrData =
+  (mrr: Mrr[], payer: string, noOfMonths: number) =>
+  (account: string): AccountMrr => ({
+    id: getAccountId(mrr, account),
+    accountOrPayer: account,
+    isReseller: false,
+    ...getMrrMonths(mrr, account, payer, noOfMonths),
+    children: [],
+  });

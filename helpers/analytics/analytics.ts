@@ -1,7 +1,7 @@
 import { Mrr, MrrWipData } from "@/api/useMrr";
 import { formatDateYyyyMm } from "@/helpers/functional";
 import { addMonths } from "date-fns";
-import { flow, get, identity, map, replace, some } from "lodash/fp";
+import { flow, get, identity, map, replace } from "lodash/fp";
 
 export const parseMonthToInt = flow(
   identity<string>,
@@ -19,6 +19,11 @@ export const mapPayerMrrs =
       get("accounts"),
       map("accountId")
     )(payerAccount),
+    resellerId:
+      flow(
+        identity<PayerMrrsData["payerAccount"]>,
+        get("resellerId")
+      )(payerAccount) ?? undefined,
     ...rest,
   });
 
@@ -33,8 +38,6 @@ export const byPayerAccount =
     !payerAccount || awsAccountNumber === payerAccount;
 
 export const byMonth = (month: string) => (mrr: Mrr) => month === mrr.month;
-
-export const hasResellerItems = flow(identity<Mrr[]>, some("isReseller"));
 
 const substractMonthsFp = (noOfMonths: number) =>
   addMonths(new Date(), -noOfMonths);

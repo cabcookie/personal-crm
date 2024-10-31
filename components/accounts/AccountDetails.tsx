@@ -10,6 +10,7 @@ import AccountPeople from "./AccountPeople";
 import AccountProjects from "./AccountProjects";
 import AccountTerritories from "./AccountTerritories";
 import AccountUpdateForm from "./AccountUpdateForm";
+import ResellerFinancials from "./ResellerFinancials";
 import Subsidiaries from "./Subsidaries";
 
 type AccountDetailsProps = {
@@ -21,6 +22,7 @@ type AccountDetailsProps = {
   showAwsAccounts?: boolean;
   showFinancials?: boolean;
   showTerritories?: boolean;
+  showResellerFinancials?: boolean;
   updateFormControl?: {
     open: boolean;
     setOpen: (val: boolean) => void;
@@ -36,6 +38,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   showAwsAccounts,
   showFinancials,
   showTerritories,
+  showResellerFinancials,
   showSubsidaries = true,
 }) => {
   const { accounts, updateAccount } = useAccountsContext();
@@ -76,6 +79,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
         <AccountPayerAccounts {...{ account, showAwsAccounts }} />
         <AccountTerritories {...{ account, showTerritories }} />
         <AccountFinancials {...{ account, showFinancials }} />
+        <ResellerFinancials {...{ account, showResellerFinancials }} />
       </Accordion>
     </>
   );

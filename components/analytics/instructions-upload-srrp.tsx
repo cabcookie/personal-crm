@@ -1,9 +1,6 @@
-import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
-type InstructionsUploadSrrpProps = {};
-
-const InstructionsUploadSrrp: FC<InstructionsUploadSrrpProps> = ({}) => {
+const InstructionsUploadSrrp = () => {
   return (
     <DefaultAccordionItem value="srrp" triggerTitle="SRRP">
       DESCRIBE SRRP HERE (WIP)

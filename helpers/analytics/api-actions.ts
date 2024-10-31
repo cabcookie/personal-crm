@@ -149,6 +149,7 @@ const monthMrrSelectionSet = [
   "companyName",
   "awsAccountNumber",
   "payerAccount.accounts.accountId",
+  "payerAccount.resellerId",
   "isEstimated",
   "isReseller",
   "mrr",

@@ -1,11 +1,13 @@
 import { Account } from "@/api/ContextAccounts";
 import {
   RevenueMonth,
-  setAccountColumnDataFromMrr,
-  setAccountColumnDefFromMrr,
-  setLastMonthsAccountRevenue,
   setTotalRevenueFromRevenueMonth,
 } from "@/helpers/analytics/account-data";
+import { setColumnDefFromMrr } from "@/helpers/analytics/prep-table-data";
+import {
+  setLastMonthsResellerRevenue,
+  setResellerColumnDataFromMrr,
+} from "@/helpers/analytics/reseller-data";
 import { formatDate, formatRevenue } from "@/helpers/functional";
 import { ColumnDef } from "@tanstack/react-table";
 import { flow } from "lodash/fp";
@@ -16,14 +18,14 @@ import MrrFilterBtnGrp from "../analytics/mrr-filter-btn-grp";
 import { useMrrFilter, withMrrFilter } from "../analytics/useMrrFilter";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
-type AccountFinancialsProps = {
+type ResellerFinancialsProps = {
   account: Account;
-  showFinancials?: boolean;
+  showResellerFinancials?: boolean;
 };
 
-const AccountFinancials: FC<AccountFinancialsProps> = ({
+const ResellerFinancials: FC<ResellerFinancialsProps> = ({
   account,
-  showFinancials,
+  showResellerFinancials,
 }) => {
   const { mrrFilter, mrr } = useMrrFilter();
   const [noOfMonths, setNoOfMonths] = useState(0);
@@ -39,16 +41,16 @@ const AccountFinancials: FC<AccountFinancialsProps> = ({
   }, [mrrFilter]);
 
   useEffect(() => {
-    setAccountColumnDefFromMrr(mrr, noOfMonths, setColumnDef);
+    setColumnDefFromMrr(mrr, noOfMonths, setColumnDef);
   }, [mrr, noOfMonths]);
 
   useEffect(() => {
-    setAccountColumnDataFromMrr(account.name, mrr, noOfMonths, setColumnData);
-  }, [mrr, noOfMonths, account]);
+    setResellerColumnDataFromMrr(account.id, mrr, noOfMonths, setColumnData);
+  }, [account, mrr, noOfMonths]);
 
   useEffect(() => {
-    setLastMonthsAccountRevenue(3, account.name, mrr, setRevenueLastMonths);
-  }, [mrr, account]);
+    setLastMonthsResellerRevenue(account.id, 3, mrr, setRevenueLastMonths);
+  }, [account, mrr]);
 
   useEffect(() => {
     setTotalRevenueFromRevenueMonth(revenueLastMonths, setTotalRevenue);
@@ -56,13 +58,13 @@ const AccountFinancials: FC<AccountFinancialsProps> = ({
 
   return (
     <DefaultAccordionItem
-      value="financials"
-      triggerTitle="AWS Revenue"
+      value="reseller-financials"
+      triggerTitle="AWS Revenue (as Reseller)"
       triggerSubTitle={revenueLastMonths.map(
         ({ month, mrr }) =>
           `${formatDate("MMM yyyy")(month)}: ${formatRevenue(mrr)}`
       )}
-      isVisible={!!showFinancials && totalRevenue > 0}
+      isVisible={!!showResellerFinancials && totalRevenue > 0}
     >
       <div className="space-y-6">
         <MrrFilterBtnGrp />
@@ -72,4 +74,4 @@ const AccountFinancials: FC<AccountFinancialsProps> = ({
   );
 };
 
-export default withMrrFilter(AccountFinancials);
+export default withMrrFilter(ResellerFinancials);
