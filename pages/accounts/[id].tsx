@@ -1,9 +1,9 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import AccountDetails from "@/components/accounts/AccountDetails";
 import MainLayout from "@/components/layouts/MainLayout";
+import { flow } from "lodash/fp";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { flow } from "lodash/fp";
 
 const AccountDetailPage = () => {
   const router = useRouter();
@@ -43,6 +43,7 @@ const AccountDetailPage = () => {
           showProjects
           showContacts
           showAwsAccounts
+          showFinancials
           showTerritories
           updateFormControl={{
             open: updateAccountFormOpen,

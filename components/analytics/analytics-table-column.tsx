@@ -51,7 +51,7 @@ export const getColumnDef = (noOfMonths: number): ColumnDef<AccountMrr>[] => [
   ...getMonthlyMrrColumnDef(noOfMonths),
 ];
 
-const getMonthName = (noOfMonths: number, id: number) =>
+export const getMonthName = (noOfMonths: number, id: number) =>
   flow(
     identity<number>,
     substract(id),

@@ -2,6 +2,7 @@ import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import { FC } from "react";
 import CrmLink from "../crm/CrmLink";
 import { Accordion } from "../ui/accordion";
+import AccountFinancials from "./AccountFinancials";
 import AccountIntroduction from "./AccountIntroduction";
 import AccountNotes from "./AccountNotes";
 import AccountPayerAccounts from "./AccountPayerAccounts";
@@ -18,6 +19,7 @@ type AccountDetailsProps = {
   showProjects?: boolean;
   showContacts?: boolean;
   showAwsAccounts?: boolean;
+  showFinancials?: boolean;
   showTerritories?: boolean;
   updateFormControl?: {
     open: boolean;
@@ -32,6 +34,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
   showProjects,
   updateFormControl,
   showAwsAccounts,
+  showFinancials,
   showTerritories,
   showSubsidaries = true,
 }) => {
@@ -72,6 +75,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
         <AccountNotes accountId={account.id} />
         <AccountPayerAccounts {...{ account, showAwsAccounts }} />
         <AccountTerritories {...{ account, showTerritories }} />
+        <AccountFinancials {...{ account, showFinancials }} />
       </Accordion>
     </>
   );

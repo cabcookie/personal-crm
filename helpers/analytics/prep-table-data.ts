@@ -64,6 +64,24 @@ export const setColumnDefFromMrr = (
 export const getNoOfMonths = (mrr: Mrr[] | undefined) =>
   flow(identity<Mrr[] | undefined>, getUniqMonths, size)(mrr);
 
+export const mapPayerMrrData =
+  (mrr: Mrr[], account: string, noOfMonths: number) =>
+  (payer: string): AccountMrr => ({
+    id: payer,
+    accountOrPayer: payer,
+    isReseller: getResellerState(mrr, account, payer, noOfMonths),
+    ...getMrrMonths(mrr, account, payer, noOfMonths),
+    children: [],
+  });
+
+export const getLastMonthMrrByAccountAndPayer =
+  (mrr: Mrr[], account: string) =>
+  ({ accountOrPayer }: AccountMrr) =>
+    getLastMonthMrr(mrr, account, accountOrPayer);
+
+export const getUniqMonths = (mrr: Mrr[] | undefined) =>
+  flow(identity<Mrr[] | undefined>, map("month"), uniq)(mrr);
+
 const mapCompanyMrrData =
   (mrr: Mrr[], noOfMonths: number) =>
   (account: string): AccountMrr => ({
@@ -93,16 +111,6 @@ const getResellerState = (
     filter(byPayerAccount(payer)),
     some((mrr) => mrr.isReseller)
   )(mrr);
-
-const mapPayerMrrData =
-  (mrr: Mrr[], account: string, noOfMonths: number) =>
-  (payer: string): AccountMrr => ({
-    id: payer,
-    accountOrPayer: payer,
-    isReseller: getResellerState(mrr, account, payer, noOfMonths),
-    ...getMrrMonths(mrr, account, payer, noOfMonths),
-    children: [],
-  });
 
 const takeNoOfMonths = (noOfMonths: number) =>
   flow(
@@ -145,11 +153,6 @@ const getLastMonthMrrByAccount =
   (mrr: Mrr[]) =>
   ({ accountOrPayer }: AccountMrr) =>
     getLastMonthMrr(mrr, accountOrPayer, undefined);
-
-const getLastMonthMrrByAccountAndPayer =
-  (mrr: Mrr[], account: string) =>
-  ({ accountOrPayer }: AccountMrr) =>
-    getLastMonthMrr(mrr, account, accountOrPayer);
 
 const getPayerMrrDataByAccount = (
   mrr: Mrr[],
@@ -220,6 +223,3 @@ const diffInCalMonths = (month: string) =>
 const getLastMonth = (mrr: Mrr[]) =>
   flow(identity<Mrr[]>, getUniqMonths, sortBy(parseMonthToInt), last)(mrr) ??
   "";
-
-const getUniqMonths = (mrr: Mrr[] | undefined) =>
-  flow(identity<Mrr[] | undefined>, map("month"), uniq)(mrr);
