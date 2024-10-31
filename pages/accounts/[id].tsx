@@ -3,21 +3,18 @@ import AccountDetails from "@/components/accounts/AccountDetails";
 import MainLayout from "@/components/layouts/MainLayout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { flow } from "lodash/fp";
 
 const AccountDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const accountId = Array.isArray(id) ? id[0] : id;
   const { getAccountById } = useAccountsContext();
-  const [account, setAccount] = useState<Account | undefined>(
-    accountId ? getAccountById(accountId) : undefined
-  );
+  const [account, setAccount] = useState<Account | undefined>(undefined);
   const [updateAccountFormOpen, setUpdateAccountFormOpen] = useState(false);
 
   useEffect(() => {
-    if (accountId) {
-      setAccount(getAccountById(accountId));
-    }
+    flow(getAccountById, setAccount)(accountId);
   }, [accountId, getAccountById]);
 
   const handleBackBtnClick = () => {

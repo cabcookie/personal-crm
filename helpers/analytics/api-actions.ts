@@ -10,8 +10,6 @@ import { generateClient, SelectionSet } from "aws-amplify/data";
 import { map } from "lodash/fp";
 const client = generateClient<Schema>();
 
-type MonthData = Schema["Month"]["type"];
-
 export const createUploadRecord = async (s3Path: string) => {
   const { data, errors } = await client.models.MrrDataUpload.create({
     s3Key: s3Path,
@@ -47,12 +45,6 @@ export const updateMonth = async (monthId: string, uploadId: string) => {
   if (!data) return;
   return mapMonth(data);
 };
-
-const mapMonth = ({ id, month, latestUploadId }: MonthData): Month => ({
-  id,
-  month,
-  latestUploadId,
-});
 
 export const fetchMonths = async () => {
   const { data, errors } = await client.models.Month.list({ limit: 200 });
@@ -97,13 +89,6 @@ export const createMrrRecord =
     return data;
   };
 
-const monthSelectionSet = ["id", "month", "latestUploadId"] as const;
-
-type LeanMonth = SelectionSet<
-  Schema["Month"]["type"],
-  typeof monthSelectionSet
->;
-
 export const getMonths = async (
   startMonth: string
 ): Promise<LeanMonth[] | undefined> => {
@@ -119,20 +104,13 @@ export const getMonths = async (
   return data;
 };
 
-export type DoneMonthMrrData = SelectionSet<
-  Schema["PayerAccountMrr"]["type"],
-  typeof monthMrrSelectionSet
->;
-
-const monthMrrSelectionSet = [
-  "id",
-  "companyName",
-  "awsAccountNumber",
-  "payerAccount.accountId",
-  "isEstimated",
-  "isReseller",
-  "mrr",
-] as const;
+export type DoneMonthMrrData = {
+  month: string;
+  payerMrrs: SelectionSet<
+    Schema["PayerAccountMrr"]["type"],
+    typeof monthMrrSelectionSet
+  >[];
+};
 
 export const getMonthMrr = async ({ id, month, latestUploadId }: LeanMonth) => {
   const { data, errors } =
@@ -140,7 +118,7 @@ export const getMonthMrr = async ({ id, month, latestUploadId }: LeanMonth) => {
       { uploadId: latestUploadId },
       {
         filter: { monthId: { eq: id } },
-        limit: 500,
+        limit: 2000,
         selectionSet: monthMrrSelectionSet,
       }
     );
@@ -150,3 +128,28 @@ export const getMonthMrr = async ({ id, month, latestUploadId }: LeanMonth) => {
   }
   return { month, payerMrrs: data };
 };
+
+type MonthData = Schema["Month"]["type"];
+
+const mapMonth = ({ id, month, latestUploadId }: MonthData): Month => ({
+  id,
+  month,
+  latestUploadId,
+});
+
+const monthSelectionSet = ["id", "month", "latestUploadId"] as const;
+
+type LeanMonth = SelectionSet<
+  Schema["Month"]["type"],
+  typeof monthSelectionSet
+>;
+
+const monthMrrSelectionSet = [
+  "id",
+  "companyName",
+  "awsAccountNumber",
+  "payerAccount.accounts.accountId",
+  "isEstimated",
+  "isReseller",
+  "mrr",
+] as const;

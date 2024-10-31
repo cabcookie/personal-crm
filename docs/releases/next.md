@@ -1,7 +1,9 @@
 # Monatliche Umsätze der Kunden abbilden (Version :VERSION)
 
 - Datenbankschema ist erweitert, um das Hochladen von Kundenumsätzen zu unterstützen.
-- Tableau Daten können nun importiert werden. Dazu werden die Kunden mit ihren Payer Accounts gezeigt und den jeweiligen Umsätzen pro Monat. Es wird auf Probleme hingewiesen, wenn die Payer Accounts nicht zugeordnet werden konnten. Meist liegt das daran, dass der Kundenname nicht übereinstimmt oder dass der Payer Account dem Kunden noch zugeordnet werden muss.
+- Tableau Daten können nun importiert werden. Dazu werden die Kunden mit ihren Payer Accounts gezeigt und den jeweiligen Umsätzen pro Monat. Es wird auf Probleme hingewiesen, wenn die Payer Accounts nicht zugeordnet werden konnten. Meist liegt das daran, dass der Kundenname nicht übereinstimmt oder dass der Payer Account dem Kunden noch zugeordnet werden muss. Wenn die Payer ID neu ist, kann sie mit einem Klick erstellt und einem Account zugeordnet werden.
+- Es werden auch Perioden vergleichen, so dass sich leicht Wachstum oder dergleichen erkennen lässt.
+- Von den Kunden und den Payer Accounts kann man direkt auf die Detailseite springen.
 
 ## Packages aktualisiert
 
@@ -19,8 +21,8 @@ Von "Current" auf "Latest" aktualisiert:
 
 ## In Arbeit
 
-- Monatliche Umsätze der Kunden abbilden
 - Seite für einen Payer Account einführen. Auch dort soll der Umsatz der vergangenen Monate angezeigt werden können.
+- Auf der Kundenseite sollen auch die Umsätze angezeigt werden.
 
 ## Geplant
 

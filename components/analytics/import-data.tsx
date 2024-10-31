@@ -1,21 +1,21 @@
+import { Mrr, MrrMutator } from "@/api/useMrr";
 import useMrrImport from "@/api/useMrrImport";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { FC, useState } from "react";
 import ApiLoadingError from "../layouts/ApiLoadingError";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Progress } from "../ui/progress";
 
-const ImportMrrData = () => {
-  const {
-    mrrImport,
-    isLoading,
-    error,
-    uploadAndProcessImportFile,
-    closeImportFile,
-  } = useMrrImport();
+type ImportMrrDataProps = {
+  mrr: Mrr[] | undefined;
+  mutateMrr: MrrMutator;
+};
+
+const ImportMrrData: FC<ImportMrrDataProps> = ({ mrr, mutateMrr }) => {
+  const { mrrImport, isLoading, error, uploadAndProcessImportFile } =
+    useMrrImport(mrr, mutateMrr);
   const [progressBar, setProgressBar] = useState(0);
 
   return (
@@ -54,10 +54,6 @@ const ImportMrrData = () => {
             <Progress value={progressBar} className="w-80" />
           </div>
         </div>
-      )}
-
-      {mrrImport && (
-        <Button onClick={closeImportFile}>Close import file</Button>
       )}
     </div>
   );

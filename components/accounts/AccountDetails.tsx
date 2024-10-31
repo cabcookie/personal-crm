@@ -150,7 +150,9 @@ const AccountDetails: FC<AccountDetailsProps> = ({
         >
           <ListPayerAccounts
             payerAccounts={account.payerAccounts}
-            deletePayerAccount={deletePayerAccount}
+            deletePayerAccount={(payerId) =>
+              deletePayerAccount(account.id, payerId)
+            }
             allowDeletion
             showLabel={false}
           />

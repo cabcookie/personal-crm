@@ -10,6 +10,7 @@ import { flow, get, map } from "lodash/fp";
 import { ChangeEvent } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { Mrr, MrrMutator } from "./useMrr";
 const client = generateClient<Schema>();
 
 export type MrrImportData = Schema["MrrDataUpload"]["type"];
@@ -51,7 +52,7 @@ const fetchMrrImport = async () => {
   }
 };
 
-const useMrrImport = () => {
+const useMrrImport = (mrr: Mrr[] | undefined, mutateMrr: MrrMutator) => {
   const {
     data: mrrImport,
     isLoading,
@@ -82,6 +83,8 @@ const useMrrImport = () => {
         upload.s3Path,
         updateProgress
       );
+      await closeImportFile();
+      mutateMrr(mrr);
       return uploadRecord.id;
     };
 
@@ -101,7 +104,6 @@ const useMrrImport = () => {
     isLoading,
     error,
     uploadAndProcessImportFile,
-    closeImportFile,
   };
 };
 

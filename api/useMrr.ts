@@ -1,20 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
 import { MrrImportData } from "@/api/useMrrImport";
 import { MrrFilters } from "@/components/analytics/useMrrFilter";
-import {
-  getMinMonth,
-  mapPayerMrrs,
-  sortByMonth,
-} from "@/helpers/analytics/analytics";
+import { getMinMonth, mapPayerMrrs } from "@/helpers/analytics/analytics";
 import {
   DoneMonthMrrData,
   getMonthMrr,
   getMonths,
 } from "@/helpers/analytics/api-actions";
-import { logFp } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flatMap, flow, get, identity, map } from "lodash/fp";
-import useSWR from "swr";
+import { flatMap, flow, get, identity } from "lodash/fp";
+import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
@@ -23,7 +18,7 @@ const wipSelectionSet = [
   "latestMonths.payerMrrs.id",
   "latestMonths.payerMrrs.companyName",
   "latestMonths.payerMrrs.awsAccountNumber",
-  "latestMonths.payerMrrs.payerAccount.accountId",
+  "latestMonths.payerMrrs.payerAccount.accounts.accountId",
   "latestMonths.payerMrrs.isEstimated",
   "latestMonths.payerMrrs.isReseller",
   "latestMonths.payerMrrs.mrr",
@@ -39,7 +34,7 @@ export type Mrr = {
   month: string;
   companyName: string;
   awsAccountNumber: string;
-  payerAccountAccountId?: string;
+  payerAccountAccountIds?: string[];
   isEstimated: boolean;
   isReseller: boolean;
   mrr: number;
@@ -47,7 +42,7 @@ export type Mrr = {
   lastPeriodMrr?: number;
 };
 
-const mapWipMrr = ({
+const mapMrr = ({
   month,
   payerMrrs,
 }: MrrWipData["latestMonths"][number]): Mrr[] =>
@@ -72,35 +67,13 @@ const fetchMrrWip = async () => {
       identity<MrrWipData[] | undefined>,
       get(0),
       get("latestMonths"),
-      flatMap(mapWipMrr)
+      flatMap(mapMrr)
     )(data);
   } catch (error) {
     console.error("fetchMrr", error);
     throw error;
   }
 };
-
-const comparePeriods = (
-  noOfMonths: number,
-  months: MrrWipData["latestMonths"][]
-) => {
-  console.log("comparePeriods", months);
-};
-
-export type DoneMonthData = {
-  month: string;
-  payerMrrs: DoneMonthMrrData[];
-};
-
-type MonthPayerMrrs = {};
-
-const mapDoneMrr = ({ month, payerMrrs }: DoneMonthData) => ({
-  month,
-  payerMrrs: payerMrrs.map(({ payerAccount, ...rest }) => ({
-    ...rest,
-    payerAccountAccountId: payerAccount.accountId,
-  })),
-});
 
 const fetchMrrDone = (noOfMonths?: MrrFilters) => async () => {
   if (!noOfMonths) return;
@@ -109,13 +82,7 @@ const fetchMrrDone = (noOfMonths?: MrrFilters) => async () => {
   const months = await getMonths(startMonth);
   if (!months) return;
   const data = await Promise.all(months.map(getMonthMrr));
-  const orderedMonths = flow(
-    map(mapDoneMrr),
-    sortByMonth,
-    logFp("fetchMrrDone")
-  )(data);
-
-  return flow(flatMap(mapWipMrr))(orderedMonths);
+  return flow(identity<DoneMonthMrrData[]>, flatMap(mapMrr))(data);
 };
 
 const fetchMrr =
@@ -130,9 +97,12 @@ const useMrr = (status: MrrImportData["status"], noOfMonths?: MrrFilters) => {
     data: mrr,
     isLoading,
     error,
+    mutate,
   } = useSWR(`/api/mrr/${status}/${noOfMonths}`, fetchMrr(status, noOfMonths));
 
-  return { mrr, isLoading, error };
+  return { mrr, isLoading, error, mutate };
 };
+
+export type MrrMutator = KeyedMutator<Mrr[] | undefined>;
 
 export default useMrr;
