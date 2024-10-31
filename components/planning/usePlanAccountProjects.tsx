@@ -42,9 +42,9 @@ interface PlanAccountProjectsProviderProps {
   children: React.ReactNode;
 }
 
-export const PlanAccountProjectsProvider: FC<
-  PlanAccountProjectsProviderProps
-> = ({ children }) => {
+const PlanAccountProjectsProvider: FC<PlanAccountProjectsProviderProps> = ({
+  children,
+}) => {
   const { accounts, loadingAccounts, errorAccounts } = useAccountsContext();
   const { projects, saveProjectDates } = usePlanningProjectFilter();
   const [accountsProjects, setAccountsProjects] = useState<AccountProjects[]>(

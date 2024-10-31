@@ -6,7 +6,7 @@ type ActivityData =
   PersonAccountData["person"]["meetings"][number]["meeting"]["activities"][number];
 type LearningData = PersonAccountData["person"]["learnings"][number];
 
-export type AccountPerson = {
+type AccountPerson = {
   id: string;
   name: string;
 };

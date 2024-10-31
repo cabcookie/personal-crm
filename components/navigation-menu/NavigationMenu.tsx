@@ -106,6 +106,7 @@ const NavigationMenu = () => {
           { label: "Accounts", url: "/accounts", shortcut: "^A" },
           { label: "Territories", url: "/territories" },
           { label: "CRM Projects", url: "/crm-projects" },
+          { label: "Customer Financials", url: "/customer-financials" },
           { label: "Count of Interactions", url: "/interactions" },
         ]
       : []),

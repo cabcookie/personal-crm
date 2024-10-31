@@ -108,6 +108,7 @@ const personSchmema = {
       dateOfDeath: a.date(),
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
+      payerAccounts: a.hasMany("PayerAccount", "mainContactId"),
       details: a.hasMany("PersonDetail", "personId"),
       learnings: a.hasMany("PersonLearning", "personId"),
       profile: a.hasOne("User", "personId"),

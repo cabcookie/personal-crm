@@ -1,10 +1,28 @@
 # Monatliche Umsätze der Kunden abbilden (Version :VERSION)
 
 - Datenbankschema ist erweitert, um das Hochladen von Kundenumsätzen zu unterstützen.
+- Tableau Daten können nun importiert werden. Dazu werden die Kunden mit ihren Payer Accounts gezeigt und den jeweiligen Umsätzen pro Monat. Es wird auf Probleme hingewiesen, wenn die Payer Accounts nicht zugeordnet werden konnten. Meist liegt das daran, dass der Kundenname nicht übereinstimmt oder dass der Payer Account dem Kunden noch zugeordnet werden muss. Wenn die Payer ID neu ist, kann sie mit einem Klick erstellt und einem Account zugeordnet werden.
+- Es werden auch Perioden vergleichen, so dass sich leicht Wachstum oder dergleichen erkennen lässt.
+- Von den Kunden und den Payer Accounts kann man direkt auf die Detailseite springen.
+- Auf der Kundenseite werden nun auch Umsätze angezeigt.
+- Payer Accounts haben nun eine eigene Seite. Dort kann ein Reseller hinzugefügt werden und die Umsätze dargestellt werden.
+- Für Reseller werden die Umsätze verknüpfter AWS Accounts angezeigt.
+
+## Packages aktualisiert
+
+Von "Current" auf "Latest" aktualisiert:
+
+| Package                          | Current | Wanted  | Latest  |
+| -------------------------------- | ------- | ------- | ------- |
+| @commitlint/config-conventional  | 18.6.3  | 18.6.3  | 19.5.0  |
+| @typescript-eslint/eslint-plugin | 7.18.0  | 7.18.0  | 8.11.0  |
+| @typescript-eslint/parser        | 7.18.0  | 7.18.0  | 8.11.0  |
+| commitlint                       | 18.6.1  | 18.6.1  | 19.5.0  |
+| eslint-plugin-prettier           | 4.2.1   | 4.2.1   | 5.2.1   |
+| lucide-react                     | 0.379.0 | 0.379.0 | 0.453.0 |
+| prettier                         | 2.8.8   | 2.8.8   | 3.3.3   |
 
 ## In Arbeit
-
-- Monatliche Umsätze der Kunden abbilden
 
 ## Geplant
 

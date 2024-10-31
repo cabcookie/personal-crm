@@ -102,7 +102,7 @@ export const make2YearsRevenueText = (revenue: number) =>
 export const getRevenue2Years = (projects: ICalcRevenueTwoYears[]) =>
   make2YearsRevenueText(flow(map(calcRevenueTwoYears), sum)(projects));
 
-export type FilterAndSortProjectsProps = {
+type FilterAndSortProjectsProps = {
   projects: Project[];
   accountId?: string;
   projectFilter?: ProjectFilters;

@@ -58,10 +58,10 @@ const validationSchemaMap: TValidationSchemaMap = personDetailsLabels.reduce(
         rest.type === "url"
           ? makeUrlValidation(rest.formLabel)
           : rest.type === "email"
-          ? emailValidation
-          : rest.type === "phone"
-          ? phoneValidation
-          : stringValidation,
+            ? emailValidation
+            : rest.type === "phone"
+              ? phoneValidation
+              : stringValidation,
     }),
   }),
   {} as TValidationSchemaMap
