@@ -21,7 +21,14 @@ if (backendType !== "sandbox") {
    * issues when enabled right from the get-go and Amplify deployments fail.
    */
   // const { PersonRelationship: _pr, ...restTables } = amplifyDynamoDbTables;
-  Object.values(amplifyDynamoDbTables).forEach((table) => {
+  const {
+    MrrDataUpload: _du,
+    Month: _m,
+    PayerAccountMrr: _pam,
+    ...restTables
+  } = amplifyDynamoDbTables;
+  // Object.values(amplifyDynamoDbTables).forEach((table) => {
+  Object.values(restTables).forEach((table) => {
     table.pointInTimeRecoveryEnabled = true;
     table.deletionProtectionEnabled = true;
     table.applyRemovalPolicy(RemovalPolicy.RETAIN);
