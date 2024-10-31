@@ -2,7 +2,6 @@ import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 import { postConfirmation } from "../auth/post-confirmation/resource";
 import accountSchema from "./account-schema";
 import activitySchema from "./activity-schema";
-import analyticsSchema from "./analytics-schema";
 import bibleSchema from "./bible-schema";
 import contextSchema from "./context-schema";
 import personSchmema from "./person-schema";
@@ -20,7 +19,6 @@ const schema = a
     ...prayerSchema,
     ...planningSchema,
     ...bibleSchema,
-    ...analyticsSchema,
     Inbox: a
       .model({
         owner: a
