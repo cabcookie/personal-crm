@@ -38,7 +38,7 @@ interface CrmProjectsFilterProviderProps {
 
 const PROJECT_FILTERS = ["All", "Hygiene", "By Partner", "By Account"] as const;
 
-type TProjectFilters = (typeof PROJECT_FILTERS)[number];
+export type TProjectFilters = (typeof PROJECT_FILTERS)[number];
 
 const isValidProjectFilter = (
   crmFilter: string
@@ -97,8 +97,8 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
     newFilter === "More"
       ? setSelectedMore(true)
       : newFilter === "Back"
-        ? setSelectedMore(false)
-        : isValidProjectFilter(newFilter) && setCrmFilter(newFilter);
+      ? setSelectedMore(false)
+      : isValidProjectFilter(newFilter) && setCrmFilter(newFilter);
 
   return (
     <CrmProjectsFilter.Provider

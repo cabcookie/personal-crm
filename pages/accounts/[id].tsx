@@ -1,7 +1,6 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
 import AccountDetails from "@/components/accounts/AccountDetails";
 import MainLayout from "@/components/layouts/MainLayout";
-import { flow } from "lodash/fp";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -10,11 +9,15 @@ const AccountDetailPage = () => {
   const { id } = router.query;
   const accountId = Array.isArray(id) ? id[0] : id;
   const { getAccountById } = useAccountsContext();
-  const [account, setAccount] = useState<Account | undefined>(undefined);
+  const [account, setAccount] = useState<Account | undefined>(
+    accountId ? getAccountById(accountId) : undefined
+  );
   const [updateAccountFormOpen, setUpdateAccountFormOpen] = useState(false);
 
   useEffect(() => {
-    flow(getAccountById, setAccount)(accountId);
+    if (accountId) {
+      setAccount(getAccountById(accountId));
+    }
   }, [accountId, getAccountById]);
 
   const handleBackBtnClick = () => {
@@ -43,8 +46,6 @@ const AccountDetailPage = () => {
           showProjects
           showContacts
           showAwsAccounts
-          showFinancials
-          showResellerFinancials
           showTerritories
           updateFormControl={{
             open: updateAccountFormOpen,

@@ -6,7 +6,7 @@ import {
 } from "@tiptap/core";
 import { Node as ProseMirrorNode } from "@tiptap/pm/model";
 
-interface TaskItemOptions {
+export interface TaskItemOptions {
   /**
    * A callback function that is called when the checkbox is clicked while the editor is in readonly mode.
    * @param node The prosemirror node of the task item
@@ -40,7 +40,7 @@ interface TaskItemOptions {
 /**
  * Matches a task item to a - [ ] on input.
  */
-const inputRegex = /^\s*(\[([( |x])?\])\s$/;
+export const inputRegex = /^\s*(\[([( |x])?\])\s$/;
 
 /**
  * This extension allows you to create task items.
