@@ -1,5 +1,13 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "ProjectActivity",
+  "NoteBlockPerson",
+  "NoteBlock",
+  "Todo",
+  "Activity",
+];
+
 const activitySchema = {
   TodoStatus: a.enum(["OPEN", "DONE"]),
   ProjectActivity: a

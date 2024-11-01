@@ -39,6 +39,10 @@ export const createAccount = /* GraphQL */ `mutation CreateAccount(
     notionId
     order
     owner
+    partnerProjects {
+      nextToken
+      __typename
+    }
     payerAccounts {
       nextToken
       __typename
@@ -48,6 +52,10 @@ export const createAccount = /* GraphQL */ `mutation CreateAccount(
       __typename
     }
     projects {
+      nextToken
+      __typename
+    }
+    resellingAccounts {
       nextToken
       __typename
     }
@@ -66,6 +74,49 @@ export const createAccount = /* GraphQL */ `mutation CreateAccount(
 ` as GeneratedMutation<
   APITypes.CreateAccountMutationVariables,
   APITypes.CreateAccountMutation
+>;
+export const createAccountPayerAccount = /* GraphQL */ `mutation CreateAccountPayerAccount(
+  $condition: ModelAccountPayerAccountConditionInput
+  $input: CreateAccountPayerAccountInput!
+) {
+  createAccountPayerAccount(condition: $condition, input: $input) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      name
+      notionId
+      order
+      owner
+      updatedAt
+      __typename
+    }
+    accountId
+    awsAccountNumber {
+      awsAccountNumber
+      createdAt
+      isViaReseller
+      mainContactId
+      owner
+      resellerId
+      updatedAt
+      __typename
+    }
+    awsAccountNumberId
+    createdAt
+    id
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateAccountPayerAccountMutationVariables,
+  APITypes.CreateAccountPayerAccountMutation
 >;
 export const createAccountProjects = /* GraphQL */ `mutation CreateAccountProjects(
   $condition: ModelAccountProjectsConditionInput
@@ -106,6 +157,7 @@ export const createAccountProjects = /* GraphQL */ `mutation CreateAccountProjec
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -172,6 +224,7 @@ export const createActivity = /* GraphQL */ `mutation CreateActivity(
       context
       createdAt
       id
+      immediateTasksDone
       meetingOn
       notionId
       owner
@@ -186,6 +239,11 @@ export const createActivity = /* GraphQL */ `mutation CreateActivity(
     formatVersion
     id
     meetingActivitiesId
+    noteBlockIds
+    noteBlocks {
+      nextToken
+      __typename
+    }
     notes
     notesJson
     notionId
@@ -198,25 +256,59 @@ export const createActivity = /* GraphQL */ `mutation CreateActivity(
   APITypes.CreateActivityMutationVariables,
   APITypes.CreateActivityMutation
 >;
+export const createBookOfBible = /* GraphQL */ `mutation CreateBookOfBible(
+  $condition: ModelBookOfBibleConditionInput
+  $input: CreateBookOfBibleInput!
+) {
+  createBookOfBible(condition: $condition, input: $input) {
+    alias
+    book
+    chapters {
+      nextToken
+      __typename
+    }
+    createdAt
+    id
+    noOfChapters
+    notionId
+    owner
+    section
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateBookOfBibleMutationVariables,
+  APITypes.CreateBookOfBibleMutation
+>;
 export const createCrmProject = /* GraphQL */ `mutation CreateCrmProject(
   $condition: ModelCrmProjectConditionInput
   $input: CreateCrmProjectInput!
 ) {
   createCrmProject(condition: $condition, input: $input) {
+    accountName
     annualRecurringRevenue
     closeDate
+    confirmHygieneIssuesSolvedTill
     createdAt
+    createdDate
     crmId
     id
     isMarketplace
     name
+    nextStep
+    opportunityOwner
     owner
+    partnerName
     projects {
       nextToken
       __typename
     }
     stage
+    stageChangedDate
+    territoryName
     totalContractVolume
+    type
     updatedAt
     __typename
   }
@@ -225,6 +317,24 @@ export const createCrmProject = /* GraphQL */ `mutation CreateCrmProject(
   APITypes.CreateCrmProjectMutationVariables,
   APITypes.CreateCrmProjectMutation
 >;
+export const createCrmProjectImport = /* GraphQL */ `mutation CreateCrmProjectImport(
+  $condition: ModelCrmProjectImportConditionInput
+  $input: CreateCrmProjectImportInput!
+) {
+  createCrmProjectImport(condition: $condition, input: $input) {
+    createdAt
+    id
+    owner
+    s3Key
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateCrmProjectImportMutationVariables,
+  APITypes.CreateCrmProjectImportMutation
+>;
 export const createCrmProjectProjects = /* GraphQL */ `mutation CreateCrmProjectProjects(
   $condition: ModelCrmProjectProjectsConditionInput
   $input: CreateCrmProjectProjectsInput!
@@ -232,16 +342,25 @@ export const createCrmProjectProjects = /* GraphQL */ `mutation CreateCrmProject
   createCrmProjectProjects(condition: $condition, input: $input) {
     createdAt
     crmProject {
+      accountName
       annualRecurringRevenue
       closeDate
+      confirmHygieneIssuesSolvedTill
       createdAt
+      createdDate
       crmId
       id
       isMarketplace
       name
+      nextStep
+      opportunityOwner
       owner
+      partnerName
       stage
+      stageChangedDate
+      territoryName
       totalContractVolume
+      type
       updatedAt
       __typename
     }
@@ -263,6 +382,7 @@ export const createCrmProjectProjects = /* GraphQL */ `mutation CreateCrmProject
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -293,26 +413,18 @@ export const createCurrentContext = /* GraphQL */ `mutation CreateCurrentContext
   APITypes.CreateCurrentContextMutationVariables,
   APITypes.CreateCurrentContextMutation
 >;
-export const createDayPlan = /* GraphQL */ `mutation CreateDayPlan(
-  $condition: ModelDayPlanConditionInput
-  $input: CreateDayPlanInput!
+export const createDailyPlan = /* GraphQL */ `mutation CreateDailyPlan(
+  $condition: ModelDailyPlanConditionInput
+  $input: CreateDailyPlanInput!
 ) {
-  createDayPlan(condition: $condition, input: $input) {
+  createDailyPlan(condition: $condition, input: $input) {
     context
     createdAt
     day
     dayGoal
-    done
     id
     owner
-    projectTasks {
-      nextToken
-      __typename
-    }
-    tasks {
-      nextToken
-      __typename
-    }
+    status
     todos {
       nextToken
       __typename
@@ -322,109 +434,48 @@ export const createDayPlan = /* GraphQL */ `mutation CreateDayPlan(
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateDayPlanMutationVariables,
-  APITypes.CreateDayPlanMutation
+  APITypes.CreateDailyPlanMutationVariables,
+  APITypes.CreateDailyPlanMutation
 >;
-export const createDayPlanTodo = /* GraphQL */ `mutation CreateDayPlanTodo(
-  $condition: ModelDayPlanTodoConditionInput
-  $input: CreateDayPlanTodoInput!
+export const createDailyPlanTodo = /* GraphQL */ `mutation CreateDailyPlanTodo(
+  $condition: ModelDailyPlanTodoConditionInput
+  $input: CreateDailyPlanTodoInput!
 ) {
-  createDayPlanTodo(condition: $condition, input: $input) {
+  createDailyPlanTodo(condition: $condition, input: $input) {
     createdAt
-    dayPlan {
+    dailyPlan {
       context
       createdAt
       day
       dayGoal
-      done
       id
       owner
+      status
       updatedAt
       __typename
     }
-    dayPlanTodosId
-    done
-    doneOn
+    dailyPlanId
     id
     owner
-    project {
-      context
+    postPoned
+    todo {
       createdAt
-      done
       doneOn
-      dueOn
-      formatVersion
       id
-      myNextActions
-      myNextActionsJson
-      notionId
-      onHoldTill
-      othersNextActions
-      othersNextActionsJson
       owner
-      project
+      status
+      todo
       updatedAt
       __typename
     }
-    projectsTodosId
-    todo
+    todoId
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateDayPlanTodoMutationVariables,
-  APITypes.CreateDayPlanTodoMutation
->;
-export const createDayProjectTask = /* GraphQL */ `mutation CreateDayProjectTask(
-  $condition: ModelDayProjectTaskConditionInput
-  $input: CreateDayProjectTaskInput!
-) {
-  createDayProjectTask(condition: $condition, input: $input) {
-    createdAt
-    dayPlan {
-      context
-      createdAt
-      day
-      dayGoal
-      done
-      id
-      owner
-      updatedAt
-      __typename
-    }
-    dayPlanProjectTasksId
-    done
-    id
-    owner
-    projects {
-      context
-      createdAt
-      done
-      doneOn
-      dueOn
-      formatVersion
-      id
-      myNextActions
-      myNextActionsJson
-      notionId
-      onHoldTill
-      othersNextActions
-      othersNextActionsJson
-      owner
-      project
-      updatedAt
-      __typename
-    }
-    projectsDayTasksId
-    task
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.CreateDayProjectTaskMutationVariables,
-  APITypes.CreateDayProjectTaskMutation
+  APITypes.CreateDailyPlanTodoMutationVariables,
+  APITypes.CreateDailyPlanTodoMutation
 >;
 export const createInbox = /* GraphQL */ `mutation CreateInbox(
   $condition: ModelInboxConditionInput
@@ -459,6 +510,7 @@ export const createMeeting = /* GraphQL */ `mutation CreateMeeting(
     context
     createdAt
     id
+    immediateTasksDone
     meetingOn
     notionId
     owner
@@ -486,6 +538,7 @@ export const createMeetingParticipant = /* GraphQL */ `mutation CreateMeetingPar
       context
       createdAt
       id
+      immediateTasksDone
       meetingOn
       notionId
       owner
@@ -516,44 +569,219 @@ export const createMeetingParticipant = /* GraphQL */ `mutation CreateMeetingPar
   APITypes.CreateMeetingParticipantMutationVariables,
   APITypes.CreateMeetingParticipantMutation
 >;
-export const createNonProjectTask = /* GraphQL */ `mutation CreateNonProjectTask(
-  $condition: ModelNonProjectTaskConditionInput
-  $input: CreateNonProjectTaskInput!
+export const createMonth = /* GraphQL */ `mutation CreateMonth(
+  $condition: ModelMonthConditionInput
+  $input: CreateMonthInput!
 ) {
-  createNonProjectTask(condition: $condition, input: $input) {
-    context
+  createMonth(condition: $condition, input: $input) {
     createdAt
-    dayPlan {
-      context
+    id
+    latestUpload {
       createdAt
-      day
-      dayGoal
-      done
       id
       owner
+      s3Key
+      status
       updatedAt
       __typename
     }
-    dayPlanTasksId
-    done
-    id
-    notionId
+    latestUploadId
+    month
     owner
-    task
+    payerMrrs {
+      nextToken
+      __typename
+    }
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateNonProjectTaskMutationVariables,
-  APITypes.CreateNonProjectTaskMutation
+  APITypes.CreateMonthMutationVariables,
+  APITypes.CreateMonthMutation
+>;
+export const createMrrDataUpload = /* GraphQL */ `mutation CreateMrrDataUpload(
+  $condition: ModelMrrDataUploadConditionInput
+  $input: CreateMrrDataUploadInput!
+) {
+  createMrrDataUpload(condition: $condition, input: $input) {
+    createdAt
+    id
+    latestMonths {
+      nextToken
+      __typename
+    }
+    owner
+    payerMrrs {
+      nextToken
+      __typename
+    }
+    s3Key
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateMrrDataUploadMutationVariables,
+  APITypes.CreateMrrDataUploadMutation
+>;
+export const createNoteBlock = /* GraphQL */ `mutation CreateNoteBlock(
+  $condition: ModelNoteBlockConditionInput
+  $input: CreateNoteBlockInput!
+) {
+  createNoteBlock(condition: $condition, input: $input) {
+    activity {
+      createdAt
+      finishedOn
+      formatVersion
+      id
+      meetingActivitiesId
+      noteBlockIds
+      notes
+      notesJson
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    activityId
+    content
+    createdAt
+    formatVersion
+    id
+    owner
+    people {
+      nextToken
+      __typename
+    }
+    todo {
+      createdAt
+      doneOn
+      id
+      owner
+      status
+      todo
+      updatedAt
+      __typename
+    }
+    todoId
+    type
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateNoteBlockMutationVariables,
+  APITypes.CreateNoteBlockMutation
+>;
+export const createNoteBlockPerson = /* GraphQL */ `mutation CreateNoteBlockPerson(
+  $condition: ModelNoteBlockPersonConditionInput
+  $input: CreateNoteBlockPersonInput!
+) {
+  createNoteBlockPerson(condition: $condition, input: $input) {
+    createdAt
+    id
+    noteBlock {
+      activityId
+      content
+      createdAt
+      formatVersion
+      id
+      owner
+      todoId
+      type
+      updatedAt
+      __typename
+    }
+    noteBlockId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateNoteBlockPersonMutationVariables,
+  APITypes.CreateNoteBlockPersonMutation
+>;
+export const createNotesBibleChapter = /* GraphQL */ `mutation CreateNotesBibleChapter(
+  $condition: ModelNotesBibleChapterConditionInput
+  $input: CreateNotesBibleChapterInput!
+) {
+  createNotesBibleChapter(condition: $condition, input: $input) {
+    book {
+      alias
+      book
+      createdAt
+      id
+      noOfChapters
+      notionId
+      owner
+      section
+      updatedAt
+      __typename
+    }
+    bookId
+    chapter
+    createdAt
+    formatVersion
+    id
+    note
+    noteJson
+    notionId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateNotesBibleChapterMutationVariables,
+  APITypes.CreateNotesBibleChapterMutation
 >;
 export const createPayerAccount = /* GraphQL */ `mutation CreatePayerAccount(
   $condition: ModelPayerAccountConditionInput
   $input: CreatePayerAccountInput!
 ) {
   createPayerAccount(condition: $condition, input: $input) {
-    account {
+    accounts {
+      nextToken
+      __typename
+    }
+    awsAccountNumber
+    createdAt
+    financials {
+      nextToken
+      __typename
+    }
+    isViaReseller
+    mainContact {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    mainContactId
+    owner
+    reseller {
       accountSubsidiariesId
       createdAt
       crmId
@@ -568,10 +796,7 @@ export const createPayerAccount = /* GraphQL */ `mutation CreatePayerAccount(
       updatedAt
       __typename
     }
-    accountId
-    awsAccountNumber
-    createdAt
-    owner
+    resellerId
     updatedAt
     __typename
   }
@@ -579,6 +804,57 @@ export const createPayerAccount = /* GraphQL */ `mutation CreatePayerAccount(
 ` as GeneratedMutation<
   APITypes.CreatePayerAccountMutationVariables,
   APITypes.CreatePayerAccountMutation
+>;
+export const createPayerAccountMrr = /* GraphQL */ `mutation CreatePayerAccountMrr(
+  $condition: ModelPayerAccountMrrConditionInput
+  $input: CreatePayerAccountMrrInput!
+) {
+  createPayerAccountMrr(condition: $condition, input: $input) {
+    awsAccountNumber
+    companyName
+    createdAt
+    id
+    isEstimated
+    isReseller
+    month {
+      createdAt
+      id
+      latestUploadId
+      month
+      owner
+      updatedAt
+      __typename
+    }
+    monthId
+    mrr
+    owner
+    payerAccount {
+      awsAccountNumber
+      createdAt
+      isViaReseller
+      mainContactId
+      owner
+      resellerId
+      updatedAt
+      __typename
+    }
+    updatedAt
+    upload {
+      createdAt
+      id
+      owner
+      s3Key
+      status
+      updatedAt
+      __typename
+    }
+    uploadId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreatePayerAccountMrrMutationVariables,
+  APITypes.CreatePayerAccountMrrMutation
 >;
 export const createPerson = /* GraphQL */ `mutation CreatePerson(
   $condition: ModelPersonConditionInput
@@ -607,8 +883,34 @@ export const createPerson = /* GraphQL */ `mutation CreatePerson(
       __typename
     }
     name
+    noteBlocks {
+      nextToken
+      __typename
+    }
     notionId
     owner
+    payerAccounts {
+      nextToken
+      __typename
+    }
+    profile {
+      createdAt
+      email
+      name
+      personId
+      profileId
+      profilePicture
+      updatedAt
+      __typename
+    }
+    relationshipsFrom {
+      nextToken
+      __typename
+    }
+    relationshipsTo {
+      nextToken
+      __typename
+    }
     updatedAt
     __typename
   }
@@ -728,6 +1030,51 @@ export const createPersonLearning = /* GraphQL */ `mutation CreatePersonLearning
   APITypes.CreatePersonLearningMutationVariables,
   APITypes.CreatePersonLearningMutation
 >;
+export const createPersonRelationship = /* GraphQL */ `mutation CreatePersonRelationship(
+  $condition: ModelPersonRelationshipConditionInput
+  $input: CreatePersonRelationshipInput!
+) {
+  createPersonRelationship(condition: $condition, input: $input) {
+    createdAt
+    date
+    endDate
+    id
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    relatedPerson {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    relatedPersonId
+    typeName
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreatePersonRelationshipMutationVariables,
+  APITypes.CreatePersonRelationshipMutation
+>;
 export const createProjectActivity = /* GraphQL */ `mutation CreateProjectActivity(
   $condition: ModelProjectActivityConditionInput
   $input: CreateProjectActivityInput!
@@ -739,6 +1086,7 @@ export const createProjectActivity = /* GraphQL */ `mutation CreateProjectActivi
       formatVersion
       id
       meetingActivitiesId
+      noteBlockIds
       notes
       notesJson
       notionId
@@ -765,6 +1113,7 @@ export const createProjectActivity = /* GraphQL */ `mutation CreateProjectActivi
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -801,10 +1150,6 @@ export const createProjects = /* GraphQL */ `mutation CreateProjects(
       nextToken
       __typename
     }
-    dayTasks {
-      nextToken
-      __typename
-    }
     done
     doneOn
     dueOn
@@ -817,12 +1162,28 @@ export const createProjects = /* GraphQL */ `mutation CreateProjects(
     othersNextActions
     othersNextActionsJson
     owner
+    partner {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      name
+      notionId
+      order
+      owner
+      updatedAt
+      __typename
+    }
+    partnerId
     project
-    todos {
+    updatedAt
+    weekPlans {
       nextToken
       __typename
     }
-    updatedAt
     __typename
   }
 }
@@ -894,6 +1255,7 @@ export const createSixWeekBatchProjects = /* GraphQL */ `mutation CreateSixWeekB
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -1003,6 +1365,41 @@ export const createTerritoryResponsibility = /* GraphQL */ `mutation CreateTerri
   APITypes.CreateTerritoryResponsibilityMutationVariables,
   APITypes.CreateTerritoryResponsibilityMutation
 >;
+export const createTodo = /* GraphQL */ `mutation CreateTodo(
+  $condition: ModelTodoConditionInput
+  $input: CreateTodoInput!
+) {
+  createTodo(condition: $condition, input: $input) {
+    activity {
+      activityId
+      content
+      createdAt
+      formatVersion
+      id
+      owner
+      todoId
+      type
+      updatedAt
+      __typename
+    }
+    createdAt
+    dailyTodos {
+      nextToken
+      __typename
+    }
+    doneOn
+    id
+    owner
+    status
+    todo
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateTodoMutationVariables,
+  APITypes.CreateTodoMutation
+>;
 export const createUser = /* GraphQL */ `mutation CreateUser(
   $condition: ModelUserConditionInput
   $input: CreateUserInput!
@@ -1011,7 +1408,21 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
     createdAt
     email
     name
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
     profileId
+    profilePicture
     updatedAt
     __typename
   }
@@ -1020,23 +1431,74 @@ export const createUser = /* GraphQL */ `mutation CreateUser(
   APITypes.CreateUserMutationVariables,
   APITypes.CreateUserMutation
 >;
-export const createUserProfile = /* GraphQL */ `mutation CreateUserProfile(
-  $condition: ModelUserProfileConditionInput
-  $input: CreateUserProfileInput!
+export const createWeeklyPlan = /* GraphQL */ `mutation CreateWeeklyPlan(
+  $condition: ModelWeeklyPlanConditionInput
+  $input: CreateWeeklyPlanInput!
 ) {
-  createUserProfile(condition: $condition, input: $input) {
+  createWeeklyPlan(condition: $condition, input: $input) {
     createdAt
-    email
     id
-    name
-    profileOwner
+    owner
+    projects {
+      nextToken
+      __typename
+    }
+    startDate
+    status
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.CreateUserProfileMutationVariables,
-  APITypes.CreateUserProfileMutation
+  APITypes.CreateWeeklyPlanMutationVariables,
+  APITypes.CreateWeeklyPlanMutation
+>;
+export const createWeeklyPlanProject = /* GraphQL */ `mutation CreateWeeklyPlanProject(
+  $condition: ModelWeeklyPlanProjectConditionInput
+  $input: CreateWeeklyPlanProjectInput!
+) {
+  createWeeklyPlanProject(condition: $condition, input: $input) {
+    createdAt
+    id
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      project
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    weekPlan {
+      createdAt
+      id
+      owner
+      startDate
+      status
+      updatedAt
+      __typename
+    }
+    weekPlanId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateWeeklyPlanProjectMutationVariables,
+  APITypes.CreateWeeklyPlanProjectMutation
 >;
 export const deleteAccount = /* GraphQL */ `mutation DeleteAccount(
   $condition: ModelAccountConditionInput
@@ -1069,6 +1531,10 @@ export const deleteAccount = /* GraphQL */ `mutation DeleteAccount(
     notionId
     order
     owner
+    partnerProjects {
+      nextToken
+      __typename
+    }
     payerAccounts {
       nextToken
       __typename
@@ -1078,6 +1544,10 @@ export const deleteAccount = /* GraphQL */ `mutation DeleteAccount(
       __typename
     }
     projects {
+      nextToken
+      __typename
+    }
+    resellingAccounts {
       nextToken
       __typename
     }
@@ -1096,6 +1566,49 @@ export const deleteAccount = /* GraphQL */ `mutation DeleteAccount(
 ` as GeneratedMutation<
   APITypes.DeleteAccountMutationVariables,
   APITypes.DeleteAccountMutation
+>;
+export const deleteAccountPayerAccount = /* GraphQL */ `mutation DeleteAccountPayerAccount(
+  $condition: ModelAccountPayerAccountConditionInput
+  $input: DeleteAccountPayerAccountInput!
+) {
+  deleteAccountPayerAccount(condition: $condition, input: $input) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      name
+      notionId
+      order
+      owner
+      updatedAt
+      __typename
+    }
+    accountId
+    awsAccountNumber {
+      awsAccountNumber
+      createdAt
+      isViaReseller
+      mainContactId
+      owner
+      resellerId
+      updatedAt
+      __typename
+    }
+    awsAccountNumberId
+    createdAt
+    id
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAccountPayerAccountMutationVariables,
+  APITypes.DeleteAccountPayerAccountMutation
 >;
 export const deleteAccountProjects = /* GraphQL */ `mutation DeleteAccountProjects(
   $condition: ModelAccountProjectsConditionInput
@@ -1136,6 +1649,7 @@ export const deleteAccountProjects = /* GraphQL */ `mutation DeleteAccountProjec
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -1202,6 +1716,7 @@ export const deleteActivity = /* GraphQL */ `mutation DeleteActivity(
       context
       createdAt
       id
+      immediateTasksDone
       meetingOn
       notionId
       owner
@@ -1216,6 +1731,11 @@ export const deleteActivity = /* GraphQL */ `mutation DeleteActivity(
     formatVersion
     id
     meetingActivitiesId
+    noteBlockIds
+    noteBlocks {
+      nextToken
+      __typename
+    }
     notes
     notesJson
     notionId
@@ -1228,25 +1748,59 @@ export const deleteActivity = /* GraphQL */ `mutation DeleteActivity(
   APITypes.DeleteActivityMutationVariables,
   APITypes.DeleteActivityMutation
 >;
+export const deleteBookOfBible = /* GraphQL */ `mutation DeleteBookOfBible(
+  $condition: ModelBookOfBibleConditionInput
+  $input: DeleteBookOfBibleInput!
+) {
+  deleteBookOfBible(condition: $condition, input: $input) {
+    alias
+    book
+    chapters {
+      nextToken
+      __typename
+    }
+    createdAt
+    id
+    noOfChapters
+    notionId
+    owner
+    section
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteBookOfBibleMutationVariables,
+  APITypes.DeleteBookOfBibleMutation
+>;
 export const deleteCrmProject = /* GraphQL */ `mutation DeleteCrmProject(
   $condition: ModelCrmProjectConditionInput
   $input: DeleteCrmProjectInput!
 ) {
   deleteCrmProject(condition: $condition, input: $input) {
+    accountName
     annualRecurringRevenue
     closeDate
+    confirmHygieneIssuesSolvedTill
     createdAt
+    createdDate
     crmId
     id
     isMarketplace
     name
+    nextStep
+    opportunityOwner
     owner
+    partnerName
     projects {
       nextToken
       __typename
     }
     stage
+    stageChangedDate
+    territoryName
     totalContractVolume
+    type
     updatedAt
     __typename
   }
@@ -1255,6 +1809,24 @@ export const deleteCrmProject = /* GraphQL */ `mutation DeleteCrmProject(
   APITypes.DeleteCrmProjectMutationVariables,
   APITypes.DeleteCrmProjectMutation
 >;
+export const deleteCrmProjectImport = /* GraphQL */ `mutation DeleteCrmProjectImport(
+  $condition: ModelCrmProjectImportConditionInput
+  $input: DeleteCrmProjectImportInput!
+) {
+  deleteCrmProjectImport(condition: $condition, input: $input) {
+    createdAt
+    id
+    owner
+    s3Key
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteCrmProjectImportMutationVariables,
+  APITypes.DeleteCrmProjectImportMutation
+>;
 export const deleteCrmProjectProjects = /* GraphQL */ `mutation DeleteCrmProjectProjects(
   $condition: ModelCrmProjectProjectsConditionInput
   $input: DeleteCrmProjectProjectsInput!
@@ -1262,16 +1834,25 @@ export const deleteCrmProjectProjects = /* GraphQL */ `mutation DeleteCrmProject
   deleteCrmProjectProjects(condition: $condition, input: $input) {
     createdAt
     crmProject {
+      accountName
       annualRecurringRevenue
       closeDate
+      confirmHygieneIssuesSolvedTill
       createdAt
+      createdDate
       crmId
       id
       isMarketplace
       name
+      nextStep
+      opportunityOwner
       owner
+      partnerName
       stage
+      stageChangedDate
+      territoryName
       totalContractVolume
+      type
       updatedAt
       __typename
     }
@@ -1293,6 +1874,7 @@ export const deleteCrmProjectProjects = /* GraphQL */ `mutation DeleteCrmProject
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -1323,26 +1905,18 @@ export const deleteCurrentContext = /* GraphQL */ `mutation DeleteCurrentContext
   APITypes.DeleteCurrentContextMutationVariables,
   APITypes.DeleteCurrentContextMutation
 >;
-export const deleteDayPlan = /* GraphQL */ `mutation DeleteDayPlan(
-  $condition: ModelDayPlanConditionInput
-  $input: DeleteDayPlanInput!
+export const deleteDailyPlan = /* GraphQL */ `mutation DeleteDailyPlan(
+  $condition: ModelDailyPlanConditionInput
+  $input: DeleteDailyPlanInput!
 ) {
-  deleteDayPlan(condition: $condition, input: $input) {
+  deleteDailyPlan(condition: $condition, input: $input) {
     context
     createdAt
     day
     dayGoal
-    done
     id
     owner
-    projectTasks {
-      nextToken
-      __typename
-    }
-    tasks {
-      nextToken
-      __typename
-    }
+    status
     todos {
       nextToken
       __typename
@@ -1352,109 +1926,48 @@ export const deleteDayPlan = /* GraphQL */ `mutation DeleteDayPlan(
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteDayPlanMutationVariables,
-  APITypes.DeleteDayPlanMutation
+  APITypes.DeleteDailyPlanMutationVariables,
+  APITypes.DeleteDailyPlanMutation
 >;
-export const deleteDayPlanTodo = /* GraphQL */ `mutation DeleteDayPlanTodo(
-  $condition: ModelDayPlanTodoConditionInput
-  $input: DeleteDayPlanTodoInput!
+export const deleteDailyPlanTodo = /* GraphQL */ `mutation DeleteDailyPlanTodo(
+  $condition: ModelDailyPlanTodoConditionInput
+  $input: DeleteDailyPlanTodoInput!
 ) {
-  deleteDayPlanTodo(condition: $condition, input: $input) {
+  deleteDailyPlanTodo(condition: $condition, input: $input) {
     createdAt
-    dayPlan {
+    dailyPlan {
       context
       createdAt
       day
       dayGoal
-      done
       id
       owner
+      status
       updatedAt
       __typename
     }
-    dayPlanTodosId
-    done
-    doneOn
+    dailyPlanId
     id
     owner
-    project {
-      context
+    postPoned
+    todo {
       createdAt
-      done
       doneOn
-      dueOn
-      formatVersion
       id
-      myNextActions
-      myNextActionsJson
-      notionId
-      onHoldTill
-      othersNextActions
-      othersNextActionsJson
       owner
-      project
+      status
+      todo
       updatedAt
       __typename
     }
-    projectsTodosId
-    todo
+    todoId
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteDayPlanTodoMutationVariables,
-  APITypes.DeleteDayPlanTodoMutation
->;
-export const deleteDayProjectTask = /* GraphQL */ `mutation DeleteDayProjectTask(
-  $condition: ModelDayProjectTaskConditionInput
-  $input: DeleteDayProjectTaskInput!
-) {
-  deleteDayProjectTask(condition: $condition, input: $input) {
-    createdAt
-    dayPlan {
-      context
-      createdAt
-      day
-      dayGoal
-      done
-      id
-      owner
-      updatedAt
-      __typename
-    }
-    dayPlanProjectTasksId
-    done
-    id
-    owner
-    projects {
-      context
-      createdAt
-      done
-      doneOn
-      dueOn
-      formatVersion
-      id
-      myNextActions
-      myNextActionsJson
-      notionId
-      onHoldTill
-      othersNextActions
-      othersNextActionsJson
-      owner
-      project
-      updatedAt
-      __typename
-    }
-    projectsDayTasksId
-    task
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.DeleteDayProjectTaskMutationVariables,
-  APITypes.DeleteDayProjectTaskMutation
+  APITypes.DeleteDailyPlanTodoMutationVariables,
+  APITypes.DeleteDailyPlanTodoMutation
 >;
 export const deleteInbox = /* GraphQL */ `mutation DeleteInbox(
   $condition: ModelInboxConditionInput
@@ -1489,6 +2002,7 @@ export const deleteMeeting = /* GraphQL */ `mutation DeleteMeeting(
     context
     createdAt
     id
+    immediateTasksDone
     meetingOn
     notionId
     owner
@@ -1516,6 +2030,7 @@ export const deleteMeetingParticipant = /* GraphQL */ `mutation DeleteMeetingPar
       context
       createdAt
       id
+      immediateTasksDone
       meetingOn
       notionId
       owner
@@ -1546,44 +2061,219 @@ export const deleteMeetingParticipant = /* GraphQL */ `mutation DeleteMeetingPar
   APITypes.DeleteMeetingParticipantMutationVariables,
   APITypes.DeleteMeetingParticipantMutation
 >;
-export const deleteNonProjectTask = /* GraphQL */ `mutation DeleteNonProjectTask(
-  $condition: ModelNonProjectTaskConditionInput
-  $input: DeleteNonProjectTaskInput!
+export const deleteMonth = /* GraphQL */ `mutation DeleteMonth(
+  $condition: ModelMonthConditionInput
+  $input: DeleteMonthInput!
 ) {
-  deleteNonProjectTask(condition: $condition, input: $input) {
-    context
+  deleteMonth(condition: $condition, input: $input) {
     createdAt
-    dayPlan {
-      context
+    id
+    latestUpload {
       createdAt
-      day
-      dayGoal
-      done
       id
       owner
+      s3Key
+      status
       updatedAt
       __typename
     }
-    dayPlanTasksId
-    done
-    id
-    notionId
+    latestUploadId
+    month
     owner
-    task
+    payerMrrs {
+      nextToken
+      __typename
+    }
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteNonProjectTaskMutationVariables,
-  APITypes.DeleteNonProjectTaskMutation
+  APITypes.DeleteMonthMutationVariables,
+  APITypes.DeleteMonthMutation
+>;
+export const deleteMrrDataUpload = /* GraphQL */ `mutation DeleteMrrDataUpload(
+  $condition: ModelMrrDataUploadConditionInput
+  $input: DeleteMrrDataUploadInput!
+) {
+  deleteMrrDataUpload(condition: $condition, input: $input) {
+    createdAt
+    id
+    latestMonths {
+      nextToken
+      __typename
+    }
+    owner
+    payerMrrs {
+      nextToken
+      __typename
+    }
+    s3Key
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteMrrDataUploadMutationVariables,
+  APITypes.DeleteMrrDataUploadMutation
+>;
+export const deleteNoteBlock = /* GraphQL */ `mutation DeleteNoteBlock(
+  $condition: ModelNoteBlockConditionInput
+  $input: DeleteNoteBlockInput!
+) {
+  deleteNoteBlock(condition: $condition, input: $input) {
+    activity {
+      createdAt
+      finishedOn
+      formatVersion
+      id
+      meetingActivitiesId
+      noteBlockIds
+      notes
+      notesJson
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    activityId
+    content
+    createdAt
+    formatVersion
+    id
+    owner
+    people {
+      nextToken
+      __typename
+    }
+    todo {
+      createdAt
+      doneOn
+      id
+      owner
+      status
+      todo
+      updatedAt
+      __typename
+    }
+    todoId
+    type
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteNoteBlockMutationVariables,
+  APITypes.DeleteNoteBlockMutation
+>;
+export const deleteNoteBlockPerson = /* GraphQL */ `mutation DeleteNoteBlockPerson(
+  $condition: ModelNoteBlockPersonConditionInput
+  $input: DeleteNoteBlockPersonInput!
+) {
+  deleteNoteBlockPerson(condition: $condition, input: $input) {
+    createdAt
+    id
+    noteBlock {
+      activityId
+      content
+      createdAt
+      formatVersion
+      id
+      owner
+      todoId
+      type
+      updatedAt
+      __typename
+    }
+    noteBlockId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteNoteBlockPersonMutationVariables,
+  APITypes.DeleteNoteBlockPersonMutation
+>;
+export const deleteNotesBibleChapter = /* GraphQL */ `mutation DeleteNotesBibleChapter(
+  $condition: ModelNotesBibleChapterConditionInput
+  $input: DeleteNotesBibleChapterInput!
+) {
+  deleteNotesBibleChapter(condition: $condition, input: $input) {
+    book {
+      alias
+      book
+      createdAt
+      id
+      noOfChapters
+      notionId
+      owner
+      section
+      updatedAt
+      __typename
+    }
+    bookId
+    chapter
+    createdAt
+    formatVersion
+    id
+    note
+    noteJson
+    notionId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteNotesBibleChapterMutationVariables,
+  APITypes.DeleteNotesBibleChapterMutation
 >;
 export const deletePayerAccount = /* GraphQL */ `mutation DeletePayerAccount(
   $condition: ModelPayerAccountConditionInput
   $input: DeletePayerAccountInput!
 ) {
   deletePayerAccount(condition: $condition, input: $input) {
-    account {
+    accounts {
+      nextToken
+      __typename
+    }
+    awsAccountNumber
+    createdAt
+    financials {
+      nextToken
+      __typename
+    }
+    isViaReseller
+    mainContact {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    mainContactId
+    owner
+    reseller {
       accountSubsidiariesId
       createdAt
       crmId
@@ -1598,10 +2288,7 @@ export const deletePayerAccount = /* GraphQL */ `mutation DeletePayerAccount(
       updatedAt
       __typename
     }
-    accountId
-    awsAccountNumber
-    createdAt
-    owner
+    resellerId
     updatedAt
     __typename
   }
@@ -1609,6 +2296,57 @@ export const deletePayerAccount = /* GraphQL */ `mutation DeletePayerAccount(
 ` as GeneratedMutation<
   APITypes.DeletePayerAccountMutationVariables,
   APITypes.DeletePayerAccountMutation
+>;
+export const deletePayerAccountMrr = /* GraphQL */ `mutation DeletePayerAccountMrr(
+  $condition: ModelPayerAccountMrrConditionInput
+  $input: DeletePayerAccountMrrInput!
+) {
+  deletePayerAccountMrr(condition: $condition, input: $input) {
+    awsAccountNumber
+    companyName
+    createdAt
+    id
+    isEstimated
+    isReseller
+    month {
+      createdAt
+      id
+      latestUploadId
+      month
+      owner
+      updatedAt
+      __typename
+    }
+    monthId
+    mrr
+    owner
+    payerAccount {
+      awsAccountNumber
+      createdAt
+      isViaReseller
+      mainContactId
+      owner
+      resellerId
+      updatedAt
+      __typename
+    }
+    updatedAt
+    upload {
+      createdAt
+      id
+      owner
+      s3Key
+      status
+      updatedAt
+      __typename
+    }
+    uploadId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeletePayerAccountMrrMutationVariables,
+  APITypes.DeletePayerAccountMrrMutation
 >;
 export const deletePerson = /* GraphQL */ `mutation DeletePerson(
   $condition: ModelPersonConditionInput
@@ -1637,8 +2375,34 @@ export const deletePerson = /* GraphQL */ `mutation DeletePerson(
       __typename
     }
     name
+    noteBlocks {
+      nextToken
+      __typename
+    }
     notionId
     owner
+    payerAccounts {
+      nextToken
+      __typename
+    }
+    profile {
+      createdAt
+      email
+      name
+      personId
+      profileId
+      profilePicture
+      updatedAt
+      __typename
+    }
+    relationshipsFrom {
+      nextToken
+      __typename
+    }
+    relationshipsTo {
+      nextToken
+      __typename
+    }
     updatedAt
     __typename
   }
@@ -1758,6 +2522,51 @@ export const deletePersonLearning = /* GraphQL */ `mutation DeletePersonLearning
   APITypes.DeletePersonLearningMutationVariables,
   APITypes.DeletePersonLearningMutation
 >;
+export const deletePersonRelationship = /* GraphQL */ `mutation DeletePersonRelationship(
+  $condition: ModelPersonRelationshipConditionInput
+  $input: DeletePersonRelationshipInput!
+) {
+  deletePersonRelationship(condition: $condition, input: $input) {
+    createdAt
+    date
+    endDate
+    id
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    relatedPerson {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    relatedPersonId
+    typeName
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeletePersonRelationshipMutationVariables,
+  APITypes.DeletePersonRelationshipMutation
+>;
 export const deleteProjectActivity = /* GraphQL */ `mutation DeleteProjectActivity(
   $condition: ModelProjectActivityConditionInput
   $input: DeleteProjectActivityInput!
@@ -1769,6 +2578,7 @@ export const deleteProjectActivity = /* GraphQL */ `mutation DeleteProjectActivi
       formatVersion
       id
       meetingActivitiesId
+      noteBlockIds
       notes
       notesJson
       notionId
@@ -1795,6 +2605,7 @@ export const deleteProjectActivity = /* GraphQL */ `mutation DeleteProjectActivi
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -1831,10 +2642,6 @@ export const deleteProjects = /* GraphQL */ `mutation DeleteProjects(
       nextToken
       __typename
     }
-    dayTasks {
-      nextToken
-      __typename
-    }
     done
     doneOn
     dueOn
@@ -1847,12 +2654,28 @@ export const deleteProjects = /* GraphQL */ `mutation DeleteProjects(
     othersNextActions
     othersNextActionsJson
     owner
+    partner {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      name
+      notionId
+      order
+      owner
+      updatedAt
+      __typename
+    }
+    partnerId
     project
-    todos {
+    updatedAt
+    weekPlans {
       nextToken
       __typename
     }
-    updatedAt
     __typename
   }
 }
@@ -1924,6 +2747,7 @@ export const deleteSixWeekBatchProjects = /* GraphQL */ `mutation DeleteSixWeekB
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -2033,6 +2857,41 @@ export const deleteTerritoryResponsibility = /* GraphQL */ `mutation DeleteTerri
   APITypes.DeleteTerritoryResponsibilityMutationVariables,
   APITypes.DeleteTerritoryResponsibilityMutation
 >;
+export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
+  $condition: ModelTodoConditionInput
+  $input: DeleteTodoInput!
+) {
+  deleteTodo(condition: $condition, input: $input) {
+    activity {
+      activityId
+      content
+      createdAt
+      formatVersion
+      id
+      owner
+      todoId
+      type
+      updatedAt
+      __typename
+    }
+    createdAt
+    dailyTodos {
+      nextToken
+      __typename
+    }
+    doneOn
+    id
+    owner
+    status
+    todo
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteTodoMutationVariables,
+  APITypes.DeleteTodoMutation
+>;
 export const deleteUser = /* GraphQL */ `mutation DeleteUser(
   $condition: ModelUserConditionInput
   $input: DeleteUserInput!
@@ -2041,7 +2900,21 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
     createdAt
     email
     name
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
     profileId
+    profilePicture
     updatedAt
     __typename
   }
@@ -2050,23 +2923,74 @@ export const deleteUser = /* GraphQL */ `mutation DeleteUser(
   APITypes.DeleteUserMutationVariables,
   APITypes.DeleteUserMutation
 >;
-export const deleteUserProfile = /* GraphQL */ `mutation DeleteUserProfile(
-  $condition: ModelUserProfileConditionInput
-  $input: DeleteUserProfileInput!
+export const deleteWeeklyPlan = /* GraphQL */ `mutation DeleteWeeklyPlan(
+  $condition: ModelWeeklyPlanConditionInput
+  $input: DeleteWeeklyPlanInput!
 ) {
-  deleteUserProfile(condition: $condition, input: $input) {
+  deleteWeeklyPlan(condition: $condition, input: $input) {
     createdAt
-    email
     id
-    name
-    profileOwner
+    owner
+    projects {
+      nextToken
+      __typename
+    }
+    startDate
+    status
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.DeleteUserProfileMutationVariables,
-  APITypes.DeleteUserProfileMutation
+  APITypes.DeleteWeeklyPlanMutationVariables,
+  APITypes.DeleteWeeklyPlanMutation
+>;
+export const deleteWeeklyPlanProject = /* GraphQL */ `mutation DeleteWeeklyPlanProject(
+  $condition: ModelWeeklyPlanProjectConditionInput
+  $input: DeleteWeeklyPlanProjectInput!
+) {
+  deleteWeeklyPlanProject(condition: $condition, input: $input) {
+    createdAt
+    id
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      project
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    weekPlan {
+      createdAt
+      id
+      owner
+      startDate
+      status
+      updatedAt
+      __typename
+    }
+    weekPlanId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteWeeklyPlanProjectMutationVariables,
+  APITypes.DeleteWeeklyPlanProjectMutation
 >;
 export const updateAccount = /* GraphQL */ `mutation UpdateAccount(
   $condition: ModelAccountConditionInput
@@ -2099,6 +3023,10 @@ export const updateAccount = /* GraphQL */ `mutation UpdateAccount(
     notionId
     order
     owner
+    partnerProjects {
+      nextToken
+      __typename
+    }
     payerAccounts {
       nextToken
       __typename
@@ -2108,6 +3036,10 @@ export const updateAccount = /* GraphQL */ `mutation UpdateAccount(
       __typename
     }
     projects {
+      nextToken
+      __typename
+    }
+    resellingAccounts {
       nextToken
       __typename
     }
@@ -2126,6 +3058,49 @@ export const updateAccount = /* GraphQL */ `mutation UpdateAccount(
 ` as GeneratedMutation<
   APITypes.UpdateAccountMutationVariables,
   APITypes.UpdateAccountMutation
+>;
+export const updateAccountPayerAccount = /* GraphQL */ `mutation UpdateAccountPayerAccount(
+  $condition: ModelAccountPayerAccountConditionInput
+  $input: UpdateAccountPayerAccountInput!
+) {
+  updateAccountPayerAccount(condition: $condition, input: $input) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      name
+      notionId
+      order
+      owner
+      updatedAt
+      __typename
+    }
+    accountId
+    awsAccountNumber {
+      awsAccountNumber
+      createdAt
+      isViaReseller
+      mainContactId
+      owner
+      resellerId
+      updatedAt
+      __typename
+    }
+    awsAccountNumberId
+    createdAt
+    id
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateAccountPayerAccountMutationVariables,
+  APITypes.UpdateAccountPayerAccountMutation
 >;
 export const updateAccountProjects = /* GraphQL */ `mutation UpdateAccountProjects(
   $condition: ModelAccountProjectsConditionInput
@@ -2166,6 +3141,7 @@ export const updateAccountProjects = /* GraphQL */ `mutation UpdateAccountProjec
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -2232,6 +3208,7 @@ export const updateActivity = /* GraphQL */ `mutation UpdateActivity(
       context
       createdAt
       id
+      immediateTasksDone
       meetingOn
       notionId
       owner
@@ -2246,6 +3223,11 @@ export const updateActivity = /* GraphQL */ `mutation UpdateActivity(
     formatVersion
     id
     meetingActivitiesId
+    noteBlockIds
+    noteBlocks {
+      nextToken
+      __typename
+    }
     notes
     notesJson
     notionId
@@ -2258,25 +3240,59 @@ export const updateActivity = /* GraphQL */ `mutation UpdateActivity(
   APITypes.UpdateActivityMutationVariables,
   APITypes.UpdateActivityMutation
 >;
+export const updateBookOfBible = /* GraphQL */ `mutation UpdateBookOfBible(
+  $condition: ModelBookOfBibleConditionInput
+  $input: UpdateBookOfBibleInput!
+) {
+  updateBookOfBible(condition: $condition, input: $input) {
+    alias
+    book
+    chapters {
+      nextToken
+      __typename
+    }
+    createdAt
+    id
+    noOfChapters
+    notionId
+    owner
+    section
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateBookOfBibleMutationVariables,
+  APITypes.UpdateBookOfBibleMutation
+>;
 export const updateCrmProject = /* GraphQL */ `mutation UpdateCrmProject(
   $condition: ModelCrmProjectConditionInput
   $input: UpdateCrmProjectInput!
 ) {
   updateCrmProject(condition: $condition, input: $input) {
+    accountName
     annualRecurringRevenue
     closeDate
+    confirmHygieneIssuesSolvedTill
     createdAt
+    createdDate
     crmId
     id
     isMarketplace
     name
+    nextStep
+    opportunityOwner
     owner
+    partnerName
     projects {
       nextToken
       __typename
     }
     stage
+    stageChangedDate
+    territoryName
     totalContractVolume
+    type
     updatedAt
     __typename
   }
@@ -2285,6 +3301,24 @@ export const updateCrmProject = /* GraphQL */ `mutation UpdateCrmProject(
   APITypes.UpdateCrmProjectMutationVariables,
   APITypes.UpdateCrmProjectMutation
 >;
+export const updateCrmProjectImport = /* GraphQL */ `mutation UpdateCrmProjectImport(
+  $condition: ModelCrmProjectImportConditionInput
+  $input: UpdateCrmProjectImportInput!
+) {
+  updateCrmProjectImport(condition: $condition, input: $input) {
+    createdAt
+    id
+    owner
+    s3Key
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateCrmProjectImportMutationVariables,
+  APITypes.UpdateCrmProjectImportMutation
+>;
 export const updateCrmProjectProjects = /* GraphQL */ `mutation UpdateCrmProjectProjects(
   $condition: ModelCrmProjectProjectsConditionInput
   $input: UpdateCrmProjectProjectsInput!
@@ -2292,16 +3326,25 @@ export const updateCrmProjectProjects = /* GraphQL */ `mutation UpdateCrmProject
   updateCrmProjectProjects(condition: $condition, input: $input) {
     createdAt
     crmProject {
+      accountName
       annualRecurringRevenue
       closeDate
+      confirmHygieneIssuesSolvedTill
       createdAt
+      createdDate
       crmId
       id
       isMarketplace
       name
+      nextStep
+      opportunityOwner
       owner
+      partnerName
       stage
+      stageChangedDate
+      territoryName
       totalContractVolume
+      type
       updatedAt
       __typename
     }
@@ -2323,6 +3366,7 @@ export const updateCrmProjectProjects = /* GraphQL */ `mutation UpdateCrmProject
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -2353,26 +3397,18 @@ export const updateCurrentContext = /* GraphQL */ `mutation UpdateCurrentContext
   APITypes.UpdateCurrentContextMutationVariables,
   APITypes.UpdateCurrentContextMutation
 >;
-export const updateDayPlan = /* GraphQL */ `mutation UpdateDayPlan(
-  $condition: ModelDayPlanConditionInput
-  $input: UpdateDayPlanInput!
+export const updateDailyPlan = /* GraphQL */ `mutation UpdateDailyPlan(
+  $condition: ModelDailyPlanConditionInput
+  $input: UpdateDailyPlanInput!
 ) {
-  updateDayPlan(condition: $condition, input: $input) {
+  updateDailyPlan(condition: $condition, input: $input) {
     context
     createdAt
     day
     dayGoal
-    done
     id
     owner
-    projectTasks {
-      nextToken
-      __typename
-    }
-    tasks {
-      nextToken
-      __typename
-    }
+    status
     todos {
       nextToken
       __typename
@@ -2382,109 +3418,48 @@ export const updateDayPlan = /* GraphQL */ `mutation UpdateDayPlan(
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateDayPlanMutationVariables,
-  APITypes.UpdateDayPlanMutation
+  APITypes.UpdateDailyPlanMutationVariables,
+  APITypes.UpdateDailyPlanMutation
 >;
-export const updateDayPlanTodo = /* GraphQL */ `mutation UpdateDayPlanTodo(
-  $condition: ModelDayPlanTodoConditionInput
-  $input: UpdateDayPlanTodoInput!
+export const updateDailyPlanTodo = /* GraphQL */ `mutation UpdateDailyPlanTodo(
+  $condition: ModelDailyPlanTodoConditionInput
+  $input: UpdateDailyPlanTodoInput!
 ) {
-  updateDayPlanTodo(condition: $condition, input: $input) {
+  updateDailyPlanTodo(condition: $condition, input: $input) {
     createdAt
-    dayPlan {
+    dailyPlan {
       context
       createdAt
       day
       dayGoal
-      done
       id
       owner
+      status
       updatedAt
       __typename
     }
-    dayPlanTodosId
-    done
-    doneOn
+    dailyPlanId
     id
     owner
-    project {
-      context
+    postPoned
+    todo {
       createdAt
-      done
       doneOn
-      dueOn
-      formatVersion
       id
-      myNextActions
-      myNextActionsJson
-      notionId
-      onHoldTill
-      othersNextActions
-      othersNextActionsJson
       owner
-      project
+      status
+      todo
       updatedAt
       __typename
     }
-    projectsTodosId
-    todo
+    todoId
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateDayPlanTodoMutationVariables,
-  APITypes.UpdateDayPlanTodoMutation
->;
-export const updateDayProjectTask = /* GraphQL */ `mutation UpdateDayProjectTask(
-  $condition: ModelDayProjectTaskConditionInput
-  $input: UpdateDayProjectTaskInput!
-) {
-  updateDayProjectTask(condition: $condition, input: $input) {
-    createdAt
-    dayPlan {
-      context
-      createdAt
-      day
-      dayGoal
-      done
-      id
-      owner
-      updatedAt
-      __typename
-    }
-    dayPlanProjectTasksId
-    done
-    id
-    owner
-    projects {
-      context
-      createdAt
-      done
-      doneOn
-      dueOn
-      formatVersion
-      id
-      myNextActions
-      myNextActionsJson
-      notionId
-      onHoldTill
-      othersNextActions
-      othersNextActionsJson
-      owner
-      project
-      updatedAt
-      __typename
-    }
-    projectsDayTasksId
-    task
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateDayProjectTaskMutationVariables,
-  APITypes.UpdateDayProjectTaskMutation
+  APITypes.UpdateDailyPlanTodoMutationVariables,
+  APITypes.UpdateDailyPlanTodoMutation
 >;
 export const updateInbox = /* GraphQL */ `mutation UpdateInbox(
   $condition: ModelInboxConditionInput
@@ -2519,6 +3494,7 @@ export const updateMeeting = /* GraphQL */ `mutation UpdateMeeting(
     context
     createdAt
     id
+    immediateTasksDone
     meetingOn
     notionId
     owner
@@ -2546,6 +3522,7 @@ export const updateMeetingParticipant = /* GraphQL */ `mutation UpdateMeetingPar
       context
       createdAt
       id
+      immediateTasksDone
       meetingOn
       notionId
       owner
@@ -2576,44 +3553,219 @@ export const updateMeetingParticipant = /* GraphQL */ `mutation UpdateMeetingPar
   APITypes.UpdateMeetingParticipantMutationVariables,
   APITypes.UpdateMeetingParticipantMutation
 >;
-export const updateNonProjectTask = /* GraphQL */ `mutation UpdateNonProjectTask(
-  $condition: ModelNonProjectTaskConditionInput
-  $input: UpdateNonProjectTaskInput!
+export const updateMonth = /* GraphQL */ `mutation UpdateMonth(
+  $condition: ModelMonthConditionInput
+  $input: UpdateMonthInput!
 ) {
-  updateNonProjectTask(condition: $condition, input: $input) {
-    context
+  updateMonth(condition: $condition, input: $input) {
     createdAt
-    dayPlan {
-      context
+    id
+    latestUpload {
       createdAt
-      day
-      dayGoal
-      done
       id
       owner
+      s3Key
+      status
       updatedAt
       __typename
     }
-    dayPlanTasksId
-    done
-    id
-    notionId
+    latestUploadId
+    month
     owner
-    task
+    payerMrrs {
+      nextToken
+      __typename
+    }
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateNonProjectTaskMutationVariables,
-  APITypes.UpdateNonProjectTaskMutation
+  APITypes.UpdateMonthMutationVariables,
+  APITypes.UpdateMonthMutation
+>;
+export const updateMrrDataUpload = /* GraphQL */ `mutation UpdateMrrDataUpload(
+  $condition: ModelMrrDataUploadConditionInput
+  $input: UpdateMrrDataUploadInput!
+) {
+  updateMrrDataUpload(condition: $condition, input: $input) {
+    createdAt
+    id
+    latestMonths {
+      nextToken
+      __typename
+    }
+    owner
+    payerMrrs {
+      nextToken
+      __typename
+    }
+    s3Key
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateMrrDataUploadMutationVariables,
+  APITypes.UpdateMrrDataUploadMutation
+>;
+export const updateNoteBlock = /* GraphQL */ `mutation UpdateNoteBlock(
+  $condition: ModelNoteBlockConditionInput
+  $input: UpdateNoteBlockInput!
+) {
+  updateNoteBlock(condition: $condition, input: $input) {
+    activity {
+      createdAt
+      finishedOn
+      formatVersion
+      id
+      meetingActivitiesId
+      noteBlockIds
+      notes
+      notesJson
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    activityId
+    content
+    createdAt
+    formatVersion
+    id
+    owner
+    people {
+      nextToken
+      __typename
+    }
+    todo {
+      createdAt
+      doneOn
+      id
+      owner
+      status
+      todo
+      updatedAt
+      __typename
+    }
+    todoId
+    type
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateNoteBlockMutationVariables,
+  APITypes.UpdateNoteBlockMutation
+>;
+export const updateNoteBlockPerson = /* GraphQL */ `mutation UpdateNoteBlockPerson(
+  $condition: ModelNoteBlockPersonConditionInput
+  $input: UpdateNoteBlockPersonInput!
+) {
+  updateNoteBlockPerson(condition: $condition, input: $input) {
+    createdAt
+    id
+    noteBlock {
+      activityId
+      content
+      createdAt
+      formatVersion
+      id
+      owner
+      todoId
+      type
+      updatedAt
+      __typename
+    }
+    noteBlockId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateNoteBlockPersonMutationVariables,
+  APITypes.UpdateNoteBlockPersonMutation
+>;
+export const updateNotesBibleChapter = /* GraphQL */ `mutation UpdateNotesBibleChapter(
+  $condition: ModelNotesBibleChapterConditionInput
+  $input: UpdateNotesBibleChapterInput!
+) {
+  updateNotesBibleChapter(condition: $condition, input: $input) {
+    book {
+      alias
+      book
+      createdAt
+      id
+      noOfChapters
+      notionId
+      owner
+      section
+      updatedAt
+      __typename
+    }
+    bookId
+    chapter
+    createdAt
+    formatVersion
+    id
+    note
+    noteJson
+    notionId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateNotesBibleChapterMutationVariables,
+  APITypes.UpdateNotesBibleChapterMutation
 >;
 export const updatePayerAccount = /* GraphQL */ `mutation UpdatePayerAccount(
   $condition: ModelPayerAccountConditionInput
   $input: UpdatePayerAccountInput!
 ) {
   updatePayerAccount(condition: $condition, input: $input) {
-    account {
+    accounts {
+      nextToken
+      __typename
+    }
+    awsAccountNumber
+    createdAt
+    financials {
+      nextToken
+      __typename
+    }
+    isViaReseller
+    mainContact {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    mainContactId
+    owner
+    reseller {
       accountSubsidiariesId
       createdAt
       crmId
@@ -2628,10 +3780,7 @@ export const updatePayerAccount = /* GraphQL */ `mutation UpdatePayerAccount(
       updatedAt
       __typename
     }
-    accountId
-    awsAccountNumber
-    createdAt
-    owner
+    resellerId
     updatedAt
     __typename
   }
@@ -2639,6 +3788,57 @@ export const updatePayerAccount = /* GraphQL */ `mutation UpdatePayerAccount(
 ` as GeneratedMutation<
   APITypes.UpdatePayerAccountMutationVariables,
   APITypes.UpdatePayerAccountMutation
+>;
+export const updatePayerAccountMrr = /* GraphQL */ `mutation UpdatePayerAccountMrr(
+  $condition: ModelPayerAccountMrrConditionInput
+  $input: UpdatePayerAccountMrrInput!
+) {
+  updatePayerAccountMrr(condition: $condition, input: $input) {
+    awsAccountNumber
+    companyName
+    createdAt
+    id
+    isEstimated
+    isReseller
+    month {
+      createdAt
+      id
+      latestUploadId
+      month
+      owner
+      updatedAt
+      __typename
+    }
+    monthId
+    mrr
+    owner
+    payerAccount {
+      awsAccountNumber
+      createdAt
+      isViaReseller
+      mainContactId
+      owner
+      resellerId
+      updatedAt
+      __typename
+    }
+    updatedAt
+    upload {
+      createdAt
+      id
+      owner
+      s3Key
+      status
+      updatedAt
+      __typename
+    }
+    uploadId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdatePayerAccountMrrMutationVariables,
+  APITypes.UpdatePayerAccountMrrMutation
 >;
 export const updatePerson = /* GraphQL */ `mutation UpdatePerson(
   $condition: ModelPersonConditionInput
@@ -2667,8 +3867,34 @@ export const updatePerson = /* GraphQL */ `mutation UpdatePerson(
       __typename
     }
     name
+    noteBlocks {
+      nextToken
+      __typename
+    }
     notionId
     owner
+    payerAccounts {
+      nextToken
+      __typename
+    }
+    profile {
+      createdAt
+      email
+      name
+      personId
+      profileId
+      profilePicture
+      updatedAt
+      __typename
+    }
+    relationshipsFrom {
+      nextToken
+      __typename
+    }
+    relationshipsTo {
+      nextToken
+      __typename
+    }
     updatedAt
     __typename
   }
@@ -2788,6 +4014,51 @@ export const updatePersonLearning = /* GraphQL */ `mutation UpdatePersonLearning
   APITypes.UpdatePersonLearningMutationVariables,
   APITypes.UpdatePersonLearningMutation
 >;
+export const updatePersonRelationship = /* GraphQL */ `mutation UpdatePersonRelationship(
+  $condition: ModelPersonRelationshipConditionInput
+  $input: UpdatePersonRelationshipInput!
+) {
+  updatePersonRelationship(condition: $condition, input: $input) {
+    createdAt
+    date
+    endDate
+    id
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    relatedPerson {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    relatedPersonId
+    typeName
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdatePersonRelationshipMutationVariables,
+  APITypes.UpdatePersonRelationshipMutation
+>;
 export const updateProjectActivity = /* GraphQL */ `mutation UpdateProjectActivity(
   $condition: ModelProjectActivityConditionInput
   $input: UpdateProjectActivityInput!
@@ -2799,6 +4070,7 @@ export const updateProjectActivity = /* GraphQL */ `mutation UpdateProjectActivi
       formatVersion
       id
       meetingActivitiesId
+      noteBlockIds
       notes
       notesJson
       notionId
@@ -2825,6 +4097,7 @@ export const updateProjectActivity = /* GraphQL */ `mutation UpdateProjectActivi
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -2861,10 +4134,6 @@ export const updateProjects = /* GraphQL */ `mutation UpdateProjects(
       nextToken
       __typename
     }
-    dayTasks {
-      nextToken
-      __typename
-    }
     done
     doneOn
     dueOn
@@ -2877,12 +4146,28 @@ export const updateProjects = /* GraphQL */ `mutation UpdateProjects(
     othersNextActions
     othersNextActionsJson
     owner
+    partner {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      name
+      notionId
+      order
+      owner
+      updatedAt
+      __typename
+    }
+    partnerId
     project
-    todos {
+    updatedAt
+    weekPlans {
       nextToken
       __typename
     }
-    updatedAt
     __typename
   }
 }
@@ -2954,6 +4239,7 @@ export const updateSixWeekBatchProjects = /* GraphQL */ `mutation UpdateSixWeekB
       othersNextActions
       othersNextActionsJson
       owner
+      partnerId
       project
       updatedAt
       __typename
@@ -3063,6 +4349,41 @@ export const updateTerritoryResponsibility = /* GraphQL */ `mutation UpdateTerri
   APITypes.UpdateTerritoryResponsibilityMutationVariables,
   APITypes.UpdateTerritoryResponsibilityMutation
 >;
+export const updateTodo = /* GraphQL */ `mutation UpdateTodo(
+  $condition: ModelTodoConditionInput
+  $input: UpdateTodoInput!
+) {
+  updateTodo(condition: $condition, input: $input) {
+    activity {
+      activityId
+      content
+      createdAt
+      formatVersion
+      id
+      owner
+      todoId
+      type
+      updatedAt
+      __typename
+    }
+    createdAt
+    dailyTodos {
+      nextToken
+      __typename
+    }
+    doneOn
+    id
+    owner
+    status
+    todo
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateTodoMutationVariables,
+  APITypes.UpdateTodoMutation
+>;
 export const updateUser = /* GraphQL */ `mutation UpdateUser(
   $condition: ModelUserConditionInput
   $input: UpdateUserInput!
@@ -3071,7 +4392,21 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
     createdAt
     email
     name
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
     profileId
+    profilePicture
     updatedAt
     __typename
   }
@@ -3080,21 +4415,72 @@ export const updateUser = /* GraphQL */ `mutation UpdateUser(
   APITypes.UpdateUserMutationVariables,
   APITypes.UpdateUserMutation
 >;
-export const updateUserProfile = /* GraphQL */ `mutation UpdateUserProfile(
-  $condition: ModelUserProfileConditionInput
-  $input: UpdateUserProfileInput!
+export const updateWeeklyPlan = /* GraphQL */ `mutation UpdateWeeklyPlan(
+  $condition: ModelWeeklyPlanConditionInput
+  $input: UpdateWeeklyPlanInput!
 ) {
-  updateUserProfile(condition: $condition, input: $input) {
+  updateWeeklyPlan(condition: $condition, input: $input) {
     createdAt
-    email
     id
-    name
-    profileOwner
+    owner
+    projects {
+      nextToken
+      __typename
+    }
+    startDate
+    status
     updatedAt
     __typename
   }
 }
 ` as GeneratedMutation<
-  APITypes.UpdateUserProfileMutationVariables,
-  APITypes.UpdateUserProfileMutation
+  APITypes.UpdateWeeklyPlanMutationVariables,
+  APITypes.UpdateWeeklyPlanMutation
+>;
+export const updateWeeklyPlanProject = /* GraphQL */ `mutation UpdateWeeklyPlanProject(
+  $condition: ModelWeeklyPlanProjectConditionInput
+  $input: UpdateWeeklyPlanProjectInput!
+) {
+  updateWeeklyPlanProject(condition: $condition, input: $input) {
+    createdAt
+    id
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      project
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    weekPlan {
+      createdAt
+      id
+      owner
+      startDate
+      status
+      updatedAt
+      __typename
+    }
+    weekPlanId
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateWeeklyPlanProjectMutationVariables,
+  APITypes.UpdateWeeklyPlanProjectMutation
 >;

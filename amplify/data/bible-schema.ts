@@ -1,5 +1,7 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = ["BookOfBible", "NotesBibleChapter"];
+
 const bibleSchema = {
   Section: a.enum(["OLD", "NEW"]),
   BookOfBible: a

@@ -111,7 +111,7 @@ const selectionSet = [
   "projects.projects.crmProjects.crmProject.totalContractVolume",
   "projects.projects.crmProjects.crmProject.isMarketplace",
   "projects.projects.crmProjects.crmProject.stage",
-  "payerAccounts.awsAccountNumberId",
+  "awsAccounts.awsAccountNumberId",
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
@@ -141,7 +141,7 @@ const mapAccount: (
   subsidiaries,
   projects,
   createdAt,
-  payerAccounts,
+  awsAccounts,
 }) => ({
   id: accountId,
   name,
@@ -157,7 +157,7 @@ const mapAccount: (
   projects,
   createdAt: new Date(createdAt),
   territoryIds: territories.map((t) => t.territory.id),
-  payerAccounts: payerAccounts.map((p) => p.awsAccountNumberId),
+  payerAccounts: awsAccounts.map((p) => p.awsAccountNumberId),
 });
 
 const addOrderNumberToAccounts = (

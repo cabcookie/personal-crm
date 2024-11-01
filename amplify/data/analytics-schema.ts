@@ -1,5 +1,11 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "MrrDataUpload",
+  "Month",
+  "PayerAccountMrr",
+];
+
 const analyticsSchema = {
   AnalyticsImportStatus: a.enum(["WIP", "DONE"]),
   MrrDataUpload: a

@@ -1,5 +1,16 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "AccountProjects",
+  "SixWeekCycle",
+  "SixWeekBatchProjects",
+  "SixWeekBatch",
+  "CrmProjectImport",
+  "CrmProjectProjects",
+  "CrmProject",
+  "Projects",
+];
+
 const projectSchema = {
   AccountProjects: a
     .model({

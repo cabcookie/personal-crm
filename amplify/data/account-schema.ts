@@ -1,5 +1,14 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "TerritoryResponsibility",
+  "Territory",
+  "AccountTerritory",
+  "AccountPayerAccount",
+  "PayerAccount",
+  "Account",
+];
+
 const accountSchema = {
   TerritoryResponsibility: a
     .model({
@@ -79,7 +88,7 @@ const accountSchema = {
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
-      payerAccounts: a.hasMany("AccountPayerAccount", "accountId"),
+      awsAccounts: a.hasMany("AccountPayerAccount", "accountId"),
       resellingAccounts: a.hasMany("PayerAccount", "resellerId"),
       people: a.hasMany("PersonAccount", "accountId"),
       partnerProjects: a.hasMany("Projects", "partnerId"),

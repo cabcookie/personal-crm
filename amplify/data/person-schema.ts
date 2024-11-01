@@ -1,5 +1,15 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "MeetingParticipant",
+  "PersonAccount",
+  "PersonDetail",
+  "PersonLearning",
+  "User",
+  "PersonRelationship",
+  "Person",
+];
+
 const personSchmema = {
   PersonDetailsEnum: a.enum([
     "linkedIn",
