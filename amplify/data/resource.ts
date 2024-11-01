@@ -6,7 +6,9 @@ import accountSchema, {
 import activitySchema, {
   tablesWithDeleteProtection as activityTdp,
 } from "./activity-schema";
-import analyticsSchema from "./analytics-schema";
+import analyticsSchema, {
+  tablesWithDeleteProtection as analyticsTdp,
+} from "./analytics-schema";
 import bibleSchema, {
   tablesWithDeleteProtection as bibleTdp,
 } from "./bible-schema";
@@ -29,7 +31,7 @@ import projectSchema, {
 export const tablesWithDeleteProtection = [
   ...accountTdp,
   ...activityTdp,
-  // ...analyticsTdp, /** ONLY NEW TABLES */
+  ...analyticsTdp,
   ...bibleTdp,
   ...contextTdp,
   ...personTdp,

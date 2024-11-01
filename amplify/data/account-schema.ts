@@ -4,9 +4,9 @@ export const tablesWithDeleteProtection = [
   "TerritoryResponsibility",
   "Territory",
   "AccountTerritory",
-  // "AccountPayerAccount", /** NEW TABLE */
-  // "PayerAccount",
-  // "Account",
+  "AccountPayerAccount",
+  "PayerAccount",
+  "Account",
 ];
 
 const accountSchema = {
