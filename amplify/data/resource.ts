@@ -6,6 +6,7 @@ import accountSchema, {
 import activitySchema, {
   tablesWithDeleteProtection as activityTdp,
 } from "./activity-schema";
+import analyticsSchema from "./analytics-schema";
 import bibleSchema, {
   tablesWithDeleteProtection as bibleTdp,
 } from "./bible-schema";
@@ -43,7 +44,7 @@ const schema = a
   .schema({
     ...accountSchema,
     ...activitySchema,
-    // ...analyticsSchema,
+    ...analyticsSchema,
     ...bibleSchema,
     ...contextSchema,
     ...personSchmema,
