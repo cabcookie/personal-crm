@@ -4,8 +4,9 @@ export const tablesWithDeleteProtection = [
   "TerritoryResponsibility",
   "Territory",
   "AccountTerritory",
-  "PayerAccount",
-  "Account",
+  // "AccountPayerAccount", /** NEW TABLE */
+  // "PayerAccount",
+  // "Account",
 ];
 
 const accountSchema = {
@@ -42,14 +43,35 @@ const accountSchema = {
       territory: a.belongsTo("Territory", "territoryId"),
     })
     .authorization((allow) => [allow.owner()]),
+  // AccountPayerAccount: a
+  //   .model({
+  //     owner: a
+  //       .string()
+  //       .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+  //     accountId: a.id().required(),
+  //     account: a.belongsTo("Account", "accountId"),
+  //     awsAccountNumberId: a.id().required(),
+  //     awsAccountNumber: a.belongsTo("PayerAccount", "awsAccountNumberId"),
+  //   })
+  //   .secondaryIndexes((index) => [index("awsAccountNumberId")])
+  //   .authorization((allow) => [allow.owner()]),
   PayerAccount: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       awsAccountNumber: a.id().required(),
+      /** DEPRECATED: */
       accountId: a.id().required(),
+      /** DEPRECATED: */
       account: a.belongsTo("Account", "accountId"),
+      // accounts: a.hasMany("AccountPayerAccount", "awsAccountNumberId"),
+      // isViaReseller: a.boolean(),
+      // resellerId: a.id(),
+      // reseller: a.belongsTo("Account", "resellerId"),
+      // mainContactId: a.id(),
+      // mainContact: a.belongsTo("Person", "mainContactId"),
+      // financials: a.hasMany("PayerAccountMrr", "awsAccountNumber"),
     })
     .identifier(["awsAccountNumber"])
     .authorization((allow) => [allow.owner()]),
@@ -70,7 +92,10 @@ const accountSchema = {
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
+      /** DEPRECATED: */
       payerAccounts: a.hasMany("PayerAccount", "accountId"),
+      // awsAccounts: a.hasMany("AccountPayerAccount", "accountId"),
+      // resellingAccounts: a.hasMany("PayerAccount", "resellerId"),
       people: a.hasMany("PersonAccount", "accountId"),
       partnerProjects: a.hasMany("Projects", "partnerId"),
     })
