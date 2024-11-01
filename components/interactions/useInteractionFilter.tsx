@@ -31,7 +31,7 @@ interface InteractionFilterProviderProps {
   children: React.ReactNode;
 }
 
-export const InteractionFilterProvider: FC<InteractionFilterProviderProps> = ({
+const InteractionFilterProvider: FC<InteractionFilterProviderProps> = ({
   children,
 }) => {
   const [weeks, setWeeks] = useState<InteractionTimeFilter>("13");

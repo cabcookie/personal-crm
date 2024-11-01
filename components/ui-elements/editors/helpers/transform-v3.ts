@@ -11,14 +11,15 @@ const mapPeople =
           ...mapContentPeople(content.content, block),
         }
       : !content.attrs?.id
-      ? {}
-      : {
-          attrs: {
-            ...content.attrs,
-            recordId: block.people.find((p) => p.personId === content.attrs?.id)
-              ?.id,
-          },
-        }),
+        ? {}
+        : {
+            attrs: {
+              ...content.attrs,
+              recordId: block.people.find(
+                (p) => p.personId === content.attrs?.id
+              )?.id,
+            },
+          }),
   });
 
 const mapListItem = (

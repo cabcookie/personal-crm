@@ -79,14 +79,14 @@ const DefaultAccordionItem = forwardRef<
             {typeof triggerSubTitle === "string"
               ? triggerSubTitle
               : typeof triggerSubTitle === "boolean"
-              ? ""
-              : flow(
-                  filter(
-                    (t: string | undefined | boolean) =>
-                      typeof t === "string" && t !== ""
-                  ),
-                  join(", ")
-                )(triggerSubTitle)}
+                ? ""
+                : flow(
+                    filter(
+                      (t: string | undefined | boolean) =>
+                        typeof t === "string" && t !== ""
+                    ),
+                    join(", ")
+                  )(triggerSubTitle)}
           </AccordionTriggerSubTitle>
         </AccordionTrigger>
         <AccordionContent className="my-2 bg-[--context-color-bg] px-1 md:px-2">

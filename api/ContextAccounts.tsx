@@ -6,10 +6,24 @@ import {
   calcOrder,
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
+import {
+  createPayerAccountLink,
+  deletePayerAccountLink,
+  getOrCreatePayerAccount,
+} from "@/helpers/payers/api-actions";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { filter, flow, join, map, sortBy, sum } from "lodash/fp";
+import {
+  filter,
+  find,
+  flow,
+  identity,
+  join,
+  map,
+  sortBy,
+  sum,
+} from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -29,7 +43,7 @@ interface AccountsContextType {
   createAccount: (
     accountName: string
   ) => Promise<Schema["Account"]["type"] | undefined>;
-  getAccountById: (accountId: string) => Account | undefined;
+  getAccountById: (accountId: string | undefined) => Account | undefined;
   updateAccount: (props: UpdateAccountProps) => Promise<string | undefined>;
   assignController: (
     accountId: string,
@@ -47,7 +61,10 @@ interface AccountsContextType {
     accountId: string,
     payer: string
   ) => Promise<string | undefined>;
-  deletePayerAccount: (payer: string) => Promise<string | undefined>;
+  deletePayerAccount: (
+    accountId: string,
+    payer: string
+  ) => Promise<string | undefined>;
   getPipelineByControllerId: (controllerId: string) => number;
   getAccountNamesByIds: (accountIds: string[]) => string;
 }
@@ -94,7 +111,7 @@ const selectionSet = [
   "projects.projects.crmProjects.crmProject.totalContractVolume",
   "projects.projects.crmProjects.crmProject.isMarketplace",
   "projects.projects.crmProjects.crmProject.stage",
-  "payerAccounts.awsAccountNumber",
+  "awsAccounts.awsAccountNumberId",
 ] as const;
 
 type AccountData = SelectionSet<Schema["Account"]["type"], typeof selectionSet>;
@@ -140,7 +157,7 @@ const mapAccount: (
   projects,
   createdAt: new Date(createdAt),
   territoryIds: territories.map((t) => t.territory.id),
-  payerAccounts: payerAccounts.map((p) => p.awsAccountNumber),
+  payerAccounts: awsAccounts.map((p) => p.awsAccountNumberId),
 });
 
 const addOrderNumberToAccounts = (
@@ -177,7 +194,7 @@ const addOrderNumberToAccounts = (
     []
   );
 
-export const fetchAccounts = async () => {
+const fetchAccounts = async () => {
   const { data, errors } = await client.models.Account.list({
     limit: 500,
     selectionSet,
@@ -241,8 +258,11 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     return data || undefined;
   };
 
-  const getAccountById = (accountId: string) =>
-    accounts?.find((account) => account.id === accountId);
+  const getAccountById = (accountId: string | undefined) =>
+    flow(
+      identity<Account[] | undefined>,
+      find(({ id }) => id === accountId)
+    )(accounts);
 
   const updateAccount = async ({
     id,
@@ -394,41 +414,40 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         : { ...a, payerAccounts: [...a.payerAccounts, payer] }
     );
     if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.PayerAccount.create({
+    const payerAccountId = await getOrCreatePayerAccount(payer);
+    if (!payerAccountId) return;
+    const resultAccountId = await createPayerAccountLink(
       accountId,
-      awsAccountNumber: payer,
-    });
-    if (errors) handleApiErrors(errors, "Creating payer failed");
+      payerAccountId
+    );
+    if (!resultAccountId) return;
     if (updated) mutate(updated);
-    if (!data) return;
     toast({
       title: "Payer created",
       description: `Successfully created payer ${payer} for account ${
         accounts?.find((a) => a.id === accountId)?.name
       }.`,
     });
-    return data.awsAccountNumber;
+    return resultAccountId;
   };
 
-  const deletePayerAccount = async (payer: string) => {
-    const account = accounts?.find((a) => a.payerAccounts.includes(payer));
+  const deletePayerAccount = async (accountId: string, payer: string) => {
+    const account = accounts?.find((a) => a.id === accountId);
+    if (!account) return;
     const updated: Account[] | undefined = accounts?.map((a) =>
       !a.payerAccounts.includes(payer)
         ? a
         : { ...a, payerAccounts: a.payerAccounts.filter((p) => p !== payer) }
     );
     if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.PayerAccount.delete({
-      awsAccountNumber: payer,
-    });
-    if (errors) handleApiErrors(errors, "Deleting payer failed");
+    const data = await deletePayerAccountLink(accountId, payer);
     if (updated) mutate(updated);
     if (!data) return;
     toast({
-      title: "Payer deleted",
-      description: `Successfully deleted payer ${payer} for account ${account?.name}.`,
+      title: "Removed payer",
+      description: `Successfully removed payer ${payer} from account ${account?.name}.`,
     });
-    return data.awsAccountNumber;
+    return data.awsAccountNumberId;
   };
 
   const getPipelineByControllerId = (controllerId: string): number =>
