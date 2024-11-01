@@ -1,5 +1,15 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "MeetingParticipant",
+  "PersonAccount",
+  "PersonDetail",
+  "PersonLearning",
+  "User",
+  "PersonRelationship",
+  // "Person",
+];
+
 const personSchmema = {
   PersonDetailsEnum: a.enum([
     "linkedIn",
@@ -108,6 +118,7 @@ const personSchmema = {
       dateOfDeath: a.date(),
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
+      // payerAccounts: a.hasMany("PayerAccount", "mainContactId"),
       details: a.hasMany("PersonDetail", "personId"),
       learnings: a.hasMany("PersonLearning", "personId"),
       profile: a.hasOne("User", "personId"),
