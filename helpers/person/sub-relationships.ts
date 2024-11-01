@@ -26,7 +26,7 @@ export type PersonDataRelationRelatedPerson =
   PersonData["relationshipsFrom"][number]["relatedPerson"];
 type PersonDataRelationPerson = PersonData["relationshipsTo"][number]["person"];
 
-const SUB_RELATIONSHIP_TYPES = [
+export const SUB_RELATIONSHIP_TYPES = [
   "spouse's child",
   "grand child",
   "spouse's friend",
@@ -37,7 +37,7 @@ const SUB_RELATIONSHIP_TYPES = [
   "grand parent",
 ] as const;
 
-type TSubRelationshipTypes = (typeof SUB_RELATIONSHIP_TYPES)[number];
+export type TSubRelationshipTypes = (typeof SUB_RELATIONSHIP_TYPES)[number];
 
 export const notSelf =
   (personId: string) => (relation: PersonSubRelationship) =>
@@ -116,25 +116,25 @@ export const getGrandChilds = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "parent"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterChild),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("grand child"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterParent),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("grand child"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterChild),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("grand child"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterParent),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("grand child"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getFriendSpouse = (
   person: PersonDataRelationPerson | undefined,
@@ -161,25 +161,25 @@ export const getFriendSpouse = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "friend"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterSpouse),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("friend's spouse"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterSpouse),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("friend's spouse"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterSpouse),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("friend's spouse"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterSpouse),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("friend's spouse"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getSpousesFriends = (
   person: PersonDataRelationPerson | undefined,
@@ -206,25 +206,25 @@ export const getSpousesFriends = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "spouse"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterFriend),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("spouse's friend"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterFriend),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("spouse's friend"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterFriend),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("spouse's friend"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterFriend),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("spouse's friend"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getFriendsChilds = (
   person: PersonDataRelationPerson | undefined,
@@ -251,25 +251,25 @@ export const getFriendsChilds = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "friend"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterChild),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("friend's child"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterParent),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("friend's child"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterChild),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("friend's child"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterParent),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("friend's child"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getParentsSpouse = (
   person: PersonDataRelationPerson | undefined,
@@ -296,25 +296,25 @@ export const getParentsSpouse = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "child"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterSpouse),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("parent's spouse"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterSpouse),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("parent's spouse"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterSpouse),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("parent's spouse"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterSpouse),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("parent's spouse"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getSpousesChilds = (
   person: PersonDataRelationPerson | undefined,
@@ -341,25 +341,25 @@ export const getSpousesChilds = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "spouse"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterChild),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("spouse's child"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterParent),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("spouse's child"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterChild),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("spouse's child"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterParent),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("spouse's child"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getGrandParents = (
   person: PersonDataRelationPerson | undefined,
@@ -386,25 +386,25 @@ export const getGrandParents = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "child"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterParent),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("grand parent"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterChild),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("grand parent"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterParent),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("grand parent"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterChild),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("grand parent"))
+        )(person) ?? []),
+      ]
+    : [];
 
 export const getSiblings = (
   person: PersonDataRelationPerson | undefined,
@@ -431,22 +431,22 @@ export const getSiblings = (
         )(relatedPerson) ?? []),
       ]
     : person && typeName === "child"
-      ? [
-          ...(flow(
-            get("relationshipsFrom"),
-            filter(filterChild),
-            map("relatedPerson"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("sibling"))
-          )(person) ?? []),
-          ...(flow(
-            get("relationshipsTo"),
-            filter(filterParent),
-            map("person"),
-            compact,
-            filter(filterAlivePerson),
-            map(mapRelatedPersonData("sibling"))
-          )(person) ?? []),
-        ]
-      : [];
+    ? [
+        ...(flow(
+          get("relationshipsFrom"),
+          filter(filterChild),
+          map("relatedPerson"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("sibling"))
+        )(person) ?? []),
+        ...(flow(
+          get("relationshipsTo"),
+          filter(filterParent),
+          map("person"),
+          compact,
+          filter(filterAlivePerson),
+          map(mapRelatedPersonData("sibling"))
+        )(person) ?? []),
+      ]
+    : [];

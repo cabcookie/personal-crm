@@ -61,6 +61,10 @@ const accountSchema = {
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       awsAccountNumber: a.id().required(),
+      /** DEPRECATED: */
+      accountId: a.id().required(),
+      /** DEPRECATED: */
+      account: a.belongsTo("Account", "accountId"),
       accounts: a.hasMany("AccountPayerAccount", "awsAccountNumberId"),
       isViaReseller: a.boolean(),
       resellerId: a.id(),
@@ -88,6 +92,8 @@ const accountSchema = {
       projects: a.hasMany("AccountProjects", "accountId"),
       accountSubsidiariesId: a.id(),
       controller: a.belongsTo("Account", "accountSubsidiariesId"),
+      /** DEPRECATED: */
+      payerAccounts: a.hasMany("PayerAccount", "accountId"),
       awsAccounts: a.hasMany("AccountPayerAccount", "accountId"),
       resellingAccounts: a.hasMany("PayerAccount", "resellerId"),
       people: a.hasMany("PersonAccount", "accountId"),

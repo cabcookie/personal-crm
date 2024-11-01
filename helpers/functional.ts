@@ -1,14 +1,10 @@
 import {
   addDays,
   addMinutes,
-  addMonths,
   differenceInCalendarDays,
   format,
-  Locale,
-  parse,
 } from "date-fns";
 import {
-  add,
   flow,
   identity,
   includes,
@@ -42,20 +38,11 @@ export const usdCurrency = new Intl.NumberFormat("en-US", {
   style: "currency",
   maximumFractionDigits: 0,
 });
-export const formatThousands = (val: number) =>
-  new Intl.NumberFormat("en-US", {
-    style: "decimal",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(val);
 export const uniqArraySorted = (ids: string[]): string[] => {
-  const idMap: Record<string, number> = ids.reduce(
-    (acc, id) => {
-      acc[id] = (acc[id] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  const idMap: Record<string, number> = ids.reduce((acc, id) => {
+    acc[id] = (acc[id] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
   const sortedIds = Object.keys(idMap).sort((a, b) => idMap[b] - idMap[a]);
   return sortedIds;
 };
@@ -69,8 +56,8 @@ export const formatRevenue = (revenue: number) =>
         maximumFractionDigits: 0,
       }).format(revenue)
     : revenue < 500000
-      ? `$${(revenue / 1000).toFixed(0)}k`
-      : `$${(revenue / 1000000).toFixed(1)}M`;
+    ? `$${(revenue / 1000).toFixed(0)}k`
+    : `$${(revenue / 1000000).toFixed(1)}M`;
 export const logFp =
   <T>(...msg: any[]) =>
   (data: T) => {
@@ -99,11 +86,3 @@ export const normalize = flow(
 );
 export const includesNormalized = (search: string) => (toSearchIn: string) =>
   flow(identity<string>, normalize, includes)(search)(toSearchIn);
-export const parseDate = (format: string, locale: Locale) => (date: string) =>
-  parse(date, format, new Date(), { locale });
-export const formatDateYyyyMm = (date: Date) => format(date, "yyyy-MM");
-export const formatDate = (formatStr: string) => (date: Date) =>
-  format(date, formatStr);
-export const substract = (n: number) => add(-n);
-export const addMonthsFp = (date: Date) => (amount: number) =>
-  addMonths(date, amount);

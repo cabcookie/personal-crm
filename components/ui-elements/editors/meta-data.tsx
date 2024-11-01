@@ -20,8 +20,8 @@ const getUpdatedAtTime = ({ created, updated }: MetaDataProps) =>
     !updated
       ? ""
       : updated.getTime() - created.getTime() < 1000 * 60
-        ? ""
-        : ` – Updated on: ${makeLocaleString(updated)}`
+      ? ""
+      : ` – Updated on: ${makeLocaleString(updated)}`
   }`;
 
 const MetaData: FC<Partial<MetaDataProps>> = ({ created, updated }) => {

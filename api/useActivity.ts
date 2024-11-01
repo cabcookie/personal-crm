@@ -23,7 +23,7 @@ export type TempIdMapping = {
   id: string;
 };
 
-type ProjectLinkData = {
+export type ProjectLinkData = {
   id: string;
   projectsId: string;
 };

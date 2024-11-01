@@ -7,7 +7,7 @@ import ListPayerAccounts from "./ListPayerAccounts";
 type AddPayerAccountDialogProps = {
   account: Account;
   addPayerAccount: (accountId: string, payer: string) => void;
-  deletePayerAccount: (accountId: string, payer: string) => void;
+  deletePayerAccount: (payer: string) => void;
 };
 
 const AddPayerAccountDialog: FC<AddPayerAccountDialogProps> = ({
@@ -45,7 +45,7 @@ const AddPayerAccountDialog: FC<AddPayerAccountDialogProps> = ({
         <ListPayerAccounts
           payerAccounts={payerAccounts}
           allowDeletion
-          deletePayerAccount={(payerId) => deletePayerAccount(id, payerId)}
+          deletePayerAccount={deletePayerAccount}
           showLabel={false}
           showLinks={false}
         />
