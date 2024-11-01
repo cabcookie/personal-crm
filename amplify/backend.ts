@@ -10,11 +10,6 @@ const backend = defineBackend({
   storage,
 });
 
-// const backendType = backend.auth.resources.userPool.node.tryGetContext(
-//   "amplify-backend-type"
-// );
-// if (backendType !== "sandbox") {}
-
 /**
  * Ensure that when new tables are moved into production, they do not initially
  * have Delete Protection and Backup enabled. CloudFormation always runs into
@@ -33,16 +28,19 @@ const backend = defineBackend({
  */
 
 const { amplifyDynamoDbTables } = backend.data.resources.cfnResources;
+const backendType = backend.auth.resources.userPool.node.tryGetContext(
+  "amplify-backend-type"
+);
 
 /**
  * keep only the properties (table names) of amplifyDynamoDbTables for which
  * their key name is in tablesWithDeleteProtection
  */
 
-Object.keys(amplifyDynamoDbTables)
-  .filter((key) => tablesWithDeleteProtection.includes(key))
-  .forEach((key) => {
-    amplifyDynamoDbTables[key].deletionProtectionEnabled = true;
-    amplifyDynamoDbTables[key].pointInTimeRecoveryEnabled = true;
-    amplifyDynamoDbTables[key].applyRemovalPolicy(RemovalPolicy.RETAIN);
-  });
+Object.keys(amplifyDynamoDbTables).forEach((key) => {
+  const setting = tablesWithDeleteProtection.includes(key);
+  amplifyDynamoDbTables[key].deletionProtectionEnabled =
+    backendType === "sandbox" ? false : setting;
+  amplifyDynamoDbTables[key].pointInTimeRecoveryEnabled = setting;
+  amplifyDynamoDbTables[key].applyRemovalPolicy(RemovalPolicy.RETAIN);
+});
