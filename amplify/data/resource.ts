@@ -1,24 +1,55 @@
 import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
 import { postConfirmation } from "../auth/post-confirmation/resource";
-import accountSchema from "./account-schema";
-import activitySchema from "./activity-schema";
-import bibleSchema from "./bible-schema";
-import contextSchema from "./context-schema";
-import personSchmema from "./person-schema";
-import planningSchema from "./planning-schema";
-import prayerSchema from "./prayer-schema";
-import projectSchema from "./project-schema";
+import accountSchema, {
+  tablesWithDeleteProtection as accountTdp,
+} from "./account-schema";
+import activitySchema, {
+  tablesWithDeleteProtection as activityTdp,
+} from "./activity-schema";
+import analyticsSchema from "./analytics-schema";
+import bibleSchema, {
+  tablesWithDeleteProtection as bibleTdp,
+} from "./bible-schema";
+import contextSchema, {
+  tablesWithDeleteProtection as contextTdp,
+} from "./context-schema";
+import personSchmema, {
+  tablesWithDeleteProtection as personTdp,
+} from "./person-schema";
+import planningSchema, {
+  tablesWithDeleteProtection as planningTdp,
+} from "./planning-schema";
+import prayerSchema, {
+  tablesWithDeleteProtection as prayerTdp,
+} from "./prayer-schema";
+import projectSchema, {
+  tablesWithDeleteProtection as projectTdp,
+} from "./project-schema";
+
+export const tablesWithDeleteProtection = [
+  ...accountTdp,
+  ...activityTdp,
+  ...bibleTdp,
+  ...contextTdp,
+  ...personTdp,
+  ...planningTdp,
+  ...prayerTdp,
+  ...projectTdp,
+  "Inbox",
+  "Meeting",
+];
 
 const schema = a
   .schema({
     ...accountSchema,
     ...activitySchema,
+    ...analyticsSchema,
+    ...bibleSchema,
     ...contextSchema,
     ...personSchmema,
-    ...projectSchema,
-    ...prayerSchema,
     ...planningSchema,
-    ...bibleSchema,
+    ...prayerSchema,
+    ...projectSchema,
     Inbox: a
       .model({
         owner: a

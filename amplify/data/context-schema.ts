@@ -1,5 +1,7 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = ["CurrentContext"];
+
 const contextSchema = {
   Context: a.enum(["family", "hobby", "work"]),
   CurrentContext: a

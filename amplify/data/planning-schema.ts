@@ -1,5 +1,12 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "WeeklyPlan",
+  "WeeklyPlanProject",
+  "DailyPlan",
+  "DailyPlanTodo",
+];
+
 const planningSchema = {
   PlanningStatus: a.enum(["WIP", "DONE", "CANCELLED"]),
   DailyPlanStatus: a.enum(["PLANNING", "OPEN", "DONE", "CANCELLED"]),

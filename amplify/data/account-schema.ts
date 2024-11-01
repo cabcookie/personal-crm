@@ -1,5 +1,13 @@
 import { a } from "@aws-amplify/backend";
 
+export const tablesWithDeleteProtection = [
+  "TerritoryResponsibility",
+  "Territory",
+  "AccountTerritory",
+  "PayerAccount",
+  "Account",
+];
+
 const accountSchema = {
   TerritoryResponsibility: a
     .model({
