@@ -7,7 +7,7 @@ export const tablesWithDeleteProtection = [
   "PersonLearning",
   "User",
   "PersonRelationship",
-  // "Person",
+  "Person",
 ];
 
 const personSchmema = {
