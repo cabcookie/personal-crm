@@ -2,6 +2,7 @@
 
 - In der Tabelle der Umsatzdaten kann nun auch beim Kundennamen die Tabelle für Details aufgeklappt werden.
 - Wenn der Payer Account einem Reseller/Partner gehört, wird nun auch der Partnername angezeigt, sofern dieser am Payer Account zugeordnet ist.
+- Die Links für Sales Console und Cost Explorer werden nun auch auf der Payer Seite dargestellt.
 
 ## Fehlerbehebungen
 
