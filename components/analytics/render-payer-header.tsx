@@ -1,7 +1,8 @@
+import usePayer from "@/api/usePayer";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
-import ResellerBadge from "./reseller-badge";
+import ResellerBadge from "../payers/reseller-badge";
 
 type RenderPayerHeaderProps = {
   id: string | undefined;
@@ -14,6 +15,8 @@ const RenderPayerHeader: FC<RenderPayerHeaderProps> = ({
   label,
   isReseller,
 }) => {
+  const { payer } = usePayer(id);
+
   return (
     <div>
       {!id ? (
@@ -21,17 +24,20 @@ const RenderPayerHeader: FC<RenderPayerHeaderProps> = ({
       ) : (
         <Link
           href={`/payers/${id}`}
+          target="_blank"
           className="text-gray-500 hover:text-blue-400"
         >
           {label}
           <ExternalLink className="ml-1 w-4 h-4 inline-block -translate-y-0.5" />
         </Link>
       )}
-      {isReseller && (
-        <div className="flex">
-          <ResellerBadge className="block" />
-        </div>
-      )}
+
+      <ResellerBadge
+        isReseller={isReseller}
+        resellerId={payer?.resellerId}
+        className="mt-0.5 gap-0.5"
+        textResellerSize="xs"
+      />
     </div>
   );
 };

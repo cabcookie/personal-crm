@@ -1,7 +1,7 @@
 import usePayer from "@/api/usePayer";
 import MainLayout from "@/components/layouts/MainLayout";
 import PayerDetails from "@/components/payers/details";
-import { Badge } from "@/components/ui/badge";
+import ResellerBadge from "@/components/payers/reseller-badge";
 import { useRouter } from "next/router";
 
 const ProjectDetailPage = () => {
@@ -16,11 +16,10 @@ const ProjectDetailPage = () => {
       recordName={payerId}
       sectionName="AWS Payer Accounts"
     >
-      {payer?.isReseller && (
-        <div className="flex justify-start md:justify-center mb-4 md:mb-6">
-          <Badge className="bg-green-500">Reseller</Badge>
-        </div>
-      )}
+      <ResellerBadge
+        className="items-start md:items-center mb-4 md:mb-6"
+        resellerId={payer?.resellerId}
+      />
 
       <PayerDetails payerId={payerId} showLinkedAccounts />
     </MainLayout>

@@ -1,6 +1,7 @@
 # Verbesserungen an Financials (Version :VERSION)
 
 - In der Tabelle der Umsatzdaten kann nun auch beim Kundennamen die Tabelle für Details aufgeklappt werden.
+- Wenn der Payer Account einem Reseller/Partner gehört, wird nun auch der Partnername angezeigt, sofern dieser am Payer Account zugeordnet ist.
 
 ## Fehlerbehebungen
 
