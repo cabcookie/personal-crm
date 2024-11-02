@@ -15,9 +15,7 @@ export const PROJECT_FILTERS = ["WIP", "On Hold", "Done"];
 const PROJECT_FILTERS_CONST = ["WIP", "On Hold", "Done"] as const;
 export type ProjectFilters = (typeof PROJECT_FILTERS_CONST)[number];
 
-export const isValidProjectFilter = (
-  filter: string
-): filter is ProjectFilters =>
+const isValidProjectFilter = (filter: string): filter is ProjectFilters =>
   PROJECT_FILTERS_CONST.includes(filter as ProjectFilters);
 
 interface ProjectFilterType {

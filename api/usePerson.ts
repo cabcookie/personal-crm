@@ -24,7 +24,7 @@ import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
-export const selectionSet = [
+const selectionSet = [
   "id",
   "name",
   "howToSay",
@@ -103,7 +103,7 @@ export type Person = {
   updatedAt: Date;
 };
 
-export const mapPerson = ({
+const mapPerson = ({
   id,
   name,
   howToSay,

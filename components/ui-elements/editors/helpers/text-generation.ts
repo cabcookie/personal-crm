@@ -33,8 +33,8 @@ const transformMentionsToText = (json: JSONContent): JSONContent =>
             }),
       }
     : !json.attrs?.label
-    ? {}
-    : { type: "text", text: `@${json.attrs?.label}` };
+      ? {}
+      : { type: "text", text: `@${json.attrs?.label}` };
 
 const transformTasksToText = (json: JSONContent): JSONContent =>
   json.type !== "taskList"
@@ -85,23 +85,23 @@ export const getTextFromJsonContent = (json?: JSONContent | string) =>
   !json
     ? ""
     : typeof json === "string"
-    ? json
-    : generateText(
-        {
-          ...json,
-          ...(!json.content
-            ? {}
-            : {
-                content: flow(
-                  get("content"),
-                  filterS3ImageNodes,
-                  map(transformMentionsToText),
-                  map(transformTasksToText)
-                )(json),
-              }),
-        },
-        MyExtensions
-      );
+      ? json
+      : generateText(
+          {
+            ...json,
+            ...(!json.content
+              ? {}
+              : {
+                  content: flow(
+                    get("content"),
+                    filterS3ImageNodes,
+                    map(transformMentionsToText),
+                    map(transformTasksToText)
+                  )(json),
+                }),
+          },
+          MyExtensions
+        );
 
 export const getTopicTodos = (
   topicProjectIds: string[],
