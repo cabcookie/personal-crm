@@ -4,12 +4,30 @@ import { MonthMrr } from "./analytics-table-column";
 import RenderGrowth from "./render-growth";
 
 type RenderMonthMrrProps = {
-  monthMrr: MonthMrr;
+  monthMrr: MonthMrr | undefined;
   noOfMonths: number;
 };
 
-const RenderMonthMrr: FC<RenderMonthMrrProps> = ({
-  monthMrr: { currentMonth, lastMonth, lastPeriod, lastYear },
+const RenderMonthMrr: FC<RenderMonthMrrProps> = ({ monthMrr, noOfMonths }) =>
+  !monthMrr ? (
+    <RenderNoData />
+  ) : (
+    <RenderData {...{ ...monthMrr, noOfMonths }} />
+  );
+
+const RenderNoData = () => (
+  <div className="min-w-20 text-xs text-muted-foreground">-</div>
+);
+
+type RenderDataProps = MonthMrr & {
+  noOfMonths: number;
+};
+
+const RenderData: FC<RenderDataProps> = ({
+  currentMonth,
+  lastMonth,
+  lastPeriod,
+  lastYear,
   noOfMonths,
 }) => (
   <div className="flex flex-col gap-1">
