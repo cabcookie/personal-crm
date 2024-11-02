@@ -90,11 +90,7 @@ const AnalyticsTable = <TData, TValue>({
                       row.depth === 0 &&
                       "cursor-pointer"
                   )}
-                  onClick={
-                    cell.id.includes("accountOrPayer")
-                      ? undefined
-                      : row.getToggleExpandedHandler()
-                  }
+                  onClick={row.getToggleExpandedHandler()}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>

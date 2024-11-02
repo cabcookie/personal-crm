@@ -13,7 +13,11 @@ const RenderAccountHeader: FC<RenderAccountHeaderProps> = ({ id, label }) => {
   ) : (
     <Link
       href={`/accounts/${id}`}
+      target="_blank"
       className="text-gray-500 hover:text-blue-400"
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
     >
       {label}
       <ExternalLink className="ml-1 w-4 h-4 inline-block -translate-y-0.5" />

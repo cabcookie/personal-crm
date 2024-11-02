@@ -1,7 +1,5 @@
-import { Badge } from "@/components/ui/badge";
 import {
   RevenueMonth,
-  setIsResellerForPayer,
   setLastMonthsPayerRevenue,
   setPayerColumnDataFromMrr,
   setPayerColumnDefFromMrr,
@@ -32,7 +30,6 @@ const PayerFinancials: FC<PayerFinancialsProps> = ({
   const [revenueLastMonths, setRevenueLastMonths] = useState<RevenueMonth[]>(
     []
   );
-  const [isReseller, setIsReseller] = useState(false);
 
   useEffect(() => {
     flow(parseInt, setNoOfMonths)(mrrFilter);
@@ -50,10 +47,6 @@ const PayerFinancials: FC<PayerFinancialsProps> = ({
     setLastMonthsPayerRevenue(3, payerId, mrr, setRevenueLastMonths);
   }, [mrr, payerId]);
 
-  useEffect(() => {
-    setIsResellerForPayer(payerId, mrr, noOfMonths, setIsReseller);
-  }, [payerId, mrr, noOfMonths]);
-
   return (
     <DefaultAccordionItem
       value="financials"
@@ -66,12 +59,6 @@ const PayerFinancials: FC<PayerFinancialsProps> = ({
     >
       <div className="space-y-6">
         <MrrFilterBtnGrp />
-
-        {isReseller && (
-          <div className="flex justify-start md:justify-center mb-4 md:mb-6">
-            <Badge className="bg-green-500">Reseller</Badge>
-          </div>
-        )}
 
         <AnalyticsTable columns={columnDef} data={columnData} />
       </div>
