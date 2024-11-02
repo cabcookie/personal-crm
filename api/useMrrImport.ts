@@ -83,20 +83,19 @@ const useMrrImport = (mrr: Mrr[] | undefined, mutateMrr: MrrMutator) => {
         upload.s3Path,
         updateProgress
       );
-      await closeImportFile();
       mutateMrr(mrr);
+      await closeImportFile(uploadRecord.id);
       return uploadRecord.id;
     };
 
-  const closeImportFile = async () => {
-    if (!mrrImport) return;
+  const closeImportFile = async (uploadRecordId: string) => {
     const { data, errors } = await client.models.MrrDataUpload.update({
-      id: mrrImport.id,
+      id: uploadRecordId,
       status: "DONE",
     });
     if (errors) handleApiErrors(errors, "Closing import file failed");
     if (!data) return;
-    mutate(mrrImport);
+    mutate(undefined);
   };
 
   return {
