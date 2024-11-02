@@ -1,5 +1,7 @@
 # Verbesserungen an Financials (Version :VERSION)
 
+- In der Tabelle der Umsatzdaten kann nun auch beim Kundennamen die Tabelle für Details aufgeklappt werden.
+
 ## Fehlerbehebungen
 
 - Wenn eine Datei importiert wurde, wurde nach erfolgreicher Verarbeitung, der Import nicht als abgeschlossen markiert. Das ist behoben.
