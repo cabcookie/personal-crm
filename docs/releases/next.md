@@ -55,6 +55,10 @@
 
 - Die Notizen und Todos mithilfe von Bedrock durchsuchbar machen ([Artikel 1](https://aws.amazon.com/de/blogs/machine-learning/build-generative-ai-agents-with-amazon-bedrock-amazon-dynamodb-amazon-kendra-amazon-lex-and-langchain/) und [Artikel 2](https://medium.com/@dminhk/adding-amazon-dynamodb-memory-to-amazon-bedrock-using-langchain-expression-language-lcel-%EF%B8%8F-1ca55407ecdb))
 
+### Suche
+
+- Ich möchte über alle Objekte in der App suchen können: Meetings, Projekte, Personen, Kunden, Notizen. Ich möchte, dass die Suchergebnisse relevant sind.
+
 ## Fehler
 
 ### Notizen
