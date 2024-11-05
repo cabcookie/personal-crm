@@ -21,9 +21,9 @@ export type DataChanged = {
   changed: Omit<CrmProject, "id">[];
 };
 
-const IMPORT_STATUS = ["WIP", "DONE"] as const;
+const _IMPORT_STATUS = ["WIP", "DONE"] as const;
 
-type TImportStatus = (typeof IMPORT_STATUS)[number];
+type TImportStatus = (typeof _IMPORT_STATUS)[number];
 
 type CrmProjectsImportData = Schema["CrmProjectImport"]["type"];
 
@@ -210,6 +210,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
             : min([obj.systemCloseDate, obj.closeDate]),
           createdDate: obj.createdDate,
           projectIds: [],
+          projectLinkIds: [],
           stage: obj.stage,
           opportunityOwner: obj.opportunityOwner,
           nextStep: obj.nextStep,
