@@ -229,6 +229,7 @@ const useCrmProjects = () => {
           arr: _arr,
           tcv: _tcv,
           projectIds: _projectIds,
+          projectLinkIds: _projectLinkIds,
           linkedPartnerNames: _linkedPartner,
           projectAccountNames: _accountNames,
           hygieneIssuesResolved: _hygieneIssuesResolved,
