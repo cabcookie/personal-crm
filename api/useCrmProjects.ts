@@ -22,6 +22,7 @@ export type CrmProject = {
   tcv: number;
   isMarketplace: boolean;
   closeDate: Date;
+  projectLinkIds: string[];
   projectIds: string[];
   stage: TCrmStages;
   opportunityOwner?: string;
@@ -49,6 +50,7 @@ export const selectionSetCrmProject = [
   "confirmHygieneIssuesSolvedTill",
   "createdDate",
   "createdAt",
+  "projects.id",
   "projects.project.id",
   "projects.project.accounts.account.name",
   "stage",
@@ -97,6 +99,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   isMarketplace: !!isMarketplace,
   closeDate: new Date(closeDate),
   createdDate: new Date(createdDate || createdAt),
+  projectLinkIds: projects.map(({ id }) => id),
   projectIds: projects.map(({ project: { id } }) => id),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
   stageChangedDate: !stageChangedDate ? undefined : new Date(stageChangedDate),

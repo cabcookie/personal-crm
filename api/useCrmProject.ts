@@ -8,6 +8,7 @@ import {
 import { calcRevenueTwoYears } from "@/helpers/projects";
 import { generateClient } from "aws-amplify/data";
 import { flow, isUndefined, omitBy } from "lodash";
+import { findIndex, get, identity } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import {
@@ -109,6 +110,51 @@ const useCrmProject = (projectId?: string) => {
     return data?.id;
   };
 
+  const getProjectLinkIdByIndex =
+    (crmProject: CrmProject | undefined) => (index: number) =>
+      flow(
+        identity<CrmProject | undefined>,
+        get("projectLinkIds"),
+        get(index)
+      )(crmProject);
+
+  const getProjectLinkIdByProjectId = (projectId: string) =>
+    flow(
+      identity<CrmProject | undefined>,
+      get("projectIds"),
+      findIndex((id) => id === projectId),
+      getProjectLinkIdByIndex(crmProject)
+    )(crmProject);
+
+  const removeProjectFromCrmProject = async (
+    projectId: string,
+    projectName: string
+  ) => {
+    if (!crmProject) return;
+    const projectLinkId = getProjectLinkIdByProjectId(projectId);
+    if (!projectLinkId) return;
+    const updated = {
+      ...crmProject,
+      projectIds: crmProject.projectIds.filter((id) => id !== projectId),
+      projectLinkIds: crmProject.projectLinkIds.filter(
+        (id) => id !== projectLinkId
+      ),
+    } as CrmProject;
+    mutate(updated, false);
+    const { data, errors } = await client.models.CrmProjectProjects.delete({
+      id: projectLinkId,
+    });
+    if (errors)
+      handleApiErrors(errors, "Unlinking project from CRM project failed");
+    mutate(updated);
+    if (!data) return;
+    toast({
+      title: "Unlinked project from CRM project",
+      description: `Project “${projectName}” has been unlinked from CRM project “${crmProject.name}”.`,
+    });
+    return data.id;
+  };
+
   const addProjectToCrmProject = async (
     projectId: string,
     projectName: string
@@ -165,6 +211,7 @@ const useCrmProject = (projectId?: string) => {
     updateCrmProject,
     addProjectToCrmProject,
     confirmSolvingHygieneIssues,
+    removeProjectFromCrmProject,
   };
 };
 
