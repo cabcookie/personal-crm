@@ -73,6 +73,7 @@ const useCrmProject = (projectId?: string) => {
     arr,
     tcv,
     stageChangedDate,
+    projectLinkIds: _projectLinkIds,
     projectIds: _projectIds,
     linkedPartnerNames: _linkedPartnerName,
     projectAccountNames: _projectAccountNames,
