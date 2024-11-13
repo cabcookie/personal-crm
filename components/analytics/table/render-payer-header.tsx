@@ -1,8 +1,8 @@
 import usePayer from "@/api/usePayer";
+import ResellerBadge from "@/components/payers/reseller-badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
-import ResellerBadge from "../payers/reseller-badge";
 
 type RenderPayerHeaderProps = {
   id: string | undefined;

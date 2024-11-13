@@ -4,7 +4,7 @@ import {
   getColumnDef,
   MonthData,
   MonthMrr,
-} from "@/components/analytics/analytics-table-column";
+} from "@/components/analytics/table/analytics-table-column";
 import {
   addMonthsFp,
   formatDateYyyyMm,
