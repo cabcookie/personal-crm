@@ -1,4 +1,7 @@
-# Mehrere Projekte einem CRM Projekt hinzufügen (Version :VERSION)
+# Accounts bekommen optional einen kurzen Namen (Version :VERSION)
+
+- Kurzen Namen für Accounts eingeführt. So kann zum Beispiel der Name "Unternehmensgruppe Sommerfeld" mit "Sommerfeld" abgekürzt werden.
+- Einem Account kann eine primäre Farbe zugeordnet werden. Das kann hilfreich sein, für die Wiedererkennung an verschiedenen Stellen in der Anwendung (z.B. Graphen).
 
 ## In Arbeit
 
