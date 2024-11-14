@@ -78,6 +78,8 @@ const accountSchema = {
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       notionId: a.integer(),
       name: a.string().required(),
+      shortName: a.string(),
+      mainColor: a.string(),
       order: a.integer(),
       introduction: a.string(),
       introductionJson: a.json(),
