@@ -1,6 +1,10 @@
-# Mehrere Projekte einem CRM Projekt hinzufügen (Version :VERSION)
+# Bei Umsatzentwicklung ein Chart einfügen (Version :VERSION)
+
+- Die Umsatztabelle zeigt nun eine Summenzeile.
 
 ## In Arbeit
+
+- Erstes Chart einfügen, mit gestackten Balken über alle Kunden.
 
 ## Geplant
 

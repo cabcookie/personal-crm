@@ -2,6 +2,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -98,6 +99,25 @@ const AnalyticsTable = <TData, TValue>({
             </TableRow>
           ))}
         </TableBody>
+        <TableFooter>
+          {table.getFooterGroups().map((footerGroup) => (
+            <TableRow key={footerGroup.id}>
+              {footerGroup.headers.map((header) => (
+                <TableCell
+                  key={header.id}
+                  className={cn(header.id !== "accountOrPayer" && "text-right")}
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.footer,
+                        header.getContext()
+                      )}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableFooter>
       </Table>
     </div>
   );
