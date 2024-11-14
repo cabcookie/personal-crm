@@ -1,3 +1,4 @@
+import AnalyticsMrrChart from "@/components/analytics/chart/mrr-chart";
 import InstructionsUpload from "@/components/analytics/instructions/instructions-upload";
 import UploadIssues from "@/components/analytics/issues/upload-issues";
 import MrrFilterBtnGrp from "@/components/analytics/mrr-filter-btn-grp";
@@ -45,6 +46,7 @@ const CustomerFinancialsPage = () => {
           <UploadIssues />
         </Accordion>
 
+        <AnalyticsMrrChart />
         <AnalyticsTable columns={columnDef} data={columnData} />
       </div>
     </MainLayout>
