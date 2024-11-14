@@ -1,10 +1,12 @@
 # Bei Umsatzentwicklung ein Chart einfügen (Version :VERSION)
 
 - Die Umsatztabelle zeigt nun eine Summenzeile.
+- An einem Account kann nun ein kurzer Name hinterlegt werden und eine primäre Farbe; diese Informationen werden für die Charts genutzt.
 
 ## In Arbeit
 
-- Erstes Chart einfügen, mit gestackten Balken über alle Kunden.
+- Es wird außerdem ein Chart angezeigt, dass die Umsatzentwicklung visualisiert. Das Chart kann nach Kunden gefiltert werden.
+- Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt
 
 ## Geplant
 

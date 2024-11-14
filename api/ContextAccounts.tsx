@@ -32,6 +32,8 @@ const client = generateClient<Schema>();
 type UpdateAccountProps = {
   id: string;
   name?: string;
+  shortName?: string;
+  mainColor?: string;
   crmId?: string;
   introduction?: JSONContent;
 };
@@ -72,6 +74,8 @@ interface AccountsContextType {
 export type Account = {
   id: string;
   name: string;
+  shortName?: string;
+  mainColor?: string;
   crmId?: string;
   introduction: JSONContent;
   controller?: {
@@ -89,6 +93,8 @@ export type Account = {
 const selectionSet = [
   "id",
   "name",
+  "shortName",
+  "mainColor",
   "crmId",
   "controller.id",
   "controller.name",
@@ -132,6 +138,8 @@ const mapAccount: (
 ) => AccountBeforePipelineCalculations = ({
   id: accountId,
   name,
+  shortName,
+  mainColor,
   crmId,
   controller,
   introduction,
@@ -145,6 +153,8 @@ const mapAccount: (
 }) => ({
   id: accountId,
   name,
+  shortName: shortName || undefined,
+  mainColor: mainColor || undefined,
   crmId: crmId || undefined,
   introduction: transformNotesVersion({
     formatVersion,
@@ -267,6 +277,8 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
   const updateAccount = async ({
     id,
     name,
+    shortName,
+    mainColor,
     crmId,
     introduction,
   }: UpdateAccountProps) => {
@@ -275,6 +287,8 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
 
     Object.assign(updAccount, {
       ...(name && { name }),
+      ...(shortName && { shortName }),
+      ...(mainColor && { mainColor }),
       ...(introduction && { introduction }),
       ...(crmId && { crmId }),
     });
@@ -286,6 +300,8 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
     const newAccount = {
       id,
       name,
+      shortName,
+      mainColor,
       crmId,
       ...(introduction
         ? {
