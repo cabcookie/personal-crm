@@ -262,10 +262,23 @@ const ChartLegendContent = React.forwardRef<
     Pick<RechartsPrimitive.LegendProps, "payload" | "verticalAlign"> & {
       hideIcon?: boolean;
       nameKey?: string;
+    } & {
+      highlightLabel?: string;
+      setHighlightLabel?: React.Dispatch<
+        React.SetStateAction<string | undefined>
+      >;
     }
 >(
   (
-    { className, hideIcon = false, payload, verticalAlign = "bottom", nameKey },
+    {
+      className,
+      hideIcon = false,
+      payload,
+      verticalAlign = "bottom",
+      nameKey,
+      highlightLabel,
+      setHighlightLabel,
+    },
     ref
   ) => {
     const { config } = useChart();
@@ -291,14 +304,26 @@ const ChartLegendContent = React.forwardRef<
             <div
               key={item.value}
               className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+                setHighlightLabel &&
+                  (highlightLabel ? "hover:opacity-100" : "hover:opacity-80"),
+                setHighlightLabel &&
+                  (highlightLabel ? "cursor-zoom-out" : "cursor-zoom-in")
               )}
+              onClick={
+                !setHighlightLabel
+                  ? undefined
+                  : () =>
+                      setHighlightLabel(
+                        highlightLabel === key ? undefined : key
+                      )
+              }
             >
               {itemConfig?.icon && !hideIcon ? (
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  className={cn("h-2 w-2 shrink-0 rounded-[2px]")}
                   style={{
                     backgroundColor: item.color,
                   }}

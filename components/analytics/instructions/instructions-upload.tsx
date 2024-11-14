@@ -4,7 +4,7 @@ import InstructionsUploadMrr from "./instructions-upload-mrr";
 import InstructionsUploadSrrp from "./instructions-upload-srrp";
 
 const InstructionsUpload = () => (
-  <DefaultAccordionItem value="docs" triggerTitle="Intructions (Data Upload)">
+  <DefaultAccordionItem value="docs" triggerTitle="Data Upload">
     <Accordion type="single" collapsible>
       <InstructionsUploadMrr />
       <InstructionsUploadSrrp />
