@@ -1,4 +1,11 @@
 import { Account } from "@/api/ContextAccounts";
+import MrrFilterBtnGrp from "@/components/analytics/mrr-filter-btn-grp";
+import AnalyticsTable from "@/components/analytics/table/analytics-table";
+import { AccountMrr } from "@/components/analytics/table/analytics-table-column";
+import {
+  useMrrFilter,
+  withMrrFilter,
+} from "@/components/analytics/useMrrFilter";
 import {
   RevenueMonth,
   setAccountColumnDataFromMrr,
@@ -10,10 +17,6 @@ import { formatDate, formatRevenue } from "@/helpers/functional";
 import { ColumnDef } from "@tanstack/react-table";
 import { flow } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
-import AnalyticsTable from "../analytics/analytics-table";
-import { AccountMrr } from "../analytics/analytics-table-column";
-import MrrFilterBtnGrp from "../analytics/mrr-filter-btn-grp";
-import { useMrrFilter, withMrrFilter } from "../analytics/useMrrFilter";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 
 type AccountFinancialsProps = {
