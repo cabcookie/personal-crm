@@ -3,10 +3,10 @@ import imgFilter from "@/public/images/analytics/mrr-filters.png";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import BulletList from "../ui-elements/list-items/bullet-list";
+import DefaultAccordionItem from "../../ui-elements/accordion/DefaultAccordionItem";
+import BulletList from "../../ui-elements/list-items/bullet-list";
+import { useMrrFilter } from "../useMrrFilter";
 import ImportMrrData from "./import-data";
-import { useMrrFilter } from "./useMrrFilter";
 
 const mrrTableauLink =
   "https://awstableau.corp.amazon.com/t/WWSalesInsights/views/MonthlyRevenueDeep/DeepMonthlyRevenue?%3Aembed=yes&%3Alinktarget=_blank&%3Aoriginal_view=yes#1";

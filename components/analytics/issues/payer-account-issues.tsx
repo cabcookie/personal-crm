@@ -1,12 +1,12 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Mrr, MrrMutator } from "@/api/useMrr";
+import DefaultAccordionItem from "@/components/ui-elements/accordion/DefaultAccordionItem";
+import { Accordion } from "@/components/ui/accordion";
 import {
   MrrDataIssue,
   setPayerAccountIssues,
 } from "@/helpers/analytics/issues";
 import { FC, useEffect, useState } from "react";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { Accordion } from "../ui/accordion";
 import PayerAccountIssue from "./payer-account-issue";
 
 type PayerAccountIssuesProps = {

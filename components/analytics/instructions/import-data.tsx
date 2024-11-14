@@ -3,10 +3,10 @@ import useMrrImport from "@/api/useMrrImport";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { FC, useState } from "react";
-import ApiLoadingError from "../layouts/ApiLoadingError";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Progress } from "../ui/progress";
+import ApiLoadingError from "../../layouts/ApiLoadingError";
+import { Input } from "../../ui/input";
+import { Label } from "../../ui/label";
+import { Progress } from "../../ui/progress";
 
 type ImportMrrDataProps = {
   mrr: Mrr[] | undefined;

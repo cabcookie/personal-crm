@@ -3,7 +3,7 @@ import {
   AccountMrr,
   MonthData,
   MonthMrr,
-} from "@/components/analytics/analytics-table-column";
+} from "@/components/analytics/table/analytics-table-column";
 import { differenceInCalendarMonths } from "date-fns";
 import {
   filter,

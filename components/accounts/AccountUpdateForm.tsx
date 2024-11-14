@@ -32,6 +32,8 @@ import AddTerritoryDialog from "./AddTerritoryDialog";
 
 const FormSchema = z.object({
   name: z.string(),
+  shortName: z.string().optional(),
+  mainColor: z.string().optional(),
   crmId: z.string(),
 });
 
@@ -45,6 +47,8 @@ const getCrmId = (input: string) => {
 interface OnUpdateProps {
   name: string;
   crmId: string;
+  shortName?: string;
+  mainColor?: string;
 }
 
 type AccountUpdateFormProps = {
@@ -68,6 +72,8 @@ const AccountUpdateForm: FC<AccountUpdateFormProps> = ({
     defaultValues: {
       name: account.name,
       crmId: account.crmId || "",
+      shortName: account.shortName || "",
+      mainColor: account.mainColor || "",
     },
   });
 
@@ -125,6 +131,32 @@ const AccountUpdateForm: FC<AccountUpdateFormProps> = ({
                       <FormLabel>Account name</FormLabel>
                       <FormControl>
                         <Input placeholder="Account name…" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="shortName"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Account name (short)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Short name…" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="mainColor"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Main color</FormLabel>
+                      <FormControl>
+                        <Input type="color" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

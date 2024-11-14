@@ -1,11 +1,11 @@
 import { Account, useAccountsContext } from "@/api/ContextAccounts";
+import { Button } from "@/components/ui/button";
 import { MrrDataIssue } from "@/helpers/analytics/issues";
 import { createPayerAndAccountLink } from "@/helpers/payers/api-actions";
 import { find, flow, identity } from "lodash/fp";
 import { ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { FC, useEffect, useState } from "react";
-import { Button } from "../ui/button";
 
 type PayerAccountIssueProps = {
   issue: MrrDataIssue;

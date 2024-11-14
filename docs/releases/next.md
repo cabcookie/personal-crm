@@ -1,9 +1,12 @@
-# Accounts bekommen optional einen kurzen Namen (Version :VERSION)
+# Bei Umsatzentwicklung ein Chart einfügen (Version :VERSION)
 
-- Kurzen Namen für Accounts eingeführt. So kann zum Beispiel der Name "Unternehmensgruppe Sommerfeld" mit "Sommerfeld" abgekürzt werden.
-- Einem Account kann eine primäre Farbe zugeordnet werden. Das kann hilfreich sein, für die Wiedererkennung an verschiedenen Stellen in der Anwendung (z.B. Graphen).
+- An einem Account kann nun ein kurzer Name hinterlegt werden und eine primäre Farbe; diese Informationen werden für die Charts genutzt.
+- Die Umsatztabelle zeigt nun eine Summenzeile.
+- Es wird außerdem ein Chart angezeigt, dass die Umsatzentwicklung visualisiert. Das Chart kann nach Kunden gefiltert werden.
 
 ## In Arbeit
+
+- Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt
 
 ## Geplant
 

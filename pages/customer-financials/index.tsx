@@ -1,8 +1,8 @@
-import AnalyticsTable from "@/components/analytics/analytics-table";
-import { AccountMrr } from "@/components/analytics/analytics-table-column";
-import InstructionsUpload from "@/components/analytics/instructions-upload";
+import InstructionsUpload from "@/components/analytics/instructions/instructions-upload";
+import UploadIssues from "@/components/analytics/issues/upload-issues";
 import MrrFilterBtnGrp from "@/components/analytics/mrr-filter-btn-grp";
-import UploadIssues from "@/components/analytics/upload-issues";
+import AnalyticsTable from "@/components/analytics/table/analytics-table";
+import { AccountMrr } from "@/components/analytics/table/analytics-table-column";
 import {
   useMrrFilter,
   withMrrFilter,
@@ -45,7 +45,7 @@ const CustomerFinancialsPage = () => {
           <UploadIssues />
         </Accordion>
 
-        <AnalyticsTable columns={columnDef} data={columnData} />
+        <AnalyticsTable columns={columnDef} data={columnData} showChart />
       </div>
     </MainLayout>
   );

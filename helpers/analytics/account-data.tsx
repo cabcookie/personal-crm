@@ -5,10 +5,10 @@ import {
   AccountMrr,
   getMonthName,
   MonthMrr,
-} from "@/components/analytics/analytics-table-column";
-import RenderAccountHeader from "@/components/analytics/render-account-header";
-import RenderMonthMrr from "@/components/analytics/render-month-mrr";
-import RenderPayerHeader from "@/components/analytics/render-payer-header";
+} from "@/components/analytics/table/analytics-table-column";
+import RenderAccountHeader from "@/components/analytics/table/render-account-header";
+import RenderMonthMrr from "@/components/analytics/table/render-month-mrr";
+import RenderPayerHeader from "@/components/analytics/table/render-payer-header";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   filter,

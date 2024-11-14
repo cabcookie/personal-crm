@@ -1,4 +1,4 @@
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import DefaultAccordionItem from "../../ui-elements/accordion/DefaultAccordionItem";
 
 const InstructionsUploadSrrp = () => {
   return (

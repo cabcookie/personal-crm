@@ -4,7 +4,7 @@ import {
   getColumnDef,
   MonthData,
   MonthMrr,
-} from "@/components/analytics/analytics-table-column";
+} from "@/components/analytics/table/analytics-table-column";
 import {
   addMonthsFp,
   formatDateYyyyMm,
@@ -58,7 +58,9 @@ export const setColumnDefFromMrr = (
   noOfMonths: number,
   setColumnDef: Dispatch<SetStateAction<ColumnDef<AccountMrr>[]>>
 ) =>
-  !mrr ? [] : flow(identity<number>, getColumnDef, setColumnDef)(noOfMonths);
+  !mrr
+    ? []
+    : flow(identity<number>, getColumnDef(mrr), setColumnDef)(noOfMonths);
 
 export const mapPayerMrrData =
   (mrr: Mrr[], account: string, noOfMonths: number) =>
