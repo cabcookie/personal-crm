@@ -11,7 +11,6 @@ const typeMappings = {
   feat: "Feature",
   fix: "Bug Fixes",
   docs: "Documentation",
-  data: "Schema Changes",
   style: "Styling",
   refactor: "Refactoring",
   test: "Tests",
@@ -31,8 +30,7 @@ const getLatestCommitInfo = () => {
 
 const formatCommitMessage = () => {
   const { hash, message: commitMsg } = getLatestCommitInfo();
-  const regex =
-    /^(feat|fix|docs|data|style|refactor|test|chore)\(?(.*?)\)?\: (.*)$/;
+  const regex = /^(feat|fix|docs|style|refactor|test|chore)\(?(.*?)\)?\: (.*)$/;
   const match = commitMsg.trim().match(regex);
   if (!match) return null; // If the commit message doesn't match, return null
 

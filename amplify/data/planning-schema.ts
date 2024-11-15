@@ -42,10 +42,22 @@ const planningSchema = {
       context: a.ref("Context").required(),
       status: a.ref("DailyPlanStatus").required(),
       todos: a.hasMany("DailyPlanTodo", "dailyPlanId"),
+      projects: a.hasMany("DailyPlanProject", "dailyPlanId"),
     })
     .secondaryIndexes((index) => [
       index("status").sortKeys(["day"]).queryField("listByStatus"),
     ])
+    .authorization((allow) => [allow.owner()]),
+  DailyPlanProject: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      dailyPlanId: a.id().required(),
+      dailyPlan: a.belongsTo("DailyPlan", "dailyPlanId"),
+      projectId: a.id().required(),
+      project: a.belongsTo("Projects", "projectId"),
+    })
     .authorization((allow) => [allow.owner()]),
   DailyPlanTodo: a
     .model({
