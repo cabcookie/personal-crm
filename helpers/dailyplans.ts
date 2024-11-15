@@ -1,3 +1,4 @@
+import { Project } from "@/api/ContextProjects";
 import { DailyPlanData, DailyPlanTodo } from "@/api/useDailyPlans";
 import {
   getTodoActivityId,
@@ -8,6 +9,33 @@ import {
   TodoData,
 } from "@/helpers/todos";
 import { filter, flatMap, flow, get, identity, map, uniq } from "lodash/fp";
+
+export const getTodosProjectIds = flow(
+  identity<DailyPlanTodo[]>,
+  flatMap("projectIds"),
+  uniq
+);
+
+export const getOpenTodos = (project: Project, todos: DailyPlanTodo[]) =>
+  flow(
+    identity<DailyPlanTodo[]>,
+    filter((p) => p.projectIds.includes(project.id)),
+    filter((p) => !p.done && !p.postPoned)
+  )(todos);
+
+export const getClosedTodos = (project: Project, todos: DailyPlanTodo[]) =>
+  flow(
+    identity<DailyPlanTodo[]>,
+    filter((p) => p.projectIds.includes(project.id)),
+    filter((p) => p.done)
+  )(todos);
+
+export const getPostponedTodos = (project: Project, todos: DailyPlanTodo[]) =>
+  flow(
+    identity<DailyPlanTodo[]>,
+    filter((p) => p.projectIds.includes(project.id)),
+    filter((p) => !p.done && p.postPoned)
+  )(todos);
 
 const mapDailyPlanTodo: (todo: {
   id: string;
@@ -22,12 +50,6 @@ const mapDailyPlanTodo: (todo: {
   activityId: getTodoActivityId(todo),
   postPoned: !!postPoned,
 });
-
-export const getTodosProjectIds = flow(
-  identity<DailyPlanTodo[]>,
-  flatMap("projectIds"),
-  uniq
-);
 
 export const getTodos = flow(
   identity<DailyPlanData["todos"]>,

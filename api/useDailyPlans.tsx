@@ -12,8 +12,7 @@ import { map } from "lodash";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
-const dailyPlanStatuses = ["PLANNING", "OPEN", "DONE", "CANCELLED"] as const;
-type DailyPlanStatus = (typeof dailyPlanStatuses)[number];
+type DailyPlanStatus = Schema["DailyPlanStatus"]["type"];
 
 export type DailyPlanTodo = {
   recordId: string;

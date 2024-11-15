@@ -1,27 +1,29 @@
-# Bei Umsatzentwicklung ein Chart einfügen (Version :VERSION)
+# Tagesliste aufräumen (Version :VERSION)
 
-- An einem Account kann nun ein kurzer Name hinterlegt werden und eine primäre Farbe; diese Informationen werden für die Charts genutzt.
-- Die Umsatztabelle zeigt nun eine Summenzeile.
-- Es wird außerdem ein Chart angezeigt, dass die Umsatzentwicklung visualisiert. Das Chart kann nach Kunden gefiltert werden.
+- Projekte werden als Akkordion dargestellt, so dass nun, ohne das Fenster zu wechseln, Details zum Projekt angezeigt werden können.
+- Erledigte Aufgaben und solche, die doch nicht mehr heute erledigt werden sollen, werden zunächst ausgeblendet, können aber bei Bedarf eingeblendet werden.
 
 ## In Arbeit
 
-- Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt
-
 ## Geplant
+
+- Tagesplanung aufräumen, die ist sehr unübersichtlich.
+- Prüfen, warum Aufgaben, die in der Tagesansicht als abgeschlossen markiert werden, nicht wirklich abgeschlossen scheinen.
 
 ### Account Details
 
 - Bei Accounts sollten auch Projekte auftauchen, bei denen der Account als Partner engagiert ist; das gleiche gilt auch für die Notizen.
 - Ich möchte eine Möglichkeit haben, um zu dokumentieren, was ein Kunde mit einem Partner macht und mir dazu auch schnell eine Übersicht/Matrix erstellen können.
+- Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt
 
 ### Kontaktdetails
 
+- Geschenkideen dokumentieren
 - Ich möchte Kontaktdetails in die Zwischenablage kopieren können.
 - Ich möchte einfach nur ein Kontaktdetail in das Formular kopieren und das Formular entscheidet automatisch anhand des Inhalts und anhand des Kontexts, um welche Information es sich wahrscheinlich handelt. Wenn die Information eindeutig ist, wird der Inhalt direkt gespeichert und das Formular direkt geschlossen.
 - Weitere persönliche Jahrestage abbilden (Tauftag, Taufentscheidung etc.).
 - Bei Personen sollen unter Notizen nicht nur die Meetings auftauchen, an denen sie partizipiert haben, sondern auch wenn sie erwähnt wurden.
-- Geschenkideen dokumentieren
+- Kontaktdetails als Adressbuch ins iPhone einbinden.
 
 ### Lektüre
 
@@ -38,16 +40,24 @@
 
 - Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.
 - Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.
-
-### Besprechungen
-
-- Teilnehmer und Notizen in Zwischenablage kopieren, um schneller ins Quip oder Slack zu kopieren oder eine Email zu verfassen.
-- Es wäre klasse, kommende Meetings in dem CRM zu vermerken.
+- Die Inobx ist nicht wirklich toll und schnell. Das muss vom Ablauf her besser werden.
 
 ### Projekte
 
+- Bei in Notizen erwähnten Personen direkt das Schreiben einer Email oder das Anrufen (auf dem Smartphone) anbieten.
+- Das Datum des letzten Uploads von CRM Daten anzeigen.
+- Die Uploads für CRM Projekte sollen ähnlich wie bei den Finanzdaten eine Historie ermöglichen.
 - Eine "Lean-Ansicht" wäre toll, zum Beispiel, wenn ich Notizen zu einem Projekt sehen möchte, dann scrolle ich einfach durch die Notizen ohne erst Akkordions aufklappen zu müssen.
 - Wenn ich eine Aufgabe abgeschlossen haben, möchte ich sehr häufig eine Notiz erfassen und eine Folgeaufgabe. Das ist im Moment recht kompliziert, weil ich erst ins Projekt, dann dort die Notizen aufklappen, eine neue Aktivität erzeugen und schließlich dort wieder die Notizen aufklappen, bevor ich etwas notieren kann. Besser wäre ein Button: "Done and take note" oder so.
+
+### Finanzdaten
+
+- Das Datum des letzten Uploads anzeigen.
+- Darstellen, was sich seit dem letzten Upload geändert hat.
+- Auch Finanzdaten darstellen ohne Payer Account ID, um eine längere Historie zu ermöglichen (z.B. mit einem Payer Account `000000000000`).
+- TTM anzeigen.
+- Mit LLM oder einfach auf Formular-Basis erstellte Revenue Statements zur Verfügung stellen.
+- Umsätze der Unternehmen anzeigen (Jahresumsatz etc.).
 
 ### Künstliche Intelligenz
 
@@ -58,11 +68,6 @@
 - Ich möchte über alle Objekte in der App suchen können: Meetings, Projekte, Personen, Kunden, Notizen. Ich möchte, dass die Suchergebnisse relevant sind.
 
 ## Fehler
-
-### Notizen
-
-- Mir scheint, dass Links in Notizen nicht sauber gespeichert werden.
-- Notizen zeigen hier und da immer noch den Status, dass sie nicht im Einklang mit der Datenbank sind.
 
 ### Navigation
 
