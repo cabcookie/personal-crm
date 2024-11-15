@@ -1,7 +1,7 @@
-import MakeProjectDecision from "@/components/planning/MakeProjectDecision";
 import { usePlanningProjectFilter } from "@/components/planning/usePlanningProjectFilter";
 import { Accordion } from "@/components/ui/accordion";
-import { useWeekPlanContext } from "./useWeekPlanContext";
+import MakeProjectDecision from "../project/MakeProjectDecision";
+import { useWeekPlanContext } from "../useWeekPlanContext";
 
 const PlanWeekContextNotWork = () => {
   const { weekPlan } = useWeekPlanContext();

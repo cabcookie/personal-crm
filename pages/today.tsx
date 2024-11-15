@@ -1,7 +1,7 @@
 import useDailyPlans, { DailyPlan } from "@/api/useDailyPlans";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
-import DailyPlanComponent from "@/components/planning/DailyPlan";
+import DailyPlanComponent from "@/components/planning/day/DailyPlan";
 import { Context, useContextContext } from "@/contexts/ContextContext";
 import { filter, flow, map, size } from "lodash/fp";
 import { Loader2 } from "lucide-react";

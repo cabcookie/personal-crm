@@ -1,10 +1,10 @@
 import { getTodoContent } from "@/helpers/todos";
 import { JSONContent } from "@tiptap/core";
 import { FC, ReactNode } from "react";
-import SimpleReadOnly from "../ui-elements/editors/simple-visualizer/SimpleReadOnly";
-import { Checkbox } from "../ui/checkbox";
-import PutOnListButton from "./PutOnListButton";
-import RemoveFromListButton from "./RemoveFromListButton";
+import SimpleReadOnly from "../../ui-elements/editors/simple-visualizer/SimpleReadOnly";
+import { Checkbox } from "../../ui/checkbox";
+import PutOnListButton from "../PutOnListButton";
+import RemoveFromListButton from "../RemoveFromListButton";
 
 type FinishTodoProps = {
   finishTodoOnDailyPlan: () => void;

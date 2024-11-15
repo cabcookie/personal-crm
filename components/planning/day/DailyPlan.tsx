@@ -4,8 +4,8 @@ import { useTodosProjects } from "@/helpers/useTodosProjects";
 import { format } from "date-fns";
 import { map, size } from "lodash/fp";
 import { FC } from "react";
-import { Accordion } from "../ui/accordion";
-import { Checkbox } from "../ui/checkbox";
+import { Accordion } from "../../ui/accordion";
+import { Checkbox } from "../../ui/checkbox";
 import DailyPlanProject from "./DailyPlanProject";
 
 type DailyPlanComponentProps = {

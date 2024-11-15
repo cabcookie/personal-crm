@@ -6,9 +6,9 @@ import {
   getPostponedTodos,
 } from "@/helpers/dailyplans";
 import { FC, useState } from "react";
-import ProjectAccordionItem from "../projects/ProjectAccordionItem";
+import ProjectAccordionItem from "../../projects/ProjectAccordionItem";
+import ShowHideDonePostponedBtn from "../todos/ShowHideDonePostponedBtn";
 import DailyPlanProjectTodos from "./DailyPlanProjectTodos";
-import ShowHideDonePostponedBtn from "./ShowHideDonePostponedBtn";
 
 type DailyPlanProjectProps = {
   project: Project;

@@ -1,8 +1,8 @@
+import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { JSONContent } from "@tiptap/core";
 import { FC } from "react";
-import { getTextFromJsonContent } from "../ui-elements/editors/helpers/text-generation";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 
 type PostPonedTodoProps = {
   done: boolean;

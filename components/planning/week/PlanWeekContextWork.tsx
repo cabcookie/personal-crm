@@ -1,13 +1,13 @@
 import { make2YearsRevenueText } from "@/helpers/projects";
 import { Loader2 } from "lucide-react";
-import ApiLoadingError from "../layouts/ApiLoadingError";
-import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { Accordion } from "../ui/accordion";
-import MakeProjectDecision from "./MakeProjectDecision";
+import ApiLoadingError from "../../layouts/ApiLoadingError";
+import DefaultAccordionItem from "../../ui-elements/accordion/DefaultAccordionItem";
+import { Accordion } from "../../ui/accordion";
+import MakeProjectDecision from "../project/MakeProjectDecision";
 import {
   usePlanAccountProjects,
   withPlanAccountProjects,
-} from "./usePlanAccountProjects";
+} from "../usePlanAccountProjects";
 
 const PlanWeekContextWork = () => {
   const { accountsProjects, loadingAccounts, errorAccounts, saveProjectDates } =

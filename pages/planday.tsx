@@ -4,12 +4,13 @@ import useDailyPlans, { DailyPlanTodo } from "@/api/useDailyPlans";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
-import DailyPlanForm from "@/components/planning/DailyPlanForm";
-import ReviewProjectForDailyPlanning from "@/components/planning/ReviewProjectForDailyPlanning";
-import TodoForDecision from "@/components/planning/TodoForDecision";
-import TodoProjectInfos from "@/components/planning/TodoProjectInfos";
+import DailyPlanForm from "@/components/planning/day/DailyPlanForm";
+import ReviewProjectForDailyPlanning from "@/components/planning/day/ReviewProjectForDailyPlanning";
+import TodoForDecision from "@/components/planning/todos/TodoForDecision";
+import TodoProjectInfos from "@/components/planning/todos/TodoProjectInfos";
 import { useContextContext } from "@/contexts/ContextContext";
 import { filterAndSortProjectsForDailyPlanning } from "@/helpers/planning";
+import { cn } from "@/lib/utils";
 import { flow } from "lodash/fp";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -65,11 +66,11 @@ const DailyPlanningPage = () => {
           />
         )}
 
-        <div className="space-y-2">
+        <div className={cn("space-y-2", !!dailyPlan && "hidden")}>
           <ContextSwitcher />
         </div>
 
-        {dailyPlan?.todos && dailyPlan.todos.length > 0 && (
+        {!!dailyPlan?.todos.length && (
           <div className="space-y-2">
             <h3 className="flex-1 text-xl md:text-2xl font-bold leading-6 tracking-tight uppercase">
               Todos on the list
@@ -94,8 +95,8 @@ const DailyPlanningPage = () => {
             "Set a date and a goal for your daily tasks list."
           ) : (
             <div className="">
-              Review each project and its tasks and decide which tasks you would
-              like to focus on today.
+              Review each project and decide which projects you would like to
+              focus on today.
             </div>
           )}
         </div>

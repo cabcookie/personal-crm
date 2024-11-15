@@ -1,5 +1,5 @@
-import { usePlanningProjectFilter } from "./usePlanningProjectFilter";
-import { useWeekPlanContext } from "./useWeekPlanContext";
+import { usePlanningProjectFilter } from "../usePlanningProjectFilter";
+import { useWeekPlanContext } from "../useWeekPlanContext";
 
 const PlanWeekStatistics = () => {
   const { weekPlan } = useWeekPlanContext();

@@ -4,11 +4,11 @@ import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
 import { addDays } from "date-fns";
 import { filter, flow } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
-import DecisionButton from "./DecisionButton";
-import ProjectBadges from "./ProjectBadges";
-import ProjectInformation from "./ProjectInformation";
-import ProjectTitleAndLink from "./ProjectTitleAndLink";
-import TodoForDecision from "./TodoForDecision";
+import DecisionButton from "../DecisionButton";
+import ProjectBadges from "../project/ProjectBadges";
+import ProjectInformation from "../project/ProjectInformation";
+import ProjectTitleAndLink from "../project/ProjectTitleAndLink";
+import TodoForDecision from "../todos/TodoForDecision";
 
 type ReviewProjectForDailyPlanningProps = {
   dailyPlan: DailyPlan;

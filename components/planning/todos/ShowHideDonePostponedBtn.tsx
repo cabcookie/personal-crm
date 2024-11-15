@@ -1,7 +1,7 @@
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronDownCircle, ChevronUpCircle } from "lucide-react";
 import { FC } from "react";
-import { Button } from "../ui/button";
 
 type ShowHideDonePostponedBtnProps = {
   showDonePostponed: boolean;

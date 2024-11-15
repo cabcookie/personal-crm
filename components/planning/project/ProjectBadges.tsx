@@ -1,10 +1,10 @@
 import { Project } from "@/api/ContextProjects";
 import useCurrentUser from "@/api/useUser";
+import ActivityFormatBadge from "@/components/activities/activity-format-badge";
+import HygieneIssueBadge from "@/components/crm/hygiene-issue-badge";
+import { hasHygieneIssues } from "@/components/crm/pipeline-hygiene";
+import TaskBadge from "@/components/task/TaskBadge";
 import { FC } from "react";
-import ActivityFormatBadge from "../activities/activity-format-badge";
-import HygieneIssueBadge from "../crm/hygiene-issue-badge";
-import { hasHygieneIssues } from "../crm/pipeline-hygiene";
-import TaskBadge from "../task/TaskBadge";
 
 type ProjectBadgesProps = {
   crmProjects: Project["crmProjects"];

@@ -1,9 +1,9 @@
 import useDailyPlans, { DailyPlanTodo } from "@/api/useDailyPlans";
 import { flow, identity, map } from "lodash/fp";
 import { FC } from "react";
-import { Button } from "../ui/button";
-import PostPonedTodo from "./PostPonedTodo";
-import TodoForDecision from "./TodoForDecision";
+import { Button } from "../../ui/button";
+import PostPonedTodo from "../todos/PostPonedTodo";
+import TodoForDecision from "../todos/TodoForDecision";
 
 type DailyPlanProjectTodosProps = {
   todos: DailyPlanTodo[];

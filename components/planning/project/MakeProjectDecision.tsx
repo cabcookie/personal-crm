@@ -1,7 +1,7 @@
 import { Project } from "@/api/ContextProjects";
+import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
 import { FC } from "react";
-import ProjectAccordionItem from "../projects/ProjectAccordionItem";
-import DecisionSection from "./DecisionSection";
+import DecisionSection from "../DecisionSection";
 
 type MakeProjectDecisionProps = {
   project: Project;

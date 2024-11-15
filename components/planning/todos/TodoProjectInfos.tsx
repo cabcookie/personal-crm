@@ -1,8 +1,8 @@
 import { useProjectsContext } from "@/api/ContextProjects";
 import { filter, flow, map } from "lodash/fp";
 import { FC } from "react";
-import ProjectInformation from "./ProjectInformation";
-import ProjectTitleAndLink from "./ProjectTitleAndLink";
+import ProjectInformation from "../project/ProjectInformation";
+import ProjectTitleAndLink from "../project/ProjectTitleAndLink";
 
 type TodoProjectInfosProps = {
   projectIds: string[];
