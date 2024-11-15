@@ -144,6 +144,7 @@ const projectSchema = {
       activities: a.hasMany("ProjectActivity", "projectsId"),
       crmProjects: a.hasMany("CrmProjectProjects", "projectId"),
       weekPlans: a.hasMany("WeeklyPlanProject", "projectId"),
+      dayPlans: a.hasMany("DailyPlanProject", "projectId"),
       partnerId: a.id(),
       partner: a.belongsTo("Account", "partnerId"),
     })
