@@ -57,6 +57,7 @@ const planningSchema = {
       dailyPlan: a.belongsTo("DailyPlan", "dailyPlanId"),
       projectId: a.id().required(),
       project: a.belongsTo("Projects", "projectId"),
+      maybe: a.boolean(),
     })
     .authorization((allow) => [allow.owner()]),
   DailyPlanTodo: a
