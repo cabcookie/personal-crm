@@ -1,13 +1,8 @@
 import { Project } from "@/api/ContextProjects";
 import { DailyPlan, DailyPlanTodo } from "@/api/useDailyPlans";
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
-import { addDays } from "date-fns";
 import { filter, flow } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
-import DecisionButton from "../DecisionButton";
-import ProjectBadges from "../project/ProjectBadges";
-import ProjectInformation from "../project/ProjectInformation";
-import ProjectTitleAndLink from "../project/ProjectTitleAndLink";
 import TodoForDecision from "../todos/TodoForDecision";
 
 type ReviewProjectForDailyPlanningProps = {
@@ -36,41 +31,20 @@ const filterTodos = (
 const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
   dailyPlan,
   project,
-  updateOnHoldDate,
   putTodoOnDailyPlan,
-  className,
 }) => {
   const { projectTodos } = useProjectTodos(project.id);
   const [filteredTodos, setFilteredTodos] = useState<
     ProjectTodo[] | undefined
   >();
-  const [pushingProject, setPushingProject] = useState(false);
 
   useEffect(() => {
     filterTodos(projectTodos, dailyPlan, setFilteredTodos);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectTodos, dailyPlan.todos]);
 
-  const pushProject = () => {
-    setPushingProject(true);
-    updateOnHoldDate(addDays(dailyPlan.day, 1));
-  };
-
   return (
     <div className="space-y-2 mb-8">
-      <ProjectTitleAndLink
-        projectId={project.id}
-        projectName={project.project}
-        className={className}
-      />
-
-      <ProjectBadges
-        {...project}
-        hasOpenTodos={projectTodos && projectTodos.length > 0}
-      />
-
-      <ProjectInformation project={project} />
-
       <div className="space-y-1 pb-4">
         {filteredTodos?.map((t) => (
           <TodoForDecision
@@ -91,13 +65,6 @@ const ReviewProjectForDailyPlanning: FC<ReviewProjectForDailyPlanningProps> = ({
           />
         ))}
       </div>
-
-      <DecisionButton
-        label="Push project to next day"
-        selected={false}
-        isLoading={pushingProject}
-        makeDecision={pushProject}
-      />
     </div>
   );
 };

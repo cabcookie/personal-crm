@@ -400,8 +400,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         done === undefined
           ? undefined
           : doneOn
-          ? toISODateString(doneOn)
-          : null,
+            ? toISODateString(doneOn)
+            : null,
       onHoldTill: onHoldTill ? toISODateString(onHoldTill) : undefined,
     };
     const { data, errors } = await client.models.Projects.update(newProject);

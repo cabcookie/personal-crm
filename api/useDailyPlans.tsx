@@ -31,6 +31,7 @@ export type DailyPlan = {
   context: Context;
   status: DailyPlanStatus;
   todos: DailyPlanTodo[];
+  projects: { recordId: string; projectId: string }[];
 };
 
 const selectionSet = [
@@ -39,6 +40,8 @@ const selectionSet = [
   "dayGoal",
   "context",
   "status",
+  "projects.id",
+  "projects.projectId",
   "todos.id",
   "todos.postPoned",
   "todos.todo.id",
@@ -61,6 +64,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   context,
   status,
   todos,
+  projects,
 }) => ({
   id,
   day: new Date(day),
@@ -68,6 +72,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   context: context || "work",
   status,
   todos: getTodos(todos),
+  projects: projects.map(({ id, projectId }) => ({ recordId: id, projectId })),
 });
 
 const fetchDailyPlans =
@@ -128,6 +133,31 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data?.id;
   };
 
+  const addProjectToDayPlan = async (dayPlanId: string, projectId: string) => {
+    const updated = dailyPlans?.map((p) =>
+      p.id !== dayPlanId
+        ? p
+        : {
+            ...p,
+            projects: [
+              ...p.projects,
+              {
+                recordId: crypto.randomUUID(),
+                projectId,
+              },
+            ],
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanProject.create({
+      dailyPlanId: dayPlanId,
+      projectId,
+    });
+    if (errors) handleApiErrors(errors, "Adding project to daily plan failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const createDailyPlan = async (
     day: Date,
     dayGoal: string,
@@ -142,6 +172,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
         status: "PLANNING",
         context,
         todos: [],
+        projects: [],
       },
       ...(dailyPlans ?? []),
     ];
@@ -284,6 +315,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     removeTodoFromDailyPlan,
     updateTodoStatus,
     postponeTodo,
+    addProjectToDayPlan,
   };
 };
 

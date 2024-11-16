@@ -1,13 +1,15 @@
-# Tagesliste aufräumen (Version :VERSION)
-
-- Projekte werden als Akkordion dargestellt, so dass nun, ohne das Fenster zu wechseln, Details zum Projekt angezeigt werden können.
-- Erledigte Aufgaben und solche, die doch nicht mehr heute erledigt werden sollen, werden zunächst ausgeblendet, können aber bei Bedarf eingeblendet werden.
+# Tagesplanung aufräumen (Version :VERSION)
 
 ## In Arbeit
 
+- In der Tagesplanung werden nun ausschließlich die Projekte ausgesucht, an denen gearbeitet werden soll.
+- In den Projekten können einzelne Aufgaben auf "Nicht für Heute" gesetzt werden.
+- Für Projekte, für die eine Entscheidung getroffen werden muss, werden die möglichen Aufgaben angezeigt und ein Akkordion für das Projekt, so dass schnell Details zum Projekt gezeigt werden können.
+- Für Projekte, die für den Tag eingeplant sind, wird nur der Projektname angezeigt.
+
 ## Geplant
 
-- Tagesplanung aufräumen, die ist sehr unübersichtlich.
+- Checkliste für Tagesplanung anzeigen.
 - Prüfen, warum Aufgaben, die in der Tagesansicht als abgeschlossen markiert werden, nicht wirklich abgeschlossen scheinen.
 
 ### Account Details
