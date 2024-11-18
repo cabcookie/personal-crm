@@ -17,7 +17,6 @@ const DailyPlanningPage = () => {
     isLoading,
     createDailyPlan,
     confirmDailyPlanning,
-    addProjectToDayPlan,
   } = useDailyPlans("PLANNING");
   const { context } = useContextContext();
   const [dailyPlan, setDailyPlan] = useState(
@@ -59,17 +58,8 @@ const DailyPlanningPage = () => {
 
         {!!dailyPlan && (
           <>
+            <DayPlanningProjectsForDecision dailyPlan={dailyPlan} />
             <DayPlanningProjectsOnList dayPlan={dailyPlan} />
-            <NextAction
-              action="Review each project and decide which projects you would like to
-              focus on today."
-            />
-            <DayPlanningProjectsForDecision
-              addProjectToDayPlan={(projectId) =>
-                addProjectToDayPlan(dailyPlan.id, projectId)
-              }
-              day={day}
-            />
           </>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { Account } from "@/api/ContextAccounts";
 import { Project } from "@/api/ContextProjects";
+import { DailyPlan } from "@/api/useDailyPlans";
 import { WeeklyPlan } from "@/api/useWeekPlan";
 import { calcOrder } from "@/helpers/accounts";
 import { calcRevenueTwoYears, updateProjectOrder } from "@/helpers/projects";
@@ -9,12 +10,15 @@ import {
   filter,
   flatMap,
   flow,
+  get,
   identity,
   map,
   size,
+  some,
   sortBy,
   sum,
 } from "lodash/fp";
+import { Dispatch, SetStateAction } from "react";
 
 export type AccountProjects = Account & { projects: Project[] };
 
@@ -35,12 +39,12 @@ export const filterAndSortProjectsForWeeklyPlanning = (
           (!p.onHoldTill ||
             differenceInCalendarDays(p.onHoldTill, startDate) < 7)
         : projectFilter === "On Hold"
-        ? !weekPlan?.projectIds.includes(p.id) &&
-          !!p.onHoldTill &&
-          differenceInCalendarDays(p.onHoldTill, startDate) >= 7
-        : !!weekPlan?.projectIds.includes(p.id) &&
-          (!p.onHoldTill ||
-            differenceInCalendarDays(p.onHoldTill, startDate) < 7)
+          ? !weekPlan?.projectIds.includes(p.id) &&
+            !!p.onHoldTill &&
+            differenceInCalendarDays(p.onHoldTill, startDate) >= 7
+          : !!weekPlan?.projectIds.includes(p.id) &&
+            (!p.onHoldTill ||
+              differenceInCalendarDays(p.onHoldTill, startDate) < 7)
     ),
     map(updateProjectOrder(accounts)),
     sortBy((p) => -p.order)
@@ -69,23 +73,58 @@ export const setProjectsFilterCount = (
 
 export const filterAndSortProjectsForDailyPlanning = (
   accounts: Account[] | undefined,
-  planDate: Date
+  dailyPlan: DailyPlan,
+  onDailyPlan: boolean = false
 ) =>
   flow(
     filter(
       (p: Project) =>
         !p.done &&
-        (!p.onHoldTill || differenceInCalendarDays(p.onHoldTill, planDate) <= 0)
+        (!p.onHoldTill ||
+          differenceInCalendarDays(p.onHoldTill, dailyPlan.day) <= 0) &&
+        ((!dailyPlan.projects.some(({ projectId }) => p.id === projectId) &&
+          !onDailyPlan) ||
+          (dailyPlan.projects.some(({ projectId }) => p.id === projectId) &&
+            onDailyPlan))
     ),
     map(updateProjectOrder(accounts)),
     sortBy((p) => -p.order)
   );
+
+export const setProjectOnDayPlanCount = (
+  dayPlan: DailyPlan,
+  onList: boolean,
+  projects: Project[],
+  maybe: boolean,
+  setProjectCount: Dispatch<SetStateAction<number>>
+) =>
+  flow(
+    identity<Project[]>,
+    filter((p) => (!onList ? !maybe : isOnDayplan(dayPlan, p, maybe))),
+    size,
+    setProjectCount
+  )(projects);
 
 export const mapAccountProjects =
   (projects: Project[] | undefined) => (account: Account) => ({
     ...account,
     projects: projects?.filter((p) => p.accountIds.includes(account.id)) ?? [],
   });
+
+export const isOnDayplan = (
+  dayPlan: DailyPlan,
+  project: Project,
+  maybe?: boolean
+) =>
+  flow(
+    identity<DailyPlan>,
+    get("projects"),
+    some(
+      (dp) =>
+        dp.projectId === project.id &&
+        (maybe === undefined || dp.maybe === maybe)
+    )
+  )(dayPlan);
 
 const calcPipeline: (projects: Project[]) => number = flow(
   identity<Project[]>,

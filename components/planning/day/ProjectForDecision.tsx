@@ -1,26 +1,56 @@
-import { Project } from "@/api/ContextProjects";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
+import useDailyPlans, { DailyPlan } from "@/api/useDailyPlans";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
-import { FC, useState } from "react";
+import { isOnDayplan } from "@/helpers/planning";
+import { addDays } from "date-fns";
+import { find, flow, get, identity } from "lodash/fp";
+import { Loader2 } from "lucide-react";
+import { FC, useEffect, useState } from "react";
 import DecisionButton from "../DecisionButton";
 
 type ProjectForDecisionProps = {
+  dayPlan: DailyPlan;
   project: Project;
-  pushProjectToNextDay: () => void;
 };
 
 const ProjectForDecision: FC<ProjectForDecisionProps> = ({
   project,
-  pushProjectToNextDay,
+  dayPlan,
 }) => {
-  const [pushingProject, setPushingProject] = useState(false);
+  const { addProjectToDayPlan, removeProjectFromDayPlan } =
+    useDailyPlans("PLANNING");
+  const { saveProjectDates } = useProjectsContext();
+  const [savingDecision, setSavingDecision] = useState(false);
+  const [maybe, setMaybe] = useState<boolean | undefined>();
 
-  const pushProject = () => {
-    setPushingProject(true);
-    pushProjectToNextDay();
+  useEffect(() => {
+    flow(
+      identity<DailyPlan | undefined>,
+      get("projects"),
+      find(["projectId", project.id]),
+      get("maybe"),
+      setMaybe
+    )(dayPlan);
+  }, []);
+
+  const pushProject = async () => {
+    setSavingDecision(true);
+    if (isOnDayplan(dayPlan, project)) {
+      await removeProjectFromDayPlan(dayPlan.id, project.id);
+    }
+    await saveProjectDates({
+      projectId: project.id,
+      onHoldTill: addDays(dayPlan.day, 1),
+    });
+  };
+
+  const addProject = (maybe: boolean) => async () => {
+    setSavingDecision(true);
+    addProjectToDayPlan(dayPlan.id, project.id, maybe);
   };
 
   return (
-    <div className="space-y-2 mb-8">
+    <div className="space-y-2">
       <div className="sticky top-[8.75rem] md:top-[10.5rem] z-30 bg-bgTransparent">
         <ProjectAccordionItem allowPushToNextDay project={project} showNotes />
       </div>
@@ -31,22 +61,25 @@ const ProjectForDecision: FC<ProjectForDecisionProps> = ({
       <div className="flex flex-row gap-2">
         <DecisionButton
           label="Yes"
-          selected={false}
-          isLoading={pushingProject}
-          makeDecision={pushProject}
+          selected={maybe === false}
+          disabled={savingDecision}
+          makeDecision={addProject(false)}
         />
         <DecisionButton
           label="No"
           selected={false}
-          isLoading={pushingProject}
+          disabled={savingDecision}
           makeDecision={pushProject}
         />
         <DecisionButton
           label="Maybe"
-          selected={false}
-          isLoading={pushingProject}
-          makeDecision={pushProject}
+          selected={maybe === true}
+          disabled={savingDecision}
+          makeDecision={addProject(true)}
         />
+        {savingDecision && (
+          <Loader2 className="mt-2 w-5 h-5 animate-spin text-muted-foreground" />
+        )}
       </div>
     </div>
   );

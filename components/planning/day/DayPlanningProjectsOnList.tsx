@@ -1,37 +1,40 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { DailyPlan } from "@/api/useDailyPlans";
-import { FC } from "react";
+import { filterAndSortProjectsForDailyPlanning } from "@/helpers/planning";
+import { format } from "date-fns";
+import { flow } from "lodash/fp";
+import { FC, useEffect, useState } from "react";
+import DayPlanningProjectsState from "./DayPlanningProjectsState";
 
 type DayPlanningProjectsOnListProps = {
-  dayPlan?: DailyPlan;
+  dayPlan: DailyPlan;
 };
 
 const DayPlanningProjectsOnList: FC<DayPlanningProjectsOnListProps> = ({
   dayPlan,
 }) => {
-  return <div>DayPlanningProjectsOnList</div>;
+  const { projects } = useProjectsContext();
+  const { accounts } = useAccountsContext();
+  const [filteredAndSortedProjects, setFilteredAndSortedProjects] = useState<
+    Project[]
+  >([]);
+
+  useEffect(() => {
+    flow(
+      filterAndSortProjectsForDailyPlanning(accounts, dayPlan, true),
+      setFilteredAndSortedProjects
+    )(projects);
+  }, [accounts, projects, dayPlan]);
+
+  return (
+    <DayPlanningProjectsState
+      projects={filteredAndSortedProjects}
+      dayPlan={dayPlan}
+      onList={true}
+      nextAction={`Projects on your list for ${format(dayPlan.day, "PP")}`}
+    />
+  );
 };
 
 export default DayPlanningProjectsOnList;
-
-/**
- * 
-        {!!dailyPlan?.todos.length && (
-          <div className="space-y-2">
-            <h3 className="flex-1 text-xl md:text-2xl font-bold leading-6 tracking-tight uppercase">
-              Todos on the list
-            </h3>
-            {dailyPlan.todos.map((t) => (
-              <TodoForDecision
-                key={t.recordId}
-                content={t.todo.content}
-                removeTodoFromDailyPlan={() =>
-                  removeTodoFromDailyPlan(t.recordId)
-                }
-                activityId={t.activityId}
-              >
-                <TodoProjectInfos projectIds={t.projectIds} />
-              </TodoForDecision>
-            ))}
-          </div>
-        )}
- */
