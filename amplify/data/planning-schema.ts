@@ -72,6 +72,7 @@ const planningSchema = {
       todo: a.belongsTo("Todo", "todoId"),
       postPoned: a.boolean(),
     })
+    .secondaryIndexes((index) => [index("todoId")])
     .authorization((allow) => [allow.owner()]),
 };
 
