@@ -27,12 +27,6 @@ const DailyPlanProjectTodos: FC<DailyPlanProjectTodosProps> = ({
         finishTodo={
           !finishTodo ? undefined : (done) => finishTodo(todo.todoId, done)
         }
-        postponeTodo={
-          !postponeTodo ? undefined : () => postponeTodo(todo.todoId)
-        }
-        activateTodo={
-          !activateTodo ? undefined : () => activateTodo(todo.todoId)
-        }
       >
         {status === "OPEN" && postponeTodo && (
           <PostponeBtn

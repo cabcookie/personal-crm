@@ -128,7 +128,7 @@ export const setChartConfigFromChartData = (
     setChartConfig
   )(chartData);
 
-export const getSelectedLabel = (chartConfig: ChartConfig, label: string) =>
+const getSelectedLabel = (chartConfig: ChartConfig, label: string) =>
   flow(
     identity<ChartConfig>,
     get(label),

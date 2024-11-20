@@ -7,16 +7,12 @@ import { FC, ReactNode } from "react";
 type DailyPlanProjectTodoProps = {
   todo: ProjectTodo;
   finishTodo?: (done: boolean) => void;
-  postponeTodo?: () => void;
-  activateTodo?: () => void;
   children?: ReactNode;
 };
 
 const DailyPlanProjectTodo: FC<DailyPlanProjectTodoProps> = ({
   todo,
   finishTodo,
-  postponeTodo,
-  activateTodo,
   children,
 }) => {
   return (

@@ -16,7 +16,6 @@ import {
   flow,
   identity,
   map,
-  some,
   sortBy,
   sum,
   takeRight,
@@ -143,23 +142,6 @@ export const setTotalRevenueFromRevenueMonth = (
     setTotalRevenue
   )(revenueLastMonths);
 
-export const setIsResellerForPayer = (
-  payer: string,
-  mrr: Mrr[] | undefined,
-  noOfMonths: number,
-  setIsReseller: Dispatch<SetStateAction<boolean>>
-) =>
-  !mrr
-    ? null
-    : flow(
-        identity<Mrr[]>,
-        getUniqMonths,
-        sortBy(parseMonthToInt),
-        takeRight(noOfMonths),
-        some(payerIsReseller(payer, mrr)),
-        setIsReseller
-      )(mrr);
-
 export const setResellerByPayer = (
   payer: Payer | undefined,
   accounts: Account[] | undefined,
@@ -171,14 +153,6 @@ export const setResellerByPayer = (
     find(["id", payer.resellerId]),
     setReseller
   )(accounts);
-
-const payerIsReseller = (payer: string, mrr: Mrr[]) => (month: string) =>
-  flow(
-    identity<Mrr[]>,
-    filter(byPayerAccount(payer)),
-    filter(byMonth(month)),
-    some((item) => item.isReseller)
-  )(mrr);
 
 const getLastMonthMrrByPayer =
   (mrr: Mrr[], payer: string) =>
