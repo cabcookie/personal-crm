@@ -1,8 +1,8 @@
 import { ProjectTodo } from "@/api/useProjectTodos";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { FC } from "react";
+import PostPonedTodo from "../todos/PostPonedTodo";
 import DailyPlanProjectTodo from "./DailyPlanProjectTodo";
+import PostponeBtn from "./PostponeBtn";
 
 type DailyPlanProjectTodosProps = {
   todos: ProjectTodo[] | undefined;
@@ -35,18 +35,19 @@ const DailyPlanProjectTodos: FC<DailyPlanProjectTodosProps> = ({
         }
       >
         {status === "OPEN" && postponeTodo && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => postponeTodo(todo.todoId)}
-          >
-            Not today
-          </Button>
+          <PostponeBtn
+            label="Not today"
+            postponeTodo={postponeTodo}
+            todoId={todo.todoId}
+          />
         )}
-        {todo.doneOn && format(todo.doneOn, "PPp")}
       </DailyPlanProjectTodo>
     ) : (
-      "POSTPONED TODO"
+      <PostPonedTodo
+        key={todo.todoId}
+        todo={todo}
+        postponeTodo={activateTodo}
+      />
     )
   );
 };

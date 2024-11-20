@@ -157,7 +157,10 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data?.id;
   };
 
-  const getRecordId = async (dayPlanId: string, projectId: string) => {
+  const getDayplanProjectRecordId = async (
+    dayPlanId: string,
+    projectId: string
+  ) => {
     const { data, errors } =
       await client.models.DailyPlanProject.listDailyPlanProjectByProjectId(
         { projectId },
@@ -165,13 +168,12 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
           filter: {
             dailyPlanId: { eq: dayPlanId },
           },
-          limit: 1,
           selectionSet: ["id"],
         }
       );
     if (errors) handleApiErrors(errors, "Getting record id failed");
-    if (!data) throw new Error("Getting record id returned no data");
-    return data[0].id;
+    if (!data) return;
+    return data[0]?.id;
   };
 
   const removeProjectFromDayPlan = async (
@@ -187,7 +189,11 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
           }
     );
     if (updated) mutate(updated, false);
-    const recordId = await getRecordId(dayPlanId, projectId);
+    const recordId = await getDayplanProjectRecordId(dayPlanId, projectId);
+    if (!recordId) {
+      if (updated) mutate(updated);
+      return;
+    }
     const { data, errors } = await client.models.DailyPlanProject.delete({
       id: recordId,
     });
@@ -293,9 +299,8 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
       context,
     });
     if (errors) handleApiErrors(errors, "Creating daily plan failed");
-    if (!data) throw new Error("Creating daily plan returned no data");
     mutate(updated);
-    return data.id;
+    return data?.id;
   };
 
   const confirmDailyPlanning = async (dailyPlanId: string) => {
@@ -349,14 +354,13 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
           filter: {
             dailyPlanId: { eq: dailyPlanId },
           },
-          limit: 1,
           selectionSet: ["id"],
         }
       );
     if (errors)
       handleApiErrors(errors, "Getting daily plan todo record id failed");
     if (!data) return;
-    return data[0].id;
+    return data[0]?.id;
   };
 
   const createPostponedTodo = async (

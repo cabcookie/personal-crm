@@ -1,42 +1,34 @@
+import { ProjectTodo } from "@/api/useProjectTodos";
 import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { JSONContent } from "@tiptap/core";
 import { FC } from "react";
+import PostponeBtn from "../day/PostponeBtn";
 
 type PostPonedTodoProps = {
-  done: boolean;
-  content?: JSONContent[] | undefined;
-  postponeTodo: () => void;
+  todo: ProjectTodo;
+  postponeTodo?: (todoId: string) => void;
 };
 
-const PostPonedTodo: FC<PostPonedTodoProps> = ({
-  done,
-  content,
-  postponeTodo,
-}) => (
+const PostPonedTodo: FC<PostPonedTodoProps> = ({ todo, postponeTodo }) => (
   <>
     <div className="flex flex-row gap-1 items-start mt-4">
       <div className="w-6 min-w-6">
         <Checkbox
-          checked={done}
+          checked={todo.done}
           onCheckedChange={() => {}}
           className="border-gray-300"
         />
       </div>
       <div className="flex-1">
         <div className="line-through">
-          {getTextFromJsonContent({ type: "doc", content })}
+          {getTextFromJsonContent({ type: "doc", content: todo.todo.content })}
         </div>
-        {!done && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => postponeTodo()}
-            className="mt-2"
-          >
-            Handle today
-          </Button>
+        {!todo.done && postponeTodo && (
+          <PostponeBtn
+            label="Handle today"
+            postponeTodo={postponeTodo}
+            todoId={todo.todoId}
+          />
         )}
       </div>
     </div>
