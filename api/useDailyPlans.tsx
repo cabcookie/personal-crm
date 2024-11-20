@@ -2,13 +2,14 @@ import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
 import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
-import { Context } from "@/contexts/ContextContext";
+import { Context, useContextContext } from "@/contexts/ContextContext";
 import { getTodos } from "@/helpers/dailyplans";
-import { toISODateString } from "@/helpers/functional";
+import { newDateString, toISODateString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
 import { map } from "lodash";
+import { find, flow, get, identity } from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -24,6 +25,12 @@ export type DailyPlanTodo = {
   activityId: string;
 };
 
+export type DailyPlanProject = {
+  recordId: string;
+  projectId: string;
+  maybe: boolean;
+};
+
 export type DailyPlan = {
   id: string;
   day: Date;
@@ -31,6 +38,7 @@ export type DailyPlan = {
   context: Context;
   status: DailyPlanStatus;
   todos: DailyPlanTodo[];
+  projects: DailyPlanProject[];
 };
 
 const selectionSet = [
@@ -39,6 +47,9 @@ const selectionSet = [
   "dayGoal",
   "context",
   "status",
+  "projects.id",
+  "projects.projectId",
+  "projects.maybe",
   "todos.id",
   "todos.postPoned",
   "todos.todo.id",
@@ -61,6 +72,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   context,
   status,
   todos,
+  projects,
 }) => ({
   id,
   day: new Date(day),
@@ -68,14 +80,27 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   context: context || "work",
   status,
   todos: getTodos(todos),
+  projects: projects.map(({ id, projectId, maybe }) => ({
+    recordId: id,
+    projectId,
+    maybe: !!maybe,
+  })),
 });
 
 const fetchDailyPlans =
-  (status: DailyPlanStatus | undefined = "OPEN") =>
+  (
+    status: DailyPlanStatus | undefined = "OPEN",
+    context: Context | undefined
+  ) =>
   async (): Promise<DailyPlan[] | undefined> => {
+    if (!context) return undefined;
     const { data, errors } = await client.models.DailyPlan.listByStatus(
       { status },
-      { sortDirection: "DESC", selectionSet }
+      {
+        filter: { context: { eq: context } },
+        sortDirection: "DESC",
+        selectionSet,
+      }
     );
     if (errors) throw errors;
     if (!data) throw new Error("No daily tasks list fetched");
@@ -88,12 +113,16 @@ const fetchDailyPlans =
   };
 
 const useDailyPlans = (status?: DailyPlanStatus) => {
+  const { context } = useContextContext();
   const {
     data: dailyPlans,
     error,
     isLoading,
     mutate,
-  } = useSWR(`/api/dailyplans/${status}`, fetchDailyPlans(status));
+  } = useSWR(
+    `/api/dailyplans/${status}/${context}`,
+    fetchDailyPlans(status, context)
+  );
   const { toast } = useToast();
 
   const addTodoToDailyPlan = async (
@@ -128,6 +157,122 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data?.id;
   };
 
+  const getDayplanProjectRecordId = async (
+    dayPlanId: string,
+    projectId: string
+  ) => {
+    const { data, errors } =
+      await client.models.DailyPlanProject.listDailyPlanProjectByProjectId(
+        { projectId },
+        {
+          filter: {
+            dailyPlanId: { eq: dayPlanId },
+          },
+          selectionSet: ["id"],
+        }
+      );
+    if (errors) handleApiErrors(errors, "Getting record id failed");
+    if (!data) return;
+    return data[0]?.id;
+  };
+
+  const removeProjectFromDayPlan = async (
+    dayPlanId: string,
+    projectId: string
+  ) => {
+    const updated = dailyPlans?.map((p) =>
+      p.id !== dayPlanId
+        ? p
+        : {
+            ...p,
+            projects: p.projects.filter((t) => t.projectId !== projectId),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const recordId = await getDayplanProjectRecordId(dayPlanId, projectId);
+    if (!recordId) {
+      if (updated) mutate(updated);
+      return;
+    }
+    const { data, errors } = await client.models.DailyPlanProject.delete({
+      id: recordId,
+    });
+    if (errors)
+      handleApiErrors(errors, "Removing project from daily plan failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  const updateMaybeOfProjectOnDayPlan = async (
+    dayPlanId: string,
+    recordId: string,
+    maybe: boolean
+  ) => {
+    const updated = dailyPlans?.map((dp) =>
+      dp.id !== dayPlanId
+        ? dp
+        : {
+            ...dp,
+            projects: dp.projects.map((p) =>
+              p.recordId !== recordId ? p : { ...p, maybe }
+            ),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanProject.update({
+      id: recordId,
+      maybe,
+    });
+    if (errors)
+      handleApiErrors(errors, "Updating maybe of project on daily plan failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  const addProjectToDayPlan = async (
+    dayPlanId: string,
+    projectId: string,
+    maybe: boolean = false
+  ) => {
+    const dayPlanProject = flow(
+      identity<DailyPlan[] | undefined>,
+      find(["id", dayPlanId]),
+      (test) => test,
+      get("projects"),
+      find(["projectId", projectId])
+    )(dailyPlans) as DailyPlanProject | undefined;
+    if (dayPlanProject)
+      return updateMaybeOfProjectOnDayPlan(
+        dayPlanId,
+        dayPlanProject.recordId,
+        maybe
+      );
+    const updated = dailyPlans?.map((p) =>
+      p.id !== dayPlanId
+        ? p
+        : {
+            ...p,
+            projects: [
+              ...p.projects,
+              {
+                recordId: crypto.randomUUID(),
+                projectId,
+                maybe,
+              },
+            ],
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanProject.create({
+      dailyPlanId: dayPlanId,
+      projectId,
+      maybe,
+    });
+    if (errors) handleApiErrors(errors, "Adding project to daily plan failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
   const createDailyPlan = async (
     day: Date,
     dayGoal: string,
@@ -142,6 +287,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
         status: "PLANNING",
         context,
         todos: [],
+        projects: [],
       },
       ...(dailyPlans ?? []),
     ];
@@ -153,9 +299,8 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
       context,
     });
     if (errors) handleApiErrors(errors, "Creating daily plan failed");
-    if (!data) throw new Error("Creating daily plan returned no data");
     mutate(updated);
-    return data.id;
+    return data?.id;
   };
 
   const confirmDailyPlanning = async (dailyPlanId: string) => {
@@ -190,6 +335,7 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     const { data, errors } = await client.models.Todo.update({
       id: todoId,
       status: newIsDone ? "DONE" : "OPEN",
+      doneOn: newIsDone ? newDateString() : null,
     });
     if (errors) handleApiErrors(errors, "Updating todo status failed");
     if (updated) mutate(updated);
@@ -197,13 +343,81 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
-  const postponeTodo = async (recordId: string, newPostponedState: boolean) => {
-    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) => ({
-      ...p,
-      todos: p.todos.map((t) =>
-        t.recordId !== recordId ? t : { ...t, postPoned: newPostponedState }
-      ),
-    }));
+  const getDailyPlanTodoRecordId = async (
+    dailyPlanId: string,
+    todoId: string
+  ) => {
+    const { data, errors } =
+      await client.models.DailyPlanTodo.listDailyPlanTodoByTodoId(
+        { todoId },
+        {
+          filter: {
+            dailyPlanId: { eq: dailyPlanId },
+          },
+          selectionSet: ["id"],
+        }
+      );
+    if (errors)
+      handleApiErrors(errors, "Getting daily plan todo record id failed");
+    if (!data) return;
+    return data[0]?.id;
+  };
+
+  const createPostponedTodo = async (
+    dailyPlanId: string,
+    todoId: string,
+    newPostponedState: boolean
+  ) => {
+    const updated = dailyPlans?.map((p) =>
+      p.id !== dailyPlanId
+        ? p
+        : {
+            ...p,
+            todos: p.todos.map((t) =>
+              t.todoId !== todoId
+                ? t
+                : {
+                    ...t,
+                    postPoned: newPostponedState,
+                  }
+            ),
+          }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.DailyPlanTodo.create({
+      dailyPlanId,
+      todoId,
+      postPoned: newPostponedState,
+    });
+    if (errors) handleApiErrors(errors, "Creating postponed todo failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  const postponeTodo = async (
+    dailyPlanId: string,
+    todoId: string,
+    newPostponedState: boolean
+  ) => {
+    const recordId = await getDailyPlanTodoRecordId(dailyPlanId, todoId);
+    if (!recordId)
+      return await createPostponedTodo(dailyPlanId, todoId, newPostponedState);
+
+    const updated = dailyPlans?.map((p) =>
+      p.id !== dailyPlanId
+        ? p
+        : {
+            ...p,
+            todos: p.todos.map((t) =>
+              t.todoId !== todoId
+                ? t
+                : {
+                    ...t,
+                    postPoned: newPostponedState,
+                  }
+            ),
+          }
+    );
     if (updated) mutate(updated, false);
     const { data, errors } = await client.models.DailyPlanTodo.update({
       id: recordId,
@@ -284,6 +498,8 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     removeTodoFromDailyPlan,
     updateTodoStatus,
     postponeTodo,
+    addProjectToDayPlan,
+    removeProjectFromDayPlan,
   };
 };
 

@@ -1,14 +1,15 @@
-# Tagesliste aufräumen (Version :VERSION)
+# Tagesplanung aufräumen (Version :VERSION)
 
-- Projekte werden als Akkordion dargestellt, so dass nun, ohne das Fenster zu wechseln, Details zum Projekt angezeigt werden können.
-- Erledigte Aufgaben und solche, die doch nicht mehr heute erledigt werden sollen, werden zunächst ausgeblendet, können aber bei Bedarf eingeblendet werden.
+- In der Tagesplanung werden nun ausschließlich die Projekte ausgesucht, an denen gearbeitet werden soll.
+- Für Projekte, für die eine Entscheidung getroffen werden muss, werden die möglichen Aufgaben angezeigt und ein Akkordion für das Projekt, so dass schnell Details zum Projekt gezeigt werden können.
+- Für Projekte, die für den Tag eingeplant sind, wird nur der Projektname angezeigt.
+- Die Todoliste für den Tag zeigt nun die Projekte an, die für den Tag priorisiert wurden.
+- Projekte, die mit den Hinweis "Vielleicht" auf den Tagesplan gesetzt wurden, sind zunächst versteckt und können mit einem Klick zusätzlich angezeigt werden.
+- Auf dem Tagesplan können in den Projekten einzelne Aufgaben auf "Nicht für Heute" gesetzt werden oder wieder zurück auf den Tagesplan geführt werden.
 
 ## In Arbeit
 
 ## Geplant
-
-- Tagesplanung aufräumen, die ist sehr unübersichtlich.
-- Prüfen, warum Aufgaben, die in der Tagesansicht als abgeschlossen markiert werden, nicht wirklich abgeschlossen scheinen.
 
 ### Account Details
 
@@ -31,7 +32,6 @@
 
 ### Wochen-/Tagesplanung
 
-- Ich möchte Todos auch nachträglich der Tagesliste hinzufügen können.
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
 - Eine Checkliste einführen für das wöchentliche oder tägliche Planen.

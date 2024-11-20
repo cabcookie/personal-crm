@@ -1,7 +1,7 @@
 import ButtonGroup from "@/components/ui-elements/btn-group/btn-group";
 import { Label } from "@/components/ui/label";
 import { projectFilters, ProjectFilters } from "@/helpers/planning";
-import { usePlanningProjectFilter } from "./usePlanningProjectFilter";
+import { usePlanningProjectFilter } from "../usePlanningProjectFilter";
 
 const PlanWeekFilter = () => {
   const { projectFilter, setProjectFilter } = usePlanningProjectFilter();

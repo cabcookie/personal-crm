@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { isNotNil } from "@/helpers/functional";
+import { isNotNil, newDateString } from "@/helpers/functional";
 import {
   getTodoDoneOn,
   getTodoId,
@@ -21,6 +21,7 @@ import {
   sortBy,
 } from "lodash/fp";
 import useSWR from "swr";
+import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
 export type Todo = {
@@ -135,8 +136,25 @@ const useProjectTodos = (projectId: string | undefined) => {
     data: projectTodos,
     isLoading,
     error,
+    mutate,
   } = useSWR(`/project-todos/${projectId}`, fetchProjectTodos(projectId));
-  return { projectTodos, isLoading, error };
+
+  const finishTodo = async (todoId: string, done: boolean) => {
+    const updated = projectTodos?.map((t) =>
+      t.todoId !== todoId ? t : { ...t, done }
+    );
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.Todo.update({
+      id: todoId,
+      status: done ? "DONE" : "OPEN",
+      doneOn: done ? newDateString() : null,
+    });
+    if (errors) handleApiErrors(errors, "Updating todo's done state failed");
+    if (updated) mutate(updated);
+    return data?.id;
+  };
+
+  return { projectTodos, isLoading, error, finishTodo };
 };
 
 export default useProjectTodos;

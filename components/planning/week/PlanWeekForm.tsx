@@ -2,7 +2,7 @@ import DateSelector from "@/components/ui-elements/selectors/date-selector";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CalendarCheck, Loader2, Play } from "lucide-react";
-import { useWeekPlanContext } from "./useWeekPlanContext";
+import { useWeekPlanContext } from "../useWeekPlanContext";
 
 const PlanWeekForm = () => {
   const {

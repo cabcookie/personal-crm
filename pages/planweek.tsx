@@ -1,16 +1,16 @@
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
-import PlanWeekContextNotWork from "@/components/planning/PlanWeekContextNotWork";
-import PlanWeekContextWork from "@/components/planning/PlanWeekContextWork";
-import PlanWeekFilter from "@/components/planning/PlanWeekFilter";
-import PlanWeekForm from "@/components/planning/PlanWeekForm";
-import PlanWeekStatistics from "@/components/planning/PlanWeekStatistics";
 import { PlanningProjectFilterProvider } from "@/components/planning/usePlanningProjectFilter";
 import {
   useWeekPlanContext,
   withWeekPlan,
 } from "@/components/planning/useWeekPlanContext";
+import PlanWeekContextNotWork from "@/components/planning/week/PlanWeekContextNotWork";
+import PlanWeekContextWork from "@/components/planning/week/PlanWeekContextWork";
+import PlanWeekFilter from "@/components/planning/week/PlanWeekFilter";
+import PlanWeekForm from "@/components/planning/week/PlanWeekForm";
+import PlanWeekStatistics from "@/components/planning/week/PlanWeekStatistics";
 import { useContextContext } from "@/contexts/ContextContext";
 
 const WeeklyPlanningPage = () => {
