@@ -24,7 +24,7 @@ const ProjectForDecision: FC<ProjectForDecisionProps> = ({
 
   useEffect(() => {
     setProjectMaybe(dayPlan, project, setMaybe);
-  }, []);
+  }, [dayPlan, project]);
 
   const pushProject = async () => {
     setSavingDecision(true);
