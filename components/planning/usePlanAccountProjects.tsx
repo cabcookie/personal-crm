@@ -1,10 +1,12 @@
-import { useAccountsContext } from "@/api/ContextAccounts";
+import { Account, useAccountsContext } from "@/api/ContextAccounts";
+import { useProjectsContext } from "@/api/ContextProjects";
 import {
   AccountProjects,
+  addEmptyAccount,
   mapAccountOrder,
   mapAccountProjects,
 } from "@/helpers/planning";
-import { filter, flow, map, sortBy } from "lodash/fp";
+import { filter, flow, identity, map, sortBy } from "lodash/fp";
 import {
   ComponentType,
   createContext,
@@ -47,19 +49,22 @@ const PlanAccountProjectsProvider: FC<PlanAccountProjectsProviderProps> = ({
 }) => {
   const { accounts, loadingAccounts, errorAccounts } = useAccountsContext();
   const { projects, saveProjectDates } = usePlanningProjectFilter();
+  const { projects: allProjects } = useProjectsContext();
   const [accountsProjects, setAccountsProjects] = useState<AccountProjects[]>(
     []
   );
 
   useEffect(() => {
     flow(
+      identity<Account[] | undefined>,
+      addEmptyAccount,
       map(mapAccountProjects(projects)),
       filter(({ projects }) => projects.length > 0),
-      map(mapAccountOrder),
+      map(mapAccountOrder(allProjects)),
       sortBy((a) => -a.order),
       setAccountsProjects
     )(accounts);
-  }, [accounts, projects]);
+  }, [accounts, projects, allProjects]);
 
   return (
     <PlanAccountProjects.Provider

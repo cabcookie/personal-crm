@@ -5,7 +5,6 @@ import {
   ProjectFilters,
   setProjectsFilterCount,
 } from "@/helpers/planning";
-import { flow } from "lodash/fp";
 import { createContext, FC, useContext, useEffect, useState } from "react";
 import { useWeekPlanContext } from "./useWeekPlanContext";
 
@@ -48,34 +47,27 @@ export const PlanningProjectFilterProvider: FC<
   const { accounts } = useAccountsContext();
   const { weekPlan, startDate } = useWeekPlanContext();
   const [projectFilter, setProjectFilter] = useState<ProjectFilters>("Open");
-  const [filteredAndSortedProjects, setFilteredAndSortedProjects] = useState(
-    filterAndSortProjectsForWeeklyPlanning(
-      accounts,
-      startDate,
-      weekPlan,
-      projectFilter
-    )(projects)
-  );
+  const [filteredAndSortedProjects, setFilteredAndSortedProjects] = useState<
+    Project[]
+  >([]);
   const [openProjectsCount, setOpenProjectsCount] = useState(0);
   const [focusProjectsCount, setFocusProjectsCount] = useState(0);
   const [onholdProjectsCount, setOnholdProjectsCount] = useState(0);
 
   useEffect(() => {
-    flow(
-      filterAndSortProjectsForWeeklyPlanning(
-        accounts,
-        startDate,
-        weekPlan,
-        projectFilter
-      ),
+    filterAndSortProjectsForWeeklyPlanning(
+      projects,
+      accounts,
+      startDate,
+      weekPlan,
+      projectFilter,
       setFilteredAndSortedProjects
-    )(projects);
+    );
   }, [accounts, projectFilter, projects, startDate, weekPlan]);
 
   useEffect(() => {
     setProjectsFilterCount(
       projects,
-      accounts,
       startDate,
       weekPlan,
       setOpenProjectsCount,

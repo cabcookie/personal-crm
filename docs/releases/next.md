@@ -1,11 +1,7 @@
-# Tagesplanung aufräumen (Version :VERSION)
+# Sortierung der Kunden in Wochenplanung korrigieren (Version :VERSION)
 
-- In der Tagesplanung werden nun ausschließlich die Projekte ausgesucht, an denen gearbeitet werden soll.
-- Für Projekte, für die eine Entscheidung getroffen werden muss, werden die möglichen Aufgaben angezeigt und ein Akkordion für das Projekt, so dass schnell Details zum Projekt gezeigt werden können.
-- Für Projekte, die für den Tag eingeplant sind, wird nur der Projektname angezeigt.
-- Die Todoliste für den Tag zeigt nun die Projekte an, die für den Tag priorisiert wurden.
-- Projekte, die mit den Hinweis "Vielleicht" auf den Tagesplan gesetzt wurden, sind zunächst versteckt und können mit einem Klick zusätzlich angezeigt werden.
-- Auf dem Tagesplan können in den Projekten einzelne Aufgaben auf "Nicht für Heute" gesetzt werden oder wieder zurück auf den Tagesplan geführt werden.
+- In der Wochenplanung wird nun immer die gesamte Pipeline der Kunden für die Sortierung herangezogen und nicht nur die Pipeline für der Projekte, die gerade nicht auf On Hold gesetzt wurden.
+- Projekte, die keinem Kunden zugeordnet sind, werden nun auch in der Planung angezeigt.
 
 ## In Arbeit
 

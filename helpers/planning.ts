@@ -3,13 +3,11 @@ import { Project } from "@/api/ContextProjects";
 import { DailyPlan } from "@/api/useDailyPlans";
 import { WeeklyPlan } from "@/api/useWeekPlan";
 import { calcOrder } from "@/helpers/accounts";
-import { calcRevenueTwoYears, updateProjectOrder } from "@/helpers/projects";
+import { updateProjectOrder } from "@/helpers/projects";
 import { differenceInCalendarDays } from "date-fns";
 import {
-  compact,
   filter,
   find,
-  flatMap,
   flow,
   get,
   identity,
@@ -26,11 +24,24 @@ export type AccountProjects = Account & { projects: Project[] };
 export const projectFilters = ["Open", "In Focus", "On Hold"] as const;
 export type ProjectFilters = (typeof projectFilters)[number];
 
+const getProjectsPipeline = (
+  accountId: string,
+  projects: Project[] | undefined
+) =>
+  flow(
+    identity<Project[] | undefined>,
+    filter((p) => !p.done && p.accountIds.includes(accountId)),
+    map("pipeline"),
+    sum
+  )(projects);
+
 export const filterAndSortProjectsForWeeklyPlanning = (
+  projects: Project[] | undefined,
   accounts: Account[] | undefined,
   startDate: Date,
   weekPlan: WeeklyPlan | undefined,
-  projectFilter: ProjectFilters
+  projectFilter: ProjectFilters,
+  setProjectList: (projects: Project[]) => void
 ) =>
   flow(
     filter((p: Project) => !p.done),
@@ -48,28 +59,64 @@ export const filterAndSortProjectsForWeeklyPlanning = (
               differenceInCalendarDays(p.onHoldTill, startDate) < 7)
     ),
     map(updateProjectOrder(accounts)),
-    sortBy((p) => -p.order)
-  );
+    sortBy((p) => -p.order),
+    setProjectList
+  )(projects);
+
+export const addEmptyAccount = (
+  accounts: Account[] | undefined
+): Account[] | undefined =>
+  !accounts
+    ? undefined
+    : [
+        ...accounts,
+        {
+          id: "NONE",
+          name: "No Account",
+          introduction: {},
+          latestQuota: 0,
+          pipeline: 0,
+          order: 0,
+          territoryIds: [],
+          createdAt: new Date(),
+          payerAccounts: [],
+        },
+      ];
 
 export const setProjectsFilterCount = (
   projects: Project[] | undefined,
-  accounts: Account[] | undefined,
   startDate: Date,
   weekPlan: WeeklyPlan | undefined,
   setOpenCount: (count: number) => void,
   setFocusCount: (count: number) => void,
   setOnholdCount: (count: number) => void
 ) => {
-  const simplifiedFilterFn = (projectFilter: ProjectFilters) =>
-    filterAndSortProjectsForWeeklyPlanning(
-      accounts,
-      startDate,
-      weekPlan,
-      projectFilter
-    );
-  flow(simplifiedFilterFn("Open"), size, setOpenCount)(projects);
-  flow(simplifiedFilterFn("On Hold"), size, setOnholdCount)(projects);
-  flow(simplifiedFilterFn("In Focus"), size, setFocusCount)(projects);
+  const simplifiedFilterFn = (
+    projectFilter: ProjectFilters,
+    setCount: (count: number) => void
+  ) =>
+    flow(
+      identity<Project[] | undefined>,
+      filter((p) => !p.done),
+      filter((p): boolean =>
+        projectFilter === "Open"
+          ? !weekPlan?.projectIds.includes(p.id) &&
+            (!p.onHoldTill ||
+              differenceInCalendarDays(p.onHoldTill, startDate) < 7)
+          : projectFilter === "On Hold"
+            ? !weekPlan?.projectIds.includes(p.id) &&
+              !!p.onHoldTill &&
+              differenceInCalendarDays(p.onHoldTill, startDate) >= 7
+            : !!weekPlan?.projectIds.includes(p.id) &&
+              (!p.onHoldTill ||
+                differenceInCalendarDays(p.onHoldTill, startDate) < 7)
+      ),
+      size,
+      setCount
+    )(projects);
+  simplifiedFilterFn("Open", setOpenCount);
+  simplifiedFilterFn("On Hold", setOnholdCount);
+  simplifiedFilterFn("In Focus", setFocusCount);
 };
 
 export const filterAndSortProjectsForDailyPlanning = (
@@ -112,7 +159,12 @@ export const setProjectOnDayPlanCount = (
 export const mapAccountProjects =
   (projects: Project[] | undefined) => (account: Account) => ({
     ...account,
-    projects: projects?.filter((p) => p.accountIds.includes(account.id)) ?? [],
+    projects:
+      projects?.filter((p) =>
+        account.id === "NONE"
+          ? p.accountIds.length === 0
+          : p.accountIds.includes(account.id)
+      ) ?? [],
   });
 
 export const isOnDayplan = (
@@ -143,24 +195,19 @@ export const setProjectMaybe = (
     setMaybe
   )(dayPlan);
 
-const calcPipeline: (projects: Project[]) => number = flow(
-  identity<Project[]>,
-  flatMap("crmProjects"),
-  compact,
-  map(calcRevenueTwoYears),
-  sum,
-  (val: number | undefined) => val ?? 0,
-  Math.floor
-);
+const reCalculateOrder = (
+  latestQuota: number,
+  accountId: string,
+  projects: Project[] | undefined
+) => calcOrder(latestQuota, getProjectsPipeline(accountId, projects));
 
-const reCalculateOrder = ({ latestQuota, projects }: AccountProjects) =>
-  calcOrder(latestQuota, calcPipeline(projects));
-
-export const mapAccountOrder = (account: AccountProjects): AccountProjects => ({
-  ...account,
-  order: reCalculateOrder(account),
-  pipeline: calcPipeline(account.projects),
-});
+export const mapAccountOrder =
+  (projects: Project[] | undefined) =>
+  (account: AccountProjects): AccountProjects => ({
+    ...account,
+    order: reCalculateOrder(account.latestQuota, account.id, projects),
+    pipeline: getProjectsPipeline(account.id, projects),
+  });
 
 export const isSelectedForWeek = (weekPlan: WeeklyPlan, project: Project) =>
   weekPlan.projectIds.some((id) => id === project.id);
