@@ -29,7 +29,7 @@ const ShowProjectTodos: FC<ShowProjectTodosProps> = ({ projectId }) => {
 
   return (
     <div>
-      {openTodos?.length && <TodoEditor todos={openTodos} />}
+      {!!openTodos?.length && <TodoEditor todos={openTodos} />}
 
       <ShowHideSwitch
         value={showClosed}
