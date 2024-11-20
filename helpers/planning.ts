@@ -8,6 +8,7 @@ import { differenceInCalendarDays } from "date-fns";
 import {
   compact,
   filter,
+  find,
   flatMap,
   flow,
   get,
@@ -72,9 +73,11 @@ export const setProjectsFilterCount = (
 };
 
 export const filterAndSortProjectsForDailyPlanning = (
+  projects: Project[] | undefined,
   accounts: Account[] | undefined,
   dailyPlan: DailyPlan,
-  onDailyPlan: boolean = false
+  onDailyPlan: boolean,
+  setList: Dispatch<SetStateAction<Project[] | undefined>>
 ) =>
   flow(
     filter(
@@ -88,8 +91,9 @@ export const filterAndSortProjectsForDailyPlanning = (
             onDailyPlan))
     ),
     map(updateProjectOrder(accounts)),
-    sortBy((p) => -p.order)
-  );
+    sortBy((p) => -p.order),
+    setList
+  )(projects);
 
 export const setProjectOnDayPlanCount = (
   dayPlan: DailyPlan,
@@ -124,6 +128,19 @@ export const isOnDayplan = (
         dp.projectId === project.id &&
         (maybe === undefined || dp.maybe === maybe)
     )
+  )(dayPlan);
+
+export const setProjectMaybe = (
+  dayPlan: DailyPlan | undefined,
+  project: Project,
+  setMaybe: Dispatch<SetStateAction<boolean | undefined>>
+) =>
+  flow(
+    identity<DailyPlan | undefined>,
+    get("projects"),
+    find(["projectId", project.id]),
+    get("maybe"),
+    setMaybe
   )(dayPlan);
 
 const calcPipeline: (projects: Project[]) => number = flow(

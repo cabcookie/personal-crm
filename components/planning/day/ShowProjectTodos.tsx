@@ -1,5 +1,6 @@
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
 import TodoEditor from "@/components/ui-elements/editors/todo-editor/TodoEditor";
+import ShowHideSwitch from "@/components/ui-elements/ShowHideSwitch";
 import { filter, flow, identity } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
 
@@ -29,12 +30,14 @@ const ShowProjectTodos: FC<ShowProjectTodosProps> = ({ projectId }) => {
   return (
     <div>
       {openTodos?.length && <TodoEditor todos={openTodos} />}
-      <div
-        className="ml-1 md:ml-2 text-muted-foreground hover:text-blue-400 cursor-pointer"
-        onClick={() => setShowClosed((val) => !val)}
-      >
-        {!showClosed ? "Show" : "Hide"} closed todos…
-      </div>
+
+      <ShowHideSwitch
+        value={showClosed}
+        onChange={setShowClosed}
+        switchLabel="closed todos"
+        className="ml-1 md:ml-2"
+      />
+
       {showClosed && closedTodos?.length && <TodoEditor todos={closedTodos} />}
     </div>
   );
