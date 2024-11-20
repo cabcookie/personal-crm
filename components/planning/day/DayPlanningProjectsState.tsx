@@ -9,9 +9,9 @@ import ProjectForDecision from "./ProjectForDecision";
 import ShowProjectTodos from "./ShowProjectTodos";
 
 type DayPlanningProjectsStateProps = {
-  dayPlan: DailyPlan;
-  onList: boolean;
-  projects: Project[];
+  dayPlan: DailyPlan | undefined;
+  projects: Project[] | undefined;
+  onList?: boolean;
   nextAction?: string;
 };
 
@@ -25,53 +25,64 @@ const DayPlanningProjectsState: FC<DayPlanningProjectsStateProps> = ({
   const [projectMaybeCount, setProjectMaybeCount] = useState(0);
 
   useEffect(() => {
-    setProjectOnDayPlanCount(dayPlan, onList, projects, false, setProjectCount);
+    if (!dayPlan) return;
+    if (!projects) return;
     setProjectOnDayPlanCount(
       dayPlan,
-      onList,
+      !!onList,
+      projects,
+      false,
+      setProjectCount
+    );
+    setProjectOnDayPlanCount(
+      dayPlan,
+      !!onList,
       projects,
       true,
       setProjectMaybeCount
     );
-  }, [projects]);
+  }, [dayPlan, onList, projects]);
 
   return (
-    <>
-      {nextAction && projects.length > 0 && (
-        <NextAction
-          action={`${nextAction}: ${projectCount}${projectMaybeCount === 0 ? "" : ` (listed as maybes: ${projectMaybeCount})`}`}
-        />
-      )}
+    !!dayPlan &&
+    !!projects && (
+      <>
+        {nextAction && projects.length > 0 && (
+          <NextAction
+            action={`${nextAction}: ${projectCount}${projectMaybeCount === 0 ? "" : ` (listed as maybes: ${projectMaybeCount})`}`}
+          />
+        )}
 
-      <Accordion type="single" collapsible className="space-y-8">
-        {flow(
-          identity<Project[]>,
-          filter((p) => !onList || isOnDayplan(dayPlan, p, false)),
-          map((project) => (
-            <div key={project.id}>
-              <ProjectForDecision project={project} dayPlan={dayPlan} />
-              {!onList && (
-                <div className="ml-1 md:ml-2 mt-2">
-                  <ShowProjectTodos projectId={project.id} />
-                </div>
-              )}
-            </div>
-          ))
-        )(projects)}
+        <Accordion type="single" collapsible className="space-y-8">
+          {flow(
+            identity<Project[]>,
+            filter((p) => !onList || isOnDayplan(dayPlan, p, false)),
+            map((project) => (
+              <div key={project.id}>
+                <ProjectForDecision project={project} dayPlan={dayPlan} />
+                {!onList && (
+                  <div className="ml-1 md:ml-2 mt-2">
+                    <ShowProjectTodos projectId={project.id} />
+                  </div>
+                )}
+              </div>
+            ))
+          )(projects)}
 
-        {flow(
-          identity<Project[]>,
-          filter((p) => !!dayPlan && isOnDayplan(dayPlan, p, true)),
-          map((project) => (
-            <ProjectForDecision
-              key={project.id}
-              project={project}
-              dayPlan={dayPlan}
-            />
-          ))
-        )(projects)}
-      </Accordion>
-    </>
+          {flow(
+            identity<Project[]>,
+            filter((p) => !!dayPlan && isOnDayplan(dayPlan, p, true)),
+            map((project) => (
+              <ProjectForDecision
+                key={project.id}
+                project={project}
+                dayPlan={dayPlan}
+              />
+            ))
+          )(projects)}
+        </Accordion>
+      </>
+    )
   );
 };
 

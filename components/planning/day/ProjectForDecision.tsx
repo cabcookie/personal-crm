@@ -1,9 +1,8 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import useDailyPlans, { DailyPlan } from "@/api/useDailyPlans";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
-import { isOnDayplan } from "@/helpers/planning";
+import { isOnDayplan, setProjectMaybe } from "@/helpers/planning";
 import { addDays } from "date-fns";
-import { find, flow, get, identity } from "lodash/fp";
 import { Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import DecisionButton from "../DecisionButton";
@@ -24,13 +23,7 @@ const ProjectForDecision: FC<ProjectForDecisionProps> = ({
   const [maybe, setMaybe] = useState<boolean | undefined>();
 
   useEffect(() => {
-    flow(
-      identity<DailyPlan | undefined>,
-      get("projects"),
-      find(["projectId", project.id]),
-      get("maybe"),
-      setMaybe
-    )(dayPlan);
+    setProjectMaybe(dayPlan, project, setMaybe);
   }, []);
 
   const pushProject = async () => {

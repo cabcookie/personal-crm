@@ -1,54 +1,54 @@
-import useDailyPlans, { DailyPlanTodo } from "@/api/useDailyPlans";
-import { flow, identity, map } from "lodash/fp";
+import { ProjectTodo } from "@/api/useProjectTodos";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import { FC } from "react";
-import { Button } from "../../ui/button";
-import PostPonedTodo from "../todos/PostPonedTodo";
-import TodoForDecision from "../todos/TodoForDecision";
+import DailyPlanProjectTodo from "./DailyPlanProjectTodo";
 
 type DailyPlanProjectTodosProps = {
-  todos: DailyPlanTodo[];
+  todos: ProjectTodo[] | undefined;
+  finishTodo?: (todoId: string, done: boolean) => void;
+  postponeTodo?: (todoId: string) => void;
+  activateTodo?: (todoId: string) => void;
   status: "OPEN" | "DONE" | "POSTPONED";
 };
 
 const DailyPlanProjectTodos: FC<DailyPlanProjectTodosProps> = ({
   status,
   todos,
+  finishTodo,
+  postponeTodo,
+  activateTodo,
 }) => {
-  const { updateTodoStatus, postponeTodo } = useDailyPlans("OPEN");
-
-  return flow(
-    identity<DailyPlanTodo[]>,
-    map((todo) =>
-      status === "OPEN" || status === "DONE" ? (
-        <TodoForDecision
-          key={todo.recordId}
-          activityId={todo.activityId}
-          content={todo.todo.content}
-          todoStatus={todo.done}
-          finishTodoOnDailyPlan={() =>
-            updateTodoStatus(todo.todoId, status === "OPEN")
-          }
-        >
-          {status === "OPEN" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => postponeTodo(todo.recordId, true)}
-            >
-              Not today
-            </Button>
-          )}
-        </TodoForDecision>
-      ) : (
-        <PostPonedTodo
-          key={todo.recordId}
-          done={todo.done}
-          content={todo.todo.content}
-          postponeTodo={() => postponeTodo(todo.recordId, false)}
-        />
-      )
+  return todos?.map((todo) =>
+    status === "OPEN" || status === "DONE" ? (
+      <DailyPlanProjectTodo
+        key={todo.todoId}
+        todo={todo}
+        finishTodo={
+          !finishTodo ? undefined : (done) => finishTodo(todo.todoId, done)
+        }
+        postponeTodo={
+          !postponeTodo ? undefined : () => postponeTodo(todo.todoId)
+        }
+        activateTodo={
+          !activateTodo ? undefined : () => activateTodo(todo.todoId)
+        }
+      >
+        {status === "OPEN" && postponeTodo && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => postponeTodo(todo.todoId)}
+          >
+            Not today
+          </Button>
+        )}
+        {todo.doneOn && format(todo.doneOn, "PPp")}
+      </DailyPlanProjectTodo>
+    ) : (
+      "POSTPONED TODO"
     )
-  )(todos);
+  );
 };
 
 export default DailyPlanProjectTodos;
