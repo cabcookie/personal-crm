@@ -59,6 +59,7 @@ const planningSchema = {
       project: a.belongsTo("Projects", "projectId"),
       maybe: a.boolean(),
     })
+    .secondaryIndexes((index) => [index("projectId")])
     .authorization((allow) => [allow.owner()]),
   DailyPlanTodo: a
     .model({
@@ -71,6 +72,7 @@ const planningSchema = {
       todo: a.belongsTo("Todo", "todoId"),
       postPoned: a.boolean(),
     })
+    .secondaryIndexes((index) => [index("todoId")])
     .authorization((allow) => [allow.owner()]),
 };
 
