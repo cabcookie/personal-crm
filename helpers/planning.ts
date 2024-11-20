@@ -20,12 +20,11 @@ import {
 import { Dispatch, SetStateAction } from "react";
 
 export type AccountProjects = Account & { projects: Project[] };
-export type AccountPipeline = Account & { pipeline: number };
 
 export const projectFilters = ["Open", "In Focus", "On Hold"] as const;
 export type ProjectFilters = (typeof projectFilters)[number];
 
-export const getProjectsPipeline = (
+const getProjectsPipeline = (
   accountId: string,
   projects: Project[] | undefined
 ) =>
