@@ -6,7 +6,7 @@ import { size } from "lodash/fp";
 import { Loader2 } from "lucide-react";
 
 const TodayPage = () => {
-  const { dailyPlans, error, isLoading } = useDailyPlans("PLANNING");
+  const { dailyPlans, error, isLoading } = useDailyPlans("OPEN");
 
   return (
     <MainLayout title="Today's Tasks" sectionName="Today's Tasks">
