@@ -25,7 +25,11 @@ interface ActivityData {
 
 export const getTodoId = <T extends TodoData>(todo: T) => get("id")(todo);
 
-export const getTodoJson = flow(identity<TodoData>, get("todo"), JSON.parse);
+export const getTodoJson = (todo: TodoData) =>
+  flow(identity<TodoData>, get("todo"), JSON.parse, (content) => ({
+    ...content,
+    attrs: { ...content.attrs, checked: todo.status === "DONE" },
+  }))(todo);
 
 export const getTodoStatus = <T extends TodoData>(todo: T) =>
   get("status")(todo) === "DONE";
