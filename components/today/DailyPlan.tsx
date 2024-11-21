@@ -1,3 +1,5 @@
+import { useAccountsContext } from "@/api/ContextAccounts";
+import { useProjectsContext } from "@/api/ContextProjects";
 import { DailyPlan, DailyPlanProject } from "@/api/useDailyPlans";
 import { setProjectList } from "@/helpers/today";
 import { FC, useEffect, useState } from "react";
@@ -11,6 +13,8 @@ type DailyPlanComponentProps = {
 };
 
 const DailyPlanComponent: FC<DailyPlanComponentProps> = ({ dailyPlan }) => {
+  const { projects } = useProjectsContext();
+  const { accounts } = useAccountsContext();
   const [projectsOnList, setProjectsOnList] = useState<
     DailyPlanProject[] | undefined
   >();
@@ -20,9 +24,9 @@ const DailyPlanComponent: FC<DailyPlanComponentProps> = ({ dailyPlan }) => {
   const [showMaybe, setShowMaybe] = useState(false);
 
   useEffect(() => {
-    setProjectList(dailyPlan, false, setProjectsOnList);
-    setProjectList(dailyPlan, true, setProjectsMaybe);
-  }, [dailyPlan]);
+    setProjectList(dailyPlan, false, accounts, projects, setProjectsOnList);
+    setProjectList(dailyPlan, true, accounts, projects, setProjectsMaybe);
+  }, [dailyPlan, projects, accounts]);
 
   return (
     <div className="space-y-2">
