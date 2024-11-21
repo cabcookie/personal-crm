@@ -35,7 +35,7 @@ const mapListItem = (
       blockId: block.id,
       ...(!(wrapperType === "taskList" && block.todo.id)
         ? {}
-        : { todoId: block.todo.id }),
+        : { todoId: block.todo.id, checked: block.todo.status === "DONE" }),
     },
     ...mapContentPeople(content.content, block),
   };
