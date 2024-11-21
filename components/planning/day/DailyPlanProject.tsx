@@ -22,7 +22,7 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   dayPlan,
   dailyPlanProject,
 }) => {
-  const { addProjectToDayPlan, postponeTodo } = useDailyPlans("PLANNING");
+  const { addProjectToDayPlan, postponeTodo } = useDailyPlans("OPEN");
   const { getProjectById } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>();
   const { projectTodos, finishTodo } = useProjectTodos(project?.id);
@@ -50,7 +50,12 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   }, [projectTodos, dayPlan]);
 
   const addProject = async (maybe: boolean) => {
-    addProjectToDayPlan(dayPlan.id, dailyPlanProject.projectId, maybe);
+    console.log("addProject", {
+      dayPlanId: dayPlan.id,
+      projectId: dailyPlanProject.projectId,
+      maybe,
+    });
+    await addProjectToDayPlan(dayPlan.id, dailyPlanProject.projectId, maybe);
   };
 
   return (
