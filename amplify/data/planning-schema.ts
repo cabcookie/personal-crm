@@ -58,8 +58,11 @@ const planningSchema = {
       projectId: a.id().required(),
       project: a.belongsTo("Projects", "projectId"),
       maybe: a.boolean(),
+      updatedAt: a.datetime().required(),
     })
-    .secondaryIndexes((index) => [index("projectId")])
+    .secondaryIndexes((index) => [
+      index("projectId").sortKeys(["updatedAt"]).queryField("listByProjectId"),
+    ])
     .authorization((allow) => [allow.owner()]),
   DailyPlanTodo: a
     .model({
@@ -71,8 +74,11 @@ const planningSchema = {
       todoId: a.id().required(),
       todo: a.belongsTo("Todo", "todoId"),
       postPoned: a.boolean(),
+      updatedAt: a.datetime().required(),
     })
-    .secondaryIndexes((index) => [index("todoId")])
+    .secondaryIndexes((index) => [
+      index("todoId").sortKeys(["updatedAt"]).queryField("listByTodoId"),
+    ])
     .authorization((allow) => [allow.owner()]),
 };
 
