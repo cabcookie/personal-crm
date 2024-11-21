@@ -224,13 +224,11 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
             ),
           }
     );
-    console.log("updateMaybeOfProjectOnDayPlan", { updated });
     if (updated) mutate(updated, false);
     const { data, errors } = await client.models.DailyPlanProject.update({
       id: recordId,
       maybe,
     });
-    console.log("updateMaybeOfProjectOnDayPlan", { data, errors });
     if (errors)
       handleApiErrors(errors, "Updating maybe of project on daily plan failed");
     if (updated) mutate(updated);
@@ -249,11 +247,6 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
       get("projects"),
       find(["projectId", projectId])
     )(dailyPlans) as DailyPlanProject | undefined;
-    console.log("addProjectToDayPlan", {
-      dayPlanId,
-      projectId,
-      dayPlanProject,
-    });
     if (dayPlanProject)
       return await updateMaybeOfProjectOnDayPlan(
         dayPlanId,

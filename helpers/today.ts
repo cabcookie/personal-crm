@@ -3,8 +3,9 @@ import { Project } from "@/api/ContextProjects";
 import { DailyPlan, DailyPlanProject } from "@/api/useDailyPlans";
 import { ProjectTodo } from "@/api/useProjectTodos";
 import { differenceInMinutes } from "date-fns";
-import { filter, find, flow, get, identity, some, sortBy } from "lodash/fp";
+import { filter, flow, get, identity, map, some, sortBy, sum } from "lodash/fp";
 import { Dispatch, SetStateAction } from "react";
+import { invertSign } from "./functional";
 import { updateProjectOrder } from "./projects";
 
 export const setProjectList = (
@@ -21,10 +22,11 @@ export const setProjectList = (
     sortBy((p) =>
       flow(
         identity<Project[] | undefined>,
-        find(["id", p.projectId]),
-        updateProjectOrder(accounts),
-        get("order"),
-        (val) => (!val ? 0 : -val)
+        filter((project) => project.id === p.projectId),
+        map(updateProjectOrder(accounts)),
+        map("order"),
+        sum,
+        invertSign
       )(projects)
     ),
     setList

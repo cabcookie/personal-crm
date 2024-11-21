@@ -50,11 +50,6 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   }, [projectTodos, dayPlan]);
 
   const addProject = async (maybe: boolean) => {
-    console.log("addProject", {
-      dayPlanId: dayPlan.id,
-      projectId: dailyPlanProject.projectId,
-      maybe,
-    });
     await addProjectToDayPlan(dayPlan.id, dailyPlanProject.projectId, maybe);
   };
 
