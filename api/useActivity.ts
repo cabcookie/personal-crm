@@ -16,6 +16,7 @@ import { generateClient, SelectionSet } from "aws-amplify/data";
 import { useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { createProjectActivityApi } from "./helpers/activity";
 const client = generateClient<Schema>();
 
 export type TempIdMapping = {
@@ -145,11 +146,7 @@ const useActivity = (activityId?: string) => {
       projectIds: [...activity.projectIds, projectId],
     };
     mutateActivity(updated, false);
-    const { data, errors } = await client.models.ProjectActivity.create({
-      activityId: activity.id,
-      projectsId: projectId,
-    });
-    if (errors) handleApiErrors(errors, "Error adding project to current note");
+    const data = await createProjectActivityApi(projectId, activity.id);
     if (data) toast({ title: "Added note to another project" });
     mutateActivity(updated);
     return data?.id;

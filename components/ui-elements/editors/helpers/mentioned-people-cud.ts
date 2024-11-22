@@ -1,6 +1,7 @@
 /* Create, update, delete operations on mentioned people (i.e., NoteMentionedPersonPerson) */
 
 import { type Schema } from "@/amplify/data/resource";
+import { createMentionedPersonApi } from "@/api/helpers/people";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
@@ -51,10 +52,7 @@ const createMentionedPerson = async ({
   personId,
   tempId,
 }: TMentionedPersonCreationSet): Promise<MentionedPersonTempIdMapping> => {
-  const { data, errors } = await client.models.NoteBlockPerson.create({
-    noteBlockId: blockId,
-    personId,
-  });
+  const { data, errors } = await createMentionedPersonApi(blockId, personId);
   if (errors)
     throw new TransactionError(
       "Creating mentioned person failed",

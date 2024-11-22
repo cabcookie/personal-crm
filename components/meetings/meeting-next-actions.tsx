@@ -2,7 +2,7 @@ import { Todo } from "@/api/useProjectTodos";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { getTodoText } from "../ui-elements/editors/helpers/text-generation";
-import TodoEditor from "../ui-elements/editors/todo-editor/TodoEditor";
+import TodoViewer from "../ui-elements/editors/todo-viewer/TodoViewer";
 
 type MeetingNextActionsProps = {
   todos: Todo[] | undefined;
@@ -16,7 +16,7 @@ const MeetingNextActions: FC<MeetingNextActionsProps> = ({ todos }) =>
       triggerTitle="Agreed Next Actions"
       triggerSubTitle={getTodoText(todos)}
     >
-      <TodoEditor todos={todos} />
+      <TodoViewer todos={todos} />
     </DefaultAccordionItem>
   );
 

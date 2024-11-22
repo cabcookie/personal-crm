@@ -1,7 +1,9 @@
-# Sortierung der Kunden in Wochenplanung korrigieren (Version :VERSION)
+# Schnelles Hinzufügen von Aufgaben ermöglichen (Version :VERSION)
 
-- In der Wochenplanung wird nun immer die gesamte Pipeline der Kunden für die Sortierung herangezogen und nicht nur die Pipeline für der Projekte, die gerade nicht auf On Hold gesetzt wurden.
-- Projekte, die keinem Kunden zugeordnet sind, werden nun auch in der Planung angezeigt.
+- Einen Button hinzugefügt, um schnell ein neues Todo hinzufügen zu können.
+- Dieser Button erscheint bei der täglichen Aufgabenliste.
+- Dieser Button erscheint bei der Projekt-Aufgabenliste.
+- Die Liste der nächsten Aufgaben im Projekt wird nun besser aktuell gehalten, wenn neue Todos hinzu kommen oder sich deren Status ändert.
 
 ## In Arbeit
 

@@ -105,8 +105,8 @@ const useInboxWorkflow = (mutate: HandleMutationFn) => {
       type: !block.type
         ? "paragraph"
         : parentType === "orderedList"
-        ? "listItemOrdered"
-        : block.type,
+          ? "listItemOrdered"
+          : block.type,
       content: !todoId ? stringifyBlock(block) : null,
       ...(!todoId ? {} : { todoId }),
     });

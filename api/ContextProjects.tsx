@@ -3,7 +3,6 @@ import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import {
   addDaysToDate,
-  newDateTimeString,
   toISODateString,
   uniqArraySorted,
 } from "@/helpers/functional";
@@ -25,6 +24,10 @@ import {
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
+import {
+  createActivityApi,
+  createProjectActivityApi,
+} from "./helpers/activity";
 import { CrmProject, mapCrmProject } from "./useCrmProjects";
 const client = generateClient<Schema>();
 
@@ -323,16 +326,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     projects?.find((project) => project.id === projectId);
 
   const createProjectActivity = async (projectId: string) => {
-    const { data: activity, errors: errorsActivity } =
-      await client.models.Activity.create({
-        formatVersion: 3,
-        noteBlockIds: [],
-        finishedOn: newDateTimeString(),
-      });
-    if (errorsActivity) {
-      handleApiErrors(errorsActivity, "Error creating activity");
-      return;
-    }
+    const activity = await createActivityApi();
     if (!activity) return;
     const updated: Project[] =
       projects?.map((project) =>
@@ -341,11 +335,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
           : { ...project, activityIds: [activity.id, ...project.activityIds] }
       ) || [];
     mutateProjects(updated, false);
-    const { data, errors } = await client.models.ProjectActivity.create({
-      activityId: activity.id,
-      projectsId: projectId,
-    });
-    if (errors) handleApiErrors(errors, "Error linking activity with project");
+    const data = await createProjectActivityApi(projectId, activity.id);
     mutateProjects(updated);
     return data?.activityId;
   };

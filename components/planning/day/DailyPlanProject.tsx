@@ -4,6 +4,7 @@ import useDailyPlans, {
   DailyPlanProject,
 } from "@/api/useDailyPlans";
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
+import AddTodoSection from "@/components/ui-elements/editors/todo-editor/AddTodoSection";
 import ShowHideSwitch from "@/components/ui-elements/ShowHideSwitch";
 import { setPostponedTodoList, setTodoList } from "@/helpers/today";
 import { flow, get, identity } from "lodash/fp";
@@ -25,7 +26,7 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   const { addProjectToDayPlan, postponeTodo } = useDailyPlans("OPEN");
   const { getProjectById } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>();
-  const { projectTodos, finishTodo } = useProjectTodos(project?.id);
+  const { projectTodos, finishTodo, createTodo } = useProjectTodos(project?.id);
   const [openTodos, setOpenTodos] = useState<ProjectTodo[] | undefined>();
   const [closedTodos, setClosedTodos] = useState<ProjectTodo[] | undefined>();
   const [postponedTodos, setPostponedTodos] = useState<
@@ -74,6 +75,8 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
 
           {showTodos && (
             <>
+              <AddTodoSection onSave={createTodo} />
+
               <DailyPlanProjectTodos
                 status="OPEN"
                 todos={openTodos}

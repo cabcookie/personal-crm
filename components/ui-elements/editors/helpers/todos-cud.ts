@@ -1,6 +1,7 @@
 /* Create, update, delete operations on todos (i.e., Todo) */
 
 import { type Schema } from "@/amplify/data/resource";
+import { createTodoApi } from "@/api/helpers/todo";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { newDateString, not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
@@ -41,11 +42,7 @@ export const createTodo = async ({
   done,
   tempId,
 }: TTodoCreationSet): Promise<TempIdMapping> => {
-  const { data, errors } = await client.models.Todo.create({
-    todo: content,
-    status: done ? "DONE" : "OPEN",
-    doneOn: done ? newDateString() : null,
-  });
+  const { data, errors } = await createTodoApi(content, done);
   if (errors)
     throw new TransactionError(
       "Creating todo failed",
