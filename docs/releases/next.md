@@ -1,7 +1,9 @@
-# Sortierung der Kunden in Wochenplanung korrigieren (Version :VERSION)
+# Schnelles Hinzufügen von Aufgaben ermöglichen (Version :VERSION)
 
-- In der Wochenplanung wird nun immer die gesamte Pipeline der Kunden für die Sortierung herangezogen und nicht nur die Pipeline für der Projekte, die gerade nicht auf On Hold gesetzt wurden.
-- Projekte, die keinem Kunden zugeordnet sind, werden nun auch in der Planung angezeigt.
+- Einen Button hinzugefügt, um schnell ein neues Todo hinzufügen zu können.
+- Dieser Button erscheint bei der täglichen Aufgabenliste.
+- Dieser Button erscheint bei der Projekt-Aufgabenliste.
+- Die Liste der nächsten Aufgaben im Projekt wird nun besser aktuell gehalten, wenn neue Todos hinzu kommen oder sich deren Status ändert.
 
 ## In Arbeit
 
@@ -44,7 +46,6 @@
 - Das Datum des letzten Uploads von CRM Daten anzeigen.
 - Die Uploads für CRM Projekte sollen ähnlich wie bei den Finanzdaten eine Historie ermöglichen.
 - Eine "Lean-Ansicht" wäre toll, zum Beispiel, wenn ich Notizen zu einem Projekt sehen möchte, dann scrolle ich einfach durch die Notizen ohne erst Akkordions aufklappen zu müssen.
-- Wenn ich eine Aufgabe abgeschlossen haben, möchte ich sehr häufig eine Notiz erfassen und eine Folgeaufgabe. Das ist im Moment recht kompliziert, weil ich erst ins Projekt, dann dort die Notizen aufklappen, eine neue Aktivität erzeugen und schließlich dort wieder die Notizen aufklappen, bevor ich etwas notieren kann. Besser wäre ein Button: "Done and take note" oder so.
 
 ### Finanzdaten
 

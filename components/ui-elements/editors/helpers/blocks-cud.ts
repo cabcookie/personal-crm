@@ -1,6 +1,7 @@
 /* Create, update, delete operations on blocks (i.e., NoteBlock) */
 
 import { type Schema } from "@/amplify/data/resource";
+import { createBlockApi } from "@/api/helpers/todo";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
@@ -89,13 +90,12 @@ export const createBlock = async ({
   todoId,
   type,
 }: TBlockCreationSet): Promise<TempIdMapping> => {
-  const { data, errors } = await client.models.NoteBlock.create({
+  const { data, errors } = await createBlockApi(
     activityId,
-    formatVersion: 3,
-    type,
     content,
     todoId,
-  });
+    type
+  );
   if (errors)
     throw new TransactionError(
       "Creating note block failed",

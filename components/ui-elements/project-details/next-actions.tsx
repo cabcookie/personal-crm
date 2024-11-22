@@ -3,7 +3,8 @@ import useProjectTodos from "@/api/useProjectTodos";
 import { FC, useEffect, useState } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import { getTodoText } from "../editors/helpers/text-generation";
-import TodoEditor from "../editors/todo-editor/TodoEditor";
+import AddTodoSection from "../editors/todo-editor/AddTodoSection";
+import TodoViewer from "../editors/todo-viewer/TodoViewer";
 import LegacyNextActions from "./legacy-next-actions";
 
 type ProjectNextActionsProps = {
@@ -15,7 +16,7 @@ const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
   const [project, setProject] = useState(
     projects?.find((p) => p.id === projectId)
   );
-  const { projectTodos } = useProjectTodos(projectId);
+  const { projectTodos, createTodo } = useProjectTodos(projectId);
 
   useEffect(() => {
     setProject(projects?.find((p) => p.id === projectId));
@@ -32,7 +33,10 @@ const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
         !!project?.othersNextActions
       }
     >
-      {projectTodos && <TodoEditor todos={projectTodos} />}
+      <AddTodoSection onSave={createTodo} />
+
+      {projectTodos && <TodoViewer todos={projectTodos} />}
+
       <LegacyNextActions projectId={projectId} />
     </DefaultAccordionItem>
   );

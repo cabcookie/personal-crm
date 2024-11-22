@@ -1,4 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
+import { stringifyBlock } from "@/components/ui-elements/editors/helpers/blocks";
+import { getPeopleMentioned } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
 import { isNotNil, newDateString } from "@/helpers/functional";
 import {
   getTodoDoneOn,
@@ -22,6 +24,13 @@ import {
 } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import {
+  createActivityApi,
+  createProjectActivityApi,
+  updateActivityBlockIds,
+} from "./helpers/activity";
+import { createMentionedPersonApi } from "./helpers/people";
+import { createBlockApi, createTodoApi } from "./helpers/todo";
 const client = generateClient<Schema>();
 
 export type Todo = {
@@ -154,7 +163,88 @@ const useProjectTodos = (projectId: string | undefined) => {
     return data?.id;
   };
 
-  return { projectTodos, isLoading, error, finishTodo };
+  const createTodoRecord = async (todo: JSONContent) => {
+    const { data, errors } = await createTodoApi(stringifyBlock(todo), false);
+    if (errors) handleApiErrors(errors, "Creating todo failed");
+    return data;
+  };
+
+  const createNoteBlockRecord = async (activityId: string, todoId: string) => {
+    const { data, errors } = await createBlockApi(
+      activityId,
+      null,
+      todoId,
+      "taskItem"
+    );
+    if (errors) handleApiErrors(errors, "Creating note block failed");
+    return data?.id;
+  };
+
+  const createMentionedPerson =
+    (blockId: string) =>
+    async (personId: string): Promise<string | undefined> => {
+      const { data, errors } = await createMentionedPersonApi(
+        blockId,
+        personId
+      );
+      if (errors) handleApiErrors(errors, "Creating mentioned person failed");
+      return data?.id;
+    };
+
+  const createMentionedPeople = async (blockId: string, todo: JSONContent) => {
+    const peopleIds = await Promise.all(
+      flow(
+        getPeopleMentioned,
+        map("attrs.id"),
+        map(createMentionedPerson(blockId))
+      )(todo)
+    );
+    return peopleIds;
+  };
+
+  const createTodo = async (todo: JSONContent) => {
+    if (!projectId) return;
+    const activity = await createActivityApi();
+    if (!activity) return;
+    const projectActivity = await createProjectActivityApi(
+      projectId,
+      activity.id
+    );
+    if (!projectActivity) return;
+    const todoBlock = {
+      type: "taskItem",
+      attrs: {
+        checked: false,
+      },
+      content: todo.content,
+    } as JSONContent;
+    const todoData = await createTodoRecord(todoBlock);
+    if (!todoData) return;
+    const blockId = await createNoteBlockRecord(activity.id, todoData.id);
+    if (!blockId) return;
+    const updatedActivity = await updateActivityBlockIds(activity.id, [
+      blockId,
+    ]);
+    if (!updatedActivity) return;
+    await createMentionedPeople(blockId, todo);
+    mutate([
+      ...(projectTodos ?? []),
+      {
+        todoId: todoData.id,
+        todo: todoBlock,
+        done: false,
+        doneOn: null,
+        activityId: activity.id,
+        blockId,
+        isOrphan: false,
+        updatedAt: new Date(),
+        projectActivityId: projectActivity.id,
+      },
+    ]);
+    return todoData.id;
+  };
+
+  return { projectTodos, isLoading, error, finishTodo, createTodo };
 };
 
 export default useProjectTodos;

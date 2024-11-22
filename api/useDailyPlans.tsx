@@ -243,7 +243,6 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     const dayPlanProject = flow(
       identity<DailyPlan[] | undefined>,
       find(["id", dayPlanId]),
-      (test) => test,
       get("projects"),
       find(["projectId", projectId])
     )(dailyPlans) as DailyPlanProject | undefined;

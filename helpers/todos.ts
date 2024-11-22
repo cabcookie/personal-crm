@@ -105,7 +105,7 @@ export const getTodoContent = (
     : getParagraphWithLinkToActivity(activityId),
 ];
 
-export const getTodoEditorContent = (todos: Todo[]): JSONContent => ({
+export const getTodoViewerContent = (todos: Todo[]): JSONContent => ({
   type: "doc",
   content: [
     {

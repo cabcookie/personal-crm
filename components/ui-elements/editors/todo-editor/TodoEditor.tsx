@@ -1,20 +1,23 @@
-import { Todo } from "@/api/useProjectTodos";
-import { getTodoEditorContent } from "@/helpers/todos";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
-import { FC, useEffect } from "react";
-import useExtensions from "./useExtensions";
+import { Loader2, Save } from "lucide-react";
+import { FC, useEffect, useState } from "react";
+import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
+import useTodoEditorExtensions from "./useTodoEditorExtensions";
 
 type TodoEditorProps = {
-  todos: Todo[];
+  onSave: (json: JSONContent) => Promise<string | undefined>;
 };
 
-const TodoEditor: FC<TodoEditorProps> = ({ todos }) => {
-  const extensions = useExtensions();
+const TodoEditor: FC<TodoEditorProps> = ({ onSave }) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const extensions = useTodoEditorExtensions();
   const editor = useEditor({
     extensions,
-    editable: false,
+    content: "",
     immediatelyRender: false,
-    content: getTodoEditorContent(todos),
   });
 
   useEffect(() => {
@@ -22,13 +25,40 @@ const TodoEditor: FC<TodoEditorProps> = ({ todos }) => {
     editor.setOptions({
       editorProps: {
         attributes: {
-          class: "prose w-full max-w-full pt-1 bg-inherit",
+          class: "prose w-full max-w-full px-2 bg-inherit border rounded-md",
         },
       },
     });
   }, [editor]);
 
-  return <EditorContent editor={editor} />;
+  const saveItem = async (json: JSONContent) => {
+    setIsSaving(true);
+    const todoId = await onSave(json);
+    if (!todoId) return;
+    setIsSaving(false);
+  };
+
+  return (
+    <>
+      <h3 className="font-semibold">Describe the todo:</h3>
+      <EditorContent editor={editor} />
+      {editor && <LinkBubbleMenu editor={editor} />}
+      <div id="at-mention-tippy" />
+      <Button
+        disabled={isSaving}
+        className={cn(isSaving && "text-muted-foreground")}
+        onClick={() => editor && saveItem(editor.getJSON())}
+        size="sm"
+      >
+        {isSaving ? (
+          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+        ) : (
+          <Save className="w-4 h-4 mr-1" />
+        )}
+        Save Todo
+      </Button>
+    </>
+  );
 };
 
 export default TodoEditor;
