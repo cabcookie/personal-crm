@@ -46,7 +46,6 @@
 - Das Datum des letzten Uploads von CRM Daten anzeigen.
 - Die Uploads für CRM Projekte sollen ähnlich wie bei den Finanzdaten eine Historie ermöglichen.
 - Eine "Lean-Ansicht" wäre toll, zum Beispiel, wenn ich Notizen zu einem Projekt sehen möchte, dann scrolle ich einfach durch die Notizen ohne erst Akkordions aufklappen zu müssen.
-- Wenn ich eine Aufgabe abgeschlossen haben, möchte ich sehr häufig eine Notiz erfassen und eine Folgeaufgabe. Das ist im Moment recht kompliziert, weil ich erst ins Projekt, dann dort die Notizen aufklappen, eine neue Aktivität erzeugen und schließlich dort wieder die Notizen aufklappen, bevor ich etwas notieren kann. Besser wäre ein Button: "Done and take note" oder so.
 
 ### Finanzdaten
 
