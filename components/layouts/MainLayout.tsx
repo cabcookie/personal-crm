@@ -28,8 +28,8 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
   ...categoryTitleProps
 }) => {
   const { toggleMenu } = useNavMenuContext();
-  const { context: storedContext, setContext } = useContextContext();
   const [isOpen, setIsOpen] = useState(false);
+  const { context: storedContext, setContext } = useContextContext();
   const context = propsContext || storedContext || "family";
   const router = useRouter();
 
@@ -49,7 +49,6 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
       <div className="flex flex-col items-center justify-center w-full">
         <Header context={context} />
         <NavigationMenu />
-        <CreateInboxItemDialog open={isOpen} onOpenChange={setIsOpen} />
         <main className="w-full xl:w-[64rem]">
           <div className="flex flex-col pb-0">
             <div className="px-2 md:px-8 lg:px-16 mb-4 md:mb-8">
@@ -60,6 +59,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
             </div>
           </div>
           <Toaster />
+          <CreateInboxItemDialog open={isOpen} onOpenChange={setIsOpen} />
         </main>
       </div>
     </div>

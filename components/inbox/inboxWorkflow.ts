@@ -9,7 +9,6 @@ import {
   User,
   X,
 } from "lucide-react";
-import { Button } from "../ui/button";
 
 export type WorkflowStatus =
   | "new"
@@ -22,7 +21,6 @@ export type WorkflowStatus =
   | "confirmDeletion"
   | "done";
 export type WorkflowStepIcon = typeof Stars;
-export type WorkflowStepButton = typeof Button;
 
 export type WorkflowStatusWithActions =
   | "addToProject"
@@ -37,7 +35,7 @@ export const statusWithAction = [
   "done",
 ] as const;
 
-export type WorkflowStart = {
+type WorkflowStart = {
   status: WorkflowStatus;
   statusName: string;
   question: string;

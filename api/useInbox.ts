@@ -23,9 +23,7 @@ import {
 } from "./helpers/activity";
 const client = generateClient<Schema>();
 
-export type HandleMutationFn = (item: Inbox, callApi?: boolean) => void;
-
-export type InboxStatus = Schema["InboxStatus"]["type"];
+type InboxStatus = Schema["InboxStatus"]["type"];
 
 export type Inbox = {
   id: string;
@@ -48,7 +46,7 @@ export const debouncedOnChangeInboxNote = debounce(
 
 type MapInboxFn = (data: Schema["Inbox"]["type"]) => Inbox;
 
-export const mapInbox: MapInboxFn = ({
+const mapInbox: MapInboxFn = ({
   id,
   note,
   createdAt,
