@@ -1,8 +1,10 @@
+import { MrrMutator } from "@/api/useMrr";
 import imgDownload from "@/public/images/analytics/mrr-download.png";
 import imgFilter from "@/public/images/analytics/mrr-filters.png";
 import { ExternalLink } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FC } from "react";
 import DefaultAccordionItem from "../../ui-elements/accordion/DefaultAccordionItem";
 import BulletList from "../../ui-elements/list-items/bullet-list";
 import { useMrrFilter } from "../useMrrFilter";
@@ -11,8 +13,21 @@ import ImportMrrData from "./import-data";
 const mrrTableauLink =
   "https://awstableau.corp.amazon.com/t/WWSalesInsights/views/MonthlyRevenueDeep/DeepMonthlyRevenue?%3Aembed=yes&%3Alinktarget=_blank&%3Aoriginal_view=yes#1";
 
-const InstructionsUploadMrr = () => {
+type InstructionsUploadMrrProps = {
+  reloader?: () => void;
+};
+
+const InstructionsUploadMrr: FC<InstructionsUploadMrrProps> = ({
+  reloader,
+}) => {
   const { mrr, mutateMrr } = useMrrFilter();
+
+  const reload: MrrMutator = (data) => {
+    if (reloader) {
+      reloader();
+    }
+    return mutateMrr(data);
+  };
 
   return (
     <DefaultAccordionItem value="revenue" triggerTitle="Monthly Revenue">
@@ -67,7 +82,7 @@ const InstructionsUploadMrr = () => {
 
         <div>Then upload the file here:</div>
 
-        <ImportMrrData mrr={mrr} mutateMrr={mutateMrr} />
+        <ImportMrrData mrr={mrr} mutateMrr={reload} />
       </div>
     </DefaultAccordionItem>
   );

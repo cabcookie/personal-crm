@@ -4,14 +4,13 @@
 - Neue Inbox Einträge können nun mit Cmd+Enter gespeichert werden.
 - Der Workflow für Inbox-Einträge ist vollständig überarbeitet und insgesamt schlüssiger und schneller. Die getroffene Entscheidung wird ausschließlich am Ende gespeichert und nicht mehr zwischendurch.
 - Inbox-Einträge können nun auch als Gelerntes über Personen gespeichert werden.
+- In der Wochenplanung ist nun eine kleine Checkliste eingeführt. Zunächst werden offene Inbox-Einträge verarbeitet, dann aktuelle Umsätze und Projekte der Kunden geladen und schließlich – wie zuvor auch – die Projekte überprüft.
 
 ## Kleinere Verbesserungen
 
 - Im Dialog zum Erstellen neuer Aufgaben muss nun nicht mehr der Speichern-Button gedrückt werden; es kann nun auch mit der Tastenkombination Cmd+Enter gespeichert werden.
 
 ## In Arbeit
-
-- In der Wochenplanung direkt auch anbieten, die Inbox zu verarbeiten.
 
 ## Geplant
 
@@ -38,7 +37,7 @@
 
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
-- Eine Checkliste einführen für das wöchentliche oder tägliche Planen.
+- Eine Checkliste einführen für das tägliche Planen.
 
 ### Projekte
 
