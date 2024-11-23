@@ -1,14 +1,16 @@
 import { type Schema } from "@/amplify/data/resource";
-import { newDateTimeString } from "@/helpers/functional";
+import { newDateTimeString, toISODateTimeString } from "@/helpers/functional";
 import { generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "../globals";
 const client = generateClient<Schema>();
 
-export const createActivityApi = async () => {
+export const createActivityApi = async (createdAt?: Date) => {
   const { data, errors } = await client.models.Activity.create({
     formatVersion: 3,
     noteBlockIds: [],
-    finishedOn: newDateTimeString(),
+    finishedOn: !createdAt
+      ? newDateTimeString()
+      : toISODateTimeString(createdAt),
     notes: null,
     notesJson: null,
   });

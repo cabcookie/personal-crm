@@ -7,8 +7,9 @@ import {
 } from "@/helpers/crm/filters";
 import { cn } from "@/lib/utils";
 import { flow, map, sum } from "lodash/fp";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ExternalLink, Loader2 } from "lucide-react";
+import Link from "next/link";
+import { FC, useEffect, useState } from "react";
 import ApiLoadingError from "../layouts/ApiLoadingError";
 import { Accordion } from "../ui/accordion";
 import { Button } from "../ui/button";
@@ -19,7 +20,14 @@ import ChangedCrmProjects from "./changed-projects";
 import MissingCrmProjects from "./missing-projects";
 import NewCrmProjects from "./new-projects";
 
-const ImportProjectData = () => {
+const linkSfdcReport =
+  "https://aws-crm.lightning.force.com/lightning/r/Report/00ORU000000oksT2AQ/view";
+
+type ImportProjectDataProps = {
+  reloader?: () => void;
+};
+
+const ImportProjectData: FC<ImportProjectDataProps> = ({ reloader }) => {
   const { crmProjects, mutate } = useCrmProjects();
   const {
     crmProjectsImport,
@@ -78,12 +86,25 @@ const ImportProjectData = () => {
     });
   }, [crmProjects, processedData]);
 
+  const handleClose = async () => {
+    await closeImportFile();
+    reloader?.();
+  };
+
   return (
     <div className="space-y-6">
       <ApiLoadingError title="Loading imports failed" error={errorImports} />
 
       {!crmProjectsImport && (
         <div className="space-y-2">
+          <div>
+            <Link href={linkSfdcReport} target="_blank">
+              <div className="flex flex-row items-baseline gap-1 text-muted-foreground font-semibold text-sm">
+                Link to SFDC opportunity report
+                <ExternalLink className="w-3 h-3" />
+              </div>
+            </Link>
+          </div>
           {loadingImports ? (
             <div className="text-muted-foreground text-sm font-semibold flex gap-2">
               Loading status of imported data…
@@ -137,7 +158,7 @@ const ImportProjectData = () => {
       )}
 
       {crmProjectsImport && (
-        <Button onClick={closeImportFile}>Close import file</Button>
+        <Button onClick={handleClose}>Close import file</Button>
       )}
     </div>
   );

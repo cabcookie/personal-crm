@@ -1,6 +1,6 @@
-import { createInboxItemApi } from "@/api/useInboxWorkflow";
+import useInbox from "@/api/useInbox";
 import { JSONContent } from "@tiptap/core";
-import { createContext, FC, ReactNode, useContext, useState } from "react";
+import { Dispatch, FC, ReactNode, SetStateAction, useState } from "react";
 import { emptyDocument } from "../ui-elements/editors/helpers/document";
 import InboxEditor from "../ui-elements/editors/inbox-editor/InboxEditor";
 import { Button } from "../ui/button";
@@ -12,78 +12,52 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "../ui/dialog";
 import { ScrollArea } from "../ui/scroll-area";
 
-interface CreateInboxItemContextType {
-  state: boolean;
-  open: () => void;
-  close: () => void;
-  editorContent: JSONContent;
-  setEditorContent: (val: JSONContent) => void;
-  createInboxItem: () => Promise<string | undefined>;
-}
+type CreateInboxItemDialogProps =
+  | {
+      dialogTrigger: ReactNode;
+      open?: never;
+      onOpenChange?: never;
+    }
+  | {
+      dialogTrigger?: never;
+      open: boolean;
+      onOpenChange: Dispatch<SetStateAction<boolean>>;
+    };
 
-interface CreateInobxItemProviderProps {
-  children: ReactNode;
-}
-
-export const CreateInboxItemProvider: FC<CreateInobxItemProviderProps> = ({
-  children,
+const CreateInboxItemDialog: FC<CreateInboxItemDialogProps> = ({
+  dialogTrigger,
+  open,
+  onOpenChange,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { createInboxItem } = useInbox();
+  const [isOpen, setIsOpen] = useState(!!open);
   const [editorContent, setEditorContent] =
     useState<JSONContent>(emptyDocument);
 
-  const handleCreateInboxItem = async () => {
-    if (!editorContent) return;
-    const result = await createInboxItemApi(editorContent);
+  const handleOpenChange = (open: boolean) => {
+    const change = onOpenChange ?? setIsOpen;
+    change(open);
+  };
+
+  const handleCreateInboxItem = async (content: JSONContent) => {
+    const result = await createInboxItem(content);
     setEditorContent(emptyDocument);
-    setIsOpen(false);
+    handleOpenChange(false);
     return result?.id;
   };
 
   return (
-    <CreateInboxItemContext.Provider
-      value={{
-        state: isOpen,
-        open: () => setIsOpen(true),
-        close: () => setIsOpen(false),
-        editorContent,
-        setEditorContent,
-        createInboxItem: handleCreateInboxItem,
-      }}
+    <Dialog
+      open={open === undefined ? isOpen : open}
+      onOpenChange={handleOpenChange}
     >
-      {children}
-    </CreateInboxItemContext.Provider>
-  );
-};
-
-const CreateInboxItemContext = createContext<
-  CreateInboxItemContextType | undefined
->(undefined);
-
-export const useCreateInboxItemContext = () => {
-  const context = useContext(CreateInboxItemContext);
-  if (!context)
-    throw new Error(
-      "useCreateInboxItemContext must be used within CreateInboxItemProvider"
-    );
-  return context;
-};
-
-const CreateInboxItemDialog = () => {
-  const {
-    state,
-    open,
-    close,
-    editorContent,
-    setEditorContent,
-    createInboxItem,
-  } = useCreateInboxItemContext();
-
-  return (
-    <Dialog open={state} onOpenChange={() => (state ? close() : open())}>
+      <DialogTrigger asChild>
+        <div>{dialogTrigger}</div>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] md:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create a New Inbox Item</DialogTitle>
@@ -98,12 +72,17 @@ const CreateInboxItemDialog = () => {
             saveNotes={(editor) => {
               setEditorContent(editor.getJSON());
             }}
+            saveAtCmdEnter={(editor) => {
+              handleCreateInboxItem(editor.getJSON());
+            }}
             showSaveStatus={false}
             autoFocus
           />
         </ScrollArea>
         <DialogFooter>
-          <Button onClick={createInboxItem}>Save Item</Button>
+          <Button onClick={() => handleCreateInboxItem(editorContent)}>
+            Save Item
+          </Button>
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close

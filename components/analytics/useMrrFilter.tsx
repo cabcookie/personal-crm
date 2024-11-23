@@ -31,7 +31,7 @@ interface MrrFilterProviderProps {
   children: React.ReactNode;
 }
 
-const MrrFilterProvider: FC<MrrFilterProviderProps> = ({ children }) => {
+export const MrrFilterProvider: FC<MrrFilterProviderProps> = ({ children }) => {
   const [mrrFilter, setMrrFilter] = useState<MrrFilters>("6");
   const { mrr, isLoading, error, mutate } = useMrr("DONE", mrrFilter);
 
