@@ -1,19 +1,19 @@
 # Verarbeiten der Inbox optimieren (Version :VERSION)
 
+- Die Inbox zeigt jetzt immer nur den ersten offenen Eintrag an, so dass die Inbox ganz konzentriert bearbeitet werden kann.
+- Neue Inbox Einträge können nun mit Cmd+Enter gespeichert werden.
+- Der Workflow für Inbox-Einträge ist vollständig überarbeitet und insgesamt schlüssiger und schneller. Die getroffene Entscheidung wird ausschließlich am Ende gespeichert und nicht mehr zwischendurch.
+- Inbox-Einträge können nun auch als Gelerntes über Personen gespeichert werden.
+
 ## Kleinere Verbesserungen
 
 - Im Dialog zum Erstellen neuer Aufgaben muss nun nicht mehr der Speichern-Button gedrückt werden; es kann nun auch mit der Tastenkombination Cmd+Enter gespeichert werden.
 
 ## In Arbeit
 
-- Die Inbox zeigt jetzt immer nur den ersten offenen Eintrag an, so dass die Inbox ganz konzentriert bearbeitet werden kann.
-- Die Inobx ist nicht wirklich toll und schnell. Das muss vom Ablauf her besser werden.
+- In der Wochenplanung direkt auch anbieten, die Inbox zu verarbeiten.
 
 ## Geplant
-
-- In der Wochenplanung direkt auch anbieten, die Inbox zu verarbeiten.
-- Die Verarbeitung in der Inbox soll auch ermöglichen Gelerntes zu Personen abzulegen.
-- Wenn die Internetverbindung gerade nicht so stabil ist und ein neues Inbox Item erstellt wird, kann es eine Weile dauern und in der Zeit ist für den Anwender nicht sichtbar, dass der Eintrag gerade gespeichert wird.
 
 ### Account Details
 

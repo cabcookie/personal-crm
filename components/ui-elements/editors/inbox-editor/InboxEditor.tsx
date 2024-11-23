@@ -8,6 +8,7 @@ import {
   updateEditorContent,
 } from "../helpers/editor-effects";
 import MetaData from "../meta-data";
+import { isCmdEnter } from "./helpers";
 import useExtensions from "./useExtensions";
 
 type InboxEditorProps = {
@@ -15,6 +16,7 @@ type InboxEditorProps = {
   createdAt?: Date;
   updatedAt?: Date;
   saveNotes?: (editor: Editor) => void;
+  saveAtCmdEnter?: (editor: Editor) => void;
   autoFocus?: boolean;
   readonly?: boolean;
   showSaveStatus?: boolean;
@@ -23,6 +25,7 @@ type InboxEditorProps = {
 const InboxEditor: FC<InboxEditorProps> = ({
   notes,
   saveNotes,
+  saveAtCmdEnter,
   autoFocus,
   readonly,
   createdAt,
@@ -39,6 +42,18 @@ const InboxEditor: FC<InboxEditorProps> = ({
     onUpdate: ({ editor }) => {
       if (!saveNotes) return;
       saveNotes(editor);
+    },
+    editorProps: {
+      ...(!saveAtCmdEnter
+        ? {}
+        : {
+            handleKeyDown: (_view, event) => {
+              if (!editor) return false;
+              if (!isCmdEnter(event)) return false;
+              saveAtCmdEnter(editor);
+              return true;
+            },
+          }),
     },
   });
 

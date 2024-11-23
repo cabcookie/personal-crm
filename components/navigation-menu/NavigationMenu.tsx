@@ -16,7 +16,6 @@ import {
 } from "react-icons/bi";
 import { GoTasklist } from "react-icons/go";
 import { IconType } from "react-icons/lib";
-import { useCreateInboxItemContext } from "../inbox/CreateInboxItemDialog";
 import {
   CommandDialog,
   CommandEmpty,
@@ -53,7 +52,6 @@ type NavigationItem = (UrlNavigationItem | ActionNavigationItem) & {
 const NavigationMenu = () => {
   const { isWorkContext, isFamilyContext, context } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
-  const { open: openCreateInboxItemDialog } = useCreateInboxItemContext();
   const { projects, createProject } = useProjectsContext();
   const { accounts } = useAccountsContext();
   const { bible } = useBible();
@@ -144,10 +142,6 @@ const NavigationMenu = () => {
     );
 
   const createItemsNavigation: NavigationItem[] = [
-    {
-      label: "Inbox Item",
-      action: openCreateInboxItemDialog,
-    },
     { label: "Meeting", action: createAndOpenMeeting },
     { label: "Person", action: createAndOpenPerson },
     { label: "Project", action: createAndOpenProject },

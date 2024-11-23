@@ -9,11 +9,8 @@ import {
 import { addKeyDownListener } from "@/helpers/keyboard-events/main-layout";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { FC, ReactNode, useEffect } from "react";
-import CreateInboxItemDialog, {
-  CreateInboxItemProvider,
-  useCreateInboxItemContext,
-} from "../inbox/CreateInboxItemDialog";
+import { FC, ReactNode, useEffect, useState } from "react";
+import CreateInboxItemDialog from "../inbox/CreateInboxItemDialog";
 import { Toaster } from "../ui/toaster";
 
 type MainLayoutProps = CategoryTitleProps & {
@@ -31,20 +28,15 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
   ...categoryTitleProps
 }) => {
   const { toggleMenu } = useNavMenuContext();
-  const { open: openCreateInboxItemDialog } = useCreateInboxItemContext();
   const { context: storedContext, setContext } = useContextContext();
+  const [isOpen, setIsOpen] = useState(false);
   const context = propsContext || storedContext || "family";
   const router = useRouter();
 
   useEffect(
     () =>
-      addKeyDownListener(
-        router,
-        setContext,
-        toggleMenu,
-        openCreateInboxItemDialog
-      ),
-    [openCreateInboxItemDialog, router, setContext, toggleMenu]
+      addKeyDownListener(router, setContext, toggleMenu, () => setIsOpen(true)),
+    [router, setContext, toggleMenu]
   );
 
   return (
@@ -57,6 +49,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
       <div className="flex flex-col items-center justify-center w-full">
         <Header context={context} />
         <NavigationMenu />
+        <CreateInboxItemDialog open={isOpen} onOpenChange={setIsOpen} />
         <main className="w-full xl:w-[64rem]">
           <div className="flex flex-col pb-0">
             <div className="px-2 md:px-8 lg:px-16 mb-4 md:mb-8">
@@ -67,7 +60,6 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
             </div>
           </div>
           <Toaster />
-          <CreateInboxItemDialog />
         </main>
       </div>
     </div>
@@ -76,9 +68,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
 
 const MainLayout: FC<MainLayoutProps> = (props) => (
   <NavMenuContextProvider>
-    <CreateInboxItemProvider>
-      <MainLayoutInner {...props} />
-    </CreateInboxItemProvider>
+    <MainLayoutInner {...props} />
   </NavMenuContextProvider>
 );
 

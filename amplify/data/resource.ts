@@ -53,6 +53,7 @@ const schema = a
     ...planningSchema,
     ...prayerSchema,
     ...projectSchema,
+    InboxStatus: a.enum(["new", "done"]),
     Inbox: a
       .model({
         owner: a
@@ -61,10 +62,14 @@ const schema = a
         note: a.string(),
         formatVersion: a.integer().default(1),
         noteJson: a.json(),
-        status: a.id().required(),
+        status: a.ref("InboxStatus").required(),
         movedToActivityId: a.string(),
+        movedToPersonLearningId: a.string(),
+        createdAt: a.datetime().required(),
       })
-      .secondaryIndexes((inbox) => [inbox("status")])
+      .secondaryIndexes((inbox) => [
+        inbox("status").sortKeys(["createdAt"]).queryField("byStatus"),
+      ])
       .authorization((allow) => [allow.owner()]),
     Meeting: a
       .model({
