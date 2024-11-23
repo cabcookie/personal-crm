@@ -3,8 +3,9 @@ import { cn } from "@/lib/utils";
 import { JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { Loader2, Save } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
+import { isCmdEnter } from "../inbox-editor/helpers";
 import useTodoEditorExtensions from "./useTodoEditorExtensions";
 
 type TodoEditorProps = {
@@ -20,23 +21,32 @@ const TodoEditor: FC<TodoEditorProps> = ({ onSave }) => {
     immediatelyRender: false,
   });
 
+  const saveItem = useCallback(
+    async (json: JSONContent) => {
+      setIsSaving(true);
+      const todoId = await onSave(json);
+      if (!todoId) return;
+      setIsSaving(false);
+    },
+    [onSave]
+  );
+
   useEffect(() => {
     if (!editor) return;
     editor.setOptions({
       editorProps: {
         attributes: {
-          class: "prose w-full max-w-full px-2 bg-inherit border rounded-md",
+          class: "prose w-full max-w-full p-2 bg-inherit border rounded-md",
+        },
+        handleKeyDown: (_view, event) => {
+          if (!editor) return false;
+          if (!isCmdEnter(event)) return false;
+          saveItem(editor.getJSON());
+          return true;
         },
       },
     });
-  }, [editor]);
-
-  const saveItem = async (json: JSONContent) => {
-    setIsSaving(true);
-    const todoId = await onSave(json);
-    if (!todoId) return;
-    setIsSaving(false);
-  };
+  }, [editor, saveItem]);
 
   return (
     <>
