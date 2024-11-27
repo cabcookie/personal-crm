@@ -19,6 +19,7 @@ const selectionSet = [
   "accounts.accountId",
   "resellerId",
   "mainContactId",
+  "notes",
 ] as const;
 
 export type Payer = {
@@ -27,6 +28,7 @@ export type Payer = {
   resellerId?: string;
   accountIds: string[];
   mainContactId?: string;
+  notes: string;
 };
 
 const mapPayer = ({
@@ -34,12 +36,14 @@ const mapPayer = ({
   accounts,
   resellerId,
   mainContactId,
+  notes,
 }: PayerData): Payer => ({
   accountNumber: awsAccountNumber,
   isReseller: !!resellerId,
   resellerId: resellerId ?? undefined,
   accountIds: map(({ accountId }) => accountId)(accounts) ?? [],
   mainContactId: mainContactId ?? undefined,
+  notes: notes ?? "",
 });
 
 const fetchPayer = (payerId?: string) => async () => {
@@ -109,6 +113,19 @@ const usePayer = (payerId?: string) => {
     return data;
   };
 
+  const updateNotes = async (notes: string) => {
+    if (!payer) return;
+    const updatedPayer = { ...payer, notes } as Payer;
+    mutate(updatedPayer, false);
+    const { data, errors } = await client.models.PayerAccount.update({
+      awsAccountNumber: payer.accountNumber,
+      notes,
+    });
+    if (errors) handleApiErrors(errors, "Updating notes failed");
+    mutate(updatedPayer);
+    return data;
+  };
+
   return {
     payer,
     isLoading,
@@ -116,6 +133,7 @@ const usePayer = (payerId?: string) => {
     createPayerAccountLink,
     deletePayerAccount,
     attachReseller,
+    updateNotes,
   };
 };
 

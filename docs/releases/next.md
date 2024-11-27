@@ -1,18 +1,15 @@
-# Verarbeiten der Inbox optimieren (Version :VERSION)
+# AWS Payer ID erhält ein zusätzliches Notizfeld (Version :VERSION)
 
-- Die Inbox zeigt jetzt immer nur den ersten offenen Eintrag an, so dass die Inbox ganz konzentriert bearbeitet werden kann.
-- Neue Inbox Einträge können nun mit Cmd+Enter gespeichert werden.
-- Der Workflow für Inbox-Einträge ist vollständig überarbeitet und insgesamt schlüssiger und schneller. Die getroffene Entscheidung wird ausschließlich am Ende gespeichert und nicht mehr zwischendurch.
-- Inbox-Einträge können nun auch als Gelerntes über Personen gespeichert werden.
-- In der Wochenplanung ist nun eine kleine Checkliste eingeführt. Zunächst werden offene Inbox-Einträge verarbeitet, dann aktuelle Umsätze und Projekte der Kunden geladen und schließlich – wie zuvor auch – die Projekte überprüft.
-
-## Kleinere Verbesserungen
-
-- Im Dialog zum Erstellen neuer Aufgaben muss nun nicht mehr der Speichern-Button gedrückt werden; es kann nun auch mit der Tastenkombination Cmd+Enter gespeichert werden.
+Damit können Bemerkungen für einen Account hinterlassen werden.
 
 ## In Arbeit
 
 ## Geplant
+
+### Meetings
+
+- In einem Meeting möchte ich zu einer Person schnell etwas Gelerntes erfassen können, ein Gebetsanliegen, eine Geschenkidee, die aktuelle Jobposition oder ein Kontaktdetail (z.B. Email, Telefon).
+- In einem Meeting möchte ich zu jedem Teilnehmer schnell die letzten "Learnings" einsehen können sowie offene Gebetsanliegen oder den Geburtstag, so dass ich das in dem Meeting einfließen lassen oder nutzen kann.
 
 ### Account Details
 
@@ -38,6 +35,7 @@
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
 - Eine Checkliste einführen für das tägliche Planen.
+- Option anbieten, um verwaiste Aufgaben zu löschen.
 
 ### Projekte
 

@@ -4,26 +4,33 @@ import { FC } from "react";
 import AccountSelector from "../ui-elements/selectors/account-selector";
 import PayerAccounts from "./accounts";
 import PayerFinancials from "./financials";
+import NotesInput from "./notes-input";
 import PayerReseller from "./reseller";
 
 type PayerDetailsProps = {
   showLinkedAccounts?: boolean;
   showFinancials?: boolean;
+  showNotes?: boolean;
   showReseller?: boolean;
   payerId: string | undefined;
 };
 
 const PayerDetails: FC<PayerDetailsProps> = ({
   payerId,
+  showNotes,
   showFinancials = true,
   showLinkedAccounts = true,
   showReseller = true,
 }) => {
-  const { attachReseller } = usePayer(payerId);
+  const { attachReseller, payer, updateNotes } = usePayer(payerId);
 
   return (
     payerId && (
       <Accordion type="single" collapsible className="w-full">
+        {showNotes && (
+          <NotesInput payer={payer} onChange={updateNotes} className="" />
+        )}
+
         <div className="mt-2">
           <AccountSelector
             value=""
