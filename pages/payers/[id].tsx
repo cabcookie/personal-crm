@@ -26,7 +26,7 @@ const ProjectDetailPage = () => {
         resellerId={payer?.resellerId}
       />
 
-      <PayerDetails payerId={payerId} showLinkedAccounts />
+      <PayerDetails payerId={payerId} showLinkedAccounts showNotes />
     </MainLayout>
   );
 };

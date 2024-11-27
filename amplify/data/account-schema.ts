@@ -65,6 +65,7 @@ const accountSchema = {
       isViaReseller: a.boolean(),
       resellerId: a.id(),
       reseller: a.belongsTo("Account", "resellerId"),
+      notes: a.string(),
       mainContactId: a.id(),
       mainContact: a.belongsTo("Person", "mainContactId"),
       financials: a.hasMany("PayerAccountMrr", "awsAccountNumber"),
