@@ -1,11 +1,7 @@
-# AWS Payer ID erhält ein zusätzliches Notizfeld (Version :VERSION)
+# AWS Payer ID Person zuordnen (Version :VERSION)
 
-Damit können Bemerkungen für einen Account hinterlassen werden.
-Die Bemerkungen werden in der Tabelle mit den Finanzdaten mit angezeigt.
-
-## Fehlerbehebungen
-
-- Wenn versehentlich ein Reseller bei einer Account ID hinzugefügt wurde, kann dieser nun wieder gelöscht werden.
+- Person kann einer Payer ID als primärer Kontakt zugeordnet werden
+- Verlinkte Person wird in den Finanzdaten angezeigt
 
 ## In Arbeit
 
