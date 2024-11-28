@@ -1,4 +1,5 @@
 import usePayer from "@/api/usePayer";
+import PayerHeaderPerson from "@/components/payers/header-person";
 import ResellerBadge from "@/components/payers/reseller-badge";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
@@ -31,6 +32,11 @@ const RenderPayerHeader: FC<RenderPayerHeaderProps> = ({
           <ExternalLink className="ml-1 w-4 h-4 inline-block -translate-y-0.5" />
         </Link>
       )}
+
+      <PayerHeaderPerson
+        personId={payer?.mainContactId}
+        textResellerSize="xs"
+      />
 
       <div className="text-xs">{payer?.notes}</div>
 

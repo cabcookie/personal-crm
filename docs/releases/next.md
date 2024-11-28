@@ -1,10 +1,9 @@
 # AWS Payer ID Person zuordnen (Version :VERSION)
 
 - Person kann einer Payer ID als primärer Kontakt zugeordnet werden
+- Verlinkte Person wird in den Finanzdaten angezeigt
 
 ## In Arbeit
-
-- Person in den Finanzdaten anzeigen
 
 ## Geplant
 
