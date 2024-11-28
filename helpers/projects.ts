@@ -125,18 +125,18 @@ const searchTextInProjectName = (
 
 const filterByProjectStatus =
   ({ accountId, projectFilter }: FilterProjectsProps) =>
-  ({ accountIds, done, onHoldTill }: Project) =>
+  ({ accountIds, done, onHoldTill, partnerId }: Project) =>
     accountId
-      ? accountIds.includes(accountId) && !done
+      ? (accountIds.includes(accountId) || partnerId === accountId) && !done
       : (projectFilter === "WIP" && !done && !onHoldTill) ||
         (projectFilter === "On Hold" && !done && !!onHoldTill) ||
         (projectFilter === "Done" && done);
 
 const filterBySearch =
   ({ accountId, searchText }: FilterProjectsProps) =>
-  ({ accountIds, done, project }: Project) =>
+  ({ accountIds, done, project, partnerId }: Project) =>
     accountId
-      ? accountIds.includes(accountId) &&
+      ? (accountIds.includes(accountId) || partnerId === accountId) &&
         searchTextInProjectName(project, searchText) &&
         !done
       : searchTextInProjectName(project, searchText) && !done;

@@ -1,9 +1,10 @@
-# Notizen verlinkter Personen zeigen (Version :VERSION)
+# Partnerprojekte bei Partnerdetails zeigen (Version :VERSION)
 
-- Auf der Person-Detailseite werden auch Notizen gezeigt, in denen die Person nur erwähnt wurde.
-- Die Auflistung der Notizen wurde visuell verschlankt.
+- Bei Accounts tauchen auch Projekte auf, bei denen der Account als Partner engagiert ist
 
 ## In Arbeit
+
+- das gleiche gilt auch für die Notizen.
 
 ## Geplant
 
@@ -14,7 +15,6 @@
 
 ### Account Details
 
-- Bei Accounts sollten auch Projekte auftauchen, bei denen der Account als Partner engagiert ist; das gleiche gilt auch für die Notizen.
 - Ich möchte eine Möglichkeit haben, um zu dokumentieren, was ein Kunde mit einem Partner macht und mir dazu auch schnell eine Übersicht/Matrix erstellen können.
 - Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt
 
@@ -43,7 +43,6 @@
 - Bei in Notizen erwähnten Personen direkt das Schreiben einer Email oder das Anrufen (auf dem Smartphone) anbieten.
 - Das Datum des letzten Uploads von CRM Daten anzeigen.
 - Die Uploads für CRM Projekte sollen ähnlich wie bei den Finanzdaten eine Historie ermöglichen.
-- Eine "Lean-Ansicht" wäre toll, zum Beispiel, wenn ich Notizen zu einem Projekt sehen möchte, dann scrolle ich einfach durch die Notizen ohne erst Akkordions aufklappen zu müssen.
 
 ### Finanzdaten
 
@@ -61,9 +60,3 @@
 ### Suche
 
 - Ich möchte über alle Objekte in der App suchen können: Meetings, Projekte, Personen, Kunden, Notizen. Ich möchte, dass die Suchergebnisse relevant sind.
-
-## Fehler
-
-### Navigation
-
-- Die Navigation wird langsam zu lang. Da muss ich mir was überlegen. Bei recht kurzen Suchbegriffen (z.B. ECR Tag) wird die Auswahl zu wenig eingeschränkt.
