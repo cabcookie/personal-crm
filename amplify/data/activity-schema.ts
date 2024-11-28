@@ -31,7 +31,11 @@ const activitySchema = {
       person: a.belongsTo("Person", "personId"),
       noteBlockId: a.id().required(),
       noteBlock: a.belongsTo("NoteBlock", "noteBlockId"),
+      createdAt: a.datetime().required(),
     })
+    .secondaryIndexes((index) => [
+      index("personId").sortKeys(["createdAt"]).queryField("listByPersonId"),
+    ])
     .authorization((allow) => [allow.owner()]),
   NoteBlock: a
     .model({
