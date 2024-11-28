@@ -99,6 +99,36 @@ const usePayer = (payerId?: string) => {
     mutate(updated);
   };
 
+  const attachPerson = async (personId: string | null) => {
+    if (!personId) return;
+    if (!payer) return;
+    const updatedPayer = { ...payer, mainContactId: personId } as Payer;
+    mutate(updatedPayer, false);
+    const { data, errors } = await client.models.PayerAccount.update({
+      awsAccountNumber: payer.accountNumber,
+      mainContactId: personId,
+    });
+    if (errors) handleApiErrors(errors, "Attaching person failed");
+    mutate(updatedPayer);
+    return data;
+  };
+
+  const deletePerson = async () => {
+    if (!payer) return;
+    const updatedPayer = {
+      ...payer,
+      mainContactId: undefined,
+    } as Payer;
+    mutate(updatedPayer, false);
+    const { data, errors } = await client.models.PayerAccount.update({
+      awsAccountNumber: payer.accountNumber,
+      mainContactId: null,
+    });
+    if (errors) handleApiErrors(errors, "Deleting person failed");
+    mutate(updatedPayer);
+    return data;
+  };
+
   const attachReseller = async (resellerId: string | null) => {
     if (!resellerId) return;
     if (!payer) return;
@@ -150,6 +180,8 @@ const usePayer = (payerId?: string) => {
     deletePayerAccount,
     attachReseller,
     deleteReseller,
+    attachPerson,
+    deletePerson,
     updateNotes,
   };
 };

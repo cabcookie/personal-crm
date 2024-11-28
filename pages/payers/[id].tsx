@@ -5,7 +5,7 @@ import PayerDetails from "@/components/payers/details";
 import ResellerBadge from "@/components/payers/reseller-badge";
 import { useRouter } from "next/router";
 
-const ProjectDetailPage = () => {
+const PayerDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const payerId = Array.isArray(id) ? id[0] : id;
@@ -30,4 +30,4 @@ const ProjectDetailPage = () => {
     </MainLayout>
   );
 };
-export default ProjectDetailPage;
+export default PayerDetailPage;
