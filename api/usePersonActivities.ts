@@ -92,7 +92,7 @@ const fetchPersonActivities = (personId?: string) => async () => {
   const mentionedPersonActivities =
     await fetchMentionedPersonActivities(personId);
   const { data, errors } =
-    await client.models.MeetingParticipant.listByPersonId(
+    await client.models.MeetingParticipant.listMeetingParticipantByPersonIdAndCreatedAt(
       {
         personId,
       },

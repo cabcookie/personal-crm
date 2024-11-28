@@ -41,9 +41,7 @@ const personSchmema = {
       person: a.belongsTo("Person", "personId"),
       createdAt: a.datetime().required(),
     })
-    .secondaryIndexes((index) => [
-      index("personId").sortKeys(["createdAt"]).queryField("listByPersonId"),
-    ])
+    .secondaryIndexes((index) => [index("personId").sortKeys(["createdAt"])])
     .authorization((allow) => [allow.owner()]),
   PersonAccount: a
     .model({
