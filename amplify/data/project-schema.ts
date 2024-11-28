@@ -148,6 +148,9 @@ const projectSchema = {
       partnerId: a.id(),
       partner: a.belongsTo("Account", "partnerId"),
     })
+    .secondaryIndexes((index) => [
+      index("partnerId").queryField("listByPartnerId"),
+    ])
     .authorization((allow) => [allow.owner()]),
 };
 
