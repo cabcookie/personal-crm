@@ -1,7 +1,7 @@
-# AWS Payer ID Person zuordnen (Version :VERSION)
+# Notizen verlinkter Personen zeigen (Version :VERSION)
 
-- Person kann einer Payer ID als primärer Kontakt zugeordnet werden
-- Verlinkte Person wird in den Finanzdaten angezeigt
+- Auf der Person-Detailseite werden auch Notizen gezeigt, in denen die Person nur erwähnt wurde.
+- Die Auflistung der Notizen wurde visuell verschlankt.
 
 ## In Arbeit
 
