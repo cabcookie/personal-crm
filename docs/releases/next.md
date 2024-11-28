@@ -1,10 +1,9 @@
 # Partnerprojekte bei Partnerdetails zeigen (Version :VERSION)
 
-- Bei Accounts tauchen auch Projekte auf, bei denen der Account als Partner engagiert ist
+- Bei Accounts tauchen auch Projekte auf, bei denen der Account als Partner engagiert ist.
+- Auch die Notizen werden angezeigt, wenn der Account als Partner im Projekt involviert ist.
 
 ## In Arbeit
-
-- das gleiche gilt auch für die Notizen.
 
 ## Geplant
 
