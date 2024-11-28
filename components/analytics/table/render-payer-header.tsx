@@ -18,19 +18,21 @@ const RenderPayerHeader: FC<RenderPayerHeaderProps> = ({
   const { payer } = usePayer(id);
 
   return (
-    <div>
+    <div className="text-gray-500">
       {!id ? (
         label
       ) : (
         <Link
           href={`/payers/${id}`}
           target="_blank"
-          className="text-gray-500 hover:text-blue-400"
+          className="hover:text-blue-400"
         >
           {label}
           <ExternalLink className="ml-1 w-4 h-4 inline-block -translate-y-0.5" />
         </Link>
       )}
+
+      <div className="text-xs">{payer?.notes}</div>
 
       <ResellerBadge
         isReseller={isReseller}
