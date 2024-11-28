@@ -7,9 +7,8 @@ import {
   getQuotaFromTerritoryOrSubsidaries,
 } from "@/helpers/accounts";
 import {
-  createPayerAccountLink,
+  createPayerAndAccountLink,
   deletePayerAccountLink,
-  getOrCreatePayerAccount,
 } from "@/helpers/payers/api-actions";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
@@ -430,12 +429,7 @@ export const AccountsContextProvider: FC<AccountsContextProviderProps> = ({
         : { ...a, payerAccounts: [...a.payerAccounts, payer] }
     );
     if (updated) mutate(updated, false);
-    const payerAccountId = await getOrCreatePayerAccount(payer);
-    if (!payerAccountId) return;
-    const resultAccountId = await createPayerAccountLink(
-      accountId,
-      payerAccountId
-    );
+    const resultAccountId = await createPayerAndAccountLink(accountId, payer);
     if (!resultAccountId) return;
     if (updated) mutate(updated);
     toast({

@@ -78,13 +78,16 @@ const usePayer = (payerId?: string) => {
 
   const createPayerAccountLink = async (accountId: string | null) => {
     if (!accountId) return;
-    if (!payer) return;
+    if (!payerId) return;
     const updatedPayer = {
-      ...payer,
-      accountIds: [...payer.accountIds, accountId],
+      accountNumber: payerId,
+      isReseller: !!payer?.isReseller,
+      resellerId: payer?.resellerId,
+      notes: payer?.notes ?? "",
+      accountIds: [...(payer?.accountIds ?? []), accountId],
     } as Payer;
     mutate(updatedPayer, false);
-    await createPayerAndAccountLink(accountId, payer.accountNumber);
+    await createPayerAndAccountLink(accountId, payerId);
     mutate(updatedPayer);
   };
 
