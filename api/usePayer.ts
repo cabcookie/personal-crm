@@ -113,6 +113,22 @@ const usePayer = (payerId?: string) => {
     return data;
   };
 
+  const deleteReseller = async () => {
+    if (!payer) return;
+    const updatedPayer = {
+      ...payer,
+      resellerId: undefined,
+    } as Payer;
+    mutate(updatedPayer, false);
+    const { data, errors } = await client.models.PayerAccount.update({
+      awsAccountNumber: payer.accountNumber,
+      resellerId: null,
+    });
+    if (errors) handleApiErrors(errors, "Deleting reseller failed");
+    mutate(updatedPayer);
+    return data;
+  };
+
   const updateNotes = async (notes: string) => {
     if (!payer) return;
     const updatedPayer = { ...payer, notes } as Payer;
@@ -133,6 +149,7 @@ const usePayer = (payerId?: string) => {
     createPayerAccountLink,
     deletePayerAccount,
     attachReseller,
+    deleteReseller,
     updateNotes,
   };
 };

@@ -1,6 +1,11 @@
 # AWS Payer ID erhält ein zusätzliches Notizfeld (Version :VERSION)
 
 Damit können Bemerkungen für einen Account hinterlassen werden.
+Die Bemerkungen werden in der Tabelle mit den Finanzdaten mit angezeigt.
+
+## Fehlerbehebungen
+
+- Wenn versehentlich ein Reseller bei einer Account ID hinzugefügt wurde, kann dieser nun wieder gelöscht werden.
 
 ## In Arbeit
 
