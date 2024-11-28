@@ -251,6 +251,7 @@ const useMeetings = ({
     const { data, errors } = await client.models.MeetingParticipant.create({
       personId,
       meetingId: meetingId,
+      createdAt: newDateTimeString(),
     });
     if (errors) handleApiErrors(errors, "Error adding meeting participant");
     if (updated) mutateMeetings(updated);
