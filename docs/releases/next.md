@@ -2,7 +2,13 @@
 
 Damit können Bemerkungen für einen Account hinterlassen werden.
 
+## Fehlerbehebungen
+
+- Wenn versehentlich ein Reseller bei einer Account ID hinzugefügt wurde, kann dieser nun wieder gelöscht werden.
+
 ## In Arbeit
+
+- Die Bemerkungen werden in der Tabelle mit den Finanzdaten mit angezeigt.
 
 ## Geplant
 

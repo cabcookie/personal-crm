@@ -147,10 +147,9 @@ export const setResellerByPayer = (
   accounts: Account[] | undefined,
   setReseller: Dispatch<SetStateAction<Account | undefined>>
 ) =>
-  payer?.resellerId &&
   flow(
     identity<Account[] | undefined>,
-    find(["id", payer.resellerId]),
+    find(["id", payer?.resellerId]),
     setReseller
   )(accounts);
 
