@@ -67,7 +67,11 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
       <EditorContent editor={editor} />
       {editor && <LinkBubbleMenu editor={editor} />}
       <div id="at-mention-tippy" />
-      <MetaData created={activity?.finishedOn} updated={activity?.updatedAt} />
+      <MetaData
+        created={activity?.finishedOn}
+        updated={activity?.updatedAt}
+        readonly={readonly}
+      />
     </>
   );
 };

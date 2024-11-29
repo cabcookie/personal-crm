@@ -33,7 +33,7 @@ const PersonNotes: FC<PersonNotesProps> = ({ showNotes, personId }) => {
       ]}
       isVisible={!!showNotes}
     >
-      <div className="space-y-6">
+      <div className="space-y-10">
         {activities?.map((a) => (
           <LeanActivitiy key={a.id} activity={a} readonly />
         ))}

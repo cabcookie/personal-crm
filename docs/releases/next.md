@@ -1,7 +1,6 @@
-# Partnerprojekte bei Partnerdetails zeigen (Version :VERSION)
+# Schlanke Notizen für Projekte (Version :VERSION)
 
-- Bei Accounts tauchen auch Projekte auf, bei denen der Account als Partner engagiert ist.
-- Auch die Notizen werden angezeigt, wenn der Account als Partner im Projekt involviert ist.
+- Auch bei den Projekten werden die Notizen nun in schlanker Form dargestellt.
 
 ## In Arbeit
 
@@ -42,6 +41,9 @@
 - Bei in Notizen erwähnten Personen direkt das Schreiben einer Email oder das Anrufen (auf dem Smartphone) anbieten.
 - Das Datum des letzten Uploads von CRM Daten anzeigen.
 - Die Uploads für CRM Projekte sollen ähnlich wie bei den Finanzdaten eine Historie ermöglichen.
+- Im Kontext Hobby einen Purpose einfügen.
+- Im Kontext Familie einführen, welche Person von einem Projekt profitiert ("Beneficial").
+- Purpose und Beneficial haben Einfluss auf die Priorität und die Sortierung von Projekten.
 
 ### Finanzdaten
 
@@ -51,6 +53,13 @@
 - TTM anzeigen.
 - Mit LLM oder einfach auf Formular-Basis erstellte Revenue Statements zur Verfügung stellen.
 - Umsätze der Unternehmen anzeigen (Jahresumsatz etc.).
+
+### Notizen
+
+- Für alle erfassten Informationen die [PARA-Methode](https://fortelabs.com/blog/para/) anwenden.
+- Bilder aus Notizen am Projekt zeigen.
+- Auch Dokumente (PDFs etc.) an Notizen anhängen. Sollten im Fließtext dargestellt werden.
+- Eine Methode überlegen, wie ich Informationen danach kategorisiere, ob sie nur für das Projekt relevant sind, für den Kunden oder den Purpose oder sogar übergreifend für den Kontext (Familie, Hobby, Arbeit). Gerade dort kann die [PARA-Methode](https://fortelabs.com/blog/para/) helfen.
 
 ### Künstliche Intelligenz
 

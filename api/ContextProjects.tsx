@@ -1,4 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
+import { ILeanActivity } from "@/components/activities/activity-lean";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import {
@@ -94,6 +95,7 @@ export type Project = {
   context: Context;
   accountIds: string[];
   partnerId?: string;
+  activities: ILeanActivity[];
   activityIds: string[];
   crmProjects: CrmProject[];
   hasOldVersionedActivityFormat: boolean;
@@ -117,9 +119,11 @@ const selectionSet = [
   "accounts.createdAt",
   "partner.id",
   "activities.activity.id",
-  "activities.activity.finishedOn",
-  "activities.activity.formatVersion",
   "activities.activity.createdAt",
+  "activities.activity.finishedOn",
+  "activities.activity.forProjects.projects.id",
+  "activities.activity.meetingActivitiesId",
+  "activities.activity.formatVersion",
   "activities.activity.forMeeting.participants.personId",
   "crmProjects.crmProject.id",
   "crmProjects.crmProject.name",
@@ -210,9 +214,31 @@ const mapProject: (project: ProjectData) => Project = ({
       sortBy((a) => -a.createdAt.getTime()),
       map((a) => a.accountId)
     )(accounts),
+    activities: flow(
+      identity<typeof activities>,
+      map("activity"),
+      compact,
+      map(
+        ({
+          id,
+          finishedOn,
+          createdAt,
+          forProjects,
+          meetingActivitiesId,
+        }): ILeanActivity => ({
+          id,
+          finishedOn: new Date(finishedOn || createdAt),
+          projectIds: forProjects.map((p) => p.projects.id),
+          meetingId: meetingActivitiesId || undefined,
+        })
+      ),
+      sortBy((a) => -a.finishedOn.getTime())
+    )(activities),
     activityIds: flow(
-      filter((a: (typeof activities)[number]) => !!a.activity),
-      map(({ activity: { id, createdAt, finishedOn } }) => ({
+      identity<typeof activities>,
+      map("activity"),
+      compact,
+      map(({ id, createdAt, finishedOn }) => ({
         id,
         finishedOn: new Date(finishedOn || createdAt),
       })),
@@ -301,6 +327,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       done: false,
       context,
       accountIds: [],
+      activities: [],
       activityIds: [],
       crmProjects: [],
       involvedPeopleIds: [],

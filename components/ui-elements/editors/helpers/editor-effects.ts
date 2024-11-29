@@ -47,7 +47,8 @@ export const applyPastePropsAndUiAttrs = (
           }),
       attributes: {
         class: cn(
-          "prose w-full max-w-full text-notesEditor rounded-md border p-2 bg-inherit transition duration-1000 ease",
+          "prose w-full max-w-full text-notesEditor bg-inherit transition duration-1000 ease",
+          !readonly && "rounded-md border p-2",
           showSaveStatus &&
             content &&
             !readonly &&

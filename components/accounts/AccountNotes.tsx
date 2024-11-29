@@ -12,9 +12,11 @@ const AccountNotes: FC<AccountNotesProps> = ({ accountId }) => {
 
   return (
     <DefaultAccordionItem value="notes" triggerTitle="Notes">
-      {activities?.map((a) => (
-        <LeanActivitiy key={a.id} activity={a} readonly />
-      ))}
+      <div className="space-y-10">
+        {activities?.map((a) => (
+          <LeanActivitiy key={a.id} activity={a} readonly />
+        ))}
+      </div>
     </DefaultAccordionItem>
   );
 };
