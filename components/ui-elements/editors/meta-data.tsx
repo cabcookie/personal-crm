@@ -1,8 +1,10 @@
+import { cn } from "@/lib/utils";
 import { FC } from "react";
 
 type MetaDataProps = {
   created: Date;
   updated?: Date;
+  readonly?: boolean;
 };
 
 const dateTimeOptions: Intl.DateTimeFormatOptions = {
@@ -24,12 +26,14 @@ const getUpdatedAtTime = ({ created, updated }: MetaDataProps) =>
         : ` – Updated on: ${makeLocaleString(updated)}`
   }`;
 
-const MetaData: FC<Partial<MetaDataProps>> = ({ created, updated }) => {
-  return (
-    <div className="text-muted-foreground mt-1 ml-2">
-      <small>{created && getUpdatedAtTime({ created, updated })}</small>
-    </div>
-  );
-};
+const MetaData: FC<Partial<MetaDataProps>> = ({
+  created,
+  updated,
+  readonly,
+}) => (
+  <div className={cn("text-muted-foreground", !readonly && "mx-2")}>
+    <small>{created && getUpdatedAtTime({ created, updated })}</small>
+  </div>
+);
 
 export default MetaData;

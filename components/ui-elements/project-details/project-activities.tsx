@@ -1,6 +1,6 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import ActivityComponent from "@/components/activities/activity";
 import ActivityFormatBadge from "@/components/activities/activity-format-badge";
+import LeanActivitiy from "@/components/activities/activity-lean";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import { FC } from "react";
@@ -34,9 +34,12 @@ const ProjectActivities: FC<ProjectActivitiesProps> = ({
           <PlusCircle className="w-4 h-4" />
           Activity
         </Button>
-        {project.activityIds.map((id) => (
-          <ActivityComponent key={id} activityId={id} showDates showMeeting />
-        ))}
+
+        <div className="space-y-10 pt-4">
+          {project.activities.map((a) => (
+            <LeanActivitiy key={a.id} activity={a} readonly />
+          ))}
+        </div>
       </div>
     </DefaultAccordionItem>
   );

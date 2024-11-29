@@ -6,7 +6,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
-interface Activity {
+export interface ILeanActivity {
   id: string;
   finishedOn: Date;
   projectIds: string[];
@@ -14,7 +14,7 @@ interface Activity {
 }
 
 type LeanActivitiyProps = {
-  activity: Activity;
+  activity: ILeanActivity;
   readonly?: boolean;
 };
 
