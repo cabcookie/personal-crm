@@ -27,7 +27,7 @@ const PersonNoteAccount: FC<PersonNoteAccountProps> = ({
   return (
     <Link
       href={`/accounts/${account?.id}`}
-      className={cn("hover:text-blue-600", className)}
+      className={cn("hover:text-blue-600 font-semibold", className)}
     >
       {account?.name}
     </Link>

@@ -18,8 +18,12 @@ const PersonNoteMeeting: FC<PersonNoteMeetingProps> = ({
   return (
     meeting && (
       <div className={cn(className)}>
-        <Link href={`/meetings/${meeting.id}`} className="hover:text-blue-600">
-          Meeting: {meeting.topic} ({format(meeting.meetingOn, "PPp")})
+        Meeting:{" "}
+        <Link
+          href={`/meetings/${meeting.id}`}
+          className="hover:text-blue-600 font-semibold"
+        >
+          {meeting.topic} ({format(meeting.meetingOn, "PPp")})
         </Link>
       </div>
     )

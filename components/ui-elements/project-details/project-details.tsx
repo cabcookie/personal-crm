@@ -3,6 +3,7 @@ import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import DecisionSection from "@/components/planning/DecisionSection";
 import ProjectInvolvedPeople from "@/components/projects/project-involved-people";
 import ProjectNameForm from "@/components/projects/project-name-form";
+import ProjectNotes from "@/components/projects/project-notes";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
@@ -15,7 +16,6 @@ import CrmProjectsList from "../crm-project-details/crm-projects-list";
 import RecordDetails from "../record-details/record-details";
 import ProjectNextActions from "./next-actions";
 import ProjectAccountDetails from "./project-account-details";
-import ProjectActivities from "./project-activities";
 import ProjectDates from "./project-dates";
 
 type ProjectDetailsProps = {
@@ -170,7 +170,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 
           <ProjectNextActions projectId={project.id} />
 
-          <ProjectActivities isVisible={showNotes} project={project} />
+          <ProjectNotes isVisible={showNotes} projectId={project.id} />
         </Accordion>
       </div>
     )
