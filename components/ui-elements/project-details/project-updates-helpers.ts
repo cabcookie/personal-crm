@@ -1,5 +1,3 @@
-import { debounce } from "lodash";
-
 type UpdateFnProps = {
   id: string;
   project?: string;
@@ -12,15 +10,3 @@ type UpdateProjectDetailsProps = UpdateFnProps & {
   updateProjectFn: (props: UpdateFnProps) => Promise<string | undefined>;
   setSaveStatus: (status: boolean) => void;
 };
-
-export const debouncedUpdateProjectDetails = debounce(
-  async ({
-    updateProjectFn,
-    setSaveStatus,
-    ...props
-  }: UpdateProjectDetailsProps) => {
-    const data = await updateProjectFn(props);
-    if (data) setSaveStatus(true);
-  },
-  1500
-);

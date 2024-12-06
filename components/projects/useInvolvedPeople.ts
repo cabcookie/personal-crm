@@ -39,7 +39,7 @@ type InvolvedPersonData = SelectionSet<
   typeof selectionSet
 >;
 
-export type InvolvedPerson = {
+type InvolvedPerson = {
   id: string;
   name: string;
   lastInteraction: Date;
