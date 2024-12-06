@@ -5,12 +5,11 @@ import { generateClient, SelectionSet } from "aws-amplify/data";
 import { addDays, format } from "date-fns";
 import { filter, flow, union } from "lodash/fp";
 import useSWR from "swr";
-import { Project } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
 
-const WEEK_PLAN_STATUS = ["WIP", "DONE", "CANCELLED"];
-type TWeekPlanStatus = (typeof WEEK_PLAN_STATUS)[number];
+const _WEEK_PLAN_STATUS = ["WIP", "DONE", "CANCELLED"];
+type TWeekPlanStatus = (typeof _WEEK_PLAN_STATUS)[number];
 
 export type WeeklyPlan = {
   id: string;
@@ -141,6 +140,11 @@ const useWeekPlan = () => {
       })
     );
   };
+
+  interface Project {
+    id: string;
+    onHoldTill?: Date | null;
+  }
 
   type MakeProjectDecisionProps = {
     inFocusThisWeek: boolean;

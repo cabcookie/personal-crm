@@ -1,4 +1,3 @@
-import { Project } from "@/api/ContextProjects";
 import useWeekPlan from "@/api/useWeekPlan";
 import { isDeselectedForWeek, isSelectedForWeek } from "@/helpers/planning";
 import { cn } from "@/lib/utils";
@@ -6,11 +5,16 @@ import { FC, useEffect, useState } from "react";
 import { Label } from "../ui/label";
 import DecisionButton from "./DecisionButton";
 
-type DecisionSectionProps = {
+interface Project {
+  id: string;
+  onHoldTill?: Date | null;
+}
+
+interface DecisionSectionProps {
   project: Project;
   className?: string;
   saveOnHoldDate: (onHoldTill: Date | null) => void;
-};
+}
 
 const DecisionSection: FC<DecisionSectionProps> = ({
   project,

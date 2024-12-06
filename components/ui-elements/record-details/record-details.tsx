@@ -17,7 +17,7 @@ const RecordDetails: FC<RecordDetailsProps> = ({
   return (
     <div
       className={cn(
-        title !== "" && "w-full border-solid border rounded-md mb-4",
+        title !== "" && "w-full border-solid border rounded-md",
         className
       )}
     >

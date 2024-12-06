@@ -11,15 +11,14 @@ const PersonDetailPage = () => {
   const { person } = usePerson(personId);
   const [formOpen, setFormOpen] = useState(false);
 
+  const makePersonName = () =>
+    !person
+      ? undefined
+      : `${person.name}${!person.howToSay ? "" : ` (say: ${person.howToSay})`}`;
+
   return (
     <MainLayout
-      title={
-        !person
-          ? undefined
-          : `${person.name}${
-              !person.howToSay ? "" : ` (say: ${person.howToSay})`
-            }`
-      }
+      title={makePersonName()}
       recordName={person?.name}
       sectionName="People"
       addButton={{ label: "Edit", onClick: () => setFormOpen(true) }}

@@ -1,4 +1,3 @@
-import { CrmProject } from "@/api/useCrmProjects";
 import useCurrentUser, { User } from "@/api/useUser";
 import { make2YearsRevenueText } from "@/helpers/projects";
 import { filter, flow, map, sum } from "lodash/fp";
@@ -7,6 +6,11 @@ import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem"
 import CrmProjectAccordionItem from "../ui-elements/crm-project-details/CrmProjectAccordionItem";
 import { Accordion } from "../ui/accordion";
 import { THygieneIssue } from "./pipeline-hygiene";
+
+interface CrmProject {
+  id: string;
+  pipeline: number;
+}
 
 export const categoryPipeline =
   (user: User | undefined, crmProjects: CrmProject[] | undefined) =>

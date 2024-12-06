@@ -17,7 +17,11 @@ import { BiLinkExternal } from "react-icons/bi";
 interface DefaultAccordionItemProps extends AccordionItemProps {
   triggerTitle: ReactNode;
   link?: string;
-  triggerSubTitle?: string | boolean | (string | undefined | boolean)[];
+  triggerSubTitle?:
+    | string
+    | boolean
+    | null
+    | (string | undefined | null | boolean)[];
   isVisible?: boolean;
   onDelete?: () => void;
   badge?: ReactNode;

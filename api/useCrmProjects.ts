@@ -1,6 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
-import { addDaysToDate, toISODateString } from "@/helpers/functional";
+import {
+  addDaysToDate,
+  getDateOrUndefined,
+  toISODateString,
+} from "@/helpers/functional";
 import {
   CalcPipelineFields,
   calcRevenueTwoYears,
@@ -102,7 +106,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   projectLinkIds: projects.map(({ id }) => id),
   projectIds: projects.map(({ project: { id } }) => id),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
-  stageChangedDate: !stageChangedDate ? undefined : new Date(stageChangedDate),
+  stageChangedDate: getDateOrUndefined(stageChangedDate),
   hygieneIssuesResolved:
     !!confirmHygieneIssuesSolvedTill &&
     new Date(confirmHygieneIssuesSolvedTill).getTime() > new Date().getTime(),

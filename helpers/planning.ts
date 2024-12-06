@@ -209,9 +209,14 @@ export const mapAccountOrder =
     pipeline: getProjectsPipeline(account.id, projects),
   });
 
-export const isSelectedForWeek = (weekPlan: WeeklyPlan, project: Project) =>
-  weekPlan.projectIds.some((id) => id === project.id);
+export const isSelectedForWeek = (
+  weekPlan: WeeklyPlan,
+  project: { id: string }
+) => weekPlan.projectIds.some((id) => id === project.id);
 
-export const isDeselectedForWeek = (weekPlan: WeeklyPlan, project: Project) =>
+export const isDeselectedForWeek = (
+  weekPlan: WeeklyPlan,
+  project: { onHoldTill?: Date | null }
+) =>
   !!project.onHoldTill &&
   differenceInCalendarDays(project.onHoldTill, weekPlan.startDate) >= 7;

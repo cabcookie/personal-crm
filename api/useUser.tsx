@@ -1,5 +1,6 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
+import { getDateOrUndefined } from "@/helpers/functional";
 import { uploadFileToS3 } from "@/helpers/s3/upload-files";
 import { AuthUser, getCurrentUser } from "aws-amplify/auth";
 import { generateClient, SelectionSet } from "aws-amplify/data";
@@ -50,8 +51,8 @@ const mapUser = (user: AuthUser, profileData: UserData | null): User => ({
     filter((a: AccountData) => !a.endDate || isFuture(new Date(a.endDate))),
     map((a) => ({
       accountId: a.accountId,
-      startDate: !a.startDate ? undefined : new Date(a.startDate),
-      endDate: !a.endDate ? undefined : new Date(a.endDate),
+      startDate: getDateOrUndefined(a.startDate),
+      endDate: getDateOrUndefined(a.endDate),
     })),
     sortBy((a) => -(a.startDate?.getTime() || 0)),
     first,

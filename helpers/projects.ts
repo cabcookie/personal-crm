@@ -30,7 +30,7 @@ interface ICalcRevenueTwoYears {
   arr: number;
   tcv: number;
   closeDate: Date;
-  isMarketPlace?: boolean;
+  isMarketplace?: boolean;
   stage: TCrmStages;
 }
 
@@ -41,7 +41,7 @@ export const mapPipelineFields = ({
   tcv: crmProject?.totalContractVolume ?? 0,
   closeDate: !crmProject ? new Date() : new Date(crmProject.closeDate),
   stage: !crmProject ? "Prospect" : (crmProject.stage as TCrmStages),
-  isMarketPlace: crmProject?.isMarketplace ?? false,
+  isMarketplace: !!crmProject?.isMarketplace,
 });
 
 const calcProjectOrder =
@@ -59,13 +59,13 @@ export const calcRevenueTwoYears = (crmProject: ICalcRevenueTwoYears) =>
       arr,
       tcv,
       closeDate,
-      isMarketPlace,
+      isMarketplace,
       stage,
     }: ICalcRevenueTwoYears): number[] => [
       (arr / 12) *
         (24 - differenceInCalendarMonths(closeDate, new Date())) *
         getProbability(stage),
-      (tcv / (isMarketPlace ? 2 : 1)) * getProbability(stage),
+      (tcv / (isMarketplace ? 2 : 1)) * getProbability(stage),
     ],
     maxOfArray,
     round

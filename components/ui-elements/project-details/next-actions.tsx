@@ -5,7 +5,6 @@ import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import { getTodoText } from "../editors/helpers/text-generation";
 import AddTodoSection from "../editors/todo-editor/AddTodoSection";
 import TodoViewer from "../editors/todo-viewer/TodoViewer";
-import LegacyNextActions from "./legacy-next-actions";
 
 type ProjectNextActionsProps = {
   projectId: string;
@@ -36,8 +35,6 @@ const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
       <AddTodoSection onSave={createTodo} />
 
       {projectTodos && <TodoViewer todos={projectTodos} />}
-
-      <LegacyNextActions projectId={projectId} />
     </DefaultAccordionItem>
   );
 };

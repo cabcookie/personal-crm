@@ -1,6 +1,7 @@
 import { PersonData } from "@/api/usePerson";
 import { isFuture } from "date-fns";
 import { flow, map, sortBy } from "lodash/fp";
+import { getDateOrUndefined } from "../functional";
 
 type AccountData = PersonData["accounts"][number];
 
@@ -33,8 +34,8 @@ const mapAccount = (a: AccountData): PersonAccount => ({
   personAccountId: a.id,
   accountId: a.account?.id,
   accountName: a.account?.name,
-  startDate: !a.startDate ? undefined : new Date(a.startDate),
-  endDate: !a.endDate ? undefined : new Date(a.endDate),
+  startDate: getDateOrUndefined(a.startDate),
+  endDate: getDateOrUndefined(a.endDate),
   position: a.position || undefined,
   isCurrent: !a.endDate || isFuture(new Date(a.endDate)),
 });
