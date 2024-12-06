@@ -127,7 +127,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 
           <ProjectDates project={project} updateDatesFn={handleDateChange} />
 
-          <ProjectInvolvedPeople project={project} />
+          <ProjectInvolvedPeople projectId={project.id} />
 
           <ProjectNextActions projectId={project.id} />
 

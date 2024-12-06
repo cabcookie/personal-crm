@@ -1,22 +1,27 @@
-import { Project } from "@/api/ContextProjects";
-import usePeople from "@/api/usePeople";
+import { map } from "lodash/fp";
 import { FC } from "react";
 import PeopleList from "../people/PeopleList";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
+import useInvolvedPeople from "./useInvolvedPeople";
 
 type ProjectInvolvedPeopleProps = {
-  project: Project;
+  projectId: string;
 };
 
-const ProjectInvolvedPeople: FC<ProjectInvolvedPeopleProps> = ({ project }) => {
-  const { getNamesByIds } = usePeople();
+const ProjectInvolvedPeople: FC<ProjectInvolvedPeopleProps> = ({
+  projectId,
+}) => {
+  const { involvedPeople } = useInvolvedPeople(projectId);
   return (
     <DefaultAccordionItem
       value="involved-people"
       triggerTitle="Involved People"
-      triggerSubTitle={getNamesByIds(project.involvedPeopleIds)}
+      triggerSubTitle={involvedPeople?.map(
+        ({ name, accountNames }) =>
+          `${name}${!accountNames ? "" : ` (${accountNames})`}`
+      )}
     >
-      <PeopleList personIds={project.involvedPeopleIds} showNotes={false} />
+      <PeopleList personIds={map("id")(involvedPeople)} showNotes={false} />
     </DefaultAccordionItem>
   );
 };
