@@ -220,6 +220,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
           accountName: obj.accountName,
           territoryName: obj.territoryName,
           hygieneIssuesResolved: false,
+          pipeline: 0,
         })
       )
       .sort((a, b) => b.arr - a.arr);

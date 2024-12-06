@@ -13,15 +13,6 @@ export const createPayerAndAccountLink = async (
   return createPayerAccountLink(accountId, payerAccountId);
 };
 
-export const createPayerAndPersonLink = async (
-  personId: string | null,
-  payerId: string
-) => {
-  const payerAccountId = await getOrCreatePayerAccount(payerId);
-  if (!payerAccountId) return;
-  return createPayerPersonLink(personId, payerAccountId);
-};
-
 export const deletePayerAccountLink = async (
   accountId: string,
   payer: string

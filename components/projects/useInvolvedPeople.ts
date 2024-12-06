@@ -35,11 +35,11 @@ const selectionSet = [
 
 type InvolvedPersonData = SelectionSet<
   Schema["ProjectActivity"]["type"],
-  // @ts-ignore
+  // @ts-expect-error selectionSet is deep, however it works perfectly
   typeof selectionSet
 >;
 
-export type InvolvedPerson = {
+type InvolvedPerson = {
   id: string;
   name: string;
   lastInteraction: Date;
@@ -91,7 +91,7 @@ const fetchInvolvedPeople = (projectId: string) => async () => {
   const options = { limit: 1000, selectionSet };
   const operation =
     client.models.ProjectActivity.listProjectActivityByProjectsId;
-  // @ts-ignore
+  // @ts-expect-error selectionSet is deep, however it works perfectly
   const { data, errors } = await operation({ projectsId: projectId }, options);
   if (errors) {
     handleApiErrors(errors, "Loading InvolvedPerson failed");

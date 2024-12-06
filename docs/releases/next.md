@@ -2,13 +2,13 @@
 
 - Die Aufgaben-Sektion sollte auch dann gezeigt werden, wenn es aktuell keine Aufgaben gibt.
 - Wenn eine neue Aktivität hinzugefügt wird sollte die UI etwas mehr zeigen, was gerade passiert. Da man die Aktivität nicht editieren kann, macht es Sinn, die Aktivität zu öffnen.
+- Die tägliche Aufgabenliste ist etwas schlanker gestaltet.
 
 ## In Arbeit
 
 ## Geplant
 
 - Option anbieten, um verwaiste Aufgaben zu löschen.
-- Die tägliche Aufgabenliste ist etwas überfrachtet. Kann das etwas verschlankt werden?
 - Ich möchte ein Projekt in der täglichen Aufgabenliste abschließen können; es taucht nur dann wieder auf, wenn neue Aufgaben nach dem Abhaken hinzu kommen.
 - Wenn Todos erledigt werden in der täglichen Aufgabenliste sollen sie in der Liste der erledigten Aufgaben angezeigt werden, auch wenn die Tagesliste noch in der Zukunft liegt.
 - Ich möchte `ContextProject.tsx` so wie es ist komplett auflösen. Ich sehe das nicht als effizient an, immer so viele Daten zu laden, selbst wenn ich nur die Projektnamen haben möchte.
