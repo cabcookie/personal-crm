@@ -5,13 +5,15 @@ import useDailyPlans, {
 } from "@/api/useDailyPlans";
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
 import AddTodoSection from "@/components/ui-elements/editors/todo-editor/AddTodoSection";
-import ShowHideSwitch from "@/components/ui-elements/ShowHideSwitch";
+import { ButtonPlayPause } from "@/components/ui/button-play-pause";
+import { IconButton } from "@/components/ui/icon-button";
 import { setPostponedTodoList, setTodoList } from "@/helpers/today";
+import { cn } from "@/lib/utils";
 import { flow, get, identity } from "lodash/fp";
+import { Check, Plus, Square } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import ProjectAccordionItem from "../../projects/ProjectAccordionItem";
 import DailyPlanProjectTodos from "./DailyPlanProjectTodos";
-import ReviseProjectDecision from "./ReviseProjectDecision";
 
 type DailyPlanProjectProps = {
   dayPlan: DailyPlan;
@@ -34,6 +36,7 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   >();
   const [showTodos, setShowTodos] = useState(!dailyPlanProject.maybe);
   const [showDonePostPoned, setShowDonePostPoned] = useState(false);
+  const [isTodoFormOpen, setIsTodoFormOpen] = useState(false);
 
   useEffect(() => {
     flow(
@@ -61,21 +64,51 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
           <ProjectAccordionItem project={project} />
         </div>
 
+        <div className="flex flex-row gap-1">
+          <ButtonPlayPause
+            state={dailyPlanProject.maybe ? "PAUSE" : "PLAY"}
+            className="w-7 h-7 p-1"
+            onClick={() => addProject(!dailyPlanProject.maybe)}
+          />
+
+          <IconButton
+            className="w-7 h-7 p-1"
+            onClick={() => setIsTodoFormOpen((val) => !val)}
+          >
+            <Plus
+              className={cn(
+                !isTodoFormOpen && "text-gray-300",
+                isTodoFormOpen && "rotate-45",
+                "transition-transform duration-200"
+              )}
+            />
+          </IconButton>
+
+          <IconButton
+            className="w-7 h-7 p-1"
+            onClick={() => setShowTodos((val) => !val)}
+          >
+            <Square className={cn(!showTodos && "text-gray-300")} />
+          </IconButton>
+
+          <IconButton
+            className="w-7 h-7 p-1"
+            onClick={() => setShowDonePostPoned((val) => !val)}
+          >
+            <Check className={cn(!showDonePostPoned && "text-gray-300")} />
+          </IconButton>
+        </div>
+
         <div className="space-y-2 ml-1 md:ml-2">
-          <ReviseProjectDecision
-            maybe={dailyPlanProject.maybe}
-            onChange={addProject}
-          />
-
-          <ShowHideSwitch
-            value={showTodos}
-            onChange={setShowTodos}
-            switchLabel="open todos"
-          />
-
           {showTodos && (
             <>
-              <AddTodoSection onSave={createTodo} />
+              <AddTodoSection
+                onSave={createTodo}
+                formControl={{
+                  open: isTodoFormOpen,
+                  setOpen: setIsTodoFormOpen,
+                }}
+              />
 
               <DailyPlanProjectTodos
                 status="OPEN"
@@ -84,12 +117,6 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
                 postponeTodo={(todoId) =>
                   postponeTodo(dayPlan.id, todoId, true)
                 }
-              />
-
-              <ShowHideSwitch
-                value={showDonePostPoned}
-                onChange={setShowDonePostPoned}
-                switchLabel="done & postponed"
               />
 
               {showDonePostPoned && (
