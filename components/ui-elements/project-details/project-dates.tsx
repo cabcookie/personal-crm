@@ -1,4 +1,3 @@
-import { Project } from "@/api/ContextProjects";
 import DateSelector from "@/components/ui-elements/selectors/date-selector";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
@@ -22,14 +21,20 @@ const ProjectDatesHelper: FC<ProjectDatesHelperProps> = ({
   </div>
 );
 
-type ProjectDatesProps = {
+interface Project {
+  dueOn?: Date;
+  doneOn?: Date;
+  onHoldTill?: Date;
+}
+
+interface ProjectDatesProps {
   project: Project;
   updateDatesFn: (props: {
     dueOn?: Date;
     onHoldTill?: Date;
     doneOn?: Date;
   }) => Promise<string | undefined>;
-};
+}
 
 const ProjectDates: FC<ProjectDatesProps> = ({
   project: { dueOn, doneOn, onHoldTill },

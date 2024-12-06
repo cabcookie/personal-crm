@@ -2,6 +2,14 @@ import { toast } from "@/components/ui/use-toast";
 import { flow, join, map } from "lodash/fp";
 
 /**
+ * Options for the API operations
+ */
+export interface CrudOptions {
+  mutate?: (refresh: boolean) => void;
+  confirm?: () => void;
+}
+
+/**
  * Represents a location in a Source.
  */
 interface SourceLocation {

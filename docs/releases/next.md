@@ -1,20 +1,30 @@
-# Schlanke Notizen für Projekte (Version :VERSION)
+# Aktivitäten/Aufgaben optimieren (Version :VERSION)
 
-- Auch bei den Projekten werden die Notizen nun in schlanker Form dargestellt.
+- Die Aufgaben-Sektion sollte auch dann gezeigt werden, wenn es aktuell keine Aufgaben gibt.
+- Wenn eine neue Aktivität hinzugefügt wird sollte die UI etwas mehr zeigen, was gerade passiert. Da man die Aktivität nicht editieren kann, macht es Sinn, die Aktivität zu öffnen.
 
 ## In Arbeit
 
 ## Geplant
 
+- Option anbieten, um verwaiste Aufgaben zu löschen.
+- Die tägliche Aufgabenliste ist etwas überfrachtet. Kann das etwas verschlankt werden?
+- Ich möchte ein Projekt in der täglichen Aufgabenliste abschließen können; es taucht nur dann wieder auf, wenn neue Aufgaben nach dem Abhaken hinzu kommen.
+- Wenn Todos erledigt werden in der täglichen Aufgabenliste sollen sie in der Liste der erledigten Aufgaben angezeigt werden, auch wenn die Tagesliste noch in der Zukunft liegt.
+- Ich möchte `ContextProject.tsx` so wie es ist komplett auflösen. Ich sehe das nicht als effizient an, immer so viele Daten zu laden, selbst wenn ich nur die Projektnamen haben möchte.
+
 ### Meetings
 
 - In einem Meeting möchte ich zu einer Person schnell etwas Gelerntes erfassen können, ein Gebetsanliegen, eine Geschenkidee, die aktuelle Jobposition oder ein Kontaktdetail (z.B. Email, Telefon).
 - In einem Meeting möchte ich zu jedem Teilnehmer schnell die letzten "Learnings" einsehen können sowie offene Gebetsanliegen oder den Geburtstag, so dass ich das in dem Meeting einfließen lassen oder nutzen kann.
+- Wenn "Learnings" sich überholt haben, möchte ich diese "abhaken" können. Das gilt zum Beispiel für Urlaube. Auf der anderen Seite kann es interessant sein, zu sehen, wenn eine Person ein Land besonder liebt und immer wieder bereist oder wenn die Person besonders viele verschiedene Länder besucht. Auch die Art der Reisen könnte interessant sein (z.B. Motorrad, Campingwagen, Fahrrad).
+- Beziehungen sollten auch angezeigt werden, vielleicht auch schnell die Jobhistorie.
 
 ### Account Details
 
 - Ich möchte eine Möglichkeit haben, um zu dokumentieren, was ein Kunde mit einem Partner macht und mir dazu auch schnell eine Übersicht/Matrix erstellen können.
-- Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt
+- Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt.
+- Es wäre tatsächlich klasse, wenn ich eine Zusammenfassung eines Accounts mithilfe GenAI erstellen kann. Dazu werden Notizen, Mitarbeiter, Projekte, Partnerinfos herangezogen und die Informationen, die am Account selbst hinterlegt sind (AWS Accounts, Introduction usw.).
 
 ### Kontaktdetails
 
@@ -24,6 +34,8 @@
 - Weitere persönliche Jahrestage abbilden (Tauftag, Taufentscheidung etc.).
 - Bei Personen sollen unter Notizen nicht nur die Meetings auftauchen, an denen sie partizipiert haben, sondern auch wenn sie erwähnt wurden.
 - Kontaktdetails als Adressbuch ins iPhone einbinden.
+- Auch Chef/Mitarbeiter-Beziehung abbilden.
+- An Firmen werden die Kontakte nicht korrekt angezeigt, wenn das Startdatum ihrer Rolle nicht definiert ist.
 
 ### Lektüre
 
@@ -34,7 +46,6 @@
 - In Wochenplanung persönliche Termine mit berücksichtigen (Geburtstage, Jahrestage).
 - Ich möchte einfache Todos haben, die keinem Projekt zugeordnet sind.
 - Eine Checkliste einführen für das tägliche Planen.
-- Option anbieten, um verwaiste Aufgaben zu löschen.
 
 ### Projekte
 
@@ -44,6 +55,7 @@
 - Im Kontext Hobby einen Purpose einfügen.
 - Im Kontext Familie einführen, welche Person von einem Projekt profitiert ("Beneficial").
 - Purpose und Beneficial haben Einfluss auf die Priorität und die Sortierung von Projekten.
+- Die Badges für CRM Hygiene sollten wieder angezeigt werden.
 
 ### Finanzdaten
 

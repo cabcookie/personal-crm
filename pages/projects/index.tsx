@@ -38,7 +38,7 @@ const ProjectListPage = () => {
 
         <ProjectFilterBtnGrp className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2" />
 
-        <ProjectList allowPushToNextDay />
+        <ProjectList />
       </div>
     </MainLayout>
   );

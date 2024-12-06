@@ -27,8 +27,12 @@ const PersonNoteProject: FC<PersonNoteProjectProps> = ({
 
   return (
     <div className={cn(className)}>
-      <Link href={`/projects/${project?.id}`} className="hover:text-blue-600">
-        Project: {project?.project}
+      Project:{" "}
+      <Link
+        href={`/projects/${project?.id}`}
+        className="hover:text-blue-600 font-semibold"
+      >
+        {project?.project}
       </Link>
       {project?.accountIds && project.accountIds.length > 0 && (
         <div className="flex flex-row gap-1">

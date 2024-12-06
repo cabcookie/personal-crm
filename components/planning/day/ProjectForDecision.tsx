@@ -45,7 +45,7 @@ const ProjectForDecision: FC<ProjectForDecisionProps> = ({
   return (
     <div className="space-y-2">
       <div className="sticky top-[8.75rem] md:top-[10.5rem] z-30 bg-bgTransparent">
-        <ProjectAccordionItem allowPushToNextDay project={project} showNotes />
+        <ProjectAccordionItem project={project} showNotes />
       </div>
 
       <div className="text-sm ml-1 md:ml-2 text-muted-foreground">
