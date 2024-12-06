@@ -18,11 +18,12 @@ export const addProjectCrmProject = async ({
   options,
 }: Props) => {
   options?.mutate?.(false);
-  const { errors } = await client.models.CrmProjectProjects.create({
+  const { data, errors } = await client.models.CrmProjectProjects.create({
     projectId,
     crmProjectId,
   });
   if (errors) handleApiErrors(errors, "Error updating CRM Project");
   options?.confirm?.();
   options?.mutate?.(true);
+  return data;
 };

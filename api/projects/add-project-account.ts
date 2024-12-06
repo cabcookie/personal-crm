@@ -18,11 +18,12 @@ export const addProjectAccount = async ({
   options,
 }: Props) => {
   options?.mutate?.(false);
-  const { errors } = await client.models.AccountProjects.create({
+  const { data, errors } = await client.models.AccountProjects.create({
     projectsId: projectId,
     accountId,
   });
   if (errors) handleApiErrors(errors, "Error adding account to project");
   options?.confirm?.();
   options?.mutate?.(true);
+  return data;
 };

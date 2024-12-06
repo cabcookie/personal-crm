@@ -10,10 +10,11 @@ interface Props {
   options?: CrudOptions;
 }
 
-export const updateCrmProject = async ({ data, options }: Props) => {
+export const updateCrmProject = async ({ data: input, options }: Props) => {
   options?.mutate?.(false);
-  const { errors } = await client.models.CrmProject.update(data);
+  const { data, errors } = await client.models.CrmProject.update(input);
   if (errors) handleApiErrors(errors, "Error updating CRM Project");
   options?.confirm?.();
   options?.mutate?.(true);
+  return data;
 };

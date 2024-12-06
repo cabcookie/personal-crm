@@ -29,10 +29,11 @@ export const removeProjectAccount = async ({
   options?.mutate?.(false);
   const recordId = await getProjectAccountId(accountId, projectId);
   if (!recordId) return;
-  const { errors } = await client.models.AccountProjects.delete({
+  const { data, errors } = await client.models.AccountProjects.delete({
     id: recordId,
   });
   if (errors) handleApiErrors(errors, "Error removing account from project");
   options?.confirm?.();
   options?.mutate?.(true);
+  return data;
 };

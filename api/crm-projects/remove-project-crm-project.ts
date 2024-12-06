@@ -32,10 +32,11 @@ export const removeProjectCrmProject = async ({
   options?.mutate?.(false);
   const recordId = await getProjectCrmProjectId(projectId, crmProjectId);
   if (!recordId) return;
-  const { errors } = await client.models.CrmProjectProjects.delete({
+  const { data, errors } = await client.models.CrmProjectProjects.delete({
     id: recordId,
   });
   if (errors) handleApiErrors(errors, "Error updating CRM Project");
   options?.confirm?.();
   options?.mutate?.(true);
+  return data;
 };
