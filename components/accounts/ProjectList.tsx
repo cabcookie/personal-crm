@@ -1,16 +1,11 @@
 import { flow, identity, map, times } from "lodash/fp";
-import { FC } from "react";
 import ApiLoadingError from "../layouts/ApiLoadingError";
 import ProjectAccordionItem from "../projects/ProjectAccordionItem";
 import { useProjectFilter } from "../projects/useProjectFilter";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import { Accordion } from "../ui/accordion";
 
-type ProjectListProps = {
-  allowPushToNextDay?: boolean;
-};
-
-const ProjectList: FC<ProjectListProps> = ({ allowPushToNextDay }) => {
+const ProjectList = () => {
   const { projects, loadingProjects, errorProjects } = useProjectFilter();
 
   return (
@@ -38,11 +33,7 @@ const ProjectList: FC<ProjectListProps> = ({ allowPushToNextDay }) => {
           )(10)}
 
         {projects.map((project) => (
-          <ProjectAccordionItem
-            key={project.id}
-            project={project}
-            allowPushToNextDay={allowPushToNextDay}
-          />
+          <ProjectAccordionItem key={project.id} project={project} />
         ))}
       </Accordion>
     </div>

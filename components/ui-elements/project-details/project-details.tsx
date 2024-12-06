@@ -2,8 +2,12 @@ import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import DecisionSection from "@/components/planning/DecisionSection";
 import ProjectInvolvedPeople from "@/components/projects/project-involved-people";
+// import ProjectNameForm from "@/components/projects/project-name-form";
 import { Accordion } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
+import { addDays } from "date-fns";
+import { ArrowRightCircle, Loader2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
@@ -31,6 +35,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 }) => {
   const {
     getProjectById,
+    // saveProjectName,
     saveProjectDates,
     addAccountToProject,
     updatePartnerOfProject,
@@ -41,6 +46,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     projectId ? getProjectById(projectId) : undefined
   );
   const [projectContext, setProjectContext] = useState(project?.context);
+  const [pushingInProgress, setPushingInProgress] = useState(false);
 
   useEffect(() => {
     setProject(getProjectById(projectId));
@@ -68,9 +74,37 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     updateProjectContext(project.id, context);
   };
 
+  const handlePushToNextDay = async () => {
+    if (!project) return;
+    setPushingInProgress(true);
+    const result = await saveProjectDates({
+      projectId: project.id,
+      onHoldTill: addDays(new Date(), 1),
+    });
+    if (result) return;
+    setPushingInProgress(false);
+  };
+
   return (
     project && (
-      <div>
+      <div className="space-y-2">
+        <div className="ml-1 md:ml-2 flex flex-row gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePushToNextDay}
+            disabled={pushingInProgress}
+          >
+            {!pushingInProgress && (
+              <ArrowRightCircle className="w-4 h-4 mr-1" />
+            )}
+            {pushingInProgress && (
+              <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+            )}
+            Push to next day
+          </Button>
+        </div>
+
         {showContext && (
           <RecordDetails title="Context">
             <ButtonGroup
