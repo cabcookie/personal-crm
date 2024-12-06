@@ -41,6 +41,7 @@ const CrmProjectsList: FC<CrmProjectsListProps> = ({
       isMarketplace: !!isMarketplace,
       name,
       projectLinkIds: [""],
+      pipeline: 0,
       projectIds: [projectId],
       stage: stage || "Prospect",
       tcv: tcv || 0,

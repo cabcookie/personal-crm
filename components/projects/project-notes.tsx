@@ -14,11 +14,10 @@ interface ProjectNotesProps {
 }
 
 const ProjectNotes: FC<ProjectNotesProps> = ({ isVisible, projectId }) => {
-  if (!isVisible) return null;
   const { notes } = useProjectNotes(projectId);
   const [isCreating, setIsCreating] = useState(false);
-
   const router = useRouter();
+  if (!isVisible) return null;
 
   const onCreate = async () => {
     setIsCreating(true);

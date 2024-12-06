@@ -36,7 +36,7 @@ export type CrmProject = {
   stageChangedDate?: Date;
   accountName?: string;
   territoryName?: string;
-  pipeline?: number;
+  pipeline: number;
   hygieneIssuesResolved: boolean;
   projectAccountNames?: string[];
   linkedPartnerNames?: string[];
@@ -124,19 +124,18 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
     map((a) => a.account.name)
   )(projects),
   territoryName: territoryName ?? undefined,
-  pipeline:
-    flow(
-      mapPipelineFields,
-      calcRevenueTwoYears
-    )({
-      crmProject: {
-        annualRecurringRevenue,
-        closeDate,
-        isMarketplace,
-        stage,
-        totalContractVolume,
-      },
-    } as CalcPipelineFields) ?? 0,
+  pipeline: flow(
+    mapPipelineFields,
+    calcRevenueTwoYears
+  )({
+    crmProject: {
+      annualRecurringRevenue,
+      closeDate,
+      isMarketplace,
+      stage,
+      totalContractVolume,
+    },
+  } as CalcPipelineFields),
 });
 
 const fetchCrmProjects = async () => {

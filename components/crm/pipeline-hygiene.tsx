@@ -160,7 +160,7 @@ const CrmProjectsPipelineHygiene: FC<CrmProjectsPipelineHygieneProps> = ({
   const { user } = useCurrentUser();
 
   return flow(
-    sortBy(flow(categoryPipeline(user, crmProjects ?? undefined), invertSign)),
+    sortBy(flow(categoryPipeline(user, crmProjects || undefined), invertSign)),
     map((category) => (
       <CrmProjectsPipelineHygieneCategory
         key={category.value}
