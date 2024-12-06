@@ -2,7 +2,7 @@ import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import DecisionSection from "@/components/planning/DecisionSection";
 import ProjectInvolvedPeople from "@/components/projects/project-involved-people";
-// import ProjectNameForm from "@/components/projects/project-name-form";
+import ProjectNameForm from "@/components/projects/project-name-form";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
@@ -35,7 +35,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
 }) => {
   const {
     getProjectById,
-    // saveProjectName,
+    saveProjectName,
     saveProjectDates,
     addAccountToProject,
     updatePartnerOfProject,
@@ -103,6 +103,11 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             )}
             Push to next day
           </Button>
+
+          <ProjectNameForm
+            projectName={project.project}
+            onUpdate={(name) => saveProjectName(project.id, name)}
+          />
         </div>
 
         {showContext && (
