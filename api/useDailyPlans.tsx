@@ -38,6 +38,7 @@ export type DailyPlan = {
   status: DailyPlanStatus;
   todos: DailyPlanTodo[];
   projects: DailyPlanProject[];
+  createdAt: Date;
 };
 
 const selectionSet = [
@@ -46,6 +47,7 @@ const selectionSet = [
   "dayGoal",
   "context",
   "status",
+  "createdAt",
   "projects.id",
   "projects.projectId",
   "projects.maybe",
@@ -72,6 +74,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   status,
   todos,
   projects,
+  createdAt,
 }) => ({
   id,
   day: new Date(day),
@@ -84,6 +87,7 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
     projectId,
     maybe: !!maybe,
   })),
+  createdAt: new Date(createdAt),
 });
 
 const fetchDailyPlans =
@@ -256,6 +260,7 @@ const useDailyPlans = (status: DailyPlanStatus | undefined) => {
         context,
         todos: [],
         projects: [],
+        createdAt: new Date(),
       },
       ...(dailyPlans ?? []),
     ];
