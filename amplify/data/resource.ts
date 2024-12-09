@@ -6,6 +6,7 @@ import accountSchema, {
 import activitySchema, {
   tablesWithDeleteProtection as activityTdp,
 } from "./activity-schema";
+import aiSchema from "./ai-schema";
 import analyticsSchema, {
   tablesWithDeleteProtection as analyticsTdp,
 } from "./analytics-schema";
@@ -53,6 +54,7 @@ const schema = a
     ...planningSchema,
     ...prayerSchema,
     ...projectSchema,
+    ...aiSchema,
     InboxStatus: a.enum(["new", "done"]),
     Inbox: a
       .model({
