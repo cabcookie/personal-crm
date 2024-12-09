@@ -36,7 +36,7 @@ export const removeProjectCrmProject = async ({
     id: recordId,
   });
   if (errors) handleApiErrors(errors, "Error updating CRM Project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

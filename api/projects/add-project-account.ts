@@ -23,7 +23,7 @@ export const addProjectAccount = async ({
     accountId,
   });
   if (errors) handleApiErrors(errors, "Error adding account to project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

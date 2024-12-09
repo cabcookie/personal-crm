@@ -33,7 +33,7 @@ export const removeProjectAccount = async ({
     id: recordId,
   });
   if (errors) handleApiErrors(errors, "Error removing account from project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

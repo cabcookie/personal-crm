@@ -23,7 +23,7 @@ export const addProjectCrmProject = async ({
     crmProjectId,
   });
   if (errors) handleApiErrors(errors, "Error updating CRM Project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

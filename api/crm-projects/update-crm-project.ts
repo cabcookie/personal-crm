@@ -14,7 +14,7 @@ export const updateCrmProject = async ({ data: input, options }: Props) => {
   options?.mutate?.(false);
   const { data, errors } = await client.models.CrmProject.update(input);
   if (errors) handleApiErrors(errors, "Error updating CRM Project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

@@ -30,7 +30,7 @@ export const addProjectActivity = async ({
     activityId: activity.id,
   });
   if (errors) handleApiErrors(errors, "Error adding activity to project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return activity;
 };
