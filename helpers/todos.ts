@@ -83,7 +83,7 @@ const getParagraphWithLinkToActivity = (activityId: string): JSONContent => ({
   ],
 });
 
-export const getTodoContent = (
+const getTodoContent = (
   content: JSONContent[] | undefined,
   activityId: string
 ) => [...(content || []), getParagraphWithLinkToActivity(activityId)];
