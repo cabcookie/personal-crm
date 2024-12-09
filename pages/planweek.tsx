@@ -1,24 +1,17 @@
 import useInbox from "@/api/useInbox";
 import useMrrLatestUpload from "@/api/useLatestUploadsWork";
-import InstructionsUploadMrr from "@/components/analytics/instructions/instructions-upload-mrr";
-import { MrrFilterProvider } from "@/components/analytics/useMrrFilter";
-import ImportProjectData from "@/components/crm/import-project-data";
-import ProcessInboxItem from "@/components/inbox/ProcessInboxItem";
 import ApiLoadingError from "@/components/layouts/ApiLoadingError";
 import MainLayout from "@/components/layouts/MainLayout";
 import ContextSwitcher from "@/components/navigation-menu/ContextSwitcher";
-import { PlanningProjectFilterProvider } from "@/components/planning/usePlanningProjectFilter";
 import {
   useWeekPlanContext,
   withWeekPlan,
 } from "@/components/planning/useWeekPlanContext";
-import PlanWeekAction from "@/components/planning/week/PlanWeekAction";
-import PlanWeekContextNotWork from "@/components/planning/week/PlanWeekContextNotWork";
-import PlanWeekContextWork from "@/components/planning/week/PlanWeekContextWork";
-import PlanWeekFilter from "@/components/planning/week/PlanWeekFilter";
 import PlanWeekForm from "@/components/planning/week/PlanWeekForm";
-import PlanWeekStatistics from "@/components/planning/week/PlanWeekStatistics";
-import { Accordion } from "@/components/ui/accordion";
+import ProcessCrmUpdates from "@/components/planning/week/ProcessCrmUpdates";
+import ProcessFinancialUpdates from "@/components/planning/week/ProcessFinancialUpdates";
+import ProcessInbox from "@/components/planning/week/ProcessInbox";
+import ProcessProjects from "@/components/planning/week/ProcessProjects";
 import { useContextContext } from "@/contexts/ContextContext";
 
 const WeeklyPlanningPage = () => {
@@ -40,36 +33,13 @@ const WeeklyPlanningPage = () => {
         </div>
 
         {inbox && inbox.length > 0 ? (
-          <>
-            <PlanWeekAction label="Process Inbox Items" />
-            <ProcessInboxItem />
-          </>
+          <ProcessInbox />
         ) : context === "work" && mrrUploadTooOld ? (
-          <>
-            <PlanWeekAction label="Upload Customer Financials" />
-            <MrrFilterProvider>
-              <Accordion type="single" collapsible>
-                <InstructionsUploadMrr reloader={mutateMrr} />
-              </Accordion>
-            </MrrFilterProvider>
-          </>
+          <ProcessFinancialUpdates {...{ mutateMrr }} />
         ) : context === "work" && sfdcUploadTooOld ? (
-          <>
-            <PlanWeekAction label="Upload Salesforce Opportunities" />
-            <ImportProjectData reloader={mutateSfdc} />
-          </>
+          <ProcessCrmUpdates {...{ mutateSfdc }} />
         ) : (
-          <>
-            <PlanWeekAction label="Review Projects" />
-            <PlanningProjectFilterProvider>
-              <PlanWeekStatistics />
-
-              <PlanWeekFilter />
-
-              {context !== "work" && <PlanWeekContextNotWork />}
-              {context === "work" && <PlanWeekContextWork />}
-            </PlanningProjectFilterProvider>
-          </>
+          <ProcessProjects />
         )}
       </div>
     </MainLayout>
