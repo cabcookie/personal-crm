@@ -1,49 +1,31 @@
 import { ProjectTodo } from "@/api/useProjectTodos";
 import { FC } from "react";
-import PostPonedTodo from "../todos/PostPonedTodo";
 import DailyPlanProjectTodo from "./DailyPlanProjectTodo";
-import PostponeBtn from "./PostponeBtn";
+
+interface DailyPlanTodo {
+  todoId: string;
+  postPoned?: boolean;
+  done?: boolean;
+}
 
 type DailyPlanProjectTodosProps = {
+  dayPlanId: string;
   todos: ProjectTodo[] | undefined;
-  finishTodo?: (todoId: string, done: boolean) => void;
-  postponeTodo?: (todoId: string) => void;
-  activateTodo?: (todoId: string) => void;
+  mutate: (todo: DailyPlanTodo, refresh: boolean) => void;
   status: "OPEN" | "DONE" | "POSTPONED";
 };
 
 const DailyPlanProjectTodos: FC<DailyPlanProjectTodosProps> = ({
+  dayPlanId,
   status,
+  mutate,
   todos,
-  finishTodo,
-  postponeTodo,
-  activateTodo,
-}) => {
-  return todos?.map((todo) =>
-    status === "OPEN" || status === "DONE" ? (
-      <DailyPlanProjectTodo
-        key={todo.todoId}
-        todo={todo}
-        finishTodo={
-          !finishTodo ? undefined : (done) => finishTodo(todo.todoId, done)
-        }
-      >
-        {status === "OPEN" && postponeTodo && (
-          <PostponeBtn
-            label="Not today"
-            postponeTodo={postponeTodo}
-            todoId={todo.todoId}
-          />
-        )}
-      </DailyPlanProjectTodo>
-    ) : (
-      <PostPonedTodo
-        key={todo.todoId}
-        todo={todo}
-        postponeTodo={activateTodo}
-      />
-    )
-  );
-};
+}) =>
+  todos?.map((todo) => (
+    <DailyPlanProjectTodo
+      key={todo.todoId}
+      {...{ mutate, status, dayPlanId, todo }}
+    />
+  ));
 
 export default DailyPlanProjectTodos;

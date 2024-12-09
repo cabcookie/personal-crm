@@ -1,6 +1,10 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
-import { DailyPlan, DailyPlanProject } from "@/api/useDailyPlans";
+import {
+  DailyPlan,
+  DailyPlanProject,
+  DailyPlanStatus,
+} from "@/api/useDailyPlans";
 import { setProjectList } from "@/helpers/today";
 import { FC, useEffect, useState } from "react";
 import ShowHideSwitch from "../ui-elements/ShowHideSwitch";
@@ -8,11 +12,25 @@ import DayPlanInformation from "./DayPlanInformation";
 import DayPlanProjects from "./DayPlanProjects";
 import ShowNoTodos from "./ShowNoTodos";
 
-type DailyPlanComponentProps = {
-  dailyPlan: DailyPlan;
-};
+interface DailyPlanTodo {
+  todoId: string;
+  postPoned?: boolean;
+  done?: boolean;
+}
 
-const DailyPlanComponent: FC<DailyPlanComponentProps> = ({ dailyPlan }) => {
+interface DailyPlanComponentProps {
+  dailyPlan: DailyPlan;
+  mutateTodo: (todo: DailyPlanTodo, refresh: boolean) => void;
+  mutateProject: (project: DailyPlanProject, refresh: boolean) => void;
+  mutateDayPlan: (status: DailyPlanStatus, refresh: boolean) => void;
+}
+
+const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
+  dailyPlan,
+  mutateTodo,
+  mutateProject,
+  mutateDayPlan,
+}) => {
   const { projects } = useProjectsContext();
   const { accounts } = useAccountsContext();
   const [projectsOnList, setProjectsOnList] = useState<
@@ -33,32 +51,37 @@ const DailyPlanComponent: FC<DailyPlanComponentProps> = ({ dailyPlan }) => {
       <DayPlanInformation
         dayPlan={dailyPlan}
         className="sticky pt-1 top-[6.75rem] md:top-[8.25rem] z-[35] bg-bgTransparent"
+        mutate={mutateDayPlan}
       />
 
-      {dailyPlan.projects.length === 0 && (
-        <ShowNoTodos className="ml-7 my-8 md:text-center" />
-      )}
+      <div className="ml-7 space-y-6">
+        {dailyPlan.projects.length === 0 && (
+          <ShowNoTodos className="md:text-center" />
+        )}
 
-      <DayPlanProjects
-        dayPlan={dailyPlan}
-        dayPlanProjects={projectsOnList}
-        className="ml-7"
-      />
-
-      <ShowHideSwitch
-        value={showMaybe}
-        onChange={setShowMaybe}
-        switchLabel="projects set on maybe"
-        className="ml-7 font-semibold"
-      />
-
-      {showMaybe && (
         <DayPlanProjects
           dayPlan={dailyPlan}
-          dayPlanProjects={projectsMaybe}
-          className="ml-7"
+          dayPlanProjects={projectsOnList}
+          mutateTodo={mutateTodo}
+          mutateProject={mutateProject}
         />
-      )}
+
+        <ShowHideSwitch
+          value={showMaybe}
+          onChange={setShowMaybe}
+          switchLabel="projects set on maybe"
+          className="font-semibold"
+        />
+
+        {showMaybe && (
+          <DayPlanProjects
+            dayPlan={dailyPlan}
+            dayPlanProjects={projectsMaybe}
+            mutateTodo={mutateTodo}
+            mutateProject={mutateProject}
+          />
+        )}
+      </div>
     </div>
   );
 };

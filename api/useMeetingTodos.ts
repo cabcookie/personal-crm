@@ -1,10 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
+import { isNotNil } from "@/helpers/functional";
 import {
   getTodoDoneOn,
   getTodoId,
   getTodoJson,
   getTodoStatus,
-  todoIsOrphan,
+  notAnOrphan,
 } from "@/helpers/todos";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { filter, flatMap, flow, get, identity, map, sortBy } from "lodash/fp";
@@ -35,6 +36,7 @@ type MeetingTodoData = SelectionSet<
   Schema["Meeting"]["type"],
   typeof selectionSet
 >;
+type TodoData = MeetingTodoData["activities"][number]["noteBlocks"][number];
 
 const mapMeetingTodo = ({
   id: meetingId,
@@ -45,8 +47,10 @@ const mapMeetingTodo = ({
     flatMap(({ id: activityId, noteBlocks, noteBlockIds, forProjects }) =>
       flow(
         filter(get("todo")),
+        filter(isNotNil),
+        filter(notAnOrphan({ noteBlockIds, noteBlocks })),
         flatMap(
-          ({ id: blockId, todo, updatedAt }): MeetingTodo => ({
+          ({ id: blockId, todo, updatedAt }: TodoData): MeetingTodo => ({
             meetingId,
             todoId: getTodoId(todo),
             todo: getTodoJson(todo),
@@ -55,7 +59,6 @@ const mapMeetingTodo = ({
             activityId,
             blockId,
             projectIds: map("projectsId")(forProjects),
-            isOrphan: todoIsOrphan(todo, { noteBlockIds, noteBlocks }),
             updatedAt: new Date(updatedAt),
           })
         )

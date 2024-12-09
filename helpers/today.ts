@@ -44,7 +44,8 @@ export const setTodoList = (
     filter(
       (todo) =>
         !done ||
-        (!!todo.doneOn && differenceInMinutes(todo.doneOn, dayPlan.day) >= 0)
+        (!!todo.doneOn &&
+          differenceInMinutes(todo.doneOn, dayPlan.createdAt) >= 0)
     ),
     filter(
       (todo) =>

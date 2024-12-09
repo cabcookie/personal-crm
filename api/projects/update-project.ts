@@ -14,7 +14,7 @@ export const updateProject = async ({ data: input, options }: Props) => {
   options?.mutate?.(false);
   const { data, errors } = await client.models.Projects.update(input);
   if (errors) handleApiErrors(errors, "Error updating Project");
-  options?.confirm?.();
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

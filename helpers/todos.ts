@@ -1,5 +1,6 @@
-import { DailyPlanData } from "@/api/useDailyPlans";
-import { ProjectActivityData, Todo } from "@/api/useProjectTodos";
+import { Schema } from "@/amplify/data/resource";
+import { DailyPlanData, DailyPlanStatus } from "@/api/useDailyPlans";
+import { Todo } from "@/api/useProjectTodos";
 import { JSONContent } from "@tiptap/core";
 import { filter, flow, get, identity, includes, map, size } from "lodash/fp";
 import { getDateOrNull } from "./functional";
@@ -13,7 +14,32 @@ export interface TodoData {
   doneOn: string | null;
 }
 
-interface ActivityData {
+export const getTodoId = (todo: { id: string }) => get("id")(todo);
+
+export const getTodoJson = (todo: {
+  todo: Schema["Todo"]["type"]["todo"];
+  status: DailyPlanStatus;
+}) =>
+  flow(get("todo"), JSON.parse, (content) => ({
+    ...content,
+    attrs: { ...content.attrs, checked: todo.status === "DONE" },
+  }))(todo);
+
+export const getTodoStatus = (todo: { status: DailyPlanStatus }) =>
+  get("status")(todo) === "DONE";
+
+export const getTodoDoneOn = (todo: { doneOn?: string | null }) =>
+  flow(get("doneOn"), getDateOrNull)(todo);
+
+export const getTodoProjectIds = (todo: {
+  activity: { activity: { forProjects?: { projectsId: string }[] } };
+}) => flow(get("activity.activity.forProjects"), map("projectsId"))(todo);
+
+export const getTodoActivityId = (todo: {
+  activity: { activity: { id: string } };
+}) => get("activity.activity.id")(todo);
+
+interface ActivityProps {
   noteBlocks: {
     id: string;
     todo: {
@@ -23,40 +49,15 @@ interface ActivityData {
   noteBlockIds: string[] | null;
 }
 
-export const getTodoId = <T extends TodoData>(todo: T) => get("id")(todo);
+export const notAnOrphan = (activity: ActivityProps) => (todo: TodoData) =>
+  !todoIsOrphan(todo, activity);
 
-export const getTodoJson = (todo: TodoData) =>
-  flow(identity<TodoData>, get("todo"), JSON.parse, (content) => ({
-    ...content,
-    attrs: { ...content.attrs, checked: todo.status === "DONE" },
-  }))(todo);
-
-export const getTodoStatus = <T extends TodoData>(todo: T) =>
-  get("status")(todo) === "DONE";
-
-export const getTodoDoneOn = flow(
-  identity<ProjectActivityData["activity"]["noteBlocks"][number]["todo"]>,
-  get("doneOn"),
-  getDateOrNull
-);
-
-export const getTodoProjectIds = flow(
-  identity<TodoData>,
-  get("activity.activity.forProjects"),
-  map("projectsId")
-);
-
-export const getTodoActivityId = flow(
-  identity<TodoData>,
-  get("activity.activity.id")
-);
-
-export const todoIsOrphan = (todo: TodoData, activity: ActivityData) =>
+export const todoIsOrphan = (todo: TodoData, activity: ActivityProps) =>
   flow(
-    identity<ActivityData>,
+    identity<ActivityProps>,
     get("noteBlocks"),
     filter(
-      (noteBlock: ActivityData["noteBlocks"][number]) =>
+      (noteBlock) =>
         flow(get("todo.id"))(noteBlock) === todo.id &&
         flow(get("noteBlockIds"), includes(noteBlock.id))(activity)
     ),
@@ -83,36 +84,19 @@ const getParagraphWithLinkToActivity = (activityId: string): JSONContent => ({
   ],
 });
 
-const getTodoOrphanParagraph = (): JSONContent => ({
-  type: "paragraph",
-  content: [
-    {
-      type: "text",
-      text: "Orphan",
-      marks: [{ type: "bold" }, { type: "highlight" }],
-    },
-  ],
-});
-
-export const getTodoContent = (
+const getTodoContent = (
   content: JSONContent[] | undefined,
-  isOrphan: boolean,
   activityId: string
-) => [
-  ...(content || []),
-  isOrphan
-    ? getTodoOrphanParagraph()
-    : getParagraphWithLinkToActivity(activityId),
-];
+) => [...(content || []), getParagraphWithLinkToActivity(activityId)];
 
 export const getTodoViewerContent = (todos: Todo[]): JSONContent => ({
   type: "doc",
   content: [
     {
       type: "taskList",
-      content: todos.map(({ todo, todoId, blockId, activityId, isOrphan }) => ({
+      content: todos.map(({ todo, todoId, blockId, activityId }) => ({
         ...todo,
-        content: getTodoContent(todo.content, isOrphan, activityId),
+        content: getTodoContent(todo.content, activityId),
         attrs: {
           ...todo.attrs,
           blockId,

@@ -4,8 +4,8 @@ import { CrudOptions, handleApiErrors } from "../globals";
 const client = generateClient<Schema>();
 
 interface DataProps {
-  projectId: string;
-  crmProjectId: string;
+  dayPlanId: string;
+  done: boolean;
 }
 
 interface Props {
@@ -13,17 +13,17 @@ interface Props {
   options?: CrudOptions;
 }
 
-export const addProjectCrmProject = async ({
-  data: { projectId, crmProjectId },
+export const finishDayplan = async ({
+  data: { dayPlanId, done },
   options,
 }: Props) => {
   options?.mutate?.(false);
-  const { data, errors } = await client.models.CrmProjectProjects.create({
-    projectId,
-    crmProjectId,
+  const { data, errors } = await client.models.DailyPlan.update({
+    id: dayPlanId,
+    status: done ? "DONE" : "OPEN",
   });
-  if (errors) handleApiErrors(errors, "Error updating CRM Project");
-  options?.confirm?.();
+  if (errors) handleApiErrors(errors, "Updating dayplan's state failed");
   options?.mutate?.(true);
+  options?.confirm?.();
   return data;
 };

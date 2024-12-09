@@ -1,34 +1,36 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import useDailyPlans, {
-  DailyPlan,
-  DailyPlanProject,
-} from "@/api/useDailyPlans";
+import { DailyPlan, DailyPlanProject } from "@/api/useDailyPlans";
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
 import AddTodoSection from "@/components/ui-elements/editors/todo-editor/AddTodoSection";
-import { ButtonPlayPause } from "@/components/ui/button-play-pause";
-import { IconButton } from "@/components/ui/icon-button";
 import { setPostponedTodoList, setTodoList } from "@/helpers/today";
-import { cn } from "@/lib/utils";
 import { flow, get, identity } from "lodash/fp";
-import { Check, Plus, Square } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import ProjectAccordionItem from "../../projects/ProjectAccordionItem";
+import DailyPlanProjectMenu from "./DailyPlanProjectMenu";
 import DailyPlanProjectTodos from "./DailyPlanProjectTodos";
+
+interface DailyPlanTodo {
+  todoId: string;
+  postPoned?: boolean;
+  done?: boolean;
+}
 
 type DailyPlanProjectProps = {
   dayPlan: DailyPlan;
   dailyPlanProject: DailyPlanProject;
-  className?: string;
+  mutateTodo: (todo: DailyPlanTodo, refresh: boolean) => void;
+  mutateProject: (project: DailyPlanProject, refresh: boolean) => void;
 };
 
 const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   dayPlan,
   dailyPlanProject,
+  mutateTodo,
+  mutateProject,
 }) => {
-  const { addProjectToDayPlan, postponeTodo } = useDailyPlans("OPEN");
   const { getProjectById } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>();
-  const { projectTodos, finishTodo, createTodo } = useProjectTodos(project?.id);
+  const { projectTodos, createTodo, mutate } = useProjectTodos(project?.id);
   const [openTodos, setOpenTodos] = useState<ProjectTodo[] | undefined>();
   const [closedTodos, setClosedTodos] = useState<ProjectTodo[] | undefined>();
   const [postponedTodos, setPostponedTodos] = useState<
@@ -53,10 +55,6 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
     setPostponedTodoList(projectTodos, dayPlan, setPostponedTodos);
   }, [projectTodos, dayPlan]);
 
-  const addProject = async (maybe: boolean) => {
-    await addProjectToDayPlan(dayPlan.id, dailyPlanProject.projectId, maybe);
-  };
-
   return (
     project && (
       <div className="space-y-2">
@@ -64,40 +62,20 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
           <ProjectAccordionItem project={project} />
         </div>
 
-        <div className="flex flex-row gap-1">
-          <ButtonPlayPause
-            state={dailyPlanProject.maybe ? "PAUSE" : "PLAY"}
-            className="w-7 h-7 p-1"
-            onClick={() => addProject(!dailyPlanProject.maybe)}
-          />
-
-          <IconButton
-            className="w-7 h-7 p-1"
-            onClick={() => setIsTodoFormOpen((val) => !val)}
-          >
-            <Plus
-              className={cn(
-                !isTodoFormOpen && "text-gray-300",
-                isTodoFormOpen && "rotate-45",
-                "transition-transform duration-200"
-              )}
-            />
-          </IconButton>
-
-          <IconButton
-            className="w-7 h-7 p-1"
-            onClick={() => setShowTodos((val) => !val)}
-          >
-            <Square className={cn(!showTodos && "text-gray-300")} />
-          </IconButton>
-
-          <IconButton
-            className="w-7 h-7 p-1"
-            onClick={() => setShowDonePostPoned((val) => !val)}
-          >
-            <Check className={cn(!showDonePostPoned && "text-gray-300")} />
-          </IconButton>
-        </div>
+        <DailyPlanProjectMenu
+          {...{
+            dayPlan,
+            dailyPlanProject,
+            isTodoFormOpen,
+            setIsTodoFormOpen,
+            showDonePostPoned,
+            showTodos,
+            setShowDonePostPoned,
+            setShowTodos,
+            mutate: (maybe, refresh) =>
+              mutateProject({ ...dailyPlanProject, maybe }, refresh),
+          }}
+        />
 
         <div className="space-y-2 ml-1 md:ml-2">
           {showTodos && (
@@ -111,33 +89,42 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
               />
 
               <DailyPlanProjectTodos
+                dayPlanId={dayPlan.id}
                 status="OPEN"
                 todos={openTodos}
-                finishTodo={finishTodo}
-                postponeTodo={(todoId) =>
-                  postponeTodo(dayPlan.id, todoId, true)
+                mutate={(todo, refresh) =>
+                  todo.done
+                    ? openTodos &&
+                      mutate(
+                        openTodos.map((t) =>
+                          t.todoId !== todo.todoId
+                            ? t
+                            : { ...t, done: todo.done! }
+                        ),
+                        refresh
+                      )
+                    : mutateTodo(todo, refresh)
                 }
               />
-
-              {showDonePostPoned && (
-                <div className="text-muted-foreground">
-                  <DailyPlanProjectTodos
-                    status="DONE"
-                    todos={closedTodos}
-                    finishTodo={finishTodo}
-                  />
-
-                  <DailyPlanProjectTodos
-                    status="POSTPONED"
-                    todos={postponedTodos}
-                    finishTodo={finishTodo}
-                    activateTodo={(todoId) =>
-                      postponeTodo(dayPlan.id, todoId, false)
-                    }
-                  />
-                </div>
-              )}
             </>
+          )}
+
+          {showDonePostPoned && (
+            <div className="text-muted-foreground">
+              <DailyPlanProjectTodos
+                dayPlanId={dayPlan.id}
+                status="DONE"
+                todos={closedTodos}
+                mutate={mutateTodo}
+              />
+
+              <DailyPlanProjectTodos
+                dayPlanId={dayPlan.id}
+                status="POSTPONED"
+                todos={postponedTodos}
+                mutate={mutateTodo}
+              />
+            </div>
           )}
         </div>
       </div>
