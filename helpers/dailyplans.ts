@@ -5,15 +5,12 @@ import {
   getTodoJson,
   getTodoProjectIds,
   getTodoStatus,
-  TodoData,
 } from "@/helpers/todos";
 import { filter, flow, get, identity, map } from "lodash/fp";
 
-const mapDailyPlanTodo: (todo: {
-  id: string;
-  todo: TodoData;
-  postPoned?: boolean | null;
-}) => DailyPlanTodo = ({ id, todo, postPoned }) => ({
+const mapDailyPlanTodo: (
+  todo: DailyPlanData["todos"][number]
+) => DailyPlanTodo = ({ id, todo, postPoned }) => ({
   recordId: id,
   todoId: getTodoId(todo),
   todo: getTodoJson(todo),

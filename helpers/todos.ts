@@ -1,3 +1,4 @@
+import { Schema } from "@/amplify/data/resource";
 import { DailyPlanData, DailyPlanStatus } from "@/api/useDailyPlans";
 import { Todo } from "@/api/useProjectTodos";
 import { JSONContent } from "@tiptap/core";
@@ -15,7 +16,10 @@ export interface TodoData {
 
 export const getTodoId = (todo: { id: string }) => get("id")(todo);
 
-export const getTodoJson = (todo: { todo: any; status: DailyPlanStatus }) =>
+export const getTodoJson = (todo: {
+  todo: Schema["Todo"]["type"]["todo"];
+  status: DailyPlanStatus;
+}) =>
   flow(get("todo"), JSON.parse, (content) => ({
     ...content,
     attrs: { ...content.attrs, checked: todo.status === "DONE" },
@@ -28,7 +32,7 @@ export const getTodoDoneOn = (todo: { doneOn?: string | null }) =>
   flow(get("doneOn"), getDateOrNull)(todo);
 
 export const getTodoProjectIds = (todo: {
-  activity: { activity: { forProjects?: { projectsId: string } } };
+  activity: { activity: { forProjects?: { projectsId: string }[] } };
 }) => flow(get("activity.activity.forProjects"), map("projectsId"))(todo);
 
 export const getTodoActivityId = (todo: {
