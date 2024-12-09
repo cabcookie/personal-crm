@@ -7,7 +7,7 @@ import {
   getTodoId,
   getTodoJson,
   getTodoStatus,
-  todoIsOrphan,
+  notAnOrphan,
 } from "@/helpers/todos";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
@@ -63,6 +63,7 @@ export type ProjectActivityData = SelectionSet<
   Schema["ProjectActivity"]["type"],
   typeof selectionSet
 >;
+type TodoData = ProjectActivityData["activity"]["noteBlocks"][number]["todo"];
 
 const activeNoteBlock = (activity: ProjectActivityData["activity"]) =>
   flow(
@@ -75,11 +76,6 @@ const activeNoteBlock = (activity: ProjectActivityData["activity"]) =>
       )(activity)
   );
 
-const notAnOrphan =
-  (activity: ProjectActivityData["activity"]) =>
-  (todo: ProjectActivityData["activity"]["noteBlocks"][number]["todo"]) =>
-    !todoIsOrphan(todo, activity);
-
 const mapProjectTodo = ({
   id: projectActivityId,
   activity,
@@ -91,7 +87,7 @@ const mapProjectTodo = ({
     map("todo"),
     filter(isNotNil),
     filter(notAnOrphan(activity)),
-    map((todo) => ({
+    map((todo: TodoData) => ({
       projectActivityId,
       todoId: getTodoId(todo),
       todo: getTodoJson(todo),

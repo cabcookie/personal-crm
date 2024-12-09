@@ -1,5 +1,5 @@
-import { DailyPlanData } from "@/api/useDailyPlans";
-import { ProjectActivityData, Todo } from "@/api/useProjectTodos";
+import { DailyPlanData, DailyPlanStatus } from "@/api/useDailyPlans";
+import { Todo } from "@/api/useProjectTodos";
 import { JSONContent } from "@tiptap/core";
 import { filter, flow, get, identity, includes, map, size } from "lodash/fp";
 import { getDateOrNull } from "./functional";
@@ -13,33 +13,27 @@ export interface TodoData {
   doneOn: string | null;
 }
 
-export const getTodoId = <T extends TodoData>(todo: T) => get("id")(todo);
+export const getTodoId = (todo: { id: string }) => get("id")(todo);
 
-export const getTodoJson = (todo: TodoData) =>
-  flow(identity<TodoData>, get("todo"), JSON.parse, (content) => ({
+export const getTodoJson = (todo: { todo: any; status: DailyPlanStatus }) =>
+  flow(get("todo"), JSON.parse, (content) => ({
     ...content,
     attrs: { ...content.attrs, checked: todo.status === "DONE" },
   }))(todo);
 
-export const getTodoStatus = <T extends TodoData>(todo: T) =>
+export const getTodoStatus = (todo: { status: DailyPlanStatus }) =>
   get("status")(todo) === "DONE";
 
-export const getTodoDoneOn = flow(
-  identity<ProjectActivityData["activity"]["noteBlocks"][number]["todo"]>,
-  get("doneOn"),
-  getDateOrNull
-);
+export const getTodoDoneOn = (todo: { doneOn?: string | null }) =>
+  flow(get("doneOn"), getDateOrNull)(todo);
 
-export const getTodoProjectIds = flow(
-  identity<TodoData>,
-  get("activity.activity.forProjects"),
-  map("projectsId")
-);
+export const getTodoProjectIds = (todo: {
+  activity: { activity: { forProjects?: { projectsId: string } } };
+}) => flow(get("activity.activity.forProjects"), map("projectsId"))(todo);
 
-export const getTodoActivityId = flow(
-  identity<TodoData>,
-  get("activity.activity.id")
-);
+export const getTodoActivityId = (todo: {
+  activity: { activity: { id: string } };
+}) => get("activity.activity.id")(todo);
 
 interface ActivityProps {
   noteBlocks: {
@@ -50,6 +44,9 @@ interface ActivityProps {
   }[];
   noteBlockIds: string[] | null;
 }
+
+export const notAnOrphan = (activity: ActivityProps) => (todo: TodoData) =>
+  !todoIsOrphan(todo, activity);
 
 export const todoIsOrphan = (todo: TodoData, activity: ActivityProps) =>
   flow(
