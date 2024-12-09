@@ -18,10 +18,10 @@ const DecisionButton: FC<DecisionButtonProps> = ({
   disabled,
 }) => (
   <Button
-    size="sm"
     onClick={makeDecision}
     variant={selected ? "default" : "outline"}
     disabled={!!isLoading || disabled}
+    className="px-2 h-8"
   >
     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
     {label}

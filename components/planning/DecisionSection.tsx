@@ -41,7 +41,7 @@ const DecisionSection: FC<DecisionSectionProps> = ({
   return (
     weekPlan && (
       <div className={cn(className)}>
-        <Label htmlFor={`${project.id}-decision`} className="font-semibold">
+        <Label htmlFor={`${project.id}-decision`}>
           Can you make progress on this project this week?
         </Label>
 
