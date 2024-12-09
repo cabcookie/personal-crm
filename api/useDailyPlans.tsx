@@ -1,14 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
-import { ToastAction } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 import { Context, useContextContext } from "@/contexts/ContextContext";
 import { getTodos } from "@/helpers/dailyplans";
-import {
-  newDateString,
-  newDateTimeString,
-  toISODateString,
-} from "@/helpers/functional";
+import { newDateTimeString, toISODateString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
@@ -17,7 +12,7 @@ import { find, flow, get, identity } from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
-type DailyPlanStatus = Schema["DailyPlanStatus"]["type"];
+export type DailyPlanStatus = Schema["DailyPlanStatus"]["type"];
 
 export type DailyPlanTodo = {
   recordId: string;
@@ -116,7 +111,7 @@ const fetchDailyPlans =
     }
   };
 
-const useDailyPlans = (status?: DailyPlanStatus) => {
+const useDailyPlans = (status: DailyPlanStatus | undefined) => {
   const { context } = useContextContext();
   const {
     data: dailyPlans,
@@ -128,39 +123,6 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     fetchDailyPlans(status, context)
   );
   const { toast } = useToast();
-
-  const addTodoToDailyPlan = async (
-    dailyPlanId: string,
-    todo: DailyPlanTodo
-  ) => {
-    const updated = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId ? p : { ...p, todos: [...(p.todos ?? []), todo] }
-    );
-    if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.DailyPlanTodo.create({
-      dailyPlanId,
-      todoId: todo.todoId,
-      updatedAt: newDateTimeString(),
-    });
-    if (errors) handleApiErrors(errors, "Adding todo to daily plan failed");
-    if (updated) mutate(updated);
-    return data?.id;
-  };
-
-  const removeTodoFromDailyPlan = async (recordId: string) => {
-    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
-      !p.todos.some((t) => t.recordId === recordId)
-        ? p
-        : { ...p, todos: p.todos.filter((t) => t.recordId !== recordId) }
-    );
-    if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.DailyPlanTodo.delete({
-      id: recordId,
-    });
-    if (errors) handleApiErrors(errors, "Removing todo from daily plan failed");
-    if (updated) mutate(updated);
-    return data?.id;
-  };
 
   const getDayplanProjectRecordId = async (
     dayPlanId: string,
@@ -325,186 +287,13 @@ const useDailyPlans = (status?: DailyPlanStatus) => {
     return data.id;
   };
 
-  const updateTodoStatus = async (todoId: string, newIsDone: boolean) => {
-    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) => ({
-      ...p,
-      todos: p.todos.map((t) =>
-        t.todoId !== todoId
-          ? t
-          : {
-              ...t,
-              done: newIsDone,
-            }
-      ),
-    }));
-    if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.Todo.update({
-      id: todoId,
-      status: newIsDone ? "DONE" : "OPEN",
-      doneOn: newIsDone ? newDateString() : null,
-    });
-    if (errors) handleApiErrors(errors, "Updating todo status failed");
-    if (updated) mutate(updated);
-    if (!data) return;
-    return data.id;
-  };
-
-  const getDailyPlanTodoRecordId = async (
-    dailyPlanId: string,
-    todoId: string
-  ) => {
-    const { data, errors } = await client.models.DailyPlanTodo.listByTodoId(
-      { todoId },
-      {
-        filter: {
-          dailyPlanId: { eq: dailyPlanId },
-        },
-        selectionSet: ["id"],
-        sortDirection: "DESC",
-      }
-    );
-    if (errors)
-      handleApiErrors(errors, "Getting daily plan todo record id failed");
-    if (!data) return;
-    return data[0]?.id;
-  };
-
-  const createPostponedTodo = async (
-    dailyPlanId: string,
-    todoId: string,
-    newPostponedState: boolean
-  ) => {
-    const updated = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId
-        ? p
-        : {
-            ...p,
-            todos: p.todos.map((t) =>
-              t.todoId !== todoId
-                ? t
-                : {
-                    ...t,
-                    postPoned: newPostponedState,
-                  }
-            ),
-          }
-    );
-    if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.DailyPlanTodo.create({
-      dailyPlanId,
-      todoId,
-      postPoned: newPostponedState,
-      updatedAt: newDateTimeString(),
-    });
-    if (errors) handleApiErrors(errors, "Creating postponed todo failed");
-    if (updated) mutate(updated);
-    return data?.id;
-  };
-
-  const postponeTodo = async (
-    dailyPlanId: string,
-    todoId: string,
-    newPostponedState: boolean
-  ) => {
-    const recordId = await getDailyPlanTodoRecordId(dailyPlanId, todoId);
-    if (!recordId)
-      return await createPostponedTodo(dailyPlanId, todoId, newPostponedState);
-
-    const updated = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId
-        ? p
-        : {
-            ...p,
-            todos: p.todos.map((t) =>
-              t.todoId !== todoId
-                ? t
-                : {
-                    ...t,
-                    postPoned: newPostponedState,
-                  }
-            ),
-          }
-    );
-    if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.DailyPlanTodo.update({
-      id: recordId,
-      postPoned: newPostponedState,
-    });
-    if (errors)
-      handleApiErrors(errors, "Updating todo's postPoned state failed");
-    if (updated) mutate(updated);
-    return data?.id;
-  };
-
-  const updateDailyPlanStatus = async (
-    dailyPlanId: string,
-    status: "DONE" | "OPEN",
-    defaultErrorMsg: string
-  ) => {
-    const updated: DailyPlan[] | undefined = dailyPlans?.map((p) =>
-      p.id !== dailyPlanId ? p : { ...p, status }
-    );
-    if (updated) mutate(updated, false);
-    const { data, errors } = await client.models.DailyPlan.update({
-      id: dailyPlanId,
-      status,
-    });
-    if (errors) handleApiErrors(errors, defaultErrorMsg);
-    if (updated) mutate(updated);
-    return data;
-  };
-
-  const handleUndoFinishDailyTaskList = (dailyPlanId: string) => async () => {
-    const data = await updateDailyPlanStatus(
-      dailyPlanId,
-      "OPEN",
-      "Undoing finishing daily todo list failed"
-    );
-    if (!data) return;
-    toast({
-      title: "Re-opened daily todo list",
-      description: `Daily todo list “${data.dayGoal}” (${format(
-        new Date(data.day),
-        "PP"
-      )}) is open again`,
-    });
-  };
-
-  const finishDailyTaskList = async (dailyPlanId: string) => {
-    const data = await updateDailyPlanStatus(
-      dailyPlanId,
-      "DONE",
-      "Finishing todo list failed"
-    );
-    if (!data) return;
-    toast({
-      title: "Daily todo list completed",
-      description: `You completed the daily todo list “${
-        data.dayGoal
-      }” (${format(new Date(data.day), "PP")})`,
-      action: (
-        <ToastAction
-          altText="Undo finishing todo list"
-          onClick={handleUndoFinishDailyTaskList(dailyPlanId)}
-        >
-          Undo
-        </ToastAction>
-      ),
-    });
-    return data.id;
-  };
-
   return {
     dailyPlans,
     error,
+    mutate,
     isLoading,
     createDailyPlan,
     confirmDailyPlanning,
-    finishDailyTaskList,
-    addTodoToDailyPlan,
-    removeTodoFromDailyPlan,
-    updateTodoStatus,
-    postponeTodo,
     addProjectToDayPlan,
     removeProjectFromDayPlan,
   };

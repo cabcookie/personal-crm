@@ -1,16 +1,16 @@
 # Aktivitäten/Aufgaben optimieren (Version :VERSION)
 
 - Projekt-Aktionen in der täglichen Aufgabenliste zeigen nun Tooltips, wenn man die Maus auf die Symbolschaltflächen bewegt.
+- Aufgaben in der Tagesliste sind schlanker gestaltet.
+- Verwaiste Aufgaben werden nicht mehr angezeigt.
 
 ## In Arbeit
 
-- Aufgaben in der Tagesliste sind schlanker gestaltet.
+- Wenn Todos erledigt werden in der täglichen Aufgabenliste sollen sie in der Liste der erledigten Aufgaben angezeigt werden, auch wenn die Tagesliste noch in der Zukunft liegt.
 
 ## Geplant
 
-- Option anbieten, um verwaiste Aufgaben zu löschen.
 - Ich möchte ein Projekt in der täglichen Aufgabenliste abschließen können; es taucht nur dann wieder auf, wenn neue Aufgaben nach dem Abhaken hinzu kommen.
-- Wenn Todos erledigt werden in der täglichen Aufgabenliste sollen sie in der Liste der erledigten Aufgaben angezeigt werden, auch wenn die Tagesliste noch in der Zukunft liegt.
 - Ich möchte `ContextProject.tsx` so wie es ist komplett auflösen. Ich sehe das nicht als effizient an, immer so viele Daten zu laden, selbst wenn ich nur die Projektnamen haben möchte.
 
 ### Meetings

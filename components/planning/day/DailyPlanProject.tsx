@@ -1,8 +1,5 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import useDailyPlans, {
-  DailyPlan,
-  DailyPlanProject,
-} from "@/api/useDailyPlans";
+import { DailyPlan, DailyPlanProject } from "@/api/useDailyPlans";
 import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
 import AddTodoSection from "@/components/ui-elements/editors/todo-editor/AddTodoSection";
 import { setPostponedTodoList, setTodoList } from "@/helpers/today";
@@ -12,20 +9,28 @@ import ProjectAccordionItem from "../../projects/ProjectAccordionItem";
 import DailyPlanProjectMenu from "./DailyPlanProjectMenu";
 import DailyPlanProjectTodos from "./DailyPlanProjectTodos";
 
+interface DailyPlanTodo {
+  todoId: string;
+  postPoned?: boolean;
+  done?: boolean;
+}
+
 type DailyPlanProjectProps = {
   dayPlan: DailyPlan;
   dailyPlanProject: DailyPlanProject;
-  className?: string;
+  mutateTodo: (todo: DailyPlanTodo, refresh: boolean) => void;
+  mutateProject: (project: DailyPlanProject, refresh: boolean) => void;
 };
 
 const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
   dayPlan,
   dailyPlanProject,
+  mutateTodo,
+  mutateProject,
 }) => {
-  const { postponeTodo } = useDailyPlans("OPEN", true);
   const { getProjectById } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>();
-  const { projectTodos, finishTodo, createTodo } = useProjectTodos(project?.id);
+  const { projectTodos, createTodo, mutate } = useProjectTodos(project?.id);
   const [openTodos, setOpenTodos] = useState<ProjectTodo[] | undefined>();
   const [closedTodos, setClosedTodos] = useState<ProjectTodo[] | undefined>();
   const [postponedTodos, setPostponedTodos] = useState<
@@ -67,6 +72,8 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
             showTodos,
             setShowDonePostPoned,
             setShowTodos,
+            mutate: (maybe, refresh) =>
+              mutateProject({ ...dailyPlanProject, maybe }, refresh),
           }}
         />
 
@@ -82,33 +89,42 @@ const DailyPlanProjectComponent: FC<DailyPlanProjectProps> = ({
               />
 
               <DailyPlanProjectTodos
+                dayPlanId={dayPlan.id}
                 status="OPEN"
                 todos={openTodos}
-                finishTodo={finishTodo}
-                postponeTodo={(todoId) =>
-                  postponeTodo(dayPlan.id, todoId, true)
+                mutate={(todo, refresh) =>
+                  todo.done
+                    ? openTodos &&
+                      mutate(
+                        openTodos.map((t) =>
+                          t.todoId !== todo.todoId
+                            ? t
+                            : { ...t, done: todo.done! }
+                        ),
+                        refresh
+                      )
+                    : mutateTodo(todo, refresh)
                 }
               />
-
-              {showDonePostPoned && (
-                <div className="text-muted-foreground">
-                  <DailyPlanProjectTodos
-                    status="DONE"
-                    todos={closedTodos}
-                    finishTodo={finishTodo}
-                  />
-
-                  <DailyPlanProjectTodos
-                    status="POSTPONED"
-                    todos={postponedTodos}
-                    finishTodo={finishTodo}
-                    activateTodo={(todoId) =>
-                      postponeTodo(dayPlan.id, todoId, false)
-                    }
-                  />
-                </div>
-              )}
             </>
+          )}
+
+          {showDonePostPoned && (
+            <div className="text-muted-foreground">
+              <DailyPlanProjectTodos
+                dayPlanId={dayPlan.id}
+                status="DONE"
+                todos={closedTodos}
+                mutate={mutateTodo}
+              />
+
+              <DailyPlanProjectTodos
+                dayPlanId={dayPlan.id}
+                status="POSTPONED"
+                todos={postponedTodos}
+                mutate={mutateTodo}
+              />
+            </div>
           )}
         </div>
       </div>

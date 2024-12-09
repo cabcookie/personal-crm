@@ -13,16 +13,6 @@ export interface TodoData {
   doneOn: string | null;
 }
 
-interface ActivityData {
-  noteBlocks: {
-    id: string;
-    todo: {
-      id: string;
-    };
-  }[];
-  noteBlockIds: string[] | null;
-}
-
 export const getTodoId = <T extends TodoData>(todo: T) => get("id")(todo);
 
 export const getTodoJson = (todo: TodoData) =>
@@ -51,12 +41,22 @@ export const getTodoActivityId = flow(
   get("activity.activity.id")
 );
 
-export const todoIsOrphan = (todo: TodoData, activity: ActivityData) =>
+interface ActivityProps {
+  noteBlocks: {
+    id: string;
+    todo: {
+      id: string;
+    };
+  }[];
+  noteBlockIds: string[] | null;
+}
+
+export const todoIsOrphan = (todo: TodoData, activity: ActivityProps) =>
   flow(
-    identity<ActivityData>,
+    identity<ActivityProps>,
     get("noteBlocks"),
     filter(
-      (noteBlock: ActivityData["noteBlocks"][number]) =>
+      (noteBlock) =>
         flow(get("todo.id"))(noteBlock) === todo.id &&
         flow(get("noteBlockIds"), includes(noteBlock.id))(activity)
     ),
@@ -83,36 +83,19 @@ const getParagraphWithLinkToActivity = (activityId: string): JSONContent => ({
   ],
 });
 
-const getTodoOrphanParagraph = (): JSONContent => ({
-  type: "paragraph",
-  content: [
-    {
-      type: "text",
-      text: "Orphan",
-      marks: [{ type: "bold" }, { type: "highlight" }],
-    },
-  ],
-});
-
 export const getTodoContent = (
   content: JSONContent[] | undefined,
-  isOrphan: boolean,
   activityId: string
-) => [
-  ...(content || []),
-  isOrphan
-    ? getTodoOrphanParagraph()
-    : getParagraphWithLinkToActivity(activityId),
-];
+) => [...(content || []), getParagraphWithLinkToActivity(activityId)];
 
 export const getTodoViewerContent = (todos: Todo[]): JSONContent => ({
   type: "doc",
   content: [
     {
       type: "taskList",
-      content: todos.map(({ todo, todoId, blockId, activityId, isOrphan }) => ({
+      content: todos.map(({ todo, todoId, blockId, activityId }) => ({
         ...todo,
-        content: getTodoContent(todo.content, isOrphan, activityId),
+        content: getTodoContent(todo.content, activityId),
         attrs: {
           ...todo.attrs,
           blockId,

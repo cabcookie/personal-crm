@@ -40,7 +40,6 @@ export type Todo = {
   doneOn: Date | null;
   activityId: string;
   blockId?: string;
-  isOrphan: boolean;
   updatedAt: Date;
 };
 
@@ -76,6 +75,11 @@ const activeNoteBlock = (activity: ProjectActivityData["activity"]) =>
       )(activity)
   );
 
+const notAnOrphan =
+  (activity: ProjectActivityData["activity"]) =>
+  (todo: ProjectActivityData["activity"]["noteBlocks"][number]["todo"]) =>
+    !todoIsOrphan(todo, activity);
+
 const mapProjectTodo = ({
   id: projectActivityId,
   activity,
@@ -86,20 +90,16 @@ const mapProjectTodo = ({
     filter(activeNoteBlock(activity)),
     map("todo"),
     filter(isNotNil),
-    map(
-      (
-        todo: ProjectActivityData["activity"]["noteBlocks"][number]["todo"]
-      ) => ({
-        projectActivityId,
-        todoId: getTodoId(todo),
-        todo: getTodoJson(todo),
-        done: getTodoStatus(todo),
-        doneOn: getTodoDoneOn(todo),
-        activityId: activity.id,
-        isOrphan: todoIsOrphan(todo, activity),
-        updatedAt: new Date(todo.updatedAt),
-      })
-    )
+    filter(notAnOrphan(activity)),
+    map((todo) => ({
+      projectActivityId,
+      todoId: getTodoId(todo),
+      todo: getTodoJson(todo),
+      done: getTodoStatus(todo),
+      doneOn: getTodoDoneOn(todo),
+      activityId: activity.id,
+      updatedAt: new Date(todo.updatedAt),
+    }))
   )(activity);
 
 const makeDateNumber = (date: Date) => parseInt(format(date, "yyyyMMdd"));
@@ -236,7 +236,6 @@ const useProjectTodos = (projectId: string | undefined) => {
         doneOn: null,
         activityId: activity.id,
         blockId,
-        isOrphan: false,
         updatedAt: new Date(),
         projectActivityId: projectActivity.id,
       },
@@ -244,7 +243,7 @@ const useProjectTodos = (projectId: string | undefined) => {
     return todoData.id;
   };
 
-  return { projectTodos, isLoading, error, finishTodo, createTodo };
+  return { projectTodos, isLoading, error, mutate, finishTodo, createTodo };
 };
 
 export default useProjectTodos;

@@ -1,7 +1,5 @@
-import useDailyPlans, {
-  DailyPlan,
-  DailyPlanProject,
-} from "@/api/useDailyPlans";
+import { addProjectDayplan } from "@/api/dayplan/add-project-dayplan";
+import { DailyPlan, DailyPlanProject } from "@/api/useDailyPlans";
 import { ButtonPlayPause } from "@/components/ui/button-play-pause";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
@@ -17,6 +15,7 @@ interface DailyPlanProjectMenuProps {
   setShowTodos: Dispatch<SetStateAction<boolean>>;
   showDonePostPoned: boolean;
   setShowDonePostPoned: Dispatch<SetStateAction<boolean>>;
+  mutate: (maybe: boolean, refresh: boolean) => void;
 }
 
 const DailyPlanProjectMenu: FC<DailyPlanProjectMenuProps> = ({
@@ -28,12 +27,19 @@ const DailyPlanProjectMenu: FC<DailyPlanProjectMenuProps> = ({
   showTodos,
   showDonePostPoned,
   setShowDonePostPoned,
+  mutate,
 }) => {
-  const { addProjectToDayPlan } = useDailyPlans("OPEN", true);
-
-  const addProject = async (maybe: boolean) => {
-    await addProjectToDayPlan(dayPlan.id, dailyPlanProject.projectId, maybe);
-  };
+  const addProject = (maybe: boolean) =>
+    addProjectDayplan({
+      data: {
+        dayPlanId: dayPlan.id,
+        projectId: dailyPlanProject.projectId,
+        maybe,
+      },
+      options: {
+        mutate: (refresh) => mutate(maybe, refresh),
+      },
+    });
 
   return (
     <div className="flex flex-row gap-1">
