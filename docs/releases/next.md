@@ -1,11 +1,10 @@
-# Aktivitäten/Aufgaben optimieren (Version :VERSION)
+# Initialisiere AI Backend (Version :VERSION)
 
-- Projekt-Aktionen in der täglichen Aufgabenliste zeigen nun Tooltips, wenn man die Maus auf die Symbolschaltflächen bewegt.
-- Aufgaben in der Tagesliste sind schlanker gestaltet.
-- Verwaiste Aufgaben werden nicht mehr angezeigt.
-- Wenn Todos erledigt werden in der täglichen Aufgabenliste werden sie in der Liste der erledigten Aufgaben angezeigt werden, auch wenn die Tagesliste noch in der Zukunft liegt.
+- [Allgemeines AI Chat Backend eingerichtet](https://docs.amplify.aws/react/ai/set-up-ai/)
 
 ## In Arbeit
+
+- Oberfläche für einen Chatbot eingerichtet.
 
 ## Geplant
 
