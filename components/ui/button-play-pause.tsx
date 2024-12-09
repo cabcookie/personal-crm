@@ -11,7 +11,15 @@ export const ButtonPlayPause: FC<ButtonPlayPauseProps> = ({
   state,
   ...props
 }) => (
-  <IconButton savingState {...props}>
+  <IconButton
+    savingState
+    tooltip={
+      state === "PLAY"
+        ? "Pause project for today"
+        : "Work on this project today"
+    }
+    {...props}
+  >
     {state === "PLAY" ? (
       <>
         <Play className="group-hover:hidden" />

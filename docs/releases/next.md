@@ -1,10 +1,10 @@
 # Aktivitäten/Aufgaben optimieren (Version :VERSION)
 
-- Die Aufgaben-Sektion sollte auch dann gezeigt werden, wenn es aktuell keine Aufgaben gibt.
-- Wenn eine neue Aktivität hinzugefügt wird sollte die UI etwas mehr zeigen, was gerade passiert. Da man die Aktivität nicht editieren kann, macht es Sinn, die Aktivität zu öffnen.
-- Die tägliche Aufgabenliste ist etwas schlanker gestaltet.
+- Projekt-Aktionen in der täglichen Aufgabenliste zeigen nun Tooltips, wenn man die Maus auf die Symbolschaltflächen bewegt.
 
 ## In Arbeit
+
+- Aufgaben in der Tagesliste sind schlanker gestaltet.
 
 ## Geplant
 
