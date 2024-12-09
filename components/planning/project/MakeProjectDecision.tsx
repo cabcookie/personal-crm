@@ -18,7 +18,7 @@ const MakeProjectDecision: FC<MakeProjectDecisionProps> = ({
 
       <DecisionSection
         project={project}
-        className="flex flex-col space-y-2"
+        className="mx-1 md:mx-2 flex flex-col space-y-2"
         saveOnHoldDate={saveOnHoldDate}
       />
     </div>

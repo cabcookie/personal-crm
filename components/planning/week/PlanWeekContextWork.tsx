@@ -33,15 +33,17 @@ const PlanWeekContextWork = () => {
             value={id}
           >
             <Accordion type="single" collapsible>
-              {projects.map((project) => (
-                <MakeProjectDecision
-                  key={project.id}
-                  project={project}
-                  saveOnHoldDate={(onHoldTill) =>
-                    saveProjectDates({ projectId: project.id, onHoldTill })
-                  }
-                />
-              ))}
+              <div className="space-y-6">
+                {projects.map((project) => (
+                  <MakeProjectDecision
+                    key={project.id}
+                    project={project}
+                    saveOnHoldDate={(onHoldTill) =>
+                      saveProjectDates({ projectId: project.id, onHoldTill })
+                    }
+                  />
+                ))}
+              </div>
             </Accordion>
           </DefaultAccordionItem>
         ))}
