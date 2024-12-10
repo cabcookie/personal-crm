@@ -27,7 +27,8 @@
     ]
   },
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.2",
+    "@aws-amplify/ui-react": "^6.7.1",
+    "@aws-amplify/ui-react-ai": "^1.1.0",
     "@aws-amplify/ui-react-storage": "^3.1.4",
     "@aws-sdk/client-cognito-identity": "^3.622.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.622.0",
