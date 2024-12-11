@@ -6,9 +6,14 @@ import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
 import { useNavMenuContext } from "@/contexts/NavMenuContext";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import { Plus } from "lucide-react";
+import { LucideProps, Plus, Users } from "lucide-react";
 import { useRouter } from "next/router";
-import { KeyboardEventHandler, useState } from "react";
+import {
+  ForwardRefExoticComponent,
+  KeyboardEventHandler,
+  RefAttributes,
+  useState,
+} from "react";
 import {
   BiCalendarEvent,
   BiCalendarWeek,
@@ -45,7 +50,11 @@ type ActionNavigationItem = {
 
 type NavigationItem = (UrlNavigationItem | ActionNavigationItem) & {
   label: string;
-  Icon?: IconType;
+  Icon?:
+    | IconType
+    | ForwardRefExoticComponent<
+        Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+      >;
   shortcut?: string;
 };
 
@@ -71,7 +80,7 @@ const NavigationMenu = () => {
     {
       label: "Meetings",
       shortcut: "^M",
-      Icon: BiConversation,
+      Icon: Users,
       url: "/meetings",
     },
     {
@@ -85,6 +94,12 @@ const NavigationMenu = () => {
       shortcut: "^K",
       Icon: BiCalendarWeek,
       url: "/planweek",
+    },
+    {
+      label: "Chat",
+      shortcut: "^C",
+      Icon: BiConversation,
+      url: "/chat",
     },
     // {
     //   label: "Commitments",

@@ -22,7 +22,7 @@ export const addKeyDownListener = (
         k: routeToUrl("/planweek"),
         d: routeToUrl("/planday"),
         m: routeToUrl("/meetings"),
-        c: routeToUrl("/crm-projects"),
+        c: routeToUrl("/chat"),
         p: routeToUrl("/projects"),
         a: routeToUrl("/accounts"),
         i: routeToUrl("/inbox"),

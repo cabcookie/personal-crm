@@ -1,10 +1,11 @@
 # Initialisiere AI Backend (Version :VERSION)
 
 - [Allgemeines AI Chat Backend eingerichtet](https://docs.amplify.aws/react/ai/set-up-ai/)
+- Oberfläche für einen Chatbot eingerichtet.
 
 ## In Arbeit
 
-- Oberfläche für einen Chatbot eingerichtet.
+- Eine Seitenleiste zeigt die vergangenen Conversationen an.
 
 ## Geplant
 

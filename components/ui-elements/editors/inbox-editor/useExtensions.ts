@@ -13,7 +13,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 
-const useExtensions = (): EditorOptions["extensions"] => {
+const useExtensions = (placeholder: string): EditorOptions["extensions"] => {
   const extensions = useMemo(() => {
     return [
       StarterKit.configure({ blockquote: false }),
@@ -60,7 +60,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
         //   "text-muted-foreground relative before:content-['/_for_menu,_@_for_mentions'] before:absolute before:left-0",
         emptyEditorClass:
           "relative text-muted-foreground before:content-[attr(data-placeholder)] before:absolute before:left-0",
-        placeholder: "What's on your mind?",
+        placeholder,
       }),
       LinkBubbleMenuHandler,
     ];

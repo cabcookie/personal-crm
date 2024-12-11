@@ -20,6 +20,8 @@ type InboxEditorProps = {
   autoFocus?: boolean;
   readonly?: boolean;
   showSaveStatus?: boolean;
+  placeholder?: string;
+  className?: string;
 };
 
 const InboxEditor: FC<InboxEditorProps> = ({
@@ -30,9 +32,11 @@ const InboxEditor: FC<InboxEditorProps> = ({
   readonly,
   createdAt,
   updatedAt,
+  className,
   showSaveStatus = true,
+  placeholder = "What's on your mind?",
 }) => {
-  const extensions = useExtensions();
+  const extensions = useExtensions(placeholder);
   const editor = useEditor({
     extensions,
     autofocus: autoFocus,
@@ -65,7 +69,14 @@ const InboxEditor: FC<InboxEditorProps> = ({
     applyReadOnly(editor, readonly);
   }, [editor, readonly]);
   useEffect(() => {
-    applyPastePropsAndUiAttrs(editor, notes, readonly, showSaveStatus);
+    applyPastePropsAndUiAttrs(
+      editor,
+      notes,
+      readonly,
+      showSaveStatus,
+      undefined,
+      className
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.getJSON(), notes, readonly]);
 

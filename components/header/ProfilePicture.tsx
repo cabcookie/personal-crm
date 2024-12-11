@@ -1,6 +1,7 @@
-import useCurrentUser from "@/api/useUser";
+import useCurrentUser, { User } from "@/api/useUser";
+import { setCurrentImgUrl } from "@/helpers/user/user";
 import { signOut } from "aws-amplify/auth";
-import { getUrl } from "aws-amplify/storage";
+import { defaultTo, flow, get, identity, join, map, split } from "lodash/fp";
 import { LogOut, UserCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -20,22 +21,7 @@ const ProfilePicture = () => {
   const [open, setOpen] = useState(false);
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const [imageUrl, setImgUrl] = useState<string | undefined>(undefined);
-
-  const setCurrentImgUrl = async (
-    key: string | undefined,
-    setUrl: (url: string | undefined) => void
-  ) => {
-    if (!key) {
-      setUrl(undefined);
-      return;
-    }
-    const { url } = await getUrl({ path: key });
-    setUrl(url.toString());
-  };
-
-  useEffect(() => {
-    setCurrentImgUrl(user?.profilePicture, setImgUrl);
-  }, [user?.profilePicture]);
+  const [initials, setInitials] = useState<string | undefined>("NA");
 
   useEffect(() => {
     if (!open) return;
@@ -45,12 +31,28 @@ const ProfilePicture = () => {
     createProfile(() => setIsCreatingProfile(false));
   }, [createProfile, isCreatingProfile, open, user]);
 
+  useEffect(() => {
+    flow(
+      identity<User | undefined>,
+      get("userName"),
+      split(" "),
+      map(0),
+      join(""),
+      defaultTo("NA"),
+      setInitials
+    )(user);
+  }, [user]);
+
+  useEffect(() => {
+    setCurrentImgUrl(user?.profilePicture, setImgUrl);
+  }, [user?.profilePicture]);
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Avatar className="cursor-pointer">
           <AvatarImage src={imageUrl} />
-          <AvatarFallback>CK</AvatarFallback>
+          <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
@@ -73,7 +75,6 @@ const ProfilePicture = () => {
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
-          {/* <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut> */}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
