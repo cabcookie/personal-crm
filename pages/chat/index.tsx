@@ -23,7 +23,7 @@ const ChatPage = () => {
   };
 
   return (
-    <ChatLayout title="Chat" sectionName="Chat">
+    <ChatLayout>
       <div className="mt-2">
         <form onSubmit={handleSubmit} className="space-y-4">
           <Textarea
