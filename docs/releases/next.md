@@ -1,4 +1,4 @@
-# Initialisiere AI Backend (Version :VERSION)
+# Implementiere einen einfachen Chatbot ohne Spezialwissen (Version :VERSION)
 
 - [Allgemeines AI Chat Backend eingerichtet](https://docs.amplify.aws/react/ai/set-up-ai/)
 - Oberfläche für einen Chatbot eingerichtet.
