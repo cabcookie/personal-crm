@@ -40,7 +40,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
   );
 
   return (
-    <div>
+    <>
       <Head>
         <title>{`Impulso ${
           recordName ? `- ${recordName}` : ""
@@ -62,7 +62,7 @@ const MainLayoutInner: FC<MainLayoutProps> = ({
           <CreateInboxItemDialog open={isOpen} onOpenChange={setIsOpen} />
         </main>
       </div>
-    </div>
+    </>
   );
 };
 

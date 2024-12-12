@@ -25,7 +25,8 @@ export const applyPastePropsAndUiAttrs = (
   content: JSONContent | undefined,
   readonly: boolean | undefined,
   showSaveStatus: boolean | undefined = true,
-  allowPastingImages: boolean | undefined = true
+  allowPastingImages: boolean | undefined = true,
+  className: string | undefined = undefined
 ) => {
   if (!editor) return;
   editor.setOptions({
@@ -53,7 +54,8 @@ export const applyPastePropsAndUiAttrs = (
             content &&
             !readonly &&
             !isUpToDate(content, editor.getJSON()) &&
-            "bg-red-50"
+            "bg-red-50",
+          className
         ),
       },
     },

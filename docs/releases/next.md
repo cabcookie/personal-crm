@@ -1,10 +1,17 @@
-# Initialisiere AI Backend (Version :VERSION)
+# Implementiere einen einfachen Chatbot ohne Spezialwissen (Version :VERSION)
 
 - [Allgemeines AI Chat Backend eingerichtet](https://docs.amplify.aws/react/ai/set-up-ai/)
+- Oberfläche für einen Chatbot eingerichtet.
+- Eine Seitenleiste zeigt die vergangenen Conversationen an.
+
+## Bekannte Fehler
+
+- Bei längeren Antworten, die der Bot generiert, überschreibt er seine Antwort irgendwann selbst.
 
 ## In Arbeit
 
-- Oberfläche für einen Chatbot eingerichtet.
+- Chat stabilisieren
+- Chat einrichten, der Daten nutzt und in die Antworten mit einfließen lässt.
 
 ## Geplant
 
