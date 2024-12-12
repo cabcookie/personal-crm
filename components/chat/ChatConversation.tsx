@@ -44,9 +44,10 @@ const ChatConversation: FC<ChatConversationProps> = ({ chatId }) => {
 
   const handleSendMessage: SendMessage = async (message) => {
     if (!chatId) return;
+    if (!conversation) return;
     await sendMessage(message);
-    if (conversation?.name) return;
-    await setConversationName(chatId, message);
+    if (conversation.name) return;
+    await setConversationName(chatId, [...messages, message]);
   };
 
   return (
@@ -61,7 +62,11 @@ const ChatConversation: FC<ChatConversationProps> = ({ chatId }) => {
         }}
       />
       {hasError &&
-        errors?.map((error) => <div key={error.message}>{error.message}</div>)}
+        errors?.map((error, index) => (
+          <div key={index} className="text-sm p-2 text-red-600 font-semibold">
+            {error.message}
+          </div>
+        ))}
     </>
   );
 };

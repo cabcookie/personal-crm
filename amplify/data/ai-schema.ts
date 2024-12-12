@@ -11,7 +11,7 @@ const aiSchema = {
     .generation({
       aiModel: a.ai.model("Claude 3 Haiku"),
       systemPrompt:
-        "You are a helpful assistant that writes descriptive names for conversations. Names should be 2-7 words long",
+        "You are a helpful assistant that writes descriptive names for conversations. Names should be 2-7 words long. The descriptive name for the conversation should be in the same language as the conversation",
     })
     .arguments({ content: a.string() })
     .returns(a.customType({ name: a.string() }))
