@@ -1,5 +1,6 @@
 import { Schema } from "@/amplify/data/resource";
 import { useAIConversation, useGeneralChat } from "@/api/useGeneralChat";
+import { SendMessage } from "@aws-amplify/ui-react-ai";
 import { find, flow, get, identity, last } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
 import ConversationName from "./ConversationName";
@@ -36,10 +37,9 @@ const ChatConversation: FC<ChatConversationProps> = ({ chatId }) => {
     )(conversations);
   }, [chatId, conversations]);
 
-  const handleSendMessage = async (prompt: string) => {
+  const handleSendMessage: SendMessage = async (message) => {
     if (!chatId) return;
     if (!conversation) return;
-    const message = { content: [{ text: prompt }] };
     await sendMessage(message);
     if (conversation.name) return;
     await setConversationName(chatId, [...messages, message]);
