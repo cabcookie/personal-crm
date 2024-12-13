@@ -1,9 +1,13 @@
+import { Schema } from "@/amplify/data/resource";
 import { useAIConversation, useGeneralChat } from "@/api/useGeneralChat";
-import useCurrentUser from "@/api/useUser";
-import { AIConversation, Avatars, SendMessage } from "@aws-amplify/ui-react-ai";
+import { find, flow, get, identity, last } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import CircleProfileImg from "../profile/CircleProfileImg";
+import ConversationName from "./ConversationName";
+import Errors from "./Errors";
+import MessageInput from "./MessageInput";
+import Messages from "./Messages";
+
+type Conversation = Schema["generalChat"]["type"];
 
 interface ChatConversationProps {
   chatId: string;
@@ -12,62 +16,52 @@ interface ChatConversationProps {
 const ChatConversation: FC<ChatConversationProps> = ({ chatId }) => {
   const [
     {
-      data: { messages, conversation },
+      data: { messages },
       messages: errors,
       hasError,
-      isLoading,
     },
     sendMessage,
   ] = useAIConversation("generalChat", { id: chatId });
-  const { setConversationName } = useGeneralChat();
-  const { user } = useCurrentUser();
-  const [avatars, setAvatars] = useState<Avatars | undefined>();
-  const [messageRenderer] = useState<
-    Parameters<typeof AIConversation>[number]["messageRenderer"]
-  >({ text: ({ text }) => <ReactMarkdown>{text}</ReactMarkdown> });
+  const { conversations, setConversationName } = useGeneralChat();
+  const [conversation, setConversation] = useState<Conversation | undefined>();
+
+  const getInputFieldKey = () =>
+    `${get("id")(conversation) ?? "NA"}-${flow(identity<typeof messages>, last, get("id"))(messages)}`;
 
   useEffect(() => {
-    if (!user) return;
-    setAvatars({
-      user: {
-        username: user.userName,
-        avatar: (
-          <CircleProfileImg
-            user={user}
-            fallbackInitials="US"
-            className="w-8 h-8"
-          />
-        ),
-      },
-    });
-  }, [user]);
+    flow(
+      identity<Conversation[] | undefined>,
+      find<Conversation>(["id", chatId]),
+      setConversation
+    )(conversations);
+  }, [chatId, conversations]);
 
-  const handleSendMessage: SendMessage = async (message) => {
+  const handleSendMessage = async (prompt: string) => {
     if (!chatId) return;
     if (!conversation) return;
+    const message = { content: [{ text: prompt }] };
     await sendMessage(message);
     if (conversation.name) return;
     await setConversationName(chatId, [...messages, message]);
   };
 
   return (
-    <>
-      <AIConversation
-        {...{
-          handleSendMessage,
-          isLoading,
-          messages,
-          messageRenderer,
-          avatars,
-        }}
+    <div className="space-y-4">
+      <ConversationName
+        name={conversation?.name}
+        className="sticky md:static top-[5.25rem] bg-bgTransparent pb-2 z-30"
       />
-      {hasError &&
-        errors?.map((error, index) => (
-          <div key={index} className="text-sm p-2 text-red-600 font-semibold">
-            {error.message}
-          </div>
-        ))}
-    </>
+
+      <Messages {...{ messages }} />
+
+      <Errors {...{ hasError, errors }} />
+
+      <MessageInput
+        id={getInputFieldKey()}
+        onSend={handleSendMessage}
+        className="sticky bottom-0 left-0 right-0 md:left-1 md:right-1"
+      />
+    </div>
   );
 };
 
