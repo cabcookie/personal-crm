@@ -1,45 +1,33 @@
 import { useGeneralChat } from "@/api/useGeneralChat";
+import ConversationName from "@/components/chat/ConversationName";
+import MessageInput from "@/components/chat/MessageInput";
 import ChatLayout from "@/components/layouts/ChatLayout";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { SendHorizonal } from "lucide-react";
+import { SendMessage } from "@aws-amplify/ui-react-ai";
 import { useRouter } from "next/router";
-import { FormEvent } from "react";
+
+export interface PersonJob {
+  user?: string;
+  employer: string;
+  jobRole?: string;
+}
 
 const ChatPage = () => {
-  const { createConversation } = useGeneralChat();
+  const { createConversation, setConversationName } = useGeneralChat();
   const router = useRouter();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const prompt = data.get("message") as string;
+  const sendMessage: SendMessage = async (message) => {
     const conversation = await createConversation();
     if (!conversation) return;
-    await conversation.sendMessage({
-      content: [{ text: prompt }],
-    });
+    await conversation.sendMessage(message);
+    await setConversationName(conversation.id, [message]);
     router.push(`/chat/${conversation.id}`);
   };
 
   return (
     <ChatLayout>
-      <div className="mt-2">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Textarea
-            name="message"
-            aria-label="message"
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                e.preventDefault();
-                e.currentTarget.form?.requestSubmit();
-              }
-            }}
-          />
-          <Button type="submit" className="gap-1">
-            <SendHorizonal className="w-5 h-5" /> Send
-          </Button>
-        </form>
+      <div className="space-y-4">
+        <ConversationName name="Start new chat" />
+        <MessageInput id="NEW" onSend={sendMessage} />
       </div>
     </ChatLayout>
   );
