@@ -31,7 +31,7 @@ const Messages: FC<MessagesProps> = ({ messages }) => {
         className="flex text-center text-xs text-muted-foreground bg-bgTransparent w-fit rounded-xl py-0.5 px-2 sticky top-[8rem] md:top-[7rem]"
       />
 
-      <div className="space-y-8">
+      <div className="w-full space-y-8">
         {messages
           .filter((m) => format(m.createdAt, "yyyy-MM-dd") === date)
           .map((message) => (

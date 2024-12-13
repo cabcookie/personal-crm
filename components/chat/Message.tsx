@@ -10,7 +10,7 @@ interface MessageProps {
 }
 
 const Message: FC<MessageProps> = ({ message, user }) => (
-  <div key={message.id} className="w-full space-y-4">
+  <div key={message.id} className="space-y-4 w-full">
     <MessageAvatar
       messageDate={message.createdAt}
       role={message.role}
@@ -18,7 +18,9 @@ const Message: FC<MessageProps> = ({ message, user }) => (
     />
 
     {message.content.map((content, index) => (
-      <ReactMarkdown key={index}>{content.text}</ReactMarkdown>
+      <ReactMarkdown key={index} className="w-full overflow-x-auto">
+        {content.text}
+      </ReactMarkdown>
     ))}
   </div>
 );

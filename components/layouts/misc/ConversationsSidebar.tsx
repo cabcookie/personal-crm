@@ -24,6 +24,12 @@ const ConversationsSidebar = () => {
     router.push(`/chat/${conversation.id}`);
   };
 
+  const onDelete = async (conversationId: string) => {
+    await deleteConversation(conversationId);
+    if (conversationId !== chatId) return;
+    router.push("/chat");
+  };
+
   return (
     <Sidebar>
       <SidebarContent className="md:pt-20">
@@ -35,8 +41,8 @@ const ConversationsSidebar = () => {
               {conversations?.map((conversation) => (
                 <ConversationItem
                   key={conversation.id}
-                  onDelete={() => deleteConversation(conversation.id)}
-                  {...{ conversation, currentId: chatId }}
+                  onDelete={() => onDelete(conversation.id)}
+                  {...{ conversation, isActive: conversation.id === chatId }}
                 />
               ))}
             </SidebarMenu>

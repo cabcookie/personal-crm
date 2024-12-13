@@ -1,6 +1,6 @@
 import { Schema } from "@/amplify/data/resource";
+import { Button } from "@/components/ui/button";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
@@ -8,42 +8,38 @@ import ConversationName from "./ConversationName";
 
 interface ConversationItemProps {
   conversation: Schema["generalChat"]["type"];
-  currentId?: string;
+  isActive: boolean;
   onDelete: () => void;
 }
 
 const ConversationItem: FC<ConversationItemProps> = ({
   conversation: { id, name, updatedAt },
-  currentId,
+  isActive,
   onDelete,
 }) => (
-  <SidebarMenuItem>
-    <div className={cn("relative group hidden", id === currentId && "block")}>
-      <ConversationName
-        {...{ name, updatedAt }}
-        className="bg-sidebar-accent rounded p-2 font-semibold"
-      />
-      <Trash2
-        onClick={onDelete}
-        className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 hover:text-primary cursor-pointer"
-      />
-    </div>
+  <SidebarMenuItem className="group/chat-item relative">
     <SidebarMenuButton
       asChild
-      className={cn("h-auto", id === currentId && "hidden")}
+      isActive={isActive}
+      className="relative w-full h-auto"
     >
-      <div className="relative group">
-        <Link href={`/chat/${id}`}>
-          <ConversationName
-            {...{ name, updatedAt }}
-            className="flex flex-col pr-5 group"
-          />
-        </Link>
-        <Trash2
-          onClick={onDelete}
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300 opacity-0 group-hover:opacity-100 hover:text-primary cursor-pointer"
+      <Link href={`/chat/${id}`} className="flex items-center justify-between">
+        <ConversationName
+          {...{ name, updatedAt }}
+          className="flex flex-col pr-5"
         />
-      </div>
+        <Button
+          variant="ghost"
+          className="absolute p-0.5 right-2 hidden group-hover/chat-item:inline-flex text-gray-300 hover:text-sidebar-foreground"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onDelete();
+          }}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+      </Link>
     </SidebarMenuButton>
   </SidebarMenuItem>
 );
