@@ -81,22 +81,19 @@ const MessageInput: FC<MessageInputProps> = ({ id, onSend, className }) => {
         >
           {!isSending ? <ArrowUp /> : <Loader2 className="animate-spin" />}
         </Button>
-
-        {currentJob?.user && (
-          <div className="text-xs text-muted-foreground px-2 pt-1 space-y-1">
-            <div>
-              We will integrate the following information in the request:
-            </div>
-            <ul className="list-disc list-inside">
-              <li>
-                Your name: {currentJob.user} (
-                {currentJob.jobRole && `${currentJob.jobRole} `}at{" "}
-                {currentJob.employer})
-              </li>
-            </ul>
-          </div>
-        )}
       </div>
+      {currentJob?.user && (
+        <div className="text-xs text-muted-foreground px-2 pt-1 space-y-1">
+          <div>We will integrate the following information in the request:</div>
+          <ul className="list-disc list-inside">
+            <li>
+              Your name: {currentJob.user} (
+              {currentJob.jobRole && `${currentJob.jobRole} `}at{" "}
+              {currentJob.employer})
+            </li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };
