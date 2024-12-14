@@ -22,7 +22,7 @@ const ConversationsPageContent: FC<ConversationsPageContentProps> = ({
         <header className="sticky left-2 top-12 md:top-16 py-1 z-40 bg-bgTransparent">
           <SidebarTrigger />
         </header>
-        <div>{children}</div>
+        <div className="md:px-4 lg:px-16 xl:px-36 2xl:px-64">{children}</div>
       </div>
     </div>
   );

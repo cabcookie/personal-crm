@@ -50,9 +50,9 @@ const MessageInput: FC<MessageInputProps> = ({ id, onSend, className }) => {
     setIsSending(true);
     const message = {
       content: [{ text: getTextFromJsonContent(prompt) }],
-      aiContext: () => ({
+      aiContext: {
         user: currentJob,
-      }),
+      },
     } as PromptWithContext;
     onSend(message);
     setPrompt(emptyDocument);
