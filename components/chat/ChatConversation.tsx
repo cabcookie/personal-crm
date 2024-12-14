@@ -1,8 +1,10 @@
 import { Schema } from "@/amplify/data/resource";
 import { useAIConversation, useGeneralChat } from "@/api/useGeneralChat";
+import { cn } from "@/lib/utils";
 import { SendMessage } from "@aws-amplify/ui-react-ai";
 import { find, flow, get, identity, last } from "lodash/fp";
 import { FC, useEffect, useState } from "react";
+import { useSidebar } from "../ui/sidebar";
 import ConversationName from "./ConversationName";
 import Errors from "./Errors";
 import MessageInput from "./MessageInput";
@@ -25,6 +27,7 @@ const ChatConversation: FC<ChatConversationProps> = ({ chatId }) => {
   ] = useAIConversation("generalChat", { id: chatId });
   const { conversations, setConversationName } = useGeneralChat();
   const [conversation, setConversation] = useState<Conversation | undefined>();
+  const { open } = useSidebar();
 
   const getInputFieldKey = () =>
     `${get("id")(conversation) ?? "NA"}-${flow(identity<typeof messages>, last, get("id"))(messages)}`;
@@ -49,7 +52,11 @@ const ChatConversation: FC<ChatConversationProps> = ({ chatId }) => {
     <div className="space-y-4">
       <ConversationName
         name={conversation?.name}
-        className="sticky md:static top-[5.25rem] bg-bgTransparent pb-2 z-30"
+        className={cn(
+          "sticky top-[5.25rem] bg-bgTransparent pb-2 z-30",
+          open && "md:static",
+          !open && "md:top-[6.25rem]"
+        )}
       />
 
       <Messages {...{ messages }} />

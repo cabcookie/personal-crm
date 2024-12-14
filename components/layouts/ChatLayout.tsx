@@ -10,8 +10,9 @@ import { FC, ReactNode, useEffect, useState } from "react";
 import Header from "../header/Header";
 import CreateInboxItemDialog from "../inbox/CreateInboxItemDialog";
 import NavigationMenu from "../navigation-menu/NavigationMenu";
-import { SidebarProvider, SidebarTrigger } from "../ui/sidebar";
+import { SidebarProvider } from "../ui/sidebar";
 import { Toaster } from "../ui/toaster";
+import ConversationsPageContent from "./misc/ConversationsPageContent";
 import ConversationsSidebar from "./misc/ConversationsSidebar";
 
 export type ChatLayoutProps = {
@@ -40,15 +41,10 @@ const ChatLayoutInner: FC<ChatLayoutProps> = ({ children }) => {
         <Header context={context} />
         <NavigationMenu />
         <main className="w-full">
-          <div className="flex flex-col px-2 lg:pr-4 mb-4 md:mb-8">
+          <div className="flex flex-col px-2 mb-4 md:mb-8">
             <SidebarProvider>
               <ConversationsSidebar />
-              <div className="w-full px-0 mx-0">
-                <header className="sticky top-12 md:top-16 py-1 z-40 bg-bgTransparent">
-                  <SidebarTrigger />
-                </header>
-                <div>{children}</div>
-              </div>
+              <ConversationsPageContent>{children}</ConversationsPageContent>
             </SidebarProvider>
           </div>
           <Toaster />

@@ -60,7 +60,7 @@ const MessageInput: FC<MessageInputProps> = ({ id, onSend, className }) => {
 
   return (
     <div className={cn(className)}>
-      <div className="w-full h-8 bg-gradient-to-t from-background/95 via-background/80 to-background/0" />
+      <div className="h-8 bg-gradient-to-t from-background/95 via-background/80 to-background/0" />
 
       <div className="relative bg-white/95">
         <InboxEditor
