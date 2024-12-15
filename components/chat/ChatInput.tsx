@@ -3,11 +3,12 @@ import { Dispatch, FC, SetStateAction } from "react";
 import InboxEditor from "../ui-elements/editors/inbox-editor/InboxEditor";
 
 interface ChatInputProps {
+  prompt: JSONContent;
   setPrompt: Dispatch<SetStateAction<JSONContent>>;
   handleSend: () => void;
 }
 
-const ChatInput: FC<ChatInputProps> = ({ setPrompt, handleSend }) => (
+const ChatInput: FC<ChatInputProps> = ({ prompt, setPrompt, handleSend }) => (
   <InboxEditor
     notes={prompt}
     saveNotes={(editor) => setPrompt(editor.getJSON())}

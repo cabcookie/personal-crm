@@ -177,7 +177,10 @@ const mapRelation = (
   id,
   nameOfAnniversary: findRelationType(typeName)?.nameOfAnniversary,
   nameOfRelationship: getRelationType(direction, typeName)?.name,
-  relatedPerson,
+  relatedPerson: {
+    id: relatedPerson?.id || "",
+    name: relatedPerson?.name || "",
+  },
 });
 
 const mapRelationDates = (
