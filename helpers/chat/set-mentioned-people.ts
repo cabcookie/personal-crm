@@ -17,6 +17,7 @@ import {
   identity,
   join,
   map,
+  some,
   sortBy,
 } from "lodash/fp";
 import { Dispatch, SetStateAction } from "react";
@@ -165,7 +166,7 @@ const getProjects = (activity: Activity) =>
     identity<Activity>,
     get("forProjects"),
     map("projects"),
-    filter((p) => !!get("done")(p)),
+    filter((p) => !get("done")(p)),
     map("project"),
     join(", ")
   )(activity);
@@ -209,6 +210,17 @@ const mapNotesFromMeetings = ({
   )(activities),
 });
 
+const hasOpenMeetings = flow(
+  identity<PersonData["meetings"]>,
+  get("meeting.activities"),
+  some(
+    flow(
+      get("forProjects"),
+      some((p) => !get("projects.done")(p))
+    )
+  )
+);
+
 const mapPerson = ({
   name,
   birthday,
@@ -233,7 +245,15 @@ const mapPerson = ({
   )(relationshipsFrom, relationshipsTo),
   learnings: map(mapLearning)(learnings),
   openTodos: mapOpenTodos(noteBlocks),
-  notesFromMeetings: map(mapNotesFromMeetings)(meetings),
+  notesFromMeetings: flow(
+    identity<PersonData["meetings"]>,
+    filter(hasOpenMeetings),
+    sortBy(
+      ({ meeting: { meetingOn, createdAt } }) =>
+        -new Date(meetingOn || createdAt).getTime()
+    ),
+    map(mapNotesFromMeetings)
+  )(meetings),
 });
 
 const fetchPeople = async (id: string) => {
@@ -252,6 +272,7 @@ const setResult =
   ) =>
   async (people: Promise<MentionedPerson>[]) => {
     const result = await Promise.all(people);
+    console.log("setResult", result);
     setMentionedPeople(result);
   };
 

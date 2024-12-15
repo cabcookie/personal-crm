@@ -21,7 +21,6 @@ export const handlePromptSend = (
     content: [{ text: getTextFromJsonContent(prompt) }],
     aiContext: createAiContext(currentJob, mentionedPeople),
   } as PromptWithContext;
-  console.log({ message });
   onSend(message);
   setPrompt(emptyDocument);
 };
