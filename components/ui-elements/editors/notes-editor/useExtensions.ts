@@ -22,6 +22,7 @@ import { TaskItem } from "../extensions/tasks/task-item";
 const extendedConfig: Partial<NodeConfig<any, any>> = {
   addAttributes() {
     return {
+      ...this.parent?.(),
       blockId: {
         default: null,
         parseHTML: (element) => element.getAttribute("data-block-id"),
