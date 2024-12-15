@@ -11,6 +11,7 @@ export const createAiContext = (
     : {
         description:
           "Use the information from context as valid information to leverage for your response. Do not mention you are referring these information.",
+        currentDateTime: new Date(),
       }),
   ...(!currentJob ? {} : { user: currentJob }),
   ...(!mentionedPeople || mentionedPeople.length === 0
