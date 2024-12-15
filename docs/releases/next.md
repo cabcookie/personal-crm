@@ -1,8 +1,8 @@
-# Implementiere einen einfachen Chatbot ohne Spezialwissen (Version :VERSION)
+# Kontext zu Personen im Chatbot berücksichtigen (Version :VERSION)
 
-- [Allgemeines AI Chat Backend eingerichtet](https://docs.amplify.aws/react/ai/set-up-ai/)
-- Eine eigene Oberfläche für einen Chatbot eingerichtet.
-- Eine Seitenleiste zeigt die vergangenen Conversationen an.
+## Fehlerbehebungen
+
+- Im Editor für Projektnotizen wird die Ebene der Überschriften nun wieder berücksichtigt.
 
 ## Bekannte Fehler
 
@@ -10,11 +10,12 @@
 
 ## In Arbeit
 
-- Chat stabilisieren
-- Chat einrichten, der Daten nutzt und in die Antworten mit einfließen lässt.
+- Informationen zu Personen werden dem Kontext im Chatbot vermerkt, wenn eine Person erwähnt wird.
 
 ## Geplant
 
+- Chat stabilisieren
+- Chat einrichten, der Daten nutzt und in die Antworten mit einfließen lässt.
 - Ich möchte ein Projekt in der täglichen Aufgabenliste abschließen können; es taucht nur dann wieder auf, wenn neue Aufgaben nach dem Abhaken hinzu kommen.
 - Ich möchte `ContextProject.tsx` so wie es ist komplett auflösen. Ich sehe das nicht als effizient an, immer so viele Daten zu laden, selbst wenn ich nur die Projektnamen haben möchte.
 
