@@ -64,7 +64,7 @@ const useExtensions = (placeholder: string): EditorOptions["extensions"] => {
       }),
       LinkBubbleMenuHandler,
     ];
-  }, []);
+  }, [placeholder]);
 
   return extensions;
 };

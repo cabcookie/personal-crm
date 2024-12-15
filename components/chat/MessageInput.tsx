@@ -38,7 +38,7 @@ const MessageInput: FC<MessageInputProps> = ({ id, onSend, className }) => {
 
   useEffect(() => {
     setCurrentJobByUser(user, chatUser, setCurrentJob);
-  }, [chatUser, user?.userName]);
+  }, [chatUser, user]);
 
   useEffect(() => {
     setMentionedPeopleByPrompt(prompt, setMentionedPeople);
