@@ -272,7 +272,6 @@ const setResult =
   ) =>
   async (people: Promise<MentionedPerson>[]) => {
     const result = await Promise.all(people);
-    console.log("setResult", result);
     setMentionedPeople(result);
   };
 
