@@ -1,10 +1,6 @@
-# Kontext zu Personen im Chatbot berücksichtigen (Version :VERSION)
+# Keine erledigten Projekte auf Tagesliste (Version :VERSION)
 
-- Informationen zu Personen werden dem Kontext im Chatbot vermerkt, wenn eine Person erwähnt wird.
-
-## Fehlerbehebungen
-
-- Im Editor für Projektnotizen wird die Ebene der Überschriften nun wieder berücksichtigt.
+- In der Tagesaufgabenliste werden erledigte Projekte nicht mehr angezeigt.
 
 ## Bekannte Fehler
 
@@ -15,6 +11,11 @@
 ## Geplant
 
 - Chat stabilisieren
+- Informationen zu mir im Chat erweitern (offene Todos, offene Projekte, Beziehungen, meine Kunden, Personen, die ich kürzlich getroffen habe, Personen, die demnächst Geburtstag haben, offene Gebetsanliegen)
+- Das Konzept, dass zuerst eine Beziehung in der Datenbank angelegt wird, nur um das Formular anzeigen zu können, ist Mist; es erzeugt Waisen in der DB
+- Bei den Beziehungen sollten auch Chef-Mitarbeiter Beziehungen abgebildet werden können
+- Todos auch in der Projektliste abhaken
+- Schnell eine neue Aktivität auch in der Next Actions Liste hinzufügen oder auch in der Tagesaufgabenliste
 
 ### Meetings
 
