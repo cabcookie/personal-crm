@@ -3,12 +3,11 @@ import { handleApiErrors } from "@/api/globals";
 import { useToast } from "@/components/ui/use-toast";
 import { Context, useContextContext } from "@/contexts/ContextContext";
 import { getTodos } from "@/helpers/dailyplans";
-import { newDateTimeString, toISODateString } from "@/helpers/functional";
+import { newDateTimeString, not, toISODateString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
-import { map } from "lodash";
-import { find, flow, get, identity } from "lodash/fp";
+import { filter, find, flow, get, identity, map } from "lodash/fp";
 import useSWR from "swr";
 const client = generateClient<Schema>();
 
@@ -50,6 +49,7 @@ const selectionSet = [
   "createdAt",
   "projects.id",
   "projects.projectId",
+  "projects.project.done",
   "projects.maybe",
   "todos.id",
   "todos.postPoned",
@@ -82,11 +82,15 @@ const mapDailyPlan: (dayplan: DailyPlanData) => DailyPlan = ({
   context: context || "work",
   status,
   todos: getTodos(todos),
-  projects: projects.map(({ id, projectId, maybe }) => ({
-    recordId: id,
-    projectId,
-    maybe: !!maybe,
-  })),
+  projects: flow(
+    identity<typeof projects>,
+    filter(flow(get("project.done"), not)),
+    map(({ id, projectId, maybe }) => ({
+      recordId: id,
+      projectId,
+      maybe: !!maybe,
+    }))
+  )(projects),
   createdAt: new Date(createdAt),
 });
 
@@ -108,7 +112,7 @@ const fetchDailyPlans =
     if (errors) throw errors;
     if (!data) throw new Error("No daily tasks list fetched");
     try {
-      return map(data, mapDailyPlan);
+      return map(mapDailyPlan)(data);
     } catch (error) {
       console.error("fetchDailyPlans", { error });
       throw error;
