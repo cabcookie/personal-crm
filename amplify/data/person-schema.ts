@@ -79,6 +79,7 @@ const personSchmema = {
       person: a.belongsTo("Person", "personId"),
       learning: a.json(),
       prayer: a.ref("PrayerStatus"),
+      status: a.ref("LearningStatus").required(),
     })
     .secondaryIndexes((index) => [index("personId")])
     .authorization((allow) => [allow.owner()]),
@@ -122,6 +123,7 @@ const personSchmema = {
       payerAccounts: a.hasMany("PayerAccount", "mainContactId"),
       details: a.hasMany("PersonDetail", "personId"),
       learnings: a.hasMany("PersonLearning", "personId"),
+      accountLearnings: a.hasMany("AccountLearningPerson", "personId"),
       profile: a.hasOne("User", "personId"),
       noteBlocks: a.hasMany("NoteBlockPerson", "personId"),
       relationshipsFrom: a.hasMany("PersonRelationship", "personId"),

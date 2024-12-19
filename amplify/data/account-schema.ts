@@ -95,8 +95,35 @@ const accountSchema = {
       resellingAccounts: a.hasMany("PayerAccount", "resellerId"),
       people: a.hasMany("PersonAccount", "accountId"),
       partnerProjects: a.hasMany("Projects", "partnerId"),
+      learnings: a.hasMany("AccountLearning", "accountId"),
     })
     .authorization((allow) => [allow.owner()]),
+  AccountLearning: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      learnedOn: a.date(),
+      accountId: a.id().required(),
+      account: a.belongsTo("Account", "accountId"),
+      learning: a.json(),
+      status: a.ref("LearningStatus").required(),
+      peopleMentioned: a.hasMany("AccountLearningPerson", "learningId"),
+    })
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes((index) => [index("accountId")]),
+  AccountLearningPerson: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      learningId: a.id().required(),
+      learning: a.belongsTo("AccountLearning", "learningId"),
+      personId: a.id().required(),
+      person: a.belongsTo("Person", "personId"),
+    })
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes((index) => [index("learningId")]),
 };
 
 export default accountSchema;
