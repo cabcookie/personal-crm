@@ -1,12 +1,6 @@
 const {
-  ScanCommand,
-  UpdateItemCommand,
-  DynamoDBClient,
-} = require("@aws-sdk/client-dynamodb");
-const {
   mapMeetingIdForActivity,
   logTables,
-  stdLog,
 } = require("./helpers/filter-and-mapping");
 const {
   importHandler,
@@ -14,9 +8,10 @@ const {
   createRelation,
   createDetailRecord,
 } = require("./helpers/import-handler");
-const { getTable, getEnvironment } = require("./import-data/environments");
-const { getAwsProfile } = require("./helpers/get-aws-profile");
-const { fromIni } = require("@aws-sdk/credential-providers");
+const { fillFinishedOn } = require("./helpers/fill-finished-on");
+const {
+  fillLearningPersonStatus,
+} = require("./helpers/fill-learning-person-status");
 
 const importData = async () => {
   // Books of the Bible
@@ -208,54 +203,6 @@ const importData = async () => {
   );
 };
 
-const fillFinishedOn = async () => {
-  const TableName = getTable("Activity");
-  const log = stdLog(`[${TableName}] [UPDATE FIELD finishedOn]:`);
-  log("Start processing…");
-  const region = getEnvironment().region;
-  const profile = getAwsProfile();
-  const client = new DynamoDBClient({
-    region,
-    credentials: fromIni({ profile }),
-  });
-  const existingRecords = await client.send(
-    new ScanCommand({
-      TableName,
-      FilterExpression: "attribute_not_exists(#f)",
-      ExpressionAttributeNames: { "#f": "finishedOn" },
-      Limit: 5000,
-    })
-  );
-  log(
-    "Relevant records:",
-    existingRecords.Items.map(({ id }) => id.S)
-  );
-  await Promise.all(
-    existingRecords.Items.map(async ({ id, createdAt }) => {
-      log("Processing record with ID:", id.S, "and createdAt:", createdAt.S);
-      const params = {
-        TableName,
-        Key: {
-          id,
-        },
-        UpdateExpression: `SET finishedOn = :newValue`,
-        ExpressionAttributeValues: {
-          ":newValue": createdAt,
-        },
-        ReturnValues: "UPDATED_NEW",
-      };
-      const response = await client.send(new UpdateItemCommand(params));
-      log(
-        "Response:",
-        "StatusCode",
-        response.$metadata.httpStatusCode,
-        "Attributes",
-        response.Attributes.finishedOn
-      );
-    })
-  );
-};
-
 /**
  * Importing data requires the files mentioned in the importData function to exist.
  * Like:
@@ -275,3 +222,4 @@ const fillFinishedOn = async () => {
 // importData();
 // logTables();
 // fillFinishedOn();
+// fillLearningPersonStatus();

@@ -18,11 +18,7 @@
 ## Geplant
 
 - Chat stabilisieren
-- Informationen zu mir im Chat erweitern (offene Todos, offene Projekte, Beziehungen, meine Kunden, Personen, die ich kürzlich getroffen habe, Personen, die demnächst Geburtstag haben, offene Gebetsanliegen)
-- Das Konzept, dass zuerst eine Beziehung in der Datenbank angelegt wird, nur um das Formular anzeigen zu können, ist Mist; es erzeugt Waisen in der DB
-- Bei den Beziehungen sollten auch Chef-Mitarbeiter Beziehungen abgebildet werden können
-- Todos auch in der Projektliste abhaken
-- Schnell eine neue Aktivität auch in der Next Actions Liste hinzufügen oder auch in der Tagesaufgabenliste
+- Projekte sollten auch als deligiert markiert werden können und dann auch in der On Hold Liste auftauchen. In der Wochen-/Tagesplanung sollte hier dann geprüft werden, ob diese Projekte auch weiterhin delegiert bleiben. Bei Meetings sollten diese Projekte natürlich dennoch angezeigt werden.
 
 ### Meetings
 
@@ -30,6 +26,7 @@
 - In einem Meeting möchte ich zu jedem Teilnehmer schnell die letzten "Learnings" einsehen können sowie offene Gebetsanliegen oder den Geburtstag, so dass ich das in dem Meeting einfließen lassen oder nutzen kann.
 - Wenn "Learnings" sich überholt haben, möchte ich diese "abhaken" können. Das gilt zum Beispiel für Urlaube. Auf der anderen Seite kann es interessant sein, zu sehen, wenn eine Person ein Land besonder liebt und immer wieder bereist oder wenn die Person besonders viele verschiedene Länder besucht. Auch die Art der Reisen könnte interessant sein (z.B. Motorrad, Campingwagen, Fahrrad).
 - Beziehungen sollten auch angezeigt werden, vielleicht auch schnell die Jobhistorie.
+- Für jedes Projekt im Meeting sollte ein kurzer Status aufgezeigt werden und die offenen Aufgaben.
 
 ### Account Details
 
@@ -47,6 +44,8 @@
 - Kontaktdetails als Adressbuch ins iPhone einbinden.
 - Auch Chef/Mitarbeiter-Beziehung abbilden.
 - An Firmen werden die Kontakte nicht korrekt angezeigt, wenn das Startdatum ihrer Rolle nicht definiert ist.
+- Das Konzept, dass zuerst eine Beziehung in der Datenbank angelegt wird, nur um das Formular anzeigen zu können, ist Mist; es erzeugt Waisen in der DB
+- Bei den Beziehungen sollten auch Chef-Mitarbeiter Beziehungen abgebildet werden können
 
 ### Lektüre
 
@@ -67,6 +66,8 @@
 - Im Kontext Familie einführen, welche Person von einem Projekt profitiert ("Beneficial").
 - Purpose und Beneficial haben Einfluss auf die Priorität und die Sortierung von Projekten.
 - Die Badges für CRM Hygiene sollten wieder angezeigt werden.
+- Schnell eine neue Aktivität auch in der Next Actions Liste hinzufügen oder auch in der Tagesaufgabenliste
+- Todos auch in der Projektliste abhaken
 
 ### Finanzdaten
 
@@ -84,9 +85,9 @@
 - Auch Dokumente (PDFs etc.) an Notizen anhängen. Sollten im Fließtext dargestellt werden.
 - Eine Methode überlegen, wie ich Informationen danach kategorisiere, ob sie nur für das Projekt relevant sind, für den Kunden oder den Purpose oder sogar übergreifend für den Kontext (Familie, Hobby, Arbeit). Gerade dort kann die [PARA-Methode](https://fortelabs.com/blog/para/) helfen.
 
-### Künstliche Intelligenz
+### Chatbot
 
-- Die Notizen und Todos mithilfe von Bedrock durchsuchbar machen ([Artikel 1](https://aws.amazon.com/de/blogs/machine-learning/build-generative-ai-agents-with-amazon-bedrock-amazon-dynamodb-amazon-kendra-amazon-lex-and-langchain/) und [Artikel 2](https://medium.com/@dminhk/adding-amazon-dynamodb-memory-to-amazon-bedrock-using-langchain-expression-language-lcel-%EF%B8%8F-1ca55407ecdb))
+- Informationen zu mir im Chat erweitern (offene Todos, offene Projekte, Beziehungen, meine Kunden, Personen, die ich kürzlich getroffen habe, Personen, die demnächst Geburtstag haben, offene Gebetsanliegen)
 
 ### Suche
 
