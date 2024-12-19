@@ -1,8 +1,9 @@
 # Gelerntes über Unternehmen festhalten (Version :VERSION)
 
 - Datenbankschema angepasst, um Gelerntes über Unternehmen speichern zu können.
-
-## Weitere Änderungen
+- Gelerntes über eine Organisation kann erfasst werden.
+- Personen können in Gelerntes zu Organisationen markiert werden.
+- Im Chatbot wird auch Gelerntes zu Organsiationen berücksichtigt, wenn die Person darin erwähnt wird.
 
 ## Bekannte Fehler
 
@@ -11,7 +12,6 @@
 
 ## In Arbeit
 
-- Gelerntes über eine Organisation kann erfasst werden.
 - Etwas Gelerntes über Unternehmen kann als "nicht mehr relevant" markiert werden.
 - Etwas Gelerntes über Personen kann als "nicht mehr relevant" markiert werden.
 

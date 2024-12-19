@@ -4,6 +4,7 @@ import CrmLink from "../crm/CrmLink";
 import { Accordion } from "../ui/accordion";
 import AccountFinancials from "./AccountFinancials";
 import AccountIntroduction from "./AccountIntroduction";
+import AccountLearnings from "./AccountLearnings";
 import AccountNotes from "./AccountNotes";
 import AccountPayerAccounts from "./AccountPayerAccounts";
 import AccountPeople from "./AccountPeople";
@@ -73,6 +74,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
         />
 
         <AccountIntroduction {...{ account, showIntroduction }} />
+        <AccountLearnings accountId={account.id} />
         <AccountProjects {...{ account, showProjects }} />
         <AccountPeople accountId={account.id} isVisible={!!showContacts} />
         <AccountNotes accountId={account.id} />

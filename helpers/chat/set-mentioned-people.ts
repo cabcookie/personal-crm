@@ -28,7 +28,7 @@ const client = generateClient<Schema>();
 type PersonLearning = {
   learning: string;
   learnedOn: Date;
-  prayerStatus: TPrayerStatus;
+  prayerStatus?: TPrayerStatus;
 };
 
 type MeetingNotes = {
@@ -109,6 +109,11 @@ const selectionSet = [
   "learnings.createdAt",
   "learnings.learning",
   "learnings.prayer",
+  "learnings.status",
+  "accountLearnings.learning.learnedOn",
+  "accountLearnings.learning.createdAt",
+  "accountLearnings.learning.learning",
+  "accountLearnings.learning.status",
   "noteBlocks.noteBlock.todo.todo",
   "noteBlocks.noteBlock.todo.status",
   "noteBlocks.noteBlock.todo.updatedAt",
@@ -134,21 +139,45 @@ const selectionSet = [
 ] as const;
 
 type PersonData = SelectionSet<Schema["Person"]["type"], typeof selectionSet>;
-type PersonLearningData = PersonData["learnings"][number];
 type Activity = PersonData["meetings"][number]["meeting"]["activities"][number];
+
+type LearningData = {
+  learnedOn: string | null;
+  learning: Schema["AccountLearning"]["type"]["learning"];
+  createdAt: string;
+  status: Schema["LearningStatus"]["type"];
+  prayer?: Schema["PrayerStatus"]["type"];
+};
 
 const mapLearning = ({
   learnedOn,
   createdAt,
   learning,
   prayer,
-}: PersonLearningData): PersonLearning => ({
+}: LearningData): PersonLearning => ({
   learning: !learning
     ? ""
     : getTextFromJsonContent(JSON.parse(learning as any)),
   learnedOn: new Date(learnedOn || createdAt),
-  prayerStatus: prayer || "NONE",
+  prayerStatus: prayer,
 });
+
+const learningIsNew = ({
+  status,
+}: {
+  status: Schema["LearningStatus"]["type"];
+}) => status === "new";
+
+const filterAndMapLearnings = (
+  learnings: PersonData["learnings"],
+  accountLearnings: PersonData["accountLearnings"]
+) => {
+  const allLearning = [
+    ...learnings.filter(learningIsNew),
+    ...accountLearnings.map((al) => al.learning).filter(learningIsNew),
+  ];
+  return allLearning.map(mapLearning);
+};
 
 const mapOpenTodos = (noteBlocks: PersonData["noteBlocks"]): string[] =>
   flow(
@@ -229,6 +258,7 @@ const mapPerson = ({
   relationshipsFrom,
   relationshipsTo,
   learnings,
+  accountLearnings,
   noteBlocks,
   meetings,
 }: PersonData): MentionedPerson => ({
@@ -243,7 +273,7 @@ const mapPerson = ({
       relatedPerson: relatedPerson?.name ?? "",
     }))
   )(relationshipsFrom, relationshipsTo),
-  learnings: map(mapLearning)(learnings),
+  learnings: filterAndMapLearnings(learnings, accountLearnings),
   openTodos: mapOpenTodos(noteBlocks),
   notesFromMeetings: flow(
     identity<PersonData["meetings"]>,

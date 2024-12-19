@@ -2,11 +2,12 @@ import { type Schema } from "@/amplify/data/resource";
 import { TPrayerStatus } from "@/components/prayer/PrayerStatus";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
 import { toast } from "@/components/ui/use-toast";
-import { toISODateString } from "@/helpers/functional";
+import { invertSign, toISODateString } from "@/helpers/functional";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/data";
-import { flow, map, sortBy } from "lodash/fp";
+import { getTime } from "date-fns";
+import { flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -41,9 +42,12 @@ const mapLearning = ({
 const fetchLearnings = (personId?: string) => async () => {
   if (!personId) return;
   const { data, errors } =
-    await client.models.PersonLearning.listPersonLearningByPersonId({
-      personId,
-    });
+    await client.models.PersonLearning.listPersonLearningByPersonId(
+      {
+        personId,
+      },
+      { filter: { status: { eq: "new" } } }
+    );
   if (errors) {
     handleApiErrors(errors, "Error loading person learnings");
     throw errors;
@@ -52,7 +56,9 @@ const fetchLearnings = (personId?: string) => async () => {
   try {
     return flow(
       map(mapLearning),
-      sortBy((l) => -l.learnedOn.getTime())
+      sortBy(
+        flow(identity<PersonLearning>, get("learnedOn"), getTime, invertSign)
+      )
     )(data);
   } catch (error) {
     console.error("fetchLearnings", { error });
@@ -83,6 +89,7 @@ const usePersonLearnings = (personId?: string) => {
       personId,
       learnedOn: toISODateString(new Date()),
       prayer: "NONE",
+      status: "new",
     });
     if (errors) handleApiErrors(errors, "Creating learning on person failed");
     mutate(updated);

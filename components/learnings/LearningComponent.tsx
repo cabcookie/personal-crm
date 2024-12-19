@@ -1,6 +1,5 @@
-import { PersonLearning } from "@/api/usePersonLearnings";
 import { cn } from "@/lib/utils";
-import { Editor } from "@tiptap/core";
+import { Editor, JSONContent } from "@tiptap/core";
 import { format } from "date-fns";
 import { Check, Edit, Trash2 } from "lucide-react";
 import { FC, useState } from "react";
@@ -9,14 +8,22 @@ import NotesWriter from "../ui-elements/notes-writer/NotesWriter";
 import DateSelector from "../ui-elements/selectors/date-selector";
 import { Button } from "../ui/button";
 
+interface ILearning {
+  id: string;
+  learning: JSONContent;
+  learnedOn: Date;
+  updatedAt: Date;
+  prayerStatus?: TPrayerStatus;
+}
+
 type LearningComponentProps = {
-  learning: PersonLearning;
+  learning: ILearning;
   editable?: boolean;
   onMakeEditable?: () => void;
   onDelete?: () => void;
   onChange: (editor: Editor) => void;
-  onStatusChange: (val: TPrayerStatus) => void;
   onDateChange: (newDate: Date) => Promise<string | undefined>;
+  onStatusChange?: (val: TPrayerStatus) => void;
 };
 
 const LearningComponent: FC<LearningComponentProps> = ({
@@ -74,11 +81,15 @@ const LearningComponent: FC<LearningComponentProps> = ({
           </Button>
         )}
       </h3>
-      <PrayerStatus
-        status={learning.prayerStatus}
-        onChange={onStatusChange}
-        editable={!!editable}
-      />
+
+      {onStatusChange && learning.prayerStatus && (
+        <PrayerStatus
+          status={learning.prayerStatus}
+          onChange={onStatusChange}
+          editable={!!editable}
+        />
+      )}
+
       <div className={cn(!editable && "-mx-2")}>
         <NotesWriter
           readonly={!editable}
