@@ -3,6 +3,7 @@
 - Datenbankschema angepasst, um Gelerntes über Unternehmen speichern zu können.
 - Gelerntes über eine Organisation kann erfasst werden.
 - Personen können in Gelerntes zu Organisationen markiert werden.
+- Im Chatbot wird auch Gelerntes zu Organsiationen berücksichtigt, wenn die Person darin erwähnt wird.
 
 ## Weitere Änderungen
 
