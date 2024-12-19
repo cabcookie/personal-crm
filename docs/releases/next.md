@@ -5,8 +5,6 @@
 - Personen können in Gelerntes zu Organisationen markiert werden.
 - Im Chatbot wird auch Gelerntes zu Organsiationen berücksichtigt, wenn die Person darin erwähnt wird.
 
-## Weitere Änderungen
-
 ## Bekannte Fehler
 
 - Bei längeren Antworten, die der Chatbot generiert, überschreibt er seine Antwort irgendwann selbst.
