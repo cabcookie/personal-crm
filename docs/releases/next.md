@@ -1,6 +1,8 @@
 # Gelerntes über Unternehmen festhalten (Version :VERSION)
 
 - Datenbankschema angepasst, um Gelerntes über Unternehmen speichern zu können.
+- Gelerntes über eine Organisation kann erfasst werden.
+- Personen können in Gelerntes zu Organisationen markiert werden.
 
 ## Weitere Änderungen
 
@@ -11,7 +13,6 @@
 
 ## In Arbeit
 
-- Gelerntes über eine Organisation kann erfasst werden.
 - Etwas Gelerntes über Unternehmen kann als "nicht mehr relevant" markiert werden.
 - Etwas Gelerntes über Personen kann als "nicht mehr relevant" markiert werden.
 
