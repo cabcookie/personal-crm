@@ -189,6 +189,7 @@ const useInbox = () => {
       learnedOn: toISODateString(item.createdAt),
       learning: stringifyBlock(item.note),
       prayer: !withPrayer ? undefined : "PRAYING",
+      status: "new",
     });
     if (errors) handleApiErrors(errors, "Error moving inbox item to person");
     if (updated) mutate(updated);
