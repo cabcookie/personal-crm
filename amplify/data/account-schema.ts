@@ -7,6 +7,8 @@ export const tablesWithDeleteProtection = [
   "AccountPayerAccount",
   "PayerAccount",
   "Account",
+  "AccountLearning",
+  "AccountLearningPerson",
 ];
 
 const accountSchema = {
