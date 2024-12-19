@@ -39,6 +39,10 @@ const backendType = backend.auth.resources.userPool.node.tryGetContext(
 
 Object.keys(amplifyDynamoDbTables).forEach((key) => {
   const setting = tablesWithDeleteProtection.includes(key);
+  if (!setting)
+    console.log(
+      `Not setting delete protection and point-in-time recovery for ${key}`
+    );
   amplifyDynamoDbTables[key].deletionProtectionEnabled =
     backendType === "sandbox" ? false : setting;
   amplifyDynamoDbTables[key].pointInTimeRecoveryEnabled = setting;

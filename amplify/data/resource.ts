@@ -55,6 +55,7 @@ const schema = a
     ...prayerSchema,
     ...projectSchema,
     ...aiSchema,
+    LearningStatus: a.enum(["new", "archived"]),
     InboxStatus: a.enum(["new", "done"]),
     Inbox: a
       .model({

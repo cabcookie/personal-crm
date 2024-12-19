@@ -5,6 +5,7 @@ export const tablesWithDeleteProtection = [
   "WeeklyPlanProject",
   "DailyPlan",
   "DailyPlanTodo",
+  "DailyPlanProject",
 ];
 
 const planningSchema = {
