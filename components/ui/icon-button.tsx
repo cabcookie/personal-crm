@@ -12,11 +12,13 @@ import { Button, ButtonProps } from "./button";
 interface IconButtonProps extends ButtonProps {
   savingState?: boolean;
   tooltip?: string;
+  label?: string;
 }
 
 export const IconButton: FC<IconButtonProps> = ({
   className,
   tooltip,
+  label,
   onClick,
   children,
   savingState,
@@ -35,9 +37,8 @@ export const IconButton: FC<IconButtonProps> = ({
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            size="icon"
             variant="outline"
-            className={cn("hover:children:hidden group", className)}
+            className={cn("hover:children:hidden group gap-1", className)}
             disabled={savingState && isSaving}
             onClick={handleClick}
             {...props}
@@ -45,7 +46,14 @@ export const IconButton: FC<IconButtonProps> = ({
             {savingState && isSaving ? (
               <Loader2 className="animate-spin" />
             ) : (
-              <>{children}</>
+              <>
+                {children}
+                {label && (
+                  <span className="text-muted-foreground hover:text-primary">
+                    {label}
+                  </span>
+                )}
+              </>
             )}
           </Button>
         </TooltipTrigger>

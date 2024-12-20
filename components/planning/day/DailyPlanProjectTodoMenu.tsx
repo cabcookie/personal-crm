@@ -1,7 +1,5 @@
 import { ProjectTodo } from "@/api/useProjectTodos";
-import { cn } from "@/lib/utils";
-import { ArrowUpRightFromSquare } from "lucide-react";
-import Link from "next/link";
+import NextActionDetailBtn from "@/components/ui-elements/project-details/next-action-detail-btn";
 import { FC } from "react";
 import PostPoneBtn from "./postpone-btn";
 
@@ -18,19 +16,13 @@ const DailyPlanProjectTodoMenu: FC<DailyPlanProjectTodoMenuProps> = ({
   mutate,
   status,
 }) => {
-  const iconStyle = "w-4 h-4 text-muted-foreground";
-
   return (
-    <div className="flex flex-row gap-1">
+    <div className="flex flex-wrap gap-2">
       {status !== "DONE" && (
         <PostPoneBtn {...{ dayPlanId, todo, status, mutate }} />
       )}
 
-      <Link href={`/activities/${todo.activityId}`} target="_blank">
-        <ArrowUpRightFromSquare
-          className={cn(iconStyle, "hover:text-primary")}
-        />
-      </Link>
+      <NextActionDetailBtn {...{ todo }} />
     </div>
   );
 };

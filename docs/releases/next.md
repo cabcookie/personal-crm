@@ -1,12 +1,12 @@
-# Chef/Mitarbeiter Beziehung (Version :VERSION)
+# Symbole für Aufgaben optimieren (Version :VERSION)
 
-- Bei den Beziehungen können nun auch eine Chef-Mitarbeiter Beziehungen abgebildet werden.
+- Die Symbole für Projekte in der Tagesaufgabenliste sind nun eindeutiger und mit Beschriftungen unterstützt.
+- Die Symbole für Aufgaben in der Tages-, Besprechungs- und Projektaufgabenliste sind nun eindeutiger und mit Beschriftungen unterstützt.
+- In Projekten und in Besprechungen können Aufgaben nun auch in der Aufgabenliste direkt abgeschlossen werden.
 
 ## Fehlerbehebungen
 
-- Wenn eine Beziehung angelegt werden soll, wird nun zunächst ein leeres Formular gezeigt und wenn alles okay ist, kann es in der Datenbank gespeichert werden. Damit verhindern wir verwaiste Einträge bei den Beziehungen, wenn versehentlich auf die Schaltfläche geklickt wurde, um eine Beziehung anzulegen.
-- Wenn ein Kontakt gelöscht war, aber noch eine Beziehung zu einem Unternehmen existierte, konnte kein Mitarbeiter des Unternehmens geladen werden.
-- Wenn eine Person in einem Block erwähnt wurde, die Aktivität, an der der Block hing aber nicht mehr existiert, dann konnten die Notizen zu einer Person nicht mehr angezeigt werden.
+- In Besprechungen werden wieder die vereinbarten Aufgaben angezeigt.
 
 ## Bekannte Fehler
 
@@ -64,7 +64,6 @@
 - Purpose und Beneficial haben Einfluss auf die Priorität und die Sortierung von Projekten.
 - Die Badges für CRM Hygiene sollten wieder angezeigt werden.
 - Schnell eine neue Aktivität auch in der Next Actions Liste hinzufügen oder auch in der Tagesaufgabenliste
-- Todos auch in der Projektliste abhaken
 
 ### Finanzdaten
 

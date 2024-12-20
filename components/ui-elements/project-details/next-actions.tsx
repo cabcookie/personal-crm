@@ -1,16 +1,25 @@
-import useProjectTodos from "@/api/useProjectTodos";
+import useProjectTodos, { Todo } from "@/api/useProjectTodos";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import { getTodoText } from "../editors/helpers/text-generation";
 import AddTodoSection from "../editors/todo-editor/AddTodoSection";
-import TodoViewer from "../editors/todo-viewer/TodoViewer";
+import NextAction from "./next-action";
 
 type ProjectNextActionsProps = {
   projectId: string;
 };
 
 const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
-  const { projectTodos, createTodo } = useProjectTodos(projectId);
+  const { projectTodos, createTodo, mutate } = useProjectTodos(projectId);
+
+  const mutateTodo = (todo: Todo, refresh: boolean) =>
+    projectTodos &&
+    mutate(
+      projectTodos.map((t) =>
+        t.todoId !== todo.todoId ? t : { ...t, ...todo }
+      ),
+      refresh
+    );
 
   return (
     <DefaultAccordionItem
@@ -18,9 +27,23 @@ const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
       triggerTitle="Next Actions"
       triggerSubTitle={getTodoText(projectTodos)}
     >
-      <AddTodoSection onSave={createTodo} />
+      <div className="space-y-2">
+        <AddTodoSection onSave={createTodo} />
 
-      {projectTodos && <TodoViewer todos={projectTodos} />}
+        {projectTodos && projectTodos.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No next actions</div>
+        ) : (
+          projectTodos?.map((todo) => (
+            <NextAction
+              key={todo.todoId}
+              {...{
+                todo,
+                mutate: mutateTodo,
+              }}
+            />
+          ))
+        )}
+      </div>
     </DefaultAccordionItem>
   );
 };

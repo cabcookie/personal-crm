@@ -52,7 +52,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
   );
-  const { meetingTodos } = useMeetingTodos(meeting?.id);
+  const { meetingTodos, mutate } = useMeetingTodos(meeting?.id);
 
   useEffect(() => {
     if (!meeting) return;
@@ -203,7 +203,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               removeParticipant={removeMeetingParticipant}
             />
 
-            <MeetingNextActions todos={meetingTodos} />
+            <MeetingNextActions todos={meetingTodos} mutate={mutate} />
 
             <MeetingActivityList meeting={meeting} />
           </>

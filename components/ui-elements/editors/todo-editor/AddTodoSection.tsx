@@ -37,7 +37,12 @@ const AddTodoSection: FC<AddTodoSectionProps> = ({
   return (
     <div className={cn("space-y-2", className)}>
       {!formControl && (
-        <Button variant="outline" size="sm" onClick={onOpenChange}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onOpenChange}
+          className="w-40 text-muted-foreground hover:text-primary"
+        >
           {!showTodoEditor ? (
             <PlusCircle className="w-4 h-4 mr-1" />
           ) : (
