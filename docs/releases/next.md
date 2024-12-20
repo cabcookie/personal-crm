@@ -5,6 +5,7 @@
 ## Fehlerbehebungen
 
 - Wenn eine Beziehung angelegt werden soll, wird nun zunächst ein leeres Formular gezeigt und wenn alles okay ist, kann es in der Datenbank gespeichert werden. Damit verhindern wir verwaiste Einträge bei den Beziehungen, wenn versehentlich auf die Schaltfläche geklickt wurde, um eine Beziehung anzulegen.
+- Wenn ein Kontakt gelöscht war, aber noch eine Beziehung zu einem Unternehmen existierte, konnte kein Mitarbeiter des Unternehmens geladen werden.
 
 ## Bekannte Fehler
 

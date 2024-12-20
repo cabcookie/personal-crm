@@ -19,7 +19,12 @@ export const personName = ({
   name: `${name}${!position ? "" : ` (${position})`}`,
 });
 
-export const isCurrentRole = ({ startDate, endDate }: PersonAccountData) =>
+export const isCurrentRole = ({
+  startDate,
+  endDate,
+  person,
+}: PersonAccountData) =>
+  person &&
   (!endDate || isFuture(new Date(endDate))) &&
   (!startDate || isPast(new Date(startDate)));
 
