@@ -42,16 +42,17 @@ const DailyPlanProjectMenu: FC<DailyPlanProjectMenuProps> = ({
     });
 
   return (
-    <div className="flex flex-row gap-1">
+    <div className="flex flex-wrap gap-1">
       <ButtonPlayPause
         state={dailyPlanProject.maybe ? "PAUSE" : "PLAY"}
-        className="w-7 h-7 p-1"
+        className="h-7 p-1"
         onClick={() => addProject(!dailyPlanProject.maybe)}
       />
 
       <IconButton
         tooltip="Add todo…"
-        className="w-7 h-7 p-1"
+        label={isTodoFormOpen ? "Close" : "Add Todo"}
+        className="w-24 h-7 p-1"
         onClick={() => setIsTodoFormOpen((val) => !val)}
       >
         <Plus
@@ -65,7 +66,8 @@ const DailyPlanProjectMenu: FC<DailyPlanProjectMenuProps> = ({
 
       <IconButton
         tooltip={showTodos ? "Hide todos" : "Show todos"}
-        className="w-7 h-7 p-1"
+        className="w-28 h-7 p-1"
+        label={showTodos ? "Hide todos" : "Show todos"}
         onClick={() => setShowTodos((val) => !val)}
       >
         <Square className={cn(!showTodos && "text-gray-300")} />
@@ -75,7 +77,8 @@ const DailyPlanProjectMenu: FC<DailyPlanProjectMenuProps> = ({
         tooltip={
           showDonePostPoned ? "Hide done & postponed" : "Show done & postponed"
         }
-        className="w-7 h-7 p-1"
+        label={showDonePostPoned ? "Hide inactive" : "Show inactive"}
+        className="w-32 h-7 p-1"
         onClick={() => setShowDonePostPoned((val) => !val)}
       >
         <Check className={cn(!showDonePostPoned && "text-gray-300")} />

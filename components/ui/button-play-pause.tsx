@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Pause, Play } from "lucide-react";
 import { FC } from "react";
 import { ButtonProps } from "./button";
@@ -9,6 +10,7 @@ interface ButtonPlayPauseProps extends ButtonProps {
 
 export const ButtonPlayPause: FC<ButtonPlayPauseProps> = ({
   state,
+  className,
   ...props
 }) => (
   <IconButton
@@ -18,6 +20,8 @@ export const ButtonPlayPause: FC<ButtonPlayPauseProps> = ({
         ? "Pause project for today"
         : "Work on this project today"
     }
+    label={state === "PLAY" ? "Pause Project" : "Focus Project"}
+    className={cn("w-32", className)}
     {...props}
   >
     {state === "PLAY" ? (

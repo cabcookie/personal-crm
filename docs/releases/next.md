@@ -1,12 +1,6 @@
-# Chef/Mitarbeiter Beziehung (Version :VERSION)
+# Symbole für Aufgaben optimieren (Version :VERSION)
 
-- Bei den Beziehungen können nun auch eine Chef-Mitarbeiter Beziehungen abgebildet werden.
-
-## Fehlerbehebungen
-
-- Wenn eine Beziehung angelegt werden soll, wird nun zunächst ein leeres Formular gezeigt und wenn alles okay ist, kann es in der Datenbank gespeichert werden. Damit verhindern wir verwaiste Einträge bei den Beziehungen, wenn versehentlich auf die Schaltfläche geklickt wurde, um eine Beziehung anzulegen.
-- Wenn ein Kontakt gelöscht war, aber noch eine Beziehung zu einem Unternehmen existierte, konnte kein Mitarbeiter des Unternehmens geladen werden.
-- Wenn eine Person in einem Block erwähnt wurde, die Aktivität, an der der Block hing aber nicht mehr existiert, dann konnten die Notizen zu einer Person nicht mehr angezeigt werden.
+- Die Symbole für Projekte in der Tagesaufgabenliste sind nun eindeutiger. Sie sind durch Texte unterstützt.
 
 ## Bekannte Fehler
 
