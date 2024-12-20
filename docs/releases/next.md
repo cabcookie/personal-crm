@@ -4,6 +4,10 @@
 - Die Symbole für Aufgaben in der Tagesaufgaben- und Projektliste sind nun eindeutiger und mit Beschriftungen unterstützt.
 - In der Projektliste können Aufgaben nun auch abgeschlossen werden.
 
+## Fehlerbehebungen
+
+- In Besprechungen werden wieder die vereinbarten Aufgaben angezeigt.
+
 ## Bekannte Fehler
 
 - Bei längeren Antworten, die der Chatbot generiert, überschreibt er seine Antwort irgendwann selbst.
