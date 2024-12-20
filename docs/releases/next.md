@@ -1,11 +1,12 @@
 # Chef/Mitarbeiter Beziehung (Version :VERSION)
 
-- Bei den Beziehungen können nun auch Chef-Mitarbeiter Beziehungen abgebildet werden.
+- Bei den Beziehungen können nun auch eine Chef-Mitarbeiter Beziehungen abgebildet werden.
 
 ## Fehlerbehebungen
 
 - Wenn eine Beziehung angelegt werden soll, wird nun zunächst ein leeres Formular gezeigt und wenn alles okay ist, kann es in der Datenbank gespeichert werden. Damit verhindern wir verwaiste Einträge bei den Beziehungen, wenn versehentlich auf die Schaltfläche geklickt wurde, um eine Beziehung anzulegen.
 - Wenn ein Kontakt gelöscht war, aber noch eine Beziehung zu einem Unternehmen existierte, konnte kein Mitarbeiter des Unternehmens geladen werden.
+- Wenn eine Person in einem Block erwähnt wurde, die Aktivität, an der der Block hing aber nicht mehr existiert, dann konnten die Notizen zu einer Person nicht mehr angezeigt werden.
 
 ## Bekannte Fehler
 
@@ -17,7 +18,6 @@
 ## Geplant
 
 - An Firmen werden die Kontakte nicht korrekt angezeigt, wenn das Startdatum ihrer Rolle nicht definiert ist.
-- Bei Personen sollen unter Notizen nicht nur die Meetings auftauchen, an denen sie partizipiert haben, sondern auch wenn sie erwähnt wurden.
 - Chat stabilisieren
 - Projekte sollten auch als deligiert markiert werden können und dann auch in der On Hold Liste auftauchen. In der Wochen-/Tagesplanung sollte hier dann geprüft werden, ob diese Projekte auch weiterhin delegiert bleiben. Bei Meetings sollten diese Projekte natürlich dennoch angezeigt werden.
 
@@ -32,7 +32,6 @@
 ### Account Details
 
 - Etwas Gelerntes über Unternehmen kann als "nicht mehr relevant" markiert werden.
-- Ich möchte eine Möglichkeit haben, um zu dokumentieren, was ein Kunde mit einem Partner macht und mir dazu auch schnell eine Übersicht/Matrix erstellen können.
 - Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt.
 - Es wäre tatsächlich klasse, wenn ich eine Zusammenfassung eines Accounts mithilfe GenAI erstellen kann. Dazu werden Notizen, Mitarbeiter, Projekte, Partnerinfos herangezogen und die Informationen, die am Account selbst hinterlegt sind (AWS Accounts, Introduction usw.).
 
