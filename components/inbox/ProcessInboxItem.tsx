@@ -16,6 +16,7 @@ const ProcessInboxItem = () => {
     setInboxItemDone,
     moveItemToProject,
     moveItemToPerson,
+    moveItemToAccount,
   } = useInbox();
   const [firstItem, setFirstItem] = useState<Inbox | undefined>();
 
@@ -44,6 +45,9 @@ const ProcessInboxItem = () => {
             }
             addToPerson={(personId, withPrayer) =>
               moveItemToPerson(firstItem, personId, withPrayer)
+            }
+            addToAccount={(accountId) =>
+              moveItemToAccount(firstItem, accountId)
             }
           />
 

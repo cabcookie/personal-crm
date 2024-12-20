@@ -1,5 +1,6 @@
 import {
   BookOpenCheck,
+  Building,
   Check,
   CloudLightning,
   HandHelping,
@@ -18,6 +19,7 @@ export type WorkflowStatus =
   | "addToProject"
   | "addToPerson"
   | "addToPersonWithPrayer"
+  | "addToAccount"
   | "confirmDeletion"
   | "done";
 export type WorkflowStepIcon = typeof Stars;
@@ -26,12 +28,14 @@ export type WorkflowStatusWithActions =
   | "addToProject"
   | "addToPerson"
   | "addToPersonWithPrayer"
+  | "addToAccount"
   | "done";
 
 export const statusWithAction = [
   "addToProject",
   "addToPerson",
   "addToPersonWithPrayer",
+  "addToAccount",
   "done",
 ] as const;
 
@@ -128,6 +132,23 @@ export const workflow: WorkflowStart = {
               status: "addToPerson",
               statusName: "Done",
               StepIcon: X,
+              question: "Done!",
+              takeAction: true,
+            },
+          ],
+        },
+        {
+          decisionName: "Account",
+          status: "addToAccount",
+          statusName: "Add to account",
+          StepIcon: Building,
+          question: "Select Account:",
+          responses: [
+            {
+              decisionName: "Done",
+              status: "addToAccount",
+              statusName: "Done",
+              StepIcon: Check,
               question: "Done!",
               takeAction: true,
             },

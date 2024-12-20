@@ -1,6 +1,7 @@
 import { flow, identity } from "lodash/fp";
 import { Undo2 } from "lucide-react";
 import { FC, useEffect, useState } from "react";
+import AccountSelector from "../ui-elements/selectors/account-selector";
 import PeopleSelector from "../ui-elements/selectors/people-selector";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
 import ConfirmContent from "./ConfirmContent";
@@ -20,17 +21,20 @@ type InboxDecisionMenuProps = {
   setInboxItemDone: () => void;
   addToProject: (projectId: string) => void;
   addToPerson: (personId: string, withPrayer?: boolean) => void;
+  addToAccount: (accountId: string) => void;
 };
 
 const InboxDecisionMenu: FC<InboxDecisionMenuProps> = ({
   setInboxItemDone,
   addToProject,
   addToPerson,
+  addToAccount,
 }) => {
   const [status, setStatus] = useState<WorkflowStatus>("new");
   const [step, setStep] = useState<WorkflowStep | null>(null);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
   useEffect(() => {
     flow(identity<WorkflowStep>, findStepByStatus(status), setStep)(workflow);
@@ -57,6 +61,10 @@ const InboxDecisionMenu: FC<InboxDecisionMenuProps> = ({
         if (!selectedPerson) return;
         addToPerson(selectedPerson, true);
       },
+      addToAccount: () => {
+        if (!selectedAccount) return;
+        addToAccount(selectedAccount);
+      },
     };
     actions[actionStatus]();
   };
@@ -79,6 +87,14 @@ const InboxDecisionMenu: FC<InboxDecisionMenuProps> = ({
             value={selectedPerson ?? ""}
             onChange={setSelectedPerson}
             allowNewPerson
+          />
+        )}
+
+        {step.status === "addToAccount" && (
+          <AccountSelector
+            value={selectedAccount ?? ""}
+            onChange={setSelectedAccount}
+            allowCreateAccounts
           />
         )}
 

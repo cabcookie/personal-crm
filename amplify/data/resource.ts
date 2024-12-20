@@ -68,6 +68,7 @@ const schema = a
         status: a.ref("InboxStatus").required(),
         movedToActivityId: a.string(),
         movedToPersonLearningId: a.string(),
+        movedToAccountLearningId: a.string(),
         createdAt: a.datetime().required(),
       })
       .secondaryIndexes((inbox) => [

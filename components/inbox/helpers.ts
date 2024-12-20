@@ -83,3 +83,16 @@ export const updateMovedItemToPersonId = async (
   if (errors) handleApiErrors(errors, "Linking inbox item/person failed");
   return data?.id;
 };
+
+export const updateMovedItemToAccountId = async (
+  inboxItemId: string,
+  accountLearningId: string
+) => {
+  const { data, errors } = await client.models.Inbox.update({
+    id: inboxItemId,
+    movedToAccountLearningId: accountLearningId,
+    status: "done",
+  });
+  if (errors) handleApiErrors(errors, "Linking inbox item/account failed");
+  return data?.id;
+};
