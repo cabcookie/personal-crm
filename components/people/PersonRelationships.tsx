@@ -1,44 +1,11 @@
 import { PersonRelationship } from "@/helpers/person/relationships";
 import { differenceInYears } from "date-fns";
 import { capitalize } from "lodash";
-import { PlusCircle } from "lucide-react";
-import { FC, useState } from "react";
+import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
-import { Button } from "../ui/button";
-import RelationEdit from "./relations/relation-edit";
-import RelationText from "./relations/relation-text";
+import PersonRelationshipShowEdit from "./PersonRelationshipShowEdit";
 import SubRelationships from "./relations/sub-relation-text";
-
-type PersonRelationshipHelperProps = {
-  relationship: PersonRelationship;
-  updateRelationship: (
-    relationship: Partial<PersonRelationship> & { id: string }
-  ) => Promise<string | undefined>;
-  deleteRelationship: (id: string) => Promise<string | undefined>;
-};
-
-const PersonRelationshipHelper: FC<PersonRelationshipHelperProps> = ({
-  updateRelationship,
-  deleteRelationship,
-  relationship,
-}) => {
-  const [isEditing, setIsEditing] = useState(!relationship.nameOfRelationship);
-
-  return !isEditing ? (
-    <RelationText
-      relationship={relationship}
-      deleteRelation={() => deleteRelationship(relationship.id)}
-      startEditing={() => setIsEditing(true)}
-    />
-  ) : (
-    <RelationEdit
-      relationship={relationship}
-      updateRelationship={updateRelationship}
-      confirmChanges={() => setIsEditing(false)}
-    />
-  );
-};
 
 type PersonRelationshipsProps = {
   ownPersonId?: string;
@@ -70,8 +37,14 @@ const PersonRelationships: FC<PersonRelationshipsProps> = ({
   relationships,
   updateRelationship,
   deleteRelationship,
-}) =>
-  !ownPersonId || !relationships ? (
+}) => {
+  const saveChanges = async (
+    relation: Partial<PersonRelationship> & { id: string }
+  ) => {
+    await updateRelationship(relation);
+  };
+
+  return !ownPersonId || !relationships ? (
     <LoadingAccordionItem
       value="loading-relations"
       sizeTitle="lg"
@@ -84,20 +57,13 @@ const PersonRelationships: FC<PersonRelationshipsProps> = ({
       triggerSubTitle={relationships.filter(validRelations).map(relationText)}
     >
       <div className="space-y-4">
-        <Button
-          size="sm"
-          className="gap-1"
-          onClick={() => updateRelationship({ id: "NEW" })}
-        >
-          <PlusCircle className="w-4 h-4" />
-          Relation
-        </Button>
+        <PersonRelationshipShowEdit updateRelationship={saveChanges} />
 
         {relationships.map((r) => (
-          <PersonRelationshipHelper
+          <PersonRelationshipShowEdit
             key={r.id}
             relationship={r}
-            updateRelationship={updateRelationship}
+            updateRelationship={saveChanges}
             deleteRelationship={deleteRelationship}
           />
         ))}
@@ -110,5 +76,6 @@ const PersonRelationships: FC<PersonRelationshipsProps> = ({
       </div>
     </DefaultAccordionItem>
   );
+};
 
 export default PersonRelationships;

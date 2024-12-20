@@ -29,6 +29,8 @@ const personSchmema = {
     "partner",
     "friend",
     "smallgroup",
+    "manager",
+    "employer",
   ]),
   MeetingParticipant: a
     .model({
