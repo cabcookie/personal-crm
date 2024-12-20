@@ -1,4 +1,4 @@
-import useProjectTodos, { ProjectTodo } from "@/api/useProjectTodos";
+import useProjectTodos, { Todo } from "@/api/useProjectTodos";
 import { FC } from "react";
 import DefaultAccordionItem from "../accordion/DefaultAccordionItem";
 import { getTodoText } from "../editors/helpers/text-generation";
@@ -12,10 +12,12 @@ type ProjectNextActionsProps = {
 const ProjectNextActions: FC<ProjectNextActionsProps> = ({ projectId }) => {
   const { projectTodos, createTodo, mutate } = useProjectTodos(projectId);
 
-  const mutateTodo = (todo: ProjectTodo, refresh: boolean) =>
+  const mutateTodo = (todo: Todo, refresh: boolean) =>
     projectTodos &&
     mutate(
-      projectTodos.map((t) => (t.todoId !== todo.todoId ? t : todo)),
+      projectTodos.map((t) =>
+        t.todoId !== todo.todoId ? t : { ...t, ...todo }
+      ),
       refresh
     );
 

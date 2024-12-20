@@ -1,11 +1,11 @@
-import { ProjectTodo } from "@/api/useProjectTodos";
+import { Todo } from "@/api/useProjectTodos";
 import { cn } from "@/lib/utils";
 import { ArrowUpRightFromSquare } from "lucide-react";
 import Link from "next/link";
 import { FC } from "react";
 
 interface NextActionDetailBtnProps {
-  todo: ProjectTodo;
+  todo: Todo;
   className?: string;
 }
 

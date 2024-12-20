@@ -1,13 +1,13 @@
 import { finishTodo } from "@/api/todos/finish-todo";
-import { ProjectTodo } from "@/api/useProjectTodos";
+import { Todo } from "@/api/useProjectTodos";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FC } from "react";
 import SimpleReadOnly from "../editors/simple-visualizer/SimpleReadOnly";
 import NextActionDetailBtn from "./next-action-detail-btn";
 
 interface NextActionProps {
-  todo: ProjectTodo;
-  mutate: (todo: ProjectTodo, refresh: boolean) => void;
+  todo: Todo;
+  mutate: (todo: Todo, refresh: boolean) => void;
 }
 
 const NextAction: FC<NextActionProps> = ({ todo, mutate }) => {

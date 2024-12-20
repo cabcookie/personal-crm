@@ -1,8 +1,8 @@
 # Symbole für Aufgaben optimieren (Version :VERSION)
 
 - Die Symbole für Projekte in der Tagesaufgabenliste sind nun eindeutiger und mit Beschriftungen unterstützt.
-- Die Symbole für Aufgaben in der Tagesaufgaben- und Projektliste sind nun eindeutiger und mit Beschriftungen unterstützt.
-- In der Projektliste können Aufgaben nun auch abgeschlossen werden.
+- Die Symbole für Aufgaben in der Tages-, Besprechungs- und Projektaufgabenliste sind nun eindeutiger und mit Beschriftungen unterstützt.
+- In Projekten und in Besprechungen können Aufgaben nun auch in der Aufgabenliste direkt abgeschlossen werden.
 
 ## Fehlerbehebungen
 
@@ -14,8 +14,6 @@
 - Wenn ein neuer Chat geöffnet wird, könnten während des Ladens Neuigkeiten gestreamt, die von der UI nicht erfasst werden. Dadurch wirkt der Text am Anfang abgehackt.
 
 ## In Arbeit
-
-- Auch für Besprechungen die Aufgaben optimieren.
 
 ## Geplant
 

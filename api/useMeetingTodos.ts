@@ -91,8 +91,9 @@ const useMeetingTodos = (meetingId: string | undefined) => {
     data: meetingTodos,
     isLoading,
     error,
+    mutate,
   } = useSWR(`/meetings/${meetingId}/todos`, fetchMeetingTodos(meetingId));
-  return { meetingTodos, isLoading, error };
+  return { meetingTodos, isLoading, error, mutate };
 };
 
 export default useMeetingTodos;
