@@ -1,6 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
-import { flatMap, flow, map, sortBy, union, uniqBy } from "lodash/fp";
+import {
+  filter,
+  flatMap,
+  flow,
+  identity,
+  map,
+  sortBy,
+  union,
+  uniqBy,
+} from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 const client = generateClient<Schema>();
@@ -78,6 +87,8 @@ const fetchMentionedPersonActivities = async (personId: string) => {
   if (!data) throw new Error(`Reading person ${personId} mentions failed`);
   try {
     return flow(
+      identity<MentionActivityData[] | undefined>,
+      filter((a) => !!a.noteBlock?.activity),
       map(mapMentionActivity),
       sortBy((a) => -a.finishedOn.getTime())
     )(data);

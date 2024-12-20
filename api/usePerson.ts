@@ -236,12 +236,8 @@ const usePerson = (personId?: string) => {
     if (id === "NEW")
       return createRelationship({ relatedPerson, nameOfRelationship });
 
-    const updRelation = (() => {
-      const relationship = person.relationships.find((r) => r.id === id);
-      return !relationship
-        ? undefined
-        : ({ ...relationship } as PersonRelationship);
-    })();
+    const updRelation = person.relationships.find((r) => r.id === id);
+
     if (!updRelation) return;
     const relationType = getRelationType(
       updRelation.direction,
@@ -253,10 +249,7 @@ const usePerson = (personId?: string) => {
       ...(endDate && { endDate }),
       ...(nameOfAnniversary && { nameOfAnniversary }),
       ...(relationType && {
-        nameOfRelationship:
-          updRelation.direction === "from"
-            ? relationType.name
-            : relationType.nameOfOtherDirection,
+        nameOfRelationship: relationType.name,
       }),
       ...(relatedPerson && { relatedPerson }),
     });
@@ -269,7 +262,7 @@ const usePerson = (personId?: string) => {
     } as Person;
     mutate(updPerson, false);
 
-    const { data, errors } = await client.models.PersonRelationship.update({
+    const updObj = {
       id,
       personId:
         updRelation.direction === "from" ? person.id : relatedPerson?.id,
@@ -278,14 +271,14 @@ const usePerson = (personId?: string) => {
       ...(!relationType
         ? {}
         : {
-            typeName:
-              updRelation.direction === "from"
-                ? relationType.name
-                : relationType.nameOfOtherDirection,
+            typeName: relationType.name,
           }),
       ...(!anniversary ? {} : { date: toISODateString(anniversary) }),
       ...(!endDate ? {} : { endDate: toISODateString(endDate) }),
-    });
+    };
+
+    const { data, errors } =
+      await client.models.PersonRelationship.update(updObj);
     if (errors) handleApiErrors(errors, "Updating person relation failed");
     mutate(updPerson);
     return data?.id;

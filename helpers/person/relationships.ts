@@ -41,6 +41,8 @@ export const RELATIONSHIP_TYPES = [
   "parent",
   "smallgroup",
   "friend",
+  "manager",
+  "employer",
 ] as const;
 
 export type TRelationshipTypes = (typeof RELATIONSHIP_TYPES)[number];
@@ -101,6 +103,12 @@ export const RELATIONSHIPS: RelationshipType[] = [
     hasAnniversary: true,
     nameOfAnniversary: "Membership",
     hasEndDate: true,
+  },
+  {
+    name: "manager",
+    nameOfOtherDirection: "employer",
+    hasAnniversary: false,
+    hasEndDate: false,
   },
 ] as const;
 

@@ -1,10 +1,12 @@
-# Gelerntes über Unternehmen festhalten (Version :VERSION)
+# Chef/Mitarbeiter Beziehung (Version :VERSION)
 
-- Datenbankschema angepasst, um Gelerntes über Unternehmen speichern zu können.
-- Gelerntes über eine Organisation kann erfasst werden.
-- Personen können in Gelerntes zu Organisationen markiert werden.
-- Im Chatbot wird auch Gelerntes zu Organsiationen berücksichtigt, wenn die Person darin erwähnt wird.
-- Auch aus der Inbox heraus können Einträge als Gelerntes über Organisationen übertragen werden.
+- Bei den Beziehungen können nun auch eine Chef-Mitarbeiter Beziehungen abgebildet werden.
+
+## Fehlerbehebungen
+
+- Wenn eine Beziehung angelegt werden soll, wird nun zunächst ein leeres Formular gezeigt und wenn alles okay ist, kann es in der Datenbank gespeichert werden. Damit verhindern wir verwaiste Einträge bei den Beziehungen, wenn versehentlich auf die Schaltfläche geklickt wurde, um eine Beziehung anzulegen.
+- Wenn ein Kontakt gelöscht war, aber noch eine Beziehung zu einem Unternehmen existierte, konnte kein Mitarbeiter des Unternehmens geladen werden.
+- Wenn eine Person in einem Block erwähnt wurde, die Aktivität, an der der Block hing aber nicht mehr existiert, dann konnten die Notizen zu einer Person nicht mehr angezeigt werden.
 
 ## Bekannte Fehler
 
@@ -13,11 +15,9 @@
 
 ## In Arbeit
 
-- Etwas Gelerntes über Unternehmen kann als "nicht mehr relevant" markiert werden.
-- Etwas Gelerntes über Personen kann als "nicht mehr relevant" markiert werden.
-
 ## Geplant
 
+- An Firmen werden die Kontakte nicht korrekt angezeigt, wenn das Startdatum ihrer Rolle nicht definiert ist.
 - Chat stabilisieren
 - Projekte sollten auch als deligiert markiert werden können und dann auch in der On Hold Liste auftauchen. In der Wochen-/Tagesplanung sollte hier dann geprüft werden, ob diese Projekte auch weiterhin delegiert bleiben. Bei Meetings sollten diese Projekte natürlich dennoch angezeigt werden.
 
@@ -31,22 +31,18 @@
 
 ### Account Details
 
-- Ich möchte eine Möglichkeit haben, um zu dokumentieren, was ein Kunde mit einem Partner macht und mir dazu auch schnell eine Übersicht/Matrix erstellen können.
+- Etwas Gelerntes über Unternehmen kann als "nicht mehr relevant" markiert werden.
 - Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt.
 - Es wäre tatsächlich klasse, wenn ich eine Zusammenfassung eines Accounts mithilfe GenAI erstellen kann. Dazu werden Notizen, Mitarbeiter, Projekte, Partnerinfos herangezogen und die Informationen, die am Account selbst hinterlegt sind (AWS Accounts, Introduction usw.).
 
 ### Kontaktdetails
 
+- Etwas Gelerntes über Personen kann als "nicht mehr relevant" markiert werden.
 - Geschenkideen dokumentieren
 - Ich möchte Kontaktdetails in die Zwischenablage kopieren können.
 - Ich möchte einfach nur ein Kontaktdetail in das Formular kopieren und das Formular entscheidet automatisch anhand des Inhalts und anhand des Kontexts, um welche Information es sich wahrscheinlich handelt. Wenn die Information eindeutig ist, wird der Inhalt direkt gespeichert und das Formular direkt geschlossen.
 - Weitere persönliche Jahrestage abbilden (Tauftag, Taufentscheidung etc.).
-- Bei Personen sollen unter Notizen nicht nur die Meetings auftauchen, an denen sie partizipiert haben, sondern auch wenn sie erwähnt wurden.
 - Kontaktdetails als Adressbuch ins iPhone einbinden.
-- Auch Chef/Mitarbeiter-Beziehung abbilden.
-- An Firmen werden die Kontakte nicht korrekt angezeigt, wenn das Startdatum ihrer Rolle nicht definiert ist.
-- Das Konzept, dass zuerst eine Beziehung in der Datenbank angelegt wird, nur um das Formular anzeigen zu können, ist Mist; es erzeugt Waisen in der DB
-- Bei den Beziehungen sollten auch Chef-Mitarbeiter Beziehungen abgebildet werden können
 
 ### Lektüre
 
@@ -89,6 +85,7 @@
 ### Chatbot
 
 - Informationen zu mir im Chat erweitern (offene Todos, offene Projekte, Beziehungen, meine Kunden, Personen, die ich kürzlich getroffen habe, Personen, die demnächst Geburtstag haben, offene Gebetsanliegen)
+- Wenn auf Informationen Bezug genommen wird, sollten auch Links zu diesen Informationen als Quellen angezeigt werden.
 
 ### Suche
 
