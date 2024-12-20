@@ -64,7 +64,6 @@
 - Purpose und Beneficial haben Einfluss auf die Priorität und die Sortierung von Projekten.
 - Die Badges für CRM Hygiene sollten wieder angezeigt werden.
 - Schnell eine neue Aktivität auch in der Next Actions Liste hinzufügen oder auch in der Tagesaufgabenliste
-- Todos auch in der Projektliste abhaken
 
 ### Finanzdaten
 
