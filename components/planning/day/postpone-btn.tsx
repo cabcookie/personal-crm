@@ -38,18 +38,21 @@ const PostPoneBtn: FC<PostPoneBtnProps> = ({
   const iconSize = "w-4 h-4";
 
   return isPostponing ? (
-    <Loader2 className={cn(iconSize, "text-muted-foreground animate-spin")} />
+    <div className="w-28 flex flex-row gap-1 text-muted-foreground">
+      <Loader2 className={cn(iconSize, "animate-spin")} />
+      <span className="text-sm -translate-y-0.5">Saving…</span>
+    </div>
   ) : (
     <div className="w-28 cursor-pointer hover:children:hidden group">
       <div className="flex flex-row gap-1 text-muted-foreground group-hover:hidden">
         <CalenderIcon className={iconSize} />
         <span className="text-sm -translate-y-0.5">{label}</span>
       </div>
-      <div className="flex-row gap-1 text-primary hidden group-hover:flex">
-        <CalenderIconHover
-          className={iconSize}
-          onClick={handlePostPone(status !== "POSTPONED")}
-        />
+      <div
+        className="flex-row gap-1 text-primary hidden group-hover:flex"
+        onClick={handlePostPone(status !== "POSTPONED")}
+      >
+        <CalenderIconHover className={iconSize} />
         <span className="text-sm -translate-y-0.5">{label}</span>
       </div>
     </div>
