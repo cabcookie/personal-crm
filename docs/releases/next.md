@@ -4,6 +4,7 @@
 - Gelerntes über eine Organisation kann erfasst werden.
 - Personen können in Gelerntes zu Organisationen markiert werden.
 - Im Chatbot wird auch Gelerntes zu Organsiationen berücksichtigt, wenn die Person darin erwähnt wird.
+- Auch aus der Inbox heraus können Einträge als Gelerntes über Organisationen übertragen werden.
 
 ## Bekannte Fehler
 

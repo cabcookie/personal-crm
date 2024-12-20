@@ -1,24 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
 import { toast } from "@/components/ui/use-toast";
-import { invertSign, not, toISODateString } from "@/helpers/functional";
+import { invertSign, toISODateString } from "@/helpers/functional";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
 import { generateClient } from "aws-amplify/data";
 import { getTime } from "date-fns";
-import {
-  filter,
-  flatMap,
-  flow,
-  get,
-  identity,
-  includes,
-  map,
-  sortBy,
-  uniq,
-} from "lodash/fp";
+import { flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { updateMentionedPeople } from "./helpers/account-learning";
 
 const client = generateClient<Schema>();
 
@@ -127,66 +118,6 @@ const useAccountLearnings = (accountId?: string) => {
     if (errors) handleApiErrors(errors, "Updating learning's date failed");
     if (updated) mutate(updated);
     return data?.id;
-  };
-
-  const getMentionedPeople = async (learningId: string) => {
-    const { data, errors } =
-      await client.models.AccountLearningPerson.listAccountLearningPersonByLearningId(
-        { learningId },
-        { selectionSet: ["id", "personId"] }
-      );
-    if (errors) handleApiErrors(errors, "Loading mentioned people failed");
-    return data;
-  };
-
-  const addMentionedPerson = async (learningId: string, personId: string) => {
-    const { data, errors } = await client.models.AccountLearningPerson.create({
-      learningId,
-      personId,
-    });
-    if (errors) handleApiErrors(errors, "Adding mentioned person failed");
-    return data?.personId;
-  };
-
-  const removeMentionedPerson = async (recordId: string) => {
-    const { data, errors } = await client.models.AccountLearningPerson.delete({
-      id: recordId,
-    });
-    if (errors) handleApiErrors(errors, "Removing mentioned person failed");
-    return data?.personId;
-  };
-
-  const updateMentionedPeople = async (
-    learningId: string,
-    learning: JSONContent
-  ) => {
-    const peopleIds = flow(
-      identity<JSONContent>,
-      get("content"),
-      flatMap("content"),
-      filter({ type: "mention" }),
-      map("attrs.id"),
-      uniq
-    )(learning) as string[];
-    const existingPeople = await getMentionedPeople(learningId);
-    const toAdd = peopleIds.filter((id) =>
-      flow(
-        identity<typeof existingPeople>,
-        map("personId"),
-        includes(id),
-        not
-      )(existingPeople)
-    );
-    const toRemove = flow(
-      identity<typeof existingPeople>,
-      filter(({ personId }) => !peopleIds.includes(personId)),
-      map("id")
-    )(existingPeople);
-    const added = await Promise.all(
-      toAdd.map((personId) => addMentionedPerson(learningId, personId))
-    );
-    const removed = await Promise.all(toRemove.map(removeMentionedPerson));
-    return { added, removed };
   };
 
   const updateLearning = async (learningId: string, learning: JSONContent) => {

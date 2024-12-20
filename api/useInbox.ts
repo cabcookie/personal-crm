@@ -2,6 +2,7 @@ import { type Schema } from "@/amplify/data/resource";
 import {
   addActivityIdToInbox,
   createNoteBlock,
+  updateMovedItemToAccountId,
   updateMovedItemToPersonId,
 } from "@/components/inbox/helpers";
 import {
@@ -16,6 +17,7 @@ import { debounce } from "lodash";
 import { compact } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { updateMentionedPeople } from "./helpers/account-learning";
 import {
   createActivityApi,
   createProjectActivityApi,
@@ -198,6 +200,23 @@ const useInbox = () => {
     return data.id;
   };
 
+  const moveItemToAccount = async (item: Inbox, accountId: string) => {
+    const updated = inbox?.filter((i) => i.id !== item.id);
+    if (updated) mutate(updated, false);
+    const { data, errors } = await client.models.AccountLearning.create({
+      accountId,
+      learnedOn: toISODateString(item.createdAt),
+      learning: stringifyBlock(item.note),
+      status: "new",
+    });
+    if (errors) handleApiErrors(errors, "Error moving inbox item to account");
+    if (updated) mutate(updated);
+    if (!data) return;
+    await updateMentionedPeople(data.id, item.note);
+    await updateMovedItemToAccountId(item.id, data.id);
+    return data.id;
+  };
+
   return {
     inbox,
     error,
@@ -207,6 +226,7 @@ const useInbox = () => {
     setInboxItemDone,
     moveItemToProject,
     moveItemToPerson,
+    moveItemToAccount,
   };
 };
 
