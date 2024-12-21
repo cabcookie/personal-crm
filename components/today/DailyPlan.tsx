@@ -9,6 +9,7 @@ import { setProjectList } from "@/helpers/today";
 import { FC, useEffect, useState } from "react";
 import ShowHideSwitch from "../ui-elements/ShowHideSwitch";
 import DayPlanInformation from "./DayPlanInformation";
+import DayPlanMaybeProjects from "./DayPlanMaybeProjects";
 import DayPlanProjects from "./DayPlanProjects";
 import ShowNoTodos from "./ShowNoTodos";
 
@@ -74,10 +75,9 @@ const DailyPlanComponent: FC<DailyPlanComponentProps> = ({
         />
 
         {showMaybe && (
-          <DayPlanProjects
+          <DayPlanMaybeProjects
             dayPlan={dailyPlan}
             dayPlanProjects={projectsMaybe}
-            mutateTodo={mutateTodo}
             mutateProject={mutateProject}
           />
         )}

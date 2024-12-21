@@ -1,12 +1,6 @@
-# Symbole für Aufgaben optimieren (Version :VERSION)
+# Pausierte Projekte ausschlanken (Version :VERSION)
 
-- Die Symbole für Projekte in der Tagesaufgabenliste sind nun eindeutiger und mit Beschriftungen unterstützt.
-- Die Symbole für Aufgaben in der Tages-, Besprechungs- und Projektaufgabenliste sind nun eindeutiger und mit Beschriftungen unterstützt.
-- In Projekten und in Besprechungen können Aufgaben nun auch in der Aufgabenliste direkt abgeschlossen werden.
-
-## Fehlerbehebungen
-
-- In Besprechungen werden wieder die vereinbarten Aufgaben angezeigt.
+- Pausierte Projekte sind ausgeschlankt, so dass sie in der täglichen Aufgabenliste besser zu unterscheiden sind von den Projekten im Fokus.
 
 ## Bekannte Fehler
 
