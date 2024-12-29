@@ -1,8 +1,6 @@
-# Kleinere Verbesserungen (Version :VERSION)
+# Monatliche Finanzdaten aussetzen (Version :VERSION)
 
-- Menü für Formatierungen im Inbox Editor eingefügt.
-- Bei Überschriften ist nun der Level der Überschrift erkennbar.
-- Bei der Projektliste ist nun die Anzahl der Projekte erkennbar.
+- Durch den Wechsel zu AWSI setze ich das Reporting erst einmal aus.
 
 ## Bekannte Fehler
 

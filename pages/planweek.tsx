@@ -9,7 +9,6 @@ import {
 } from "@/components/planning/useWeekPlanContext";
 import PlanWeekForm from "@/components/planning/week/PlanWeekForm";
 import ProcessCrmUpdates from "@/components/planning/week/ProcessCrmUpdates";
-import ProcessFinancialUpdates from "@/components/planning/week/ProcessFinancialUpdates";
 import ProcessInbox from "@/components/planning/week/ProcessInbox";
 import ProcessProjects from "@/components/planning/week/ProcessProjects";
 import { useContextContext } from "@/contexts/ContextContext";
@@ -18,8 +17,7 @@ const WeeklyPlanningPage = () => {
   const { context } = useContextContext();
   const { error } = useWeekPlanContext();
   const { inbox } = useInbox();
-  const { mrrUploadTooOld, mutateMrr, sfdcUploadTooOld, mutateSfdc } =
-    useMrrLatestUpload();
+  const { sfdcUploadTooOld, mutateSfdc } = useMrrLatestUpload();
 
   return (
     <MainLayout title="Weekly Planning" sectionName="Weekly Planning">
@@ -34,8 +32,6 @@ const WeeklyPlanningPage = () => {
 
         {inbox && inbox.length > 0 ? (
           <ProcessInbox />
-        ) : context === "work" && mrrUploadTooOld ? (
-          <ProcessFinancialUpdates {...{ mutateMrr }} />
         ) : context === "work" && sfdcUploadTooOld ? (
           <ProcessCrmUpdates {...{ mutateSfdc }} />
         ) : (
@@ -47,3 +43,6 @@ const WeeklyPlanningPage = () => {
 };
 
 export default withWeekPlan(WeeklyPlanningPage);
+
+// ) : context === "work" && mrrUploadTooOld ? (
+//   <ProcessFinancialUpdates {...{ mutateMrr }} />
