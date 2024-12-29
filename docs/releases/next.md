@@ -2,6 +2,7 @@
 
 - Menü für Formatierungen im Inbox Editor eingefügt.
 - Bei Überschriften ist nun der Level der Überschrift erkennbar.
+- Bei der Projektliste ist nun die Anzahl der Projekte erkennbar.
 
 ## Bekannte Fehler
 
@@ -9,8 +10,6 @@
 - Wenn ein neuer Chat geöffnet wird, könnten während des Ladens Neuigkeiten gestreamt, die von der UI nicht erfasst werden. Dadurch wirkt der Text am Anfang abgehackt.
 
 ## In Arbeit
-
-- Bei der Projektliste ist nun die Anzahl der Projekte erkennbar.
 
 ## Geplant
 
