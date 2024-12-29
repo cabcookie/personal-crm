@@ -11,12 +11,14 @@ import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
+import HeadingCustom from "../extensions/heading/heading";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 
 const useExtensions = (placeholder: string): EditorOptions["extensions"] => {
   const extensions = useMemo(() => {
     return [
-      StarterKit.configure({ blockquote: false }),
+      StarterKit.configure({ blockquote: false, heading: false }),
+      HeadingCustom,
       BlockQuote.configure({
         HTMLAttributes: {
           class: "font-normal not-italic",

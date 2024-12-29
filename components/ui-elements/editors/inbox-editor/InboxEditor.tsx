@@ -9,6 +9,7 @@ import {
 } from "../helpers/editor-effects";
 import MetaData from "../meta-data";
 import { isCmdEnter } from "./helpers";
+import InboxEditorMenu from "./InboxEditorMenu";
 import useExtensions from "./useExtensions";
 
 type InboxEditorProps = {
@@ -82,7 +83,14 @@ const InboxEditor: FC<InboxEditorProps> = ({
 
   return (
     <>
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        <InboxEditorMenu
+          className="absolute top-0 left-0"
+          readonly={readonly}
+          editor={editor}
+        />
+      </div>
       {editor && <LinkBubbleMenu editor={editor} />}
       <div id="at-mention-tippy" />
       {createdAt && <MetaData created={createdAt} updated={updatedAt} />}

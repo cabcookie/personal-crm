@@ -17,6 +17,7 @@ import { mergeAttributes } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { filter, flow, map } from "lodash/fp";
 import { useMemo } from "react";
+import HeadingCustom from "../editors/extensions/heading/heading";
 import LinkBubbleMenuHandler from "../editors/extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../editors/extensions/s3-images/S3ImageExtension";
 
@@ -31,7 +32,8 @@ const useExtensions = ({
 
   const extensions = useMemo(() => {
     return [
-      StarterKit,
+      StarterKit.configure({ heading: false }),
+      HeadingCustom,
       TaskList,
       TaskItem.configure({
         HTMLAttributes: {

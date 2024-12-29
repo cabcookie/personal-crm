@@ -19,6 +19,10 @@ const ProjectList = () => {
       )}
 
       <Accordion type="single" collapsible>
+        <div className="px-1 md:px-2 text-muted-foreground text-sm font-semibold">
+          {projects.length} projects
+        </div>
+
         {loadingProjects &&
           flow(
             times(identity),
