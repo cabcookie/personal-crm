@@ -1,6 +1,6 @@
-# Pausierte Projekte ausschlanken (Version :VERSION)
+# Kleinere Verbesserungen (Version :VERSION)
 
-- Pausierte Projekte sind ausgeschlankt, so dass sie in der täglichen Aufgabenliste besser zu unterscheiden sind von den Projekten im Fokus.
+- Menü für Formatierungen im Inbox Editor eingefügt.
 
 ## Bekannte Fehler
 
@@ -9,11 +9,10 @@
 
 ## In Arbeit
 
-## Geplant
+- Bei Überschriften soll der Level der Überschrift erkennbar sein.
+- Bei der Projektliste soll die Anzahl der Projekte erkennbar sein.
 
-- An Firmen werden die Kontakte nicht korrekt angezeigt, wenn das Startdatum ihrer Rolle nicht definiert ist.
-- Chat stabilisieren
-- Projekte sollten auch als deligiert markiert werden können und dann auch in der On Hold Liste auftauchen. In der Wochen-/Tagesplanung sollte hier dann geprüft werden, ob diese Projekte auch weiterhin delegiert bleiben. Bei Meetings sollten diese Projekte natürlich dennoch angezeigt werden.
+## Geplant
 
 ### Meetings
 
@@ -28,6 +27,7 @@
 - Etwas Gelerntes über Unternehmen kann als "nicht mehr relevant" markiert werden.
 - Chart auch auf der Account-Detailseite anzeigen. Dort dann nach Payer Accounts aufgeteilt.
 - Es wäre tatsächlich klasse, wenn ich eine Zusammenfassung eines Accounts mithilfe GenAI erstellen kann. Dazu werden Notizen, Mitarbeiter, Projekte, Partnerinfos herangezogen und die Informationen, die am Account selbst hinterlegt sind (AWS Accounts, Introduction usw.).
+- Accounts sollen einem Segment zugeordnet werden können.
 
 ### Kontaktdetails
 
@@ -50,6 +50,7 @@
 
 ### Projekte
 
+- Projekte sollten auch als deligiert markiert werden können und dann auch in der On Hold Liste auftauchen. In der Wochen-/Tagesplanung sollte hier dann geprüft werden, ob diese Projekte auch weiterhin delegiert bleiben. Bei Meetings sollten diese Projekte natürlich dennoch angezeigt werden.
 - Bei in Notizen erwähnten Personen direkt das Schreiben einer Email oder das Anrufen (auf dem Smartphone) anbieten.
 - Das Datum des letzten Uploads von CRM Daten anzeigen.
 - Die Uploads für CRM Projekte sollen ähnlich wie bei den Finanzdaten eine Historie ermöglichen.
@@ -58,6 +59,7 @@
 - Purpose und Beneficial haben Einfluss auf die Priorität und die Sortierung von Projekten.
 - Die Badges für CRM Hygiene sollten wieder angezeigt werden.
 - Schnell eine neue Aktivität auch in der Next Actions Liste hinzufügen oder auch in der Tagesaufgabenliste
+- CRM Projekte auch durchsuchbar machen.
 
 ### Finanzdaten
 
