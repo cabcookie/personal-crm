@@ -1,6 +1,6 @@
-# Monatliche Finanzdaten aussetzen (Version :VERSION)
+# Notizen Menü überall zeigen (Version :VERSION)
 
-- Durch den Wechsel zu AWSI setze ich das Reporting erst einmal aus.
+- Das Menü zum Formatieren für Notizen wird nun überall angezeigt.
 
 ## Bekannte Fehler
 

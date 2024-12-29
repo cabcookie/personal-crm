@@ -1,6 +1,7 @@
 import { Editor, JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
+import EditorMenu from "../EditorMenu";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
 import {
   applyPastePropsAndUiAttrs,
@@ -9,7 +10,6 @@ import {
 } from "../helpers/editor-effects";
 import MetaData from "../meta-data";
 import { isCmdEnter } from "./helpers";
-import InboxEditorMenu from "./InboxEditorMenu";
 import useExtensions from "./useExtensions";
 
 type InboxEditorProps = {
@@ -85,10 +85,9 @@ const InboxEditor: FC<InboxEditorProps> = ({
     <>
       <div className="relative">
         <EditorContent editor={editor} />
-        <InboxEditorMenu
+        <EditorMenu
           className="absolute top-0 left-0"
-          readonly={readonly}
-          editor={editor}
+          {...{ editor, readonly }}
         />
       </div>
       {editor && <LinkBubbleMenu editor={editor} />}

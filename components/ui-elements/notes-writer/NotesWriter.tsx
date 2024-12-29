@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { Editor, JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
+import EditorMenu from "../editors/EditorMenu";
 import LinkBubbleMenu from "../editors/extensions/link-bubble-menu/LinkBubbleMenu";
 import { handlePastingImage } from "../editors/extensions/s3-images/image-handling";
 import { isUpToDate } from "../editors/helpers/compare";
@@ -79,7 +80,14 @@ const NotesWriter: FC<NotesWriterProps> = ({
 
   return (
     <>
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        <EditorMenu
+          className="absolute top-0 left-0"
+          {...{ editor, readonly }}
+        />
+      </div>
+
       {editor && <LinkBubbleMenu editor={editor} />}
       <div id="at-mention-tippy" />
     </>

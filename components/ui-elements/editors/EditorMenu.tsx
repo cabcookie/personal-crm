@@ -11,17 +11,13 @@ import {
 import { FC } from "react";
 import FormatBtn from "./FormatBtn";
 
-interface InboxEditorMenuProps {
+interface EditorMenuProps {
   className?: string;
   readonly?: boolean;
   editor?: Editor | null;
 }
 
-const InboxEditorMenu: FC<InboxEditorMenuProps> = ({
-  className,
-  readonly,
-  editor,
-}) => {
+const EditorMenu: FC<EditorMenuProps> = ({ className, readonly, editor }) => {
   return (
     editor &&
     !readonly && (
@@ -88,4 +84,4 @@ const InboxEditorMenu: FC<InboxEditorMenuProps> = ({
   );
 };
 
-export default InboxEditorMenu;
+export default EditorMenu;

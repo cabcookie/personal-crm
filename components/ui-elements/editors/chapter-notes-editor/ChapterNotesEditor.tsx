@@ -1,6 +1,7 @@
 import { Editor, JSONContent } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { FC, useEffect } from "react";
+import EditorMenu from "../EditorMenu";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
 import {
   applyPastePropsAndUiAttrs,
@@ -47,7 +48,13 @@ const ChapterNotesEditor: FC<ChapterNotesEditorProps> = ({
 
   return (
     <>
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        <EditorMenu
+          className="absolute top-0 left-0"
+          {...{ editor, readonly }}
+        />
+      </div>
       {editor && <LinkBubbleMenu editor={editor} />}
     </>
   );
