@@ -4,7 +4,6 @@ import { EditorOptions, mergeAttributes, NodeConfig } from "@tiptap/core";
 import BlockQuote from "@tiptap/extension-blockquote";
 import CodeBlock from "@tiptap/extension-code-block";
 import Document from "@tiptap/extension-document";
-import Heading from "@tiptap/extension-heading";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
 import ListItem from "@tiptap/extension-list-item";
@@ -15,6 +14,7 @@ import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
+import HeadingCustom from "../extensions/heading/heading";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../extensions/s3-images/S3ImageExtension";
 import { TaskItem } from "../extensions/tasks/task-item";
@@ -32,7 +32,7 @@ const extendedConfig: Partial<NodeConfig<any, any>> = {
   },
 };
 
-const StarterKitExtended = [Heading, Paragraph, ListItem, CodeBlock].map(
+const StarterKitExtended = [HeadingCustom, Paragraph, ListItem, CodeBlock].map(
   (ext) => ext.extend(extendedConfig)
 );
 

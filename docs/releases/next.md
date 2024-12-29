@@ -1,6 +1,7 @@
 # Kleinere Verbesserungen (Version :VERSION)
 
 - Menü für Formatierungen im Inbox Editor eingefügt.
+- Bei Überschriften ist nun der Level der Überschrift erkennbar.
 
 ## Bekannte Fehler
 
@@ -9,8 +10,7 @@
 
 ## In Arbeit
 
-- Bei Überschriften soll der Level der Überschrift erkennbar sein.
-- Bei der Projektliste soll die Anzahl der Projekte erkennbar sein.
+- Bei der Projektliste ist nun die Anzahl der Projekte erkennbar.
 
 ## Geplant
 
