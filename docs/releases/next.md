@@ -1,6 +1,12 @@
-# Notizen Menü überall zeigen (Version :VERSION)
+# Optionale Schritte in der Wochenplanung (Version :VERSION)
 
-- Das Menü zum Formatieren für Notizen wird nun überall angezeigt.
+- Das Leeren der Inbox kann nun in der Wochenplanung übersprungen werden.
+- Das Aktualisieren der Finanzdaten kann nun in der Wochenplanung übersprungen werden.
+- Das Aktualisieren der CRM Projekte kann nun in der Wochenplanung übersprungen werden.
+
+## Fehlerbehebungen
+
+- Bei Gelerntem zu Kunden und Personen erscheint die erste Zeile nun unter der Menüleiste und ist nicht mehr von dieser abgedeckt.
 
 ## Bekannte Fehler
 

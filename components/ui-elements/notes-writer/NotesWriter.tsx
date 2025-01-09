@@ -66,7 +66,8 @@ const NotesWriter: FC<NotesWriterProps> = ({
         },
         attributes: {
           class: cn(
-            "prose w-full max-w-full text-notesEditor rounded-md p-2 bg-inherit transition duration-1000 ease",
+            "prose w-full max-w-full text-notesEditor bg-inherit transition duration-1000 ease p-2",
+            !readonly && "rounded-md border pt-16",
             showSaveStatus &&
               !readonly &&
               !isUpToDate(notes, editor.getJSON()) &&

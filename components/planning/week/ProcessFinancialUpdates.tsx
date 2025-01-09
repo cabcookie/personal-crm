@@ -7,13 +7,18 @@ import { FC } from "react";
 
 interface ProcessFinancialUpdatesProps {
   mutateMrr: ReturnType<typeof useMrrLatestUpload>["mutateMrr"];
+  skipFinancialUpdate?: () => void;
 }
 
 const ProcessFinancialUpdates: FC<ProcessFinancialUpdatesProps> = ({
   mutateMrr,
+  skipFinancialUpdate,
 }) => (
   <>
-    <PlanWeekAction label="Upload Customer Financials" />
+    <PlanWeekAction
+      label="Upload Customer Financials"
+      skip={skipFinancialUpdate}
+    />
     <MrrFilterProvider>
       <Accordion type="single" collapsible>
         <InstructionsUploadMrr reloader={mutateMrr} />

@@ -16,6 +16,9 @@ export type WeeklyPlan = {
   startDate: Date;
   status: TWeekPlanStatus;
   projectIds: string[];
+  inboxSkipped: boolean;
+  financialUpdateSkipped: boolean;
+  crmUpdateSkipped: boolean;
 };
 
 const selectionSet = [
@@ -23,6 +26,9 @@ const selectionSet = [
   "startDate",
   "status",
   "projects.projectId",
+  "inboxSkipped",
+  "financialUpdateSkipped",
+  "crmUpdateSkipped",
 ] as const;
 
 type WeeklyPlanData = SelectionSet<
@@ -35,11 +41,17 @@ const mapWeekPlan: (data: WeeklyPlanData) => WeeklyPlan = ({
   startDate,
   status,
   projects,
+  inboxSkipped,
+  financialUpdateSkipped,
+  crmUpdateSkipped,
 }) => ({
   id,
   startDate: new Date(startDate),
   status,
   projectIds: projects.map(({ projectId }) => projectId),
+  inboxSkipped: !!inboxSkipped,
+  financialUpdateSkipped: !!financialUpdateSkipped,
+  crmUpdateSkipped: !!crmUpdateSkipped,
 });
 
 const fetchWeekPlans = async () => {
@@ -71,7 +83,15 @@ const useWeekPlan = () => {
 
   const createWeekPlan = async (startDate: Date) => {
     const updated: WeeklyPlan[] = [
-      { id: crypto.randomUUID(), startDate, status: "WIP", projectIds: [] },
+      {
+        id: crypto.randomUUID(),
+        startDate,
+        status: "WIP",
+        projectIds: [],
+        inboxSkipped: false,
+        financialUpdateSkipped: false,
+        crmUpdateSkipped: false,
+      },
     ];
     mutate(updated, false);
     if (weekPlans && weekPlans.length > 0) {
@@ -197,6 +217,12 @@ const useWeekPlan = () => {
     makeProjectDecision,
     isLoading,
     error,
+    mutate: (weekPlan: WeeklyPlan | undefined, update?: boolean) =>
+      weekPlan &&
+      mutate(
+        weekPlans?.map((p) => (p.id !== weekPlan?.id ? p : weekPlan)),
+        update
+      ),
   };
 };
 
