@@ -9,15 +9,25 @@ import {
 } from "@/components/planning/useWeekPlanContext";
 import PlanWeekForm from "@/components/planning/week/PlanWeekForm";
 import ProcessCrmUpdates from "@/components/planning/week/ProcessCrmUpdates";
+import ProcessFinancialUpdates from "@/components/planning/week/ProcessFinancialUpdates";
 import ProcessInbox from "@/components/planning/week/ProcessInbox";
 import ProcessProjects from "@/components/planning/week/ProcessProjects";
 import { useContextContext } from "@/contexts/ContextContext";
 
 const WeeklyPlanningPage = () => {
   const { context } = useContextContext();
-  const { error } = useWeekPlanContext();
+  const {
+    error,
+    inboxSkipped,
+    financialUpdateSkipped,
+    crmUpdateSkipped,
+    skipCrmUpdate,
+    skipFinancialUpdate,
+    skipInbox,
+  } = useWeekPlanContext();
   const { inbox } = useInbox();
-  const { sfdcUploadTooOld, mutateSfdc } = useMrrLatestUpload();
+  const { sfdcUploadTooOld, mutateSfdc, mrrUploadTooOld, mutateMrr } =
+    useMrrLatestUpload();
 
   return (
     <MainLayout title="Weekly Planning" sectionName="Weekly Planning">
@@ -30,10 +40,12 @@ const WeeklyPlanningPage = () => {
           <ContextSwitcher />
         </div>
 
-        {inbox && inbox.length > 0 ? (
-          <ProcessInbox />
-        ) : context === "work" && sfdcUploadTooOld ? (
-          <ProcessCrmUpdates {...{ mutateSfdc }} />
+        {!inboxSkipped && inbox && inbox.length > 0 ? (
+          <ProcessInbox {...{ skipInbox }} />
+        ) : context === "work" && !financialUpdateSkipped && mrrUploadTooOld ? (
+          <ProcessFinancialUpdates {...{ mutateMrr, skipFinancialUpdate }} />
+        ) : context === "work" && !crmUpdateSkipped && sfdcUploadTooOld ? (
+          <ProcessCrmUpdates {...{ mutateSfdc, skipCrmUpdate }} />
         ) : (
           <ProcessProjects />
         )}
@@ -43,6 +55,3 @@ const WeeklyPlanningPage = () => {
 };
 
 export default withWeekPlan(WeeklyPlanningPage);
-
-// ) : context === "work" && mrrUploadTooOld ? (
-//   <ProcessFinancialUpdates {...{ mutateMrr }} />

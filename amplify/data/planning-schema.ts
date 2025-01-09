@@ -19,6 +19,9 @@ const planningSchema = {
       startDate: a.date().required(),
       status: a.ref("PlanningStatus").required(),
       projects: a.hasMany("WeeklyPlanProject", "weekPlanId"),
+      inboxSkipped: a.boolean(),
+      financialUpdateSkipped: a.boolean(),
+      crmUpdateSkipped: a.boolean(),
     })
     .secondaryIndexes((index) => [index("status")])
     .authorization((allow) => [allow.owner()]),

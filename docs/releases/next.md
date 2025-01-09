@@ -1,6 +1,8 @@
-# Notizen Menü überall zeigen (Version :VERSION)
+# Optionale Schritte in der Wochenplanung (Version :VERSION)
 
-- Das Menü zum Formatieren für Notizen wird nun überall angezeigt.
+- Das Leeren der Inbox kann nun in der Wochenplanung übersprungen werden.
+- Das Aktualisieren der Finanzdaten kann nun in der Wochenplanung übersprungen werden.
+- Das Aktualisieren der CRM Projekte kann nun in der Wochenplanung übersprungen werden.
 
 ## Bekannte Fehler
 
@@ -8,6 +10,8 @@
 - Wenn ein neuer Chat geöffnet wird, könnten während des Ladens Neuigkeiten gestreamt, die von der UI nicht erfasst werden. Dadurch wirkt der Text am Anfang abgehackt.
 
 ## In Arbeit
+
+- Bei Gelerntem zu Kunden und Personen erscheint die erste Zeile unter der Menüleiste.
 
 ## Geplant
 

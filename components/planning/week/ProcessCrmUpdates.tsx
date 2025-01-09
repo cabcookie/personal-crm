@@ -5,11 +5,18 @@ import { FC } from "react";
 
 interface ProcessCrmUpdatesProps {
   mutateSfdc: ReturnType<typeof useMrrLatestUpload>["mutateSfdc"];
+  skipCrmUpdate?: () => void;
 }
 
-const ProcessCrmUpdates: FC<ProcessCrmUpdatesProps> = ({ mutateSfdc }) => (
+const ProcessCrmUpdates: FC<ProcessCrmUpdatesProps> = ({
+  mutateSfdc,
+  skipCrmUpdate,
+}) => (
   <>
-    <PlanWeekAction label="Upload Salesforce Opportunities" />
+    <PlanWeekAction
+      label="Upload Salesforce Opportunities"
+      skip={skipCrmUpdate}
+    />
     <ImportProjectData reloader={mutateSfdc} />
   </>
 );

@@ -1,4 +1,7 @@
+import { type Schema } from "@/amplify/data/resource";
+import { handleApiErrors } from "@/api/globals";
 import useWeekPlan, { WeeklyPlan } from "@/api/useWeekPlan";
+import { generateClient } from "aws-amplify/data";
 import { addDays } from "date-fns";
 import {
   ComponentType,
@@ -8,9 +11,17 @@ import {
   useEffect,
   useState,
 } from "react";
+import { toast } from "../ui/use-toast";
+const client = generateClient<Schema>();
 
 interface WeekPlanType {
   weekPlan: WeeklyPlan | undefined;
+  inboxSkipped: boolean;
+  financialUpdateSkipped: boolean;
+  crmUpdateSkipped: boolean;
+  skipInbox?: () => void;
+  skipFinancialUpdate?: () => void;
+  skipCrmUpdate?: () => void;
   createWeekPlan: (startDate: Date) => Promise<void>;
   confirmProjectSelection: () => Promise<string | undefined>;
   startDate: Date;
@@ -39,6 +50,7 @@ const WeekPlanProvider: FC<WeekPlanProviderProps> = ({ children }) => {
     isLoading,
     error,
     confirmProjectSelection,
+    mutate,
   } = useWeekPlan();
   const [startDate, setStartDate] = useState(
     weekPlan?.startDate || addDays(new Date(), 1)
@@ -49,10 +61,59 @@ const WeekPlanProvider: FC<WeekPlanProviderProps> = ({ children }) => {
     setStartDate(weekPlan.startDate);
   }, [weekPlan]);
 
+  const skipInbox = !weekPlan
+    ? undefined
+    : async () => {
+        console.log("skipInbox");
+        if (!weekPlan) return;
+        const { data, errors } = await client.models.WeeklyPlan.update({
+          id: weekPlan.id,
+          inboxSkipped: true,
+        });
+        if (errors) handleApiErrors(errors, "Couldn't skip inbox");
+        mutate({ ...weekPlan, inboxSkipped: true }, true);
+        if (!data) return;
+        toast({ title: "Skipped inbox" });
+      };
+
+  const skipFinancialUpdate = !weekPlan
+    ? undefined
+    : async () => {
+        if (!weekPlan) return;
+        const { data, errors } = await client.models.WeeklyPlan.update({
+          id: weekPlan.id,
+          financialUpdateSkipped: true,
+        });
+        if (errors) handleApiErrors(errors, "Couldn't skip financial update");
+        mutate({ ...weekPlan, financialUpdateSkipped: true }, true);
+        if (!data) return;
+        toast({ title: "Skipped financial update" });
+      };
+
+  const skipCrmUpdate = !weekPlan
+    ? undefined
+    : async () => {
+        if (!weekPlan) return;
+        const { data, errors } = await client.models.WeeklyPlan.update({
+          id: weekPlan.id,
+          crmUpdateSkipped: true,
+        });
+        if (errors) handleApiErrors(errors, "Couldn't skip CRM update");
+        mutate({ ...weekPlan, crmUpdateSkipped: true }, true);
+        if (!data) return;
+        toast({ title: "Skipped CRM update" });
+      };
+
   return (
     <WeekPlan.Provider
       value={{
         weekPlan,
+        inboxSkipped: !!weekPlan?.inboxSkipped,
+        financialUpdateSkipped: !!weekPlan?.financialUpdateSkipped,
+        crmUpdateSkipped: !!weekPlan?.crmUpdateSkipped,
+        skipInbox,
+        skipFinancialUpdate,
+        skipCrmUpdate,
         createWeekPlan,
         confirmProjectSelection,
         startDate,
