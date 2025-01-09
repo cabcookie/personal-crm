@@ -93,7 +93,7 @@ const LearningComponent: FC<LearningComponentProps> = ({
       <div className={cn(!editable && "-mx-2")}>
         <NotesWriter
           readonly={!editable}
-          placeholder="Document what you've learned about the person…"
+          placeholder="Document what you've learned…"
           notes={learning.learning}
           saveNotes={onChange}
         />

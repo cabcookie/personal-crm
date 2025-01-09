@@ -4,14 +4,16 @@
 - Das Aktualisieren der Finanzdaten kann nun in der Wochenplanung übersprungen werden.
 - Das Aktualisieren der CRM Projekte kann nun in der Wochenplanung übersprungen werden.
 
+## Fehlerbehebungen
+
+- Bei Gelerntem zu Kunden und Personen erscheint die erste Zeile nun unter der Menüleiste und ist nicht mehr von dieser abgedeckt.
+
 ## Bekannte Fehler
 
 - Bei längeren Antworten, die der Chatbot generiert, überschreibt er seine Antwort irgendwann selbst.
 - Wenn ein neuer Chat geöffnet wird, könnten während des Ladens Neuigkeiten gestreamt, die von der UI nicht erfasst werden. Dadurch wirkt der Text am Anfang abgehackt.
 
 ## In Arbeit
-
-- Bei Gelerntem zu Kunden und Personen erscheint die erste Zeile unter der Menüleiste.
 
 ## Geplant
 
