@@ -42,10 +42,15 @@ const mapMeetingTodo = (meeting: MeetingTodoData): MeetingTodo[] =>
     flatMap(({ id: activityId, noteBlocks, noteBlockIds, forProjects }) =>
       flow(
         identity<typeof noteBlocks>,
-        filter((block) =>
-          noteBlocks.some(
-            (b) => noteBlockIds?.includes(b.id) && b.todo.id === block.todo.id
-          )
+        filter(
+          (block) =>
+            block.todo &&
+            noteBlocks.some(
+              (b) =>
+                b.todo &&
+                noteBlockIds?.includes(b.id) &&
+                b.todo.id === block.todo.id
+            )
         ),
         map(
           ({ id: blockId, todo }): MeetingTodo => ({
