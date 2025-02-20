@@ -1,12 +1,8 @@
-# Optionale Schritte in der Wochenplanung (Version :VERSION)
-
-- Das Leeren der Inbox kann nun in der Wochenplanung übersprungen werden.
-- Das Aktualisieren der Finanzdaten kann nun in der Wochenplanung übersprungen werden.
-- Das Aktualisieren der CRM Projekte kann nun in der Wochenplanung übersprungen werden.
+# Meetings wurden nicht angezeigt (Version :VERSION)
 
 ## Fehlerbehebungen
 
-- Bei Gelerntem zu Kunden und Personen erscheint die erste Zeile nun unter der Menüleiste und ist nicht mehr von dieser abgedeckt.
+Es konnte passieren, dass die Verknüpfung zwischen dem Abschnitt einer Notiz und einer Aufgabe verloren ging. Das hatte zur Konsequenz, dass die Meetingliste nicht mehr angezeigt werden konnte. Wenn diese Verknüpfung verloren gegangen ist, ignorieren wir den Abschnitt jetzt und sehen ihn nicht mehr vor.
 
 ## Bekannte Fehler
 

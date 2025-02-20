@@ -58,7 +58,8 @@ const mapListItem = (
   );
 };
 
-const mapTodoBlock = (block: NoteBlockData): JSONContent => {
+const mapTodoBlock = (block: NoteBlockData): JSONContent | undefined => {
+  if (!block.todo?.id || !block.todo?.todo) return;
   const content: JSONContent = JSON.parse(block.todo.todo as any);
   return {
     ...content,
@@ -81,10 +82,11 @@ const mapBlocks =
   (prev: JSONContent[], blockId: string): JSONContent[] => {
     const block = noteBlocks.find((block) => block.id === blockId);
     if (!block) return prev;
-    const content: JSONContent =
+    const content: JSONContent | undefined =
       block.type === "taskItem"
         ? mapTodoBlock(block)
         : JSON.parse(block.content as any);
+    if (!content) return prev;
     if (content.type === "listItemOrdered")
       return mapListItem(
         "orderedList",

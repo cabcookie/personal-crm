@@ -8,8 +8,7 @@ import {
   toISODateString,
 } from "@/helpers/functional";
 import { SelectionSet, generateClient } from "aws-amplify/data";
-import { flow } from "lodash";
-import { get, map, some, sortBy, uniq } from "lodash/fp";
+import { flow, get, map, some, sortBy, uniq } from "lodash/fp";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -173,10 +172,12 @@ const fetchMeetingsWithToken: FetchMeetingsWithTokenFunction = async ({
 
 const fetchMeetings = (startDate: string, context?: Context) => async () => {
   if (!context) return;
+  const meetings = await fetchMeetingsWithToken({ startDate, context });
   try {
-    return (await fetchMeetingsWithToken({ startDate, context }))
-      ?.map(mapMeeting)
-      .sort((a, b) => b.meetingOn.getTime() - a.meetingOn.getTime());
+    return flow(
+      map(mapMeeting),
+      sortBy((m) => -m.meetingOn.getTime())
+    )(meetings);
   } catch (error) {
     console.error("fetchMeetings", { error });
     throw error;
