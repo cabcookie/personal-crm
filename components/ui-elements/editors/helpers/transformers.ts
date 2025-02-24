@@ -15,7 +15,7 @@ interface TransformNotesVersionType {
   forProjects: ActivityData["forProjects"];
 }
 
-const createDocument = ({
+export const createDocument = ({
   formatVersion,
   noteBlockIds,
   noteBlocks,
