@@ -5,7 +5,7 @@
   "eslint.format.enable": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always",
-    "source.organizeImports": "always",
+    "source.organizeImports": "never",
     "source.fixAll.markdownlint": "explicit"
   },
   "typescript.validate.enable": true,
@@ -26,5 +26,7 @@
   "[markdown]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true
-  }
+  },
+  "typescript.updateImportsOnPaste.enabled": false,
+  "javascript.updateImportsOnPaste.enabled": false
 }
