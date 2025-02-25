@@ -54,8 +54,36 @@ const ProjectHistoryPage = () => {
 
   const generateContent = async () => {
     console.log("generateContent");
+    const content = [
+      ...(accounts?.flatMap((a) => [
+        `Account: ${a.name}`,
+        "",
+        ...[
+          "Learnings about the account and people",
+          "",
+          ...a.learnings.flatMap((intro) =>
+            !intro.learning ? [] : [intro.label, intro.learning]
+          ),
+          "",
+        ],
+        "",
+        "",
+        "People and their roles",
+        "",
+        ...(people?.flatMap((p) => [
+          p.name,
+          ...p.positions.map((pos) => pos.position),
+        ]) ?? []),
+        "",
+        "",
+        "Project Notes",
+        "",
+        ...(notes?.flatMap((n) => [n.label, n.notes]) ?? []),
+        "",
+      ]) ?? []),
+    ].join("\n");
     const { data, errors } = await api.generations.rewriteProjectNotes({
-      content: "How are you doing?",
+      content,
     });
     console.log({ data, errors });
   };
