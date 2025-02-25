@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
 import { addDays } from "date-fns";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
@@ -108,6 +109,12 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             projectName={project.project}
             onUpdate={(name) => saveProjectName(project.id, name)}
           />
+
+          <Button asChild size="sm">
+            <Link href={`/projects/${project.id}/history`}>
+              Show Project History
+            </Link>
+          </Button>
         </div>
 
         {showContext && (

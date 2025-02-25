@@ -34,7 +34,7 @@ const transformMentionsToText = (json: JSONContent): JSONContent =>
       }
     : !json.attrs?.label
       ? {}
-      : { type: "text", text: `@${json.attrs?.label}` };
+      : { type: "text", text: json.attrs?.label };
 
 const transformTasksToText = (json: JSONContent): JSONContent =>
   json.type !== "taskList"
