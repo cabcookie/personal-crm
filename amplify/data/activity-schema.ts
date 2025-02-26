@@ -71,6 +71,7 @@ const activitySchema = {
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      name: a.string(),
       notionId: a.integer(),
       formatVersion: a.integer().default(1),
       forProjects: a.hasMany("ProjectActivity", "activityId"),
@@ -79,6 +80,7 @@ const activitySchema = {
       finishedOn: a.datetime(),
       noteBlocks: a.hasMany("NoteBlock", "activityId"),
       noteBlockIds: a.string().required().array(),
+      summaryRequests: a.hasMany("ActivitySummaryRequest", "activityId"),
       notes: a.string(), // DEPRECATED
       notesJson: a.json(), // DEPRECATED
     })
