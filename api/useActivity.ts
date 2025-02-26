@@ -27,8 +27,6 @@ export type TempIdMapping = {
 type ProjectLinkData = {
   id: string;
   projectsId: string;
-  name: string;
-  accounts: { name: string }[];
 };
 
 export type Activity = {
@@ -59,8 +57,6 @@ const selectionSet = [
   "updatedAt",
   "forProjects.id",
   "forProjects.projectsId",
-  "forProjects.projects.project",
-  "forProjects.projects.accounts.account.name",
   "noteBlockIds",
   "noteBlocks.id",
   "noteBlocks.content",
