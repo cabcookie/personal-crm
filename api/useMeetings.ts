@@ -40,6 +40,7 @@ export const meetingSelectionSet = [
   "participants.personId",
   "activities.id",
   "activities.notes",
+  "activities.name",
   "activities.formatVersion",
   "activities.notesJson",
   "activities.meetingActivitiesId",

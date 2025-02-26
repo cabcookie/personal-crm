@@ -31,6 +31,7 @@ type ProjectLinkData = {
 
 export type Activity = {
   id: string;
+  name?: string;
   notes: JSONContent;
   meetingId?: string;
   finishedOn: Date;
@@ -46,6 +47,7 @@ export type Activity = {
 
 const selectionSet = [
   "id",
+  "name",
   "notes",
   "formatVersion",
   "notesJson",
@@ -75,6 +77,7 @@ export type NoteBlockData = ActivityData["noteBlocks"][number];
 
 export const mapActivity = (a: ActivityData): Activity => ({
   id: a.id,
+  name: a.name || undefined,
   notes: transformNotesVersion(a),
   noteBlockIds:
     a.noteBlockIds?.filter((id) => a.noteBlocks.some((b) => b.id === id)) ??
@@ -84,7 +87,10 @@ export const mapActivity = (a: ActivityData): Activity => ({
   updatedAt: new Date(a.updatedAt),
   projectIds: a.forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: a.forProjects.map(({ id }) => id),
-  projects: a.forProjects,
+  projects: a.forProjects.map((p) => ({
+    id: p.id,
+    projectsId: p.projectsId,
+  })),
   oldFormatVersion: !a.formatVersion || a.formatVersion < 3,
   hasOpenTodos: a.noteBlocks.some((b) => b.todo?.status === "OPEN"),
   hasClosedTodos: a.noteBlocks.some((b) => b.todo?.status === "DONE"),
@@ -119,6 +125,20 @@ const useActivity = (activityId?: string) => {
   } = useSWR(`/api/activities/${activityId}`, fetchActivity(activityId));
   const { toast } = useToast();
   const [isUpdatingActivity, setIsUpdatingActivity] = useState(false);
+
+  const updateName = async (name: string) => {
+    if (!activity) return;
+    const updated: Activity = {
+      ...activity,
+      name,
+    };
+    mutateActivity(updated, false);
+    await client.models.Activity.update({
+      id: activity.id,
+      name,
+    });
+    mutateActivity(updated);
+  };
 
   const updateDate = async (date: Date) => {
     if (!activity) return;
@@ -233,6 +253,7 @@ const useActivity = (activityId?: string) => {
     mutateActivity,
     addProjectToActivity,
     deleteProjectActivity,
+    updateName,
   };
 };
 
