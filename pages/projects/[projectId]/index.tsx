@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const ProjectDetailPage = () => {
   const router = useRouter();
-  const { id } = router.query;
+  const { projectId: id } = router.query;
   const projectId = Array.isArray(id) ? id[0] : id;
   const { getProjectById, updateProjectState } = useProjectsContext();
   const [project, setProject] = useState<Project | undefined>(
