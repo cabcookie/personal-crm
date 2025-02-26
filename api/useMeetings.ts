@@ -49,8 +49,6 @@ export const meetingSelectionSet = [
   "activities.updatedAt",
   "activities.forProjects.id",
   "activities.forProjects.projectsId",
-  "activities.forProjects.projects.project",
-  "activities.forProjects.projects.accounts.account.name",
   "activities.noteBlockIds",
   "activities.noteBlocks.id",
   "activities.noteBlocks.content",
