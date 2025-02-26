@@ -27,10 +27,13 @@ export type TempIdMapping = {
 type ProjectLinkData = {
   id: string;
   projectsId: string;
+  name: string;
+  accounts: { name: string }[];
 };
 
 export type Activity = {
   id: string;
+  name?: string;
   notes: JSONContent;
   meetingId?: string;
   finishedOn: Date;
@@ -46,6 +49,7 @@ export type Activity = {
 
 const selectionSet = [
   "id",
+  "name",
   "notes",
   "formatVersion",
   "notesJson",
@@ -55,6 +59,8 @@ const selectionSet = [
   "updatedAt",
   "forProjects.id",
   "forProjects.projectsId",
+  "forProjects.projects.project",
+  "forProjects.projects.accounts.account.name",
   "noteBlockIds",
   "noteBlocks.id",
   "noteBlocks.content",
@@ -75,6 +81,7 @@ export type NoteBlockData = ActivityData["noteBlocks"][number];
 
 export const mapActivity = (a: ActivityData): Activity => ({
   id: a.id,
+  name: a.name || undefined,
   notes: transformNotesVersion(a),
   noteBlockIds:
     a.noteBlockIds?.filter((id) => a.noteBlocks.some((b) => b.id === id)) ??
@@ -84,7 +91,12 @@ export const mapActivity = (a: ActivityData): Activity => ({
   updatedAt: new Date(a.updatedAt),
   projectIds: a.forProjects.map(({ projectsId }) => projectsId),
   projectActivityIds: a.forProjects.map(({ id }) => id),
-  projects: a.forProjects,
+  projects: a.forProjects.map((p) => ({
+    id: p.id,
+    projectsId: p.projectsId,
+    name: p.projects?.project,
+    accounts: p.projects?.accounts.map((a) => ({ name: a.account.name })),
+  })),
   oldFormatVersion: !a.formatVersion || a.formatVersion < 3,
   hasOpenTodos: a.noteBlocks.some((b) => b.todo?.status === "OPEN"),
   hasClosedTodos: a.noteBlocks.some((b) => b.todo?.status === "DONE"),

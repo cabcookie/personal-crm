@@ -1,8 +1,6 @@
-# Meetings wurden nicht angezeigt (Version :VERSION)
+# Aktivitäten werden automatisch benannt (Version :VERSION)
 
-## Fehlerbehebungen
-
-Es konnte passieren, dass die Verknüpfung zwischen dem Abschnitt einer Notiz und einer Aufgabe verloren ging. Das hatte zur Konsequenz, dass die Meetingliste nicht mehr angezeigt werden konnte. Wenn diese Verknüpfung verloren gegangen ist, ignorieren wir den Abschnitt jetzt und sehen ihn nicht mehr vor.
+- Aktivitäten wird nun automatisch ein Name vergeben. Dazu werden Informationen aus Besprechungen, zu Personen und zu Projekten sowie die die Notiz selbst herangezogen.
 
 ## Bekannte Fehler
 
