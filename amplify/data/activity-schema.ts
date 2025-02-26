@@ -80,7 +80,6 @@ const activitySchema = {
       finishedOn: a.datetime(),
       noteBlocks: a.hasMany("NoteBlock", "activityId"),
       noteBlockIds: a.string().required().array(),
-      summaryRequests: a.hasMany("ActivitySummaryRequest", "activityId"),
       notes: a.string(), // DEPRECATED
       notesJson: a.json(), // DEPRECATED
     })
