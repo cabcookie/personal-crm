@@ -98,7 +98,7 @@ const nameActivity = debounce(
     if (!name) return;
     await updateActivityName(activity.id, name);
   },
-  2000
+  30000
 );
 
 const AccountDetailPage = () => {
