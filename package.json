@@ -14,7 +14,7 @@
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",
     "import-data-prod": "cd scripts && node start-import -env prod",
-    "create-post-confirmation-code": "npx ampx generate graphql-client-code --out amplify/auth/post-confirmation/graphql --profile impulso"
+    "generate-graphql-code": "npx ampx generate graphql-client-code --out amplify/functions/graphql --profile impulso"
   },
   "husky": {
     "hooks": {
