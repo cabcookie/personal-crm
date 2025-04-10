@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
 import { addDays } from "date-fns";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
@@ -18,6 +17,12 @@ import RecordDetails from "../record-details/record-details";
 import ProjectNextActions from "./next-actions";
 import ProjectAccountDetails from "./project-account-details";
 import ProjectDates from "./project-dates";
+import { generateClient } from "aws-amplify/data";
+import { type Schema } from "@/amplify/data/resource";
+import { useRouter } from "next/router";
+
+type DataClient = ReturnType<typeof generateClient<Schema>>;
+let client: DataClient;
 
 type ProjectDetailsProps = {
   projectId: string;
@@ -48,6 +53,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
   );
   const [projectContext, setProjectContext] = useState(project?.context);
   const [pushingInProgress, setPushingInProgress] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setProject(getProjectById(projectId));
@@ -86,6 +92,28 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     setPushingInProgress(false);
   };
 
+  const pseudonomizeProject = async () => {
+    if (!project) return;
+    if (!client) client = generateClient<Schema>();
+
+    const requestType: Schema["ProjectSummaryRequestType"]["type"] =
+      "PSEUDONOMIZE";
+    const { data, errors } = await client.models.ProjectSummaryRequest.create({
+      projectId: project.id,
+      requestType,
+    });
+    if (errors) {
+      console.error(errors);
+      return;
+    }
+    if (!data) {
+      console.error("No data returned");
+      return;
+    }
+    const requestId = data.id;
+    router.push(`/projects/${project.id}/pseudonomize/${requestId}`);
+  };
+
   return (
     project && (
       <div className="space-y-2">
@@ -110,10 +138,8 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             onUpdate={(name) => saveProjectName(project.id, name)}
           />
 
-          <Button asChild size="sm">
-            <Link href={`/projects/${project.id}/history`}>
-              Show Project History
-            </Link>
+          <Button size="sm" onClick={pseudonomizeProject}>
+            Pseudonomize Project
           </Button>
         </div>
 

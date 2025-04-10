@@ -3,12 +3,19 @@ import { RemovalPolicy } from "aws-cdk-lib";
 import { auth } from "./auth/resource";
 import { data, tablesWithDeleteProtection } from "./data/resource";
 import { storage } from "./storage/resource";
+import { grantCallBedrockInvokeModel } from "./custom/grant-call-bedrock-invoke-model";
+import { pseudonomizeProject } from "./functions/pseudonomize/resource";
+import { enableDdbStream } from "./custom/enable-ddb-stream";
 
-const backend = defineBackend({
+export const backend = defineBackend({
   auth,
   data,
   storage,
+  pseudonomizeProject,
 });
+
+grantCallBedrockInvokeModel();
+enableDdbStream();
 
 /**
  * Ensure that when new tables are moved into production, they do not initially

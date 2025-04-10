@@ -147,6 +147,7 @@ const projectSchema = {
       dayPlans: a.hasMany("DailyPlanProject", "projectId"),
       partnerId: a.id(),
       partner: a.belongsTo("Account", "partnerId"),
+      projectSummaries: a.hasMany("ProjectSummaryRequest", "projectId"),
     })
     .secondaryIndexes((index) => [
       index("partnerId").queryField("listByPartnerId"),

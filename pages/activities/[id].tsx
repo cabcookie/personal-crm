@@ -19,7 +19,7 @@ const AccountDetailPage = () => {
     if (!extensions) return;
     if (activity.name) return;
     nameActivity(activity, extensions, updateName);
-  }, [activity, extensions]);
+  }, [activity, extensions, updateName]);
 
   return (
     <MainLayout

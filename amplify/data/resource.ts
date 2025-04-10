@@ -28,6 +28,7 @@ import prayerSchema, {
 import projectSchema, {
   tablesWithDeleteProtection as projectTdp,
 } from "./project-schema";
+import { pseudonomizeProject } from "../functions/pseudonomize/resource";
 
 export const tablesWithDeleteProtection = [
   ...accountTdp,
@@ -90,7 +91,10 @@ const schema = a
       })
       .authorization((allow) => [allow.owner()]),
   })
-  .authorization((allow) => [allow.resource(postConfirmation)]);
+  .authorization((allow) => [
+    allow.resource(postConfirmation),
+    allow.resource(pseudonomizeProject),
+  ]);
 
 export type Schema = ClientSchema<typeof schema>;
 

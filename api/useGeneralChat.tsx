@@ -4,15 +4,10 @@ import { generateClient } from "aws-amplify/api";
 import { flow, identity, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
+import { Message, messagesToText } from "@/helpers/chat/get-message-text";
 const client = generateClient<Schema>({ authMode: "userPool" });
 
 export const { useAIConversation } = createAIHooks(client);
-
-type Message = {
-  content: {
-    text?: string;
-  }[];
-};
 
 const fetchConversations = async () => {
   const { data, errors } = await client.conversations.generalChat.list();
@@ -76,11 +71,8 @@ export const useGeneralChat = () => {
   };
 
   const generateChatName = async (messages: Message[]) => {
-    const content = messages
-      .map((m) => m.content.map((c) => c.text ?? "").join(""))
-      .join("\n");
     const { data, errors } = await client.generations.chatNamer({
-      content,
+      content: messagesToText(messages),
     });
     if (errors) handleApiErrors(errors, "Error generating chat name");
     return data?.name ?? "";

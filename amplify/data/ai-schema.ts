@@ -1,12 +1,19 @@
 import { a } from "@aws-amplify/backend";
 
 const aiSchema = {
-  generalChat: a
-    .conversation({
-      aiModel: a.ai.model("Claude 3.5 Sonnet"),
-      systemPrompt: "You are a helpful assistant.",
+  ProjectSummaryRequestType: a.enum(["PSEUDONOMIZE", "SUMMARY"]),
+  ProjectSummaryRequest: a
+    .model({
+      projectId: a.id(),
+      project: a.belongsTo("Projects", "projectId"),
+      requestType: a.ref("ProjectSummaryRequestType"),
+      modelUsed: a.string(),
+      response: a.json(),
     })
-    .authorization((allow) => allow.owner()),
+    .secondaryIndexes((index) => [
+      index("projectId").queryField("listSummaryByProjectId"),
+    ])
+    .authorization((allow) => [allow.owner()]),
   ActivitySummaryRequestType: a.enum([
     "BRIEFING",
     "NEXT_ACTIONS",
@@ -26,6 +33,12 @@ const aiSchema = {
       index("activityId").queryField("listSummaryByActivityId"),
     ])
     .authorization((allow) => [allow.owner()]),
+  generalChat: a
+    .conversation({
+      aiModel: a.ai.model("Claude 3.5 Sonnet"),
+      systemPrompt: "You are a helpful assistant.",
+    })
+    .authorization((allow) => allow.owner()),
   chatNamer: a
     .generation({
       aiModel: a.ai.model("Claude 3 Haiku"),
