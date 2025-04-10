@@ -1,6 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { useProjectsContext } from "@/api/ContextProjects";
-import useBible from "@/api/useBible";
+// import useBible from "@/api/useBible";
 import useMeetings from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
@@ -59,11 +59,11 @@ type NavigationItem = (UrlNavigationItem | ActionNavigationItem) & {
 };
 
 const NavigationMenu = () => {
-  const { isWorkContext, isFamilyContext, context } = useContextContext();
+  const { isWorkContext, context } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
   const { projects, createProject } = useProjectsContext();
   const { accounts } = useAccountsContext();
-  const { bible } = useBible();
+  // const { bible } = useBible();
   const { people, createPerson } = usePeople();
   const { createMeeting } = useMeetings({ context });
   const [search, setSearch] = useState("");
@@ -110,9 +110,9 @@ const NavigationMenu = () => {
   ];
 
   const otherNavigation: NavigationItem[] = [
-    ...(isFamilyContext()
-      ? [{ label: "Bible Reading", url: "/bible/books" }]
-      : []),
+    // ...(isFamilyContext()
+    //   ? [{ label: "Bible Reading", url: "/bible/books" }]
+    //   : []),
     { label: "Projects", url: "/projects", shortcut: "^P" },
     ...(isWorkContext()
       ? [
@@ -234,7 +234,7 @@ const NavigationMenu = () => {
             }))}
           />
         )}
-        {isFamilyContext() && (
+        {/* {isFamilyContext() && (
           <SearchableDataGroup
             heading="Bible"
             metaPressed={metaPressed}
@@ -244,7 +244,7 @@ const NavigationMenu = () => {
               link: `/bible/books/${id}`,
             }))}
           />
-        )}
+        )} */}
         <SearchableDataGroup
           heading="People"
           metaPressed={metaPressed}
