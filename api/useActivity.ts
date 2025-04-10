@@ -57,6 +57,8 @@ const selectionSet = [
   "updatedAt",
   "forProjects.id",
   "forProjects.projectsId",
+  "forProjects.projects.project",
+  "forProjects.projects.accounts.account.name",
   "noteBlockIds",
   "noteBlocks.id",
   "noteBlocks.content",

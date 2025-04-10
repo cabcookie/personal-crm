@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { format } from "date-fns";
 import { useEffect } from "react";
 import useExtensions from "@/components/ui-elements/editors/notes-editor/useExtensions";
-import { nameActivity } from "@/helpers/activitiy/namer";
+import { nameActivity } from "@/helpers/activity/namer";
 
 const AccountDetailPage = () => {
   const router = useRouter();

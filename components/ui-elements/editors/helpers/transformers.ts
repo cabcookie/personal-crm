@@ -6,13 +6,18 @@ import { transformNotesVersion1 } from "./transform-v1";
 import { transformNotesVersion2 } from "./transform-v2";
 import { transformNotesVersion3 } from "./transform-v3";
 
+interface ActivityDataProject {
+  id: ActivityData["forProjects"][number]["id"];
+  projectsId: ActivityData["forProjects"][number]["projectsId"];
+}
+
 interface TransformNotesVersionType {
   formatVersion: ActivityData["formatVersion"];
   notes: ActivityData["notes"];
   notesJson: ActivityData["notesJson"];
   noteBlockIds: ActivityData["noteBlockIds"];
   noteBlocks: NoteBlockData[];
-  forProjects: ActivityData["forProjects"];
+  forProjects: ActivityDataProject[];
 }
 
 export const createDocument = ({
@@ -71,7 +76,7 @@ const infuseTempBlockAndOtherIds =
   };
 
 const infuseRootLevelTempBlockAndOtherIds =
-  (projects: ActivityData["forProjects"]) => (content: JSONContent) => ({
+  (projects: ActivityDataProject[]) => (content: JSONContent) => ({
     ...content,
     attrs: {
       projects,
