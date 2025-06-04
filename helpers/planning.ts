@@ -3,7 +3,6 @@ import { Project } from "@/api/ContextProjects";
 import { DailyPlan } from "@/api/useDailyPlans";
 import { WeeklyPlan } from "@/api/useWeekPlan";
 import { calcOrder } from "@/helpers/accounts";
-import { updateProjectOrder } from "@/helpers/projects";
 import { differenceInCalendarDays } from "date-fns";
 import {
   filter,
@@ -14,7 +13,6 @@ import {
   map,
   size,
   some,
-  sortBy,
   sum,
 } from "lodash/fp";
 import { Dispatch, SetStateAction } from "react";
@@ -37,7 +35,6 @@ const getProjectsPipeline = (
 
 export const filterAndSortProjectsForWeeklyPlanning = (
   projects: Project[] | undefined,
-  accounts: Account[] | undefined,
   startDate: Date,
   weekPlan: WeeklyPlan | undefined,
   projectFilter: ProjectFilters,
@@ -58,8 +55,6 @@ export const filterAndSortProjectsForWeeklyPlanning = (
             (!p.onHoldTill ||
               differenceInCalendarDays(p.onHoldTill, startDate) < 7)
     ),
-    map(updateProjectOrder(accounts)),
-    sortBy((p) => -p.order),
     setProjectList
   )(projects);
 
@@ -121,7 +116,6 @@ export const setProjectsFilterCount = (
 
 export const filterAndSortProjectsForDailyPlanning = (
   projects: Project[] | undefined,
-  accounts: Account[] | undefined,
   dailyPlan: DailyPlan,
   onDailyPlan: boolean,
   setList: Dispatch<SetStateAction<Project[] | undefined>>
@@ -137,8 +131,6 @@ export const filterAndSortProjectsForDailyPlanning = (
           (dailyPlan.projects.some(({ projectId }) => p.id === projectId) &&
             onDailyPlan))
     ),
-    map(updateProjectOrder(accounts)),
-    sortBy((p) => -p.order),
     setList
   )(projects);
 

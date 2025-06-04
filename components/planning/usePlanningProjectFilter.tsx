@@ -1,4 +1,3 @@
-import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import {
   filterAndSortProjectsForWeeklyPlanning,
@@ -44,7 +43,6 @@ export const PlanningProjectFilterProvider: FC<
   PlanningProjectFilterProviderProps
 > = ({ children }) => {
   const { projects, saveProjectDates } = useProjectsContext();
-  const { accounts } = useAccountsContext();
   const { weekPlan, startDate } = useWeekPlanContext();
   const [projectFilter, setProjectFilter] = useState<ProjectFilters>("Open");
   const [filteredAndSortedProjects, setFilteredAndSortedProjects] = useState<
@@ -57,13 +55,12 @@ export const PlanningProjectFilterProvider: FC<
   useEffect(() => {
     filterAndSortProjectsForWeeklyPlanning(
       projects,
-      accounts,
       startDate,
       weekPlan,
       projectFilter,
       setFilteredAndSortedProjects
     );
-  }, [accounts, projectFilter, projects, startDate, weekPlan]);
+  }, [projectFilter, projects, startDate, weekPlan]);
 
   useEffect(() => {
     setProjectsFilterCount(
@@ -74,7 +71,7 @@ export const PlanningProjectFilterProvider: FC<
       setFocusProjectsCount,
       setOnholdProjectsCount
     );
-  }, [accounts, projects, startDate, weekPlan]);
+  }, [projects, startDate, weekPlan]);
 
   return (
     <PlanningProjectFilter.Provider

@@ -5,8 +5,6 @@ import { ProjectTodo } from "@/api/useProjectTodos";
 import { differenceInMinutes } from "date-fns";
 import { filter, flow, get, identity, map, some, sortBy, sum } from "lodash/fp";
 import { Dispatch, SetStateAction } from "react";
-import { invertSign } from "./functional";
-import { updateProjectOrder } from "./projects";
 
 export const setProjectList = (
   dailyPlan: DailyPlan,
@@ -23,10 +21,8 @@ export const setProjectList = (
       flow(
         identity<Project[] | undefined>,
         filter((project) => project.id === p.projectId),
-        map(updateProjectOrder(accounts)),
         map("order"),
-        sum,
-        invertSign
+        sum
       )(projects)
     ),
     setList

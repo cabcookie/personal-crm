@@ -48,14 +48,12 @@ const DailyPlanningPage = () => {
     if (!dailyPlan) return;
     filterAndSortProjectsForDailyPlanning(
       projects,
-      accounts,
       dailyPlan,
       false,
       setProjectsForDecision
     );
     filterAndSortProjectsForDailyPlanning(
       projects,
-      accounts,
       dailyPlan,
       true,
       setProjectsOnList

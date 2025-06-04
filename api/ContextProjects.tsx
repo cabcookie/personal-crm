@@ -79,6 +79,8 @@ interface ProjectsContextType {
   mutateProjects: KeyedMutator<Project[] | undefined>;
   getProjectNamesByIds: (projectIds?: string[]) => string;
   deleteLegacyNextActions: (projectId: string) => Promise<string | undefined>;
+  moveProjectUp: (projectId: string) => Promise<string | undefined>;
+  moveProjectDown: (projectId: string) => Promise<string | undefined>;
 }
 
 export type Project = {
@@ -115,6 +117,7 @@ const selectionSet = [
   "myNextActionsJson",
   "othersNextActionsJson",
   "context",
+  "order",
   "accounts.accountId",
   "accounts.createdAt",
   "partner.id",
@@ -167,6 +170,7 @@ const mapProject: (project: ProjectData) => Project = ({
   myNextActionsJson,
   othersNextActionsJson,
   context,
+  order,
   accounts,
   activities,
   crmProjects,
@@ -258,7 +262,7 @@ const mapProject: (project: ProjectData) => Project = ({
       filter((d) => !!d)
     )(crmProjects),
     pipeline: pipeline,
-    order: pipeline,
+    order: order ?? 1000,
     partnerId: partner?.id,
     hasOldVersionedActivityFormat: !activities
       ? false
@@ -292,7 +296,7 @@ const fetchProjects = (context?: Context) => async () => {
     throw errors;
   }
   try {
-    return data.map(mapProject);
+    return data.map(mapProject).sort((a, b) => a.order - b.order);
   } catch (error) {
     console.error("fetchProjects", { error });
     throw error;
@@ -321,6 +325,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     if (!context) return;
     if (projectName.length < 3) return;
 
+    const nextOrder = 1000;
+
     const newProject: Project = {
       id: crypto.randomUUID(),
       project: projectName,
@@ -332,7 +338,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       crmProjects: [],
       involvedPeopleIds: [],
       pipeline: 0,
-      order: 0,
+      order: nextOrder,
       hasOldVersionedActivityFormat: false,
     };
 
@@ -343,6 +349,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       context,
       project: projectName,
       done: false,
+      order: nextOrder,
     });
     if (errors) handleApiErrors(errors, "Error creating project");
     mutateProjects(updatedProjects);
@@ -572,6 +579,97 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data.id;
   };
 
+  const moveProjectUp = async (
+    projectId: string
+  ): Promise<string | undefined> => {
+    if (!projects || !context) return;
+
+    const currentIndex = projects.findIndex((p) => p.id === projectId);
+
+    if (currentIndex <= 0) return; // Already at the top or not found
+
+    // Calculate new order value
+    let newOrder: number;
+    if (currentIndex === 1) {
+      // Moving to first position
+      newOrder = projects[0].order - 0.5;
+    } else {
+      const firstProject = projects[currentIndex - 2];
+      const secondProject = projects[currentIndex - 1];
+      newOrder = (firstProject.order + secondProject.order) / 2;
+    }
+
+    // Optimistic UI update
+    const updated: Project[] = projects
+      .map((p) => (p.id === projectId ? { ...p, order: newOrder } : p))
+      .sort((a, b) => a.order - b.order);
+
+    mutateProjects(updated, false);
+
+    // Update database
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      order: newOrder,
+    });
+
+    if (errors) {
+      handleApiErrors(errors, "Error moving project up");
+      // Revert optimistic update on error
+      mutateProjects(projects);
+      return;
+    }
+
+    mutateProjects(updated);
+    toast({ title: "Project moved up" });
+    return data?.id;
+  };
+
+  const moveProjectDown = async (
+    projectId: string
+  ): Promise<string | undefined> => {
+    if (!projects || !context) return;
+
+    const currentIndex = projects.findIndex((p) => p.id === projectId);
+
+    if (currentIndex === -1 || currentIndex >= projects.length - 1) return; // Not found or already at the bottom
+
+    // Calculate new order value
+    let newOrder: number;
+    if (currentIndex === projects.length - 2) {
+      // Moving to last position
+      newOrder = projects[currentIndex + 1].order + 1;
+    } else {
+      // Moving between two projects - calculate midpoint
+      const firstProject = projects[currentIndex + 1];
+      const secondProject = projects[currentIndex + 2];
+      newOrder = (firstProject.order + secondProject.order) / 2;
+    }
+
+    // Optimistic UI update
+    const updated: Project[] = projects
+      .map((p) => (p.id === projectId ? { ...p, order: newOrder } : p))
+      .sort((a, b) => a.order - b.order);
+
+    mutateProjects(updated, false);
+
+    // Update database
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      order: newOrder,
+    });
+
+    if (errors) {
+      handleApiErrors(errors, "Error moving project down");
+      // Revert optimistic update on error
+      mutateProjects(projects);
+      return;
+    }
+
+    mutateProjects(updated);
+    toast({ title: "Project moved down" });
+    return data?.id;
+  };
+
   return (
     <ProjectsContext.Provider
       value={{
@@ -591,6 +689,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         mutateProjects,
         getProjectNamesByIds,
         deleteLegacyNextActions,
+        moveProjectUp,
+        moveProjectDown,
       }}
     >
       {children}
