@@ -1,5 +1,5 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
-import { Project } from "@/api/ContextProjects";
+import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { format } from "date-fns";
 import { flow, map, sum } from "lodash/fp";
@@ -21,6 +21,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   showNotes = true,
 }) => {
   const { getAccountNamesByIds } = useAccountsContext();
+  const { moveProjectUp, moveProjectDown } = useProjectsContext();
 
   return (
     project && (
@@ -48,6 +49,8 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
             `Partner: ${getAccountNamesByIds([project.partnerId])}`,
         ]}
         disabled={disabled}
+        onMoveUp={() => moveProjectUp(project.id)}
+        onMoveDown={() => moveProjectDown(project.id)}
       >
         <ProjectDetails
           projectId={project.id}
