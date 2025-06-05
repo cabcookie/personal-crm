@@ -135,15 +135,15 @@ export const calcPipelineByAccountId =
           sum
         )(projects);
 
-export const filterAndSortProjects = ({
+export const filterProjects = ({
   projectFilter,
   accountId,
   projects,
   searchText,
 }: FilterAndSortProjectsProps) => {
-  const filterProjects = searchText ? filterBySearch : filterByProjectStatus;
+  const filterFunction = searchText ? filterBySearch : filterByProjectStatus;
 
-  return filter(filterProjects({ accountId, projectFilter, searchText }))(
+  return filter(filterFunction({ accountId, projectFilter, searchText }))(
     projects
   );
 };

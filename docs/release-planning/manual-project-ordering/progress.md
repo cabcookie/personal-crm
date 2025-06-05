@@ -353,3 +353,42 @@ This document tracks the progress of implementing manual project ordering functi
 **Files modified:**
 
 - `api/ContextProjects.tsx` - Added `detectLegacyMigrationNeeded()` and `migrateLegacyProjects()` functions with full integration into the project loading system
+
+### ✅ Step 14: Update Project Filtering Logic (Completed)
+
+**Date**: June 5, 2025
+
+**What was implemented:**
+
+- Updated function names to accurately reflect their purpose (filtering only, not sorting)
+- Renamed `filterAndSortProjects` to `filterProjects` in `helpers/projects.ts`
+- Renamed `filterAndSortProjectsForWeeklyPlanning` to `filterProjectsForWeeklyPlanning` in `helpers/planning.ts`
+- Renamed `filterAndSortProjectsForDailyPlanning` to `filterProjectsForDailyPlanning` in `helpers/planning.ts`
+- Updated all component references to use the new function names
+- Verified that all project lists throughout the application use order-based sorting consistently
+
+**Technical details:**
+
+- **Function Name Clarity**: Removed misleading "AndSort" from function names since they only perform filtering
+- **Consistent Architecture**: All sorting is handled centrally by `fetchProjects` in `api/ContextProjects.tsx` using order-based sorting
+- **Preserved Functionality**: All existing filtering, searching, and project display functionality remains intact
+- **Cross-Component Updates**: Updated references in `components/projects/useProjectFilter.tsx`, `components/planning/usePlanningProjectFilter.tsx`, and `pages/planday.tsx`
+
+**Validation criteria met:**
+
+- ✅ All project lists throughout the application display in correct order (by order field)
+- ✅ Filtering and searching preserve the manual ordering
+- ✅ No components still rely on old pipeline-based sorting logic
+- ✅ Performance remains optimal with the new sorting system
+- ✅ TypeScript compilation succeeds without errors
+- ✅ Development server runs successfully
+- ✅ All filtering functions work correctly with order-based sorting
+- ✅ Function names accurately reflect their behavior (filtering only)
+
+**Files modified:**
+
+- `helpers/projects.ts` - Renamed `filterAndSortProjects` to `filterProjects`
+- `helpers/planning.ts` - Renamed filtering functions to remove misleading "AndSort" naming
+- `components/projects/useProjectFilter.tsx` - Updated import and function call
+- `components/planning/usePlanningProjectFilter.tsx` - Updated import and function call
+- `pages/planday.tsx` - Updated function call (fixed by user)

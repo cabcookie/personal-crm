@@ -8,7 +8,7 @@ import DailyPlanForm from "@/components/planning/day/DailyPlanForm";
 import DayPlanningProjectsState from "@/components/planning/day/DayPlanningProjectsState";
 import NextAction from "@/components/planning/day/NextAction";
 import { useContextContext } from "@/contexts/ContextContext";
-import { filterAndSortProjectsForDailyPlanning } from "@/helpers/planning";
+import { filterProjectsForDailyPlanning } from "@/helpers/planning";
 import { format } from "date-fns";
 import { find, flow, identity } from "lodash/fp";
 import { Loader2 } from "lucide-react";
@@ -46,13 +46,13 @@ const DailyPlanningPage = () => {
 
   useEffect(() => {
     if (!dailyPlan) return;
-    filterAndSortProjectsForDailyPlanning(
+    filterProjectsForDailyPlanning(
       projects,
       dailyPlan,
       false,
       setProjectsForDecision
     );
-    filterAndSortProjectsForDailyPlanning(
+    filterProjectsForDailyPlanning(
       projects,
       dailyPlan,
       true,

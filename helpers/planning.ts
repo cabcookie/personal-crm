@@ -33,7 +33,7 @@ const getProjectsPipeline = (
     sum
   )(projects);
 
-export const filterAndSortProjectsForWeeklyPlanning = (
+export const filterProjectsForWeeklyPlanning = (
   projects: Project[] | undefined,
   startDate: Date,
   weekPlan: WeeklyPlan | undefined,
@@ -114,7 +114,7 @@ export const setProjectsFilterCount = (
   simplifiedFilterFn("In Focus", setFocusCount);
 };
 
-export const filterAndSortProjectsForDailyPlanning = (
+export const filterProjectsForDailyPlanning = (
   projects: Project[] | undefined,
   dailyPlan: DailyPlan,
   onDailyPlan: boolean,

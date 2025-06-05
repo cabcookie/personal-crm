@@ -1,6 +1,6 @@
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import {
-  filterAndSortProjectsForWeeklyPlanning,
+  filterProjectsForWeeklyPlanning,
   ProjectFilters,
   setProjectsFilterCount,
 } from "@/helpers/planning";
@@ -53,7 +53,7 @@ export const PlanningProjectFilterProvider: FC<
   const [onholdProjectsCount, setOnholdProjectsCount] = useState(0);
 
   useEffect(() => {
-    filterAndSortProjectsForWeeklyPlanning(
+    filterProjectsForWeeklyPlanning(
       projects,
       startDate,
       weekPlan,

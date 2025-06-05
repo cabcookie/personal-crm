@@ -1,6 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import { filterAndSortProjects } from "@/helpers/projects";
+import { filterProjects } from "@/helpers/projects";
 import {
   ComponentType,
   createContext,
@@ -59,7 +59,7 @@ export const ProjectFilterProvider: FC<ProjectFilterProviderProps> = ({
   useEffect(() => {
     if (!projects) return setFilteredProjects([]);
     setFilteredProjects(
-      filterAndSortProjects({
+      filterProjects({
         projects,
         accountId,
         projectFilter: filter,
