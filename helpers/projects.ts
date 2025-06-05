@@ -3,8 +3,7 @@ import { CrmDataProps, Project } from "@/api/ContextProjects";
 import { STAGES_PROBABILITY, TCrmStages } from "@/api/useCrmProject";
 import { ProjectFilters } from "@/components/projects/useProjectFilter";
 import { differenceInCalendarMonths } from "date-fns";
-import { filter, flatMap, flow, map, max, round, sortBy, sum } from "lodash/fp";
-import { calcOrder } from "./accounts";
+import { filter, flatMap, flow, map, max, round, sum } from "lodash/fp";
 import { formatRevenue } from "./functional";
 
 interface CalcPipelineProps {
@@ -44,10 +43,6 @@ export const mapPipelineFields = ({
   isMarketplace: !!crmProject?.isMarketplace,
 });
 
-const calcProjectOrder =
-  (pipeline: number) => (accountQuota: number | undefined) =>
-    calcOrder(accountQuota || 0, pipeline);
-
 const maxOfArray = (val: number[]): number => max(val) || 0;
 
 const getProbability = (stage: string): number =>
@@ -83,18 +78,6 @@ export const calcPipeline = (projects: CalcPipelineProps[]): number =>
     (val: number | undefined) => val || 0,
     Math.floor
   )(projects);
-
-export const updateProjectOrder =
-  (accounts: Account[] | undefined) =>
-  (project: Project): Project => ({
-    ...project,
-    order: flow(
-      filter((a: Account) => project.accountIds.includes(a.id)),
-      map("latestQuota"),
-      max,
-      calcProjectOrder(project.pipeline)
-    )(accounts),
-  });
 
 export const make2YearsRevenueText = (revenue: number) =>
   revenue === 0 ? "" : `Pipeline 2Ys: ${formatRevenue(revenue)}`;
@@ -152,18 +135,15 @@ export const calcPipelineByAccountId =
           sum
         )(projects);
 
-export const filterAndSortProjects = ({
+export const filterProjects = ({
   projectFilter,
   accountId,
   projects,
-  accounts,
   searchText,
 }: FilterAndSortProjectsProps) => {
-  const filterProjects = searchText ? filterBySearch : filterByProjectStatus;
+  const filterFunction = searchText ? filterBySearch : filterByProjectStatus;
 
-  return flow(
-    filter(filterProjects({ accountId, projectFilter, searchText })),
-    map(updateProjectOrder(accounts)),
-    sortBy((p) => -p.order)
-  )(projects);
+  return filter(filterFunction({ accountId, projectFilter, searchText }))(
+    projects
+  );
 };

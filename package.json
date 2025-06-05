@@ -10,6 +10,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "prepare": "node .husky/install.mjs",
+    "signin:code-assistant": "aws sso login --profile nxsflow-staging",
     "sandbox": "npx ampx sandbox --profile impulso",
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",

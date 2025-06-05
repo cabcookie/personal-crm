@@ -1,6 +1,19 @@
-# Aktivitäten werden automatisch benannt (Version :VERSION)
+# Manuelle Projektreihenfolge (Version :VERSION)
 
-- Aktivitäten wird nun automatisch ein Name vergeben. Dazu werden Informationen aus Besprechungen, zu Personen und zu Projekten sowie die die Notiz selbst herangezogen.
+- **Neue manuelle Projektsortierung**: Projekte können nun manuell mit Pfeil-Buttons (↑↓) neu angeordnet werden, anstatt der bisherigen automatischen Sortierung nach Pipeline-Werten.
+- **Kontextspezifische Reihenfolge**: Jeder Kontext (Familie, Arbeit, Hobby) behält seine eigene Projektreihenfolge bei.
+- **Intelligente Einfügung**: Beim Verschieben von Projekten werden Zwischenwerte berechnet (z.B. 1.5 zwischen Projekt 1 und 2).
+- **Automatische Normalisierung**: Das System erkennt fragmentierte Reihenfolgen-Werte und normalisiert diese nach 30 Sekunden automatisch zu sauberen ganzen Zahlen (1, 2, 3, etc.).
+- **Nahtlose Migration**: Bestehende Projekte erhalten automatisch passende Reihenfolgen-Werte basierend auf der bisherigen Pipeline-Sortierung.
+- **Responsive Bedienelemente**: Die Pfeil-Buttons funktionieren sowohl auf Desktop- als auch auf mobilen Geräten und bieten sofortiges visuelles Feedback.
+
+## Technische Verbesserungen
+
+- Neues `order`-Feld in der Projekt-Datenbank für persistente Speicherung der manuellen Reihenfolge
+- Optimistische UI-Updates für sofortiges Feedback beim Neuordnen
+- Kontextbewusste Verarbeitung mit separater Normalisierung für jeden Bereich
+- Robuste Fehlerbehandlung mit Wiederherstellung bei Fehlschlägen
+- Automatische Erkennung und Migration von Legacy-Projekten ohne Reihenfolgen-Werte
 
 ## Bekannte Fehler
 

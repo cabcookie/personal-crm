@@ -1,0 +1,3 @@
+.DS*Store
+docs/releases/*/v**.md
+docs/releases/v**.md
