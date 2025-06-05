@@ -3,7 +3,7 @@ import { Accordion } from "@/components/ui/accordion";
 import MakeProjectDecision from "../project/MakeProjectDecision";
 import { useWeekPlanContext } from "../useWeekPlanContext";
 
-const PlanWeekContextNotWork = () => {
+const PlanWeekProjectList = () => {
   const { weekPlan } = useWeekPlanContext();
   const { projects, saveProjectDates } = usePlanningProjectFilter();
 
@@ -24,4 +24,4 @@ const PlanWeekContextNotWork = () => {
   );
 };
 
-export default PlanWeekContextNotWork;
+export default PlanWeekProjectList;
