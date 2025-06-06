@@ -117,6 +117,7 @@ const CrmProjectDetails: FC<CrmProjectDetailsProps> = ({
                           getProjectById(id)?.project ?? ""
                         )
                       }
+                      disableOrderControls
                     />
                   )
                 )}

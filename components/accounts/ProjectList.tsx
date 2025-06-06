@@ -6,7 +6,13 @@ import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem"
 import { Accordion } from "../ui/accordion";
 
 const ProjectList = () => {
-  const { projects, loadingProjects, errorProjects } = useProjectFilter();
+  const {
+    projects,
+    loadingProjects,
+    errorProjects,
+    moveProjectUp,
+    moveProjectDown,
+  } = useProjectFilter();
 
   return (
     <div className="space-y-4">
@@ -37,7 +43,12 @@ const ProjectList = () => {
           )(10)}
 
         {projects.map((project) => (
-          <ProjectAccordionItem key={project.id} project={project} />
+          <ProjectAccordionItem
+            key={project.id}
+            project={project}
+            onMoveUp={moveProjectUp}
+            onMoveDown={moveProjectDown}
+          />
         ))}
       </Accordion>
     </div>

@@ -76,6 +76,7 @@ const ProjectNotesForm: FC<ProjectNotesFormProps> = ({
                     deleteProjectActivity(activity.projectActivityIds[index]);
                 }}
                 project={getProjectById(id)}
+                disableOrderControls
               />
             ))
           )}

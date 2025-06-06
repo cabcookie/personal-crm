@@ -57,6 +57,7 @@ const ActivityProjectList: FC<ActivityProjectListProps> = ({
               key={project.id}
               project={project}
               showNotes={false}
+              disableOrderControls
             />
           ))
         )(projects)}

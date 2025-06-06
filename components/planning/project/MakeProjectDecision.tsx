@@ -1,5 +1,6 @@
 import { Project } from "@/api/ContextProjects";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
+import { usePlanningProjectFilter } from "@/components/planning/usePlanningProjectFilter";
 import { FC } from "react";
 import DecisionSection from "../DecisionSection";
 
@@ -12,9 +13,15 @@ const MakeProjectDecision: FC<MakeProjectDecisionProps> = ({
   project,
   saveOnHoldDate,
 }) => {
+  const { moveProjectUp, moveProjectDown } = usePlanningProjectFilter();
+
   return (
     <div className="space-y-2">
-      <ProjectAccordionItem project={project} />
+      <ProjectAccordionItem
+        project={project}
+        onMoveUp={moveProjectUp}
+        onMoveDown={moveProjectDown}
+      />
 
       <DecisionSection
         project={project}
