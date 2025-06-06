@@ -158,3 +158,66 @@ This document tracks the progress of implementing the project ordering fix relea
 - `components/projects/useProjectFilter.tsx`
 - `components/projects/ProjectAccordionItem.tsx`
 - `components/accounts/ProjectList.tsx`
+
+## ✅ Step 4: Implement Complete Planning Filter Ordering System (Completed: 2025-06-06)
+
+**Objective**: Build the full filtered ordering functionality for planning context filters (Open, Focus, On Hold).
+
+**What was implemented**:
+
+1. **Enhanced usePlanningProjectFilter.tsx with Order Calculation Functions**:
+
+   - Created `calculateMoveUpOrder` function that takes current project and filtered projects array, returning appropriate order values for upward movement within planning filtered context
+   - Created `calculateMoveDownOrder` function for downward movement calculations within planning context
+   - Implemented logic to find adjacent projects in planning filtered lists and calculate midpoint order values
+   - Added proper handling for edge cases (first/last positions in planning filtered lists)
+   - Functions account for planning-specific filtering logic (Open, Focus, On Hold states)
+
+2. **Enhanced PlanningProjectFilterType Interface**:
+
+   - Added `moveProjectUp: (projectId: string) => Promise<string | undefined>` to interface
+   - Added `moveProjectDown: (projectId: string) => Promise<string | undefined>` to interface
+   - Functions integrated with global ContextProjects move functions using calculated order values from planning context
+
+3. **Implemented Planning-Specific Move Functions in PlanningProjectFilterProvider**:
+
+   - `moveProjectUp` function calculates appropriate order using `calculateMoveUpOrder` helper, then calls global `moveProjectUp` with calculated `newOrder`
+   - `moveProjectDown` function calculates appropriate order using `calculateMoveDownOrder` helper, then calls global `moveProjectDown` with calculated `newOrder`
+   - Added proper error handling with toast notifications for boundary conditions specific to planning contexts
+   - Error messages indicate "planning filtered list" for user clarity
+
+4. **Updated MakeProjectDecision Component**:
+
+   - Modified to use planning-specific move functions from `usePlanningProjectFilter` hook instead of global context functions
+   - Passes `onMoveUp` and `onMoveDown` functions to `ProjectAccordionItem` components
+   - Maintains integration with existing planning views and DecisionSection functionality
+
+**Technical Implementation Details**:
+
+- **Planning-Specific Order Calculation**: Uses same midpoint calculation logic as regular project filters but operates on planning-filtered project sets
+- **Integration with Planning Context**: Works seamlessly with existing weekly planning infrastructure and filter states
+- **Error Handling**: Custom toast messages for planning context ("planning filtered list" vs generic "filtered list")
+- **Context Awareness**: Respects planning-specific business logic and filtering rules (Open, Focus, On Hold states)
+
+**Verification Results**:
+
+- ✅ **Planning Page Access**: Successfully navigated to Weekly Planning page at `/planweek`
+- ✅ **Order Movement Testing**: Project 4 successfully moved from position 3 to position 1.5 (between Project 3 and Project 1) when clicking up chevron
+- ✅ **Bidirectional Movement**: Project 4 successfully moved back down when clicking down chevron, with proper order normalization
+- ✅ **Order Calculations**: Perfect midpoint calculations (Project 4 moved to order 1.5, then normalized to order 2)
+- ✅ **Visual Updates**: UI immediately reflects new project order without page refresh required
+- ✅ **Planning Context Integration**: Works correctly within planning filtered views (tested with "Open" filter active)
+- ✅ **System Integration**: Automatic order normalization and proper backend synchronization confirmed via console logs
+- ✅ **Console Verification**: Order changes tracked in real-time through browser console logs showing before/after states
+
+**User Experience Improvements**:
+
+- Planning projects now move to expected positions within planning filtered views
+- Consistent ordering behavior across all planning filter states (Open, Focus, On Hold)
+- Clear feedback when actions cannot be performed (boundary conditions specific to planning context)
+- Maintains existing planning workflow while adding intuitive manual ordering capability
+
+**Files Modified**:
+
+- `components/planning/usePlanningProjectFilter.tsx`
+- `components/planning/project/MakeProjectDecision.tsx`

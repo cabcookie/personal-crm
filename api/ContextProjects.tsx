@@ -326,8 +326,6 @@ const normalizeProjectOrders = debounce(
     mutateProjects: KeyedMutator<Project[] | undefined>
   ) => {
     try {
-      console.log(`Starting order normalization for context: ${context}`);
-
       // Sort projects by current order to maintain relative positions
       const sortedProjects = [...projects].sort((a, b) => a.order - b.order);
 
@@ -371,10 +369,6 @@ const normalizeProjectOrders = debounce(
         // Update local project object
         const updatedProject = { ...project, order: newOrder };
         updatedProjects.push(updatedProject);
-
-        console.log(
-          `Updated project "${project.project}" order from ${project.order} to ${newOrder}`
-        );
       }
 
       // Sort the updated projects by their new order values
@@ -382,20 +376,15 @@ const normalizeProjectOrders = debounce(
 
       // Update the local state with normalized order values
       mutateProjects(finalProjects);
-
-      console.log(`Order normalization completed for context: ${context}`);
-      toast({
-        title: "Project order normalized",
-        description: "Project order values have been cleaned up.",
-      });
     } catch (error) {
       console.error("Error during order normalization:", error);
       toast({
-        title: "Normalization failed",
+        title: "Error Project Ordering",
         description:
-          "Failed to normalize project order values. Please try again later.",
+          "Failed to ordering projects. Will reload. Please check if you need to apply a change again.",
         variant: "destructive",
       });
+      mutateProjects(projects);
     }
   },
   30000
@@ -422,15 +411,10 @@ const migrateLegacyProjects = async (
   mutateProjects: KeyedMutator<Project[] | undefined>
 ) => {
   try {
-    console.log(`Starting legacy project migration for context: ${context}`);
-
     // Filter projects that need migration (those with default order value 1000)
     const projectsNeedingMigration = projects.filter((p) => p.order === 1000);
 
-    if (projectsNeedingMigration.length === 0) {
-      console.log(`No projects need migration for context: ${context}`);
-      return;
-    }
+    if (projectsNeedingMigration.length === 0) return;
 
     // Sort projects using the current pipeline-based logic to maintain existing visual order
     // This preserves the order users are accustomed to seeing
@@ -478,10 +462,6 @@ const migrateLegacyProjects = async (
       const migratedProject = { ...project, order: orderCounter };
       migratedProjects.push(migratedProject);
 
-      console.log(
-        `Migrated project "${project.project}" to order ${orderCounter}`
-      );
-
       orderCounter++;
     }
 
@@ -490,22 +470,8 @@ const migrateLegacyProjects = async (
       (a: Project, b: Project) => a.order - b.order
     );
     mutateProjects(finalProjects);
-
-    console.log(
-      `Legacy project migration completed for context: ${context}. Migrated ${projectsNeedingMigration.length} projects.`
-    );
-
-    toast({
-      title: "Projects migrated",
-      description: `${projectsNeedingMigration.length} projects have been assigned proper order values.`,
-    });
   } catch (error) {
     console.error("Error during legacy project migration:", error);
-    toast({
-      title: "Migration failed",
-      description: "Failed to migrate legacy projects. Please try again later.",
-      variant: "destructive",
-    });
   }
 };
 
@@ -531,16 +497,7 @@ const fetchProjects = (context?: Context) => async () => {
     throw errors;
   }
   try {
-    // TODO: Clean up this function and remove console.log
-    console.log("------------");
-    return data
-      .map(mapProject)
-      .sort((a, b) => a.order - b.order)
-      .map((item) => {
-        const { order, project } = item;
-        console.info(order, project);
-        return item;
-      });
+    return data.map(mapProject).sort((a, b) => a.order - b.order);
   } catch (error) {
     console.error("fetchProjects", { error });
     throw error;
@@ -888,7 +845,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     }
 
     mutateProjects(updated);
-    toast({ title: "Project moved up" });
     return data?.id;
   };
 
@@ -939,7 +895,6 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     }
 
     mutateProjects(updated);
-    toast({ title: "Project moved down" });
     return data?.id;
   };
 

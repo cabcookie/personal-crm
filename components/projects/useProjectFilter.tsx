@@ -1,7 +1,6 @@
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { filterProjects } from "@/helpers/projects";
-import { toast } from "@/components/ui/use-toast";
 import {
   ComponentType,
   createContext,
@@ -135,15 +134,7 @@ export const ProjectFilterProvider: FC<ProjectFilterProviderProps> = ({
     projectId: string
   ): Promise<string | undefined> => {
     const newOrder = calculateMoveUpOrder(projectId, filteredProjects);
-    if (newOrder === undefined) {
-      toast({
-        title: "Cannot move project",
-        description: "Project is already at the top of the filtered list.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    if (newOrder === undefined) return;
     return await globalMoveProjectUp(projectId, newOrder);
   };
 
@@ -151,15 +142,7 @@ export const ProjectFilterProvider: FC<ProjectFilterProviderProps> = ({
     projectId: string
   ): Promise<string | undefined> => {
     const newOrder = calculateMoveDownOrder(projectId, filteredProjects);
-    if (newOrder === undefined) {
-      toast({
-        title: "Cannot move project",
-        description: "Project is already at the bottom of the filtered list.",
-        variant: "destructive",
-      });
-      return;
-    }
-
+    if (newOrder === undefined) return;
     return await globalMoveProjectDown(projectId, newOrder);
   };
 
