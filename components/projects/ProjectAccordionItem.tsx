@@ -13,6 +13,8 @@ type ProjectAccordionItemProps = {
   onDelete?: () => void;
   disabled?: boolean;
   disableOrderControls?: boolean;
+  onMoveUp?: (projectId: string) => Promise<string | undefined>;
+  onMoveDown?: (projectId: string) => Promise<string | undefined>;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
@@ -21,9 +23,18 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   disabled,
   showNotes = true,
   disableOrderControls = false,
+  onMoveUp,
+  onMoveDown,
 }) => {
   const { getAccountNamesByIds } = useAccountsContext();
-  const { moveProjectUp, moveProjectDown } = useProjectsContext();
+  const {
+    moveProjectUp: globalMoveProjectUp,
+    moveProjectDown: globalMoveProjectDown,
+  } = useProjectsContext();
+
+  // Use custom move functions if provided, otherwise fallback to global context functions
+  const moveProjectUp = onMoveUp || globalMoveProjectUp;
+  const moveProjectDown = onMoveDown || globalMoveProjectDown;
 
   return (
     project && (
