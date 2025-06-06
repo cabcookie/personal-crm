@@ -27,6 +27,7 @@ interface DefaultAccordionItemProps extends AccordionItemProps {
   badge?: ReactNode;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
+  disableOrderControls?: boolean;
 }
 
 const DefaultAccordionItem = forwardRef<
@@ -46,6 +47,7 @@ const DefaultAccordionItem = forwardRef<
       onMoveUp,
       onMoveDown,
       isVisible = true,
+      disableOrderControls = false,
       ...props
     },
     ref
@@ -53,7 +55,7 @@ const DefaultAccordionItem = forwardRef<
     isVisible && (
       <AccordionItem value={value} ref={ref} {...props}>
         <div className="flex h-full items-center">
-          {(onMoveUp || onMoveDown) && (
+          {(onMoveUp || onMoveDown) && !disableOrderControls && (
             <div className="flex flex-col gap-0.5">
               {onMoveUp && (
                 <Button

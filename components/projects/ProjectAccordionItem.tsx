@@ -12,6 +12,7 @@ type ProjectAccordionItemProps = {
   showNotes?: boolean;
   onDelete?: () => void;
   disabled?: boolean;
+  disableOrderControls?: boolean;
 };
 
 const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
@@ -19,6 +20,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   onDelete,
   disabled,
   showNotes = true,
+  disableOrderControls = false,
 }) => {
   const { getAccountNamesByIds } = useAccountsContext();
   const { moveProjectUp, moveProjectDown } = useProjectsContext();
@@ -49,6 +51,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
             `Partner: ${getAccountNamesByIds([project.partnerId])}`,
         ]}
         disabled={disabled}
+        disableOrderControls={disableOrderControls}
         onMoveUp={() => moveProjectUp(project.id)}
         onMoveDown={() => moveProjectDown(project.id)}
       >
