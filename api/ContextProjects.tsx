@@ -30,10 +30,10 @@ import {
   createProjectActivityApi,
 } from "./helpers/activity";
 import { CrmProject, mapCrmProject } from "./useCrmProjects";
+import { debounce } from "lodash";
 const client = generateClient<Schema>();
 
 // Global state for normalization scheduling
-const normalizationTimers = new Map<string, NodeJS.Timeout>();
 const normalizationPending = new Map<string, boolean>();
 
 interface ProjectsContextType {
@@ -84,8 +84,14 @@ interface ProjectsContextType {
   mutateProjects: KeyedMutator<Project[] | undefined>;
   getProjectNamesByIds: (projectIds?: string[]) => string;
   deleteLegacyNextActions: (projectId: string) => Promise<string | undefined>;
-  moveProjectUp: (projectId: string) => Promise<string | undefined>;
-  moveProjectDown: (projectId: string) => Promise<string | undefined>;
+  moveProjectUp: (
+    projectId: string,
+    newOrder?: number
+  ) => Promise<string | undefined>;
+  moveProjectDown: (
+    projectId: string,
+    newOrder?: number
+  ) => Promise<string | undefined>;
 }
 
 export type Project = {
@@ -313,84 +319,87 @@ const detectOrderNormalizationNeeded = (projects: Project[]): boolean => {
  * @param projects Current projects array
  * @param mutateProjects SWR mutate function for revalidation
  */
-const normalizeProjectOrders = async (
-  context: Context,
-  projects: Project[],
-  mutateProjects: KeyedMutator<Project[] | undefined>
-) => {
-  try {
-    console.log(`Starting order normalization for context: ${context}`);
+const normalizeProjectOrders = debounce(
+  async (
+    context: Context,
+    projects: Project[],
+    mutateProjects: KeyedMutator<Project[] | undefined>
+  ) => {
+    try {
+      console.log(`Starting order normalization for context: ${context}`);
 
-    // Sort projects by current order to maintain relative positions
-    const sortedProjects = [...projects].sort((a, b) => a.order - b.order);
+      // Sort projects by current order to maintain relative positions
+      const sortedProjects = [...projects].sort((a, b) => a.order - b.order);
 
-    // Process projects from highest to lowest order to avoid conflicts
-    // This ensures we don't accidentally assign an order value that's already in use
-    const projectsToUpdate = sortedProjects.reverse();
+      // Process projects from highest to lowest order to avoid conflicts
+      // This ensures we don't accidentally assign an order value that's already in use
+      const projectsToUpdate = sortedProjects.reverse();
 
-    // Reassign sequential integer values starting from the highest needed value
-    const updatedProjects: Project[] = [];
+      // Reassign sequential integer values starting from the highest needed value
+      const updatedProjects: Project[] = [];
 
-    for (let i = 0; i < projectsToUpdate.length; i++) {
-      const project = projectsToUpdate[i];
-      const newOrder = sortedProjects.length - i; // Assign from highest to lowest
+      for (let i = 0; i < projectsToUpdate.length; i++) {
+        const project = projectsToUpdate[i];
+        const newOrder = sortedProjects.length - i; // Assign from highest to lowest
 
-      // Skip if project already has the correct order
-      if (project.order === newOrder) {
-        updatedProjects.push(project);
-        continue;
+        // Skip if project already has the correct order
+        if (project.order === newOrder) {
+          updatedProjects.push(project);
+          continue;
+        }
+
+        // Update project order in database
+        const { errors } = await client.models.Projects.update({
+          id: project.id,
+          order: newOrder,
+        });
+
+        if (errors) {
+          console.error(
+            `Error updating project order for ${project.id}:`,
+            errors
+          );
+          handleApiErrors(
+            errors,
+            `Error normalizing project order for ${project.project}`
+          );
+          // Continue with other projects even if one fails
+          updatedProjects.push(project);
+          continue;
+        }
+
+        // Update local project object
+        const updatedProject = { ...project, order: newOrder };
+        updatedProjects.push(updatedProject);
+
+        console.log(
+          `Updated project "${project.project}" order from ${project.order} to ${newOrder}`
+        );
       }
 
-      // Update project order in database
-      const { errors } = await client.models.Projects.update({
-        id: project.id,
-        order: newOrder,
+      // Sort the updated projects by their new order values
+      const finalProjects = updatedProjects.sort((a, b) => a.order - b.order);
+
+      // Update the local state with normalized order values
+      mutateProjects(finalProjects);
+
+      console.log(`Order normalization completed for context: ${context}`);
+      toast({
+        title: "Project order normalized",
+        description: "Project order values have been cleaned up.",
       });
-
-      if (errors) {
-        console.error(
-          `Error updating project order for ${project.id}:`,
-          errors
-        );
-        handleApiErrors(
-          errors,
-          `Error normalizing project order for ${project.project}`
-        );
-        // Continue with other projects even if one fails
-        updatedProjects.push(project);
-        continue;
-      }
-
-      // Update local project object
-      const updatedProject = { ...project, order: newOrder };
-      updatedProjects.push(updatedProject);
-
-      console.log(
-        `Updated project "${project.project}" order from ${project.order} to ${newOrder}`
-      );
+    } catch (error) {
+      console.error("Error during order normalization:", error);
+      toast({
+        title: "Normalization failed",
+        description:
+          "Failed to normalize project order values. Please try again later.",
+        variant: "destructive",
+      });
     }
-
-    // Sort the updated projects by their new order values
-    const finalProjects = updatedProjects.sort((a, b) => a.order - b.order);
-
-    // Update the local state with normalized order values
-    mutateProjects(finalProjects);
-
-    console.log(`Order normalization completed for context: ${context}`);
-    toast({
-      title: "Project order normalized",
-      description: "Project order values have been cleaned up.",
-    });
-  } catch (error) {
-    console.error("Error during order normalization:", error);
-    toast({
-      title: "Normalization failed",
-      description:
-        "Failed to normalize project order values. Please try again later.",
-      variant: "destructive",
-    });
-  }
-};
+  },
+  30000
+);
 
 /**
  * Detects projects that need legacy migration (no order values assigned)
@@ -500,55 +509,6 @@ const migrateLegacyProjects = async (
   }
 };
 
-/**
- * Schedules order normalization with 1-minute debounce
- * @param context The context for which to schedule normalization
- * @param projects Current projects array
- * @param mutateProjects SWR mutate function for revalidation
- */
-const scheduleOrderNormalization = (
-  context: Context,
-  projects: Project[],
-  mutateProjects: KeyedMutator<Project[] | undefined>
-) => {
-  const contextKey = context;
-
-  // Clear existing timer for this context
-  const existingTimer = normalizationTimers.get(contextKey);
-  if (existingTimer) {
-    clearTimeout(existingTimer);
-  }
-
-  // Skip if normalization is already pending for this context
-  if (normalizationPending.get(contextKey)) {
-    return;
-  }
-
-  // Set up new timer for 1-minute delay
-  const timer = setTimeout(async () => {
-    try {
-      normalizationPending.set(contextKey, true);
-
-      // Re-check if normalization is still needed (projects might have changed)
-      const needsNormalization = detectOrderNormalizationNeeded(projects);
-      if (!needsNormalization) {
-        normalizationPending.set(contextKey, false);
-        return;
-      }
-
-      // Perform the actual normalization
-      await normalizeProjectOrders(context, projects, mutateProjects);
-    } catch (error) {
-      console.error("Error during order normalization scheduling:", error);
-    } finally {
-      normalizationPending.set(contextKey, false);
-      normalizationTimers.delete(contextKey);
-    }
-  }, 30000); // 30 seconds delay
-
-  normalizationTimers.set(contextKey, timer);
-};
-
 const fetchProjects = (context?: Context) => async () => {
   if (!context) return;
   const { data, errors } = await client.models.Projects.list({
@@ -571,7 +531,16 @@ const fetchProjects = (context?: Context) => async () => {
     throw errors;
   }
   try {
-    return data.map(mapProject).sort((a, b) => a.order - b.order);
+    // TODO: Clean up this function and remove console.log
+    console.log("------------");
+    return data
+      .map(mapProject)
+      .sort((a, b) => a.order - b.order)
+      .map((item) => {
+        const { order, project } = item;
+        console.info(order, project);
+        return item;
+      });
   } catch (error) {
     console.error("fetchProjects", { error });
     throw error;
@@ -608,10 +577,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       migrateLegacyProjects(context, projects, mutateProjects);
     } else {
       // Only check for normalization if migration isn't needed
-      const needsNormalization = detectOrderNormalizationNeeded(projects);
-      if (needsNormalization) {
-        scheduleOrderNormalization(context, projects, mutateProjects);
-      }
+      if (detectOrderNormalizationNeeded(projects))
+        normalizeProjectOrders(context, projects, mutateProjects);
     }
   }
 
@@ -876,7 +843,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   };
 
   const moveProjectUp = async (
-    projectId: string
+    projectId: string,
+    newOrder?: number
   ): Promise<string | undefined> => {
     if (!projects || !context) return;
 
@@ -884,20 +852,24 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
     if (currentIndex <= 0) return; // Already at the top or not found
 
-    // Calculate new order value
-    let newOrder: number;
-    if (currentIndex === 1) {
-      // Moving to first position
-      newOrder = projects[0].order - 0.5;
+    // Use provided newOrder or calculate new order value
+    let calculatedOrder: number;
+    if (newOrder !== undefined) {
+      calculatedOrder = newOrder;
     } else {
-      const firstProject = projects[currentIndex - 2];
-      const secondProject = projects[currentIndex - 1];
-      newOrder = (firstProject.order + secondProject.order) / 2;
+      if (currentIndex === 1) {
+        // Moving to first position
+        calculatedOrder = projects[0].order - 0.5;
+      } else {
+        const firstProject = projects[currentIndex - 2];
+        const secondProject = projects[currentIndex - 1];
+        calculatedOrder = (firstProject.order + secondProject.order) / 2;
+      }
     }
 
     // Optimistic UI update
     const updated: Project[] = projects
-      .map((p) => (p.id === projectId ? { ...p, order: newOrder } : p))
+      .map((p) => (p.id === projectId ? { ...p, order: calculatedOrder } : p))
       .sort((a, b) => a.order - b.order);
 
     mutateProjects(updated, false);
@@ -905,7 +877,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     // Update database
     const { data, errors } = await client.models.Projects.update({
       id: projectId,
-      order: newOrder,
+      order: calculatedOrder,
     });
 
     if (errors) {
@@ -921,7 +893,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
   };
 
   const moveProjectDown = async (
-    projectId: string
+    projectId: string,
+    newOrder?: number
   ): Promise<string | undefined> => {
     if (!projects || !context) return;
 
@@ -929,21 +902,25 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
 
     if (currentIndex === -1 || currentIndex >= projects.length - 1) return; // Not found or already at the bottom
 
-    // Calculate new order value
-    let newOrder: number;
-    if (currentIndex === projects.length - 2) {
-      // Moving to last position
-      newOrder = projects[currentIndex + 1].order + 1;
+    // Use provided newOrder or calculate new order value
+    let calculatedOrder: number;
+    if (newOrder !== undefined) {
+      calculatedOrder = newOrder;
     } else {
-      // Moving between two projects - calculate midpoint
-      const firstProject = projects[currentIndex + 1];
-      const secondProject = projects[currentIndex + 2];
-      newOrder = (firstProject.order + secondProject.order) / 2;
+      if (currentIndex === projects.length - 2) {
+        // Moving to last position
+        calculatedOrder = projects[currentIndex + 1].order + 1;
+      } else {
+        // Moving between two projects - calculate midpoint
+        const firstProject = projects[currentIndex + 1];
+        const secondProject = projects[currentIndex + 2];
+        calculatedOrder = (firstProject.order + secondProject.order) / 2;
+      }
     }
 
     // Optimistic UI update
     const updated: Project[] = projects
-      .map((p) => (p.id === projectId ? { ...p, order: newOrder } : p))
+      .map((p) => (p.id === projectId ? { ...p, order: calculatedOrder } : p))
       .sort((a, b) => a.order - b.order);
 
     mutateProjects(updated, false);
@@ -951,7 +928,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     // Update database
     const { data, errors } = await client.models.Projects.update({
       id: projectId,
-      order: newOrder,
+      order: calculatedOrder,
     });
 
     if (errors) {

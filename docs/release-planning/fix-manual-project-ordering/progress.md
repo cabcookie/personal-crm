@@ -2,7 +2,7 @@
 
 This document tracks the progress of implementing the project ordering fix release.
 
-## ✅ Step 1: Disable Order Controls in Inappropriate Contexts (Completed: 2025-01-06)
+## ✅ Step 1: Disable Order Controls in Inappropriate Contexts (Completed: 2025-06-06)
 
 **Objective**: Remove order controls from contexts where they are not needed or disruptive to user experience.
 
@@ -42,3 +42,45 @@ This document tracks the progress of implementing the project ordering fix relea
 - `components/ui-elements/crm-project-details/crm-project-details.tsx`
 - `components/activities/activity-project-list.tsx`
 - `components/ui-elements/project-notes-form/project-notes-form.tsx`
+
+## ✅ Step 2: Enhance Core API for Filtered Ordering (Completed: 2025-06-06)
+
+**Objective**: Implement the foundational API changes to support dedicated moveUp/moveDown functions in filtered project lists.
+
+**What was implemented**:
+
+1. **Enhanced ProjectsContextType Interface**:
+
+   - Updated `moveProjectUp` and `moveProjectDown` function signatures to accept optional `newOrder` parameter: `(projectId: string, newOrder?: number)`
+   - Modified interface maintains backward compatibility while enabling filtered ordering capabilities
+
+2. **Enhanced Function Implementation Logic**:
+
+   - **moveProjectUp Function**: Modified to check for optional `newOrder` parameter and use it directly when provided, falling back to existing calculation logic when not provided
+   - **moveProjectDown Function**: Applied same enhancement pattern to accept and use optional `newOrder` parameter
+   - Both functions now support context-specific ordering calculations while maintaining existing behavior for legacy usage
+
+3. **Backward Compatibility Preservation**:
+   - All existing function calls continue to work unchanged
+   - No breaking changes introduced to the API
+   - Legacy calculation logic preserved for when `newOrder` is not provided
+
+**Technical Implementation Details**:
+
+- Added conditional logic: `if (newOrder !== undefined) { calculatedOrder = newOrder; } else { /* existing calculation */ }`
+- Maintained optimistic UI updates and error handling patterns
+- Preserved existing toast notifications and SWR mutation patterns
+- Enhanced type safety with optional parameter support
+
+**Verification**:
+
+- ✅ Application compiles successfully without TypeScript errors
+- ✅ Development server starts and runs on <http://localhost:3001>
+- ✅ No runtime errors observed in console logs
+- ✅ Application loads correctly with authentication functionality intact
+- ✅ Existing project ordering functionality remains unaffected
+- ✅ API changes ready for consumption by filtered view implementations
+
+**Files Modified**:
+
+- `api/ContextProjects.tsx`

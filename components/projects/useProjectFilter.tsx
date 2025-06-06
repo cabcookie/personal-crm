@@ -94,7 +94,6 @@ export function withProjectFilter<Props extends object>(
         <ProjectFilterProvider>
           <Component {...componentProps} />
         </ProjectFilterProvider>
-        ;
       </SearchProvider>
     );
   };
