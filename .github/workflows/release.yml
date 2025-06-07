@@ -59,6 +59,21 @@ jobs:
         if: steps.check_docs.outputs.exists == 'true' && steps.check_release.outputs.exists == 'false'
         run: |
           RELEASE_DOC="docs/releases/v${{ steps.version.outputs.version }}.md"
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+
+          # Get current date in YYYY-MM-DD format
+          CURRENT_DATE=$(date +%Y-%m-%d)
+
+          # Find previous tag for compare link
+          PREVIOUS_TAG=$(git tag --sort=version:refname | grep -v "^$TAG$" | tail -1)
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # If no previous tag found, use first commit
+            PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD)
+            COMPARE_LINK="https://github.com/cabcookie/personal-crm/commits/$TAG"
+          else
+            COMPARE_LINK="https://github.com/cabcookie/personal-crm/compare/$PREVIOUS_TAG...$TAG"
+          fi
 
           # Extract Major Changes section
           MAJOR_CHANGES=$(awk '
@@ -74,22 +89,18 @@ jobs:
             found && NF { print }
           ' "$RELEASE_DOC" | sed '/^$/d')
 
-          # Create release notes
-          RELEASE_NOTES=""
+          # Create release notes with new format
+          RELEASE_NOTES="## [$VERSION]($COMPARE_LINK) ($CURRENT_DATE)"
 
           if [ -n "$MAJOR_CHANGES" ]; then
-            RELEASE_NOTES="## Major Changes"$'\n\n'"$MAJOR_CHANGES"
+            RELEASE_NOTES="$RELEASE_NOTES"$'\n\n'"### Major Changes"$'\n\n'"$MAJOR_CHANGES"
           fi
 
           if [ -n "$FIXES" ]; then
-            if [ -n "$RELEASE_NOTES" ]; then
-              RELEASE_NOTES="$RELEASE_NOTES"$'\n\n'"## Fixes"$'\n\n'"$FIXES"
-            else
-              RELEASE_NOTES="## Fixes"$'\n\n'"$FIXES"
-            fi
+            RELEASE_NOTES="$RELEASE_NOTES"$'\n\n'"### Fixes"$'\n\n'"$FIXES"
           fi
 
-          if [ -z "$RELEASE_NOTES" ]; then
+          if [ -z "$MAJOR_CHANGES" ] && [ -z "$FIXES" ]; then
             echo "No Major Changes or Fixes sections found in release documentation"
             exit 1
           fi
@@ -97,6 +108,7 @@ jobs:
           # Save to file for multiline output
           echo "$RELEASE_NOTES" > release_notes.txt
           echo "Release notes extracted successfully"
+          echo "Compare link: $COMPARE_LINK"
 
       - name: Create git tag
         if: steps.check_docs.outputs.exists == 'true' && steps.check_release.outputs.exists == 'false'
@@ -118,7 +130,7 @@ jobs:
         run: |
           TAG="${{ steps.version.outputs.tag }}"
           gh release create "$TAG" \
-            --title "Release $TAG" \
+            --title "$TAG" \
             --notes-file release_notes.txt
           echo "Created GitHub release: $TAG"
         env:
