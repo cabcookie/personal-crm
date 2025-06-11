@@ -140,6 +140,8 @@ const projectSchema = {
       othersNextActionsJson: a.json(),
       context: a.ref("Context").required(),
       order: a.float(),
+      tasksSummary: a.string(),
+      tasksSummaryUpdatedAt: a.datetime(),
       accounts: a.hasMany("AccountProjects", "projectsId"),
       batches: a.hasMany("SixWeekBatchProjects", "projectsId"),
       activities: a.hasMany("ProjectActivity", "projectsId"),

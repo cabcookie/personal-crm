@@ -1,5 +1,6 @@
 import { Project } from "@/api/ContextProjects";
 import ProjectAccordionItem from "@/components/projects/ProjectAccordionItem";
+import ProjectTasksSummary from "@/components/projects/ProjectTasksSummary";
 import { usePlanningProjectFilter } from "@/components/planning/usePlanningProjectFilter";
 import { FC } from "react";
 import DecisionSection from "../DecisionSection";
@@ -22,6 +23,8 @@ const MakeProjectDecision: FC<MakeProjectDecisionProps> = ({
         onMoveUp={moveProjectUp}
         onMoveDown={moveProjectDown}
       />
+
+      <ProjectTasksSummary projectId={project.id} className="mx-1 md:mx-2" />
 
       <DecisionSection
         project={project}
