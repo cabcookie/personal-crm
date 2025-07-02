@@ -11,7 +11,9 @@ const HistoryNotes: FC<Props> = ({ notes }) => (
     {notes?.map((n) => (
       <div key={n.id} className="flex flex-col gap-1">
         <h3 className="font-semibold">{n.label}</h3>
-        {n.notes?.split("\n").map((line, idx) => <p key={idx}>{line}</p>)}
+        {n.notes?.split("\n").map((line, idx) => (
+          <p key={idx}>{line}</p>
+        ))}
       </div>
     ))}
   </div>

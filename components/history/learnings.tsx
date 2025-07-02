@@ -15,9 +15,9 @@ const HistoryLearnings: FC<Props> = ({ account }) => (
         intro.learning && (
           <div key={intro.id} className="flex flex-col gap-1">
             <h3 className="font-semibold">{intro.label}</h3>
-            {intro.learning
-              ?.split("\n")
-              .map((line, idx) => <p key={idx}>{line}</p>)}
+            {intro.learning?.split("\n").map((line, idx) => (
+              <p key={idx}>{line}</p>
+            ))}
           </div>
         )
     )}
