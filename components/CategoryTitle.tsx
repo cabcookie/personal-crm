@@ -3,6 +3,15 @@ import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { Badge } from "./ui/badge";
+
+export enum BadgeType {
+  DRAFT = "draft",
+  IN_PROGRESS = "in_progress",
+  COMPLETED = "completed",
+  PENDING = "pending",
+  ERROR = "error",
+}
 
 export type CategoryTitleProps = {
   title?: string;
@@ -14,6 +23,7 @@ export type CategoryTitleProps = {
   onBackBtnClick?: () => void;
   saveTitle?: (newTitle: string) => void;
   onTitleChange?: (newTitle: string) => void;
+  badge?: BadgeType;
 };
 
 const CategoryTitle: FC<CategoryTitleProps> = (props) => {
@@ -21,6 +31,23 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
   const [title, setTitle] = useState(props.title);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
+
+  const getBadgeProps = (badgeType: BadgeType) => {
+    switch (badgeType) {
+      case BadgeType.DRAFT:
+        return { variant: "outline" as const, children: "Draft" };
+      case BadgeType.IN_PROGRESS:
+        return { variant: "outline" as const, children: "In Progress" };
+      case BadgeType.COMPLETED:
+        return { variant: "secondary" as const, children: "Completed" };
+      case BadgeType.PENDING:
+        return { variant: "outline" as const, children: "Pending" };
+      case BadgeType.ERROR:
+        return { variant: "destructive" as const, children: "Error" };
+      default:
+        return { variant: "outline" as const, children: badgeType };
+    }
+  };
 
   const handleTitleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     if (props.onTitleChange) props.onTitleChange(event.target.value);
@@ -79,13 +106,18 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
                 className="border-none outline-none w-full overflow-hidden resize-none textarea-bottom-line"
               />
             ) : (
-              <div
-                className={
-                  props.saveTitle && "cursor-pointer hover:border-b-2 mb-1"
-                }
-                onClick={() => (props.saveTitle ? setIsEditing(true) : null)}
-              >
-                {title}
+              <div className="flex gap-2 justify-center">
+                <div
+                  className={
+                    props.saveTitle && "cursor-pointer hover:border-b-2 mb-1"
+                  }
+                  onClick={() => (props.saveTitle ? setIsEditing(true) : null)}
+                >
+                  {title}
+                </div>
+                <div className="leading-6">
+                  {props.badge && <Badge {...getBadgeProps(props.badge)} />}
+                </div>
               </div>
             )}
           </div>
