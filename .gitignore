@@ -40,5 +40,4 @@ next-env.d.ts
 amplify_outputs*
 scripts/import-data/*
 scripts/env.json
-components/ui-elements/notes-writer/mentions/example
 .cline-env.local

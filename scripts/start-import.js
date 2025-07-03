@@ -8,30 +8,33 @@ const {
   createRelation,
   createDetailRecord,
 } = require("./helpers/import-handler");
-const { fillFinishedOn } = require("./helpers/fill-finished-on");
 const {
   fillLearningPersonStatus,
 } = require("./helpers/fill-learning-person-status");
+const {
+  makeCurrent,
+  addPropWithCurrentDate,
+} = require("./helpers/make-current");
 
 const importData = async () => {
   // Books of the Bible
-  const booksOfBible = await importHandler(
-    "BookOfBible",
-    "_booksOfBible.json",
-    (item) => item
-  );
+  // const booksOfBible = await importHandler(
+  //   "BookOfBible",
+  //   "_booksOfBible.json",
+  //   (item) => item
+  // );
 
   // Notes on Bible chapters
-  await importHandler(
-    "NotesBibleChapter",
-    "_notesBibleBooks.json",
-    ({ bookBibleId, notes, ...item }) => ({
-      ...item,
-      bookId: booksOfBible.find((b) => b.notionId === bookBibleId)?.id,
-      note: notes,
-      formatVersion: 1,
-    })
-  );
+  // await importHandler(
+  //   "NotesBibleChapter",
+  //   "_notesBibleBooks.json",
+  //   ({ bookBibleId, notes, ...item }) => ({
+  //     ...item,
+  //     bookId: booksOfBible.find((b) => b.notionId === bookBibleId)?.id,
+  //     note: notes,
+  //     formatVersion: 1,
+  //   })
+  // );
 
   // Account
   const accounts = await importHandler(
@@ -54,25 +57,28 @@ const importData = async () => {
   );
 
   // SixWeekCycle
-  const sixweekcycle = await importHandler(
-    "SixWeekCycle",
-    "_sixweekcycle.json",
-    (item) => item
-  );
+  // const sixweekcycle = await importHandler(
+  //   "SixWeekCycle",
+  //   "_sixweekcycle.json",
+  //   (item) => item
+  // );
 
   // SixWeekBatch
-  const sixWeekCycleBatchesId = sixweekcycle[0].id;
-  const batches = await importHandler(
-    "SixWeekBatch",
-    "_batches.json",
-    (item) => ({ ...item, status: "inprogress", sixWeekCycleBatchesId })
-  );
+  // const sixWeekCycleBatchesId = sixweekcycle[0].id;
+  // const batches = await importHandler(
+  //   "SixWeekBatch",
+  //   "_batches.json",
+  //   (item) => ({ ...item, status: "inprogress", sixWeekCycleBatchesId })
+  // );
 
   // Meeting
   const meetings = await importHandler(
     "Meeting",
     "_meetings.json",
-    ({ participants, timeInvested, ...item }) => item
+    ({ participants, timeInvested, meetingOn, ...item }) => ({
+      ...item,
+      meetingOn: makeCurrent(meetingOn),
+    })
   );
 
   // Projects
@@ -84,9 +90,15 @@ const importData = async () => {
       createdAt,
       customerIds,
       commitmentIds,
+      dueOn,
+      doneOn,
+      onHoldTill,
       ...rest
     }) => ({
-      createdOnDay: createdAt,
+      createdOnDay: makeCurrent(createdAt, true),
+      ...addPropWithCurrentDate("dueOn", dueOn, true),
+      ...addPropWithCurrentDate("doneOn", doneOn, true),
+      ...addPropWithCurrentDate("onHoldTill", onHoldTill, true),
       othersNextActions: nextActionsOfOthers,
       ...rest,
     })
@@ -104,15 +116,15 @@ const importData = async () => {
   );
 
   // SixWeekBatchProjects: relationship between 6-week batches and projects
-  await createManyToManyTable(
-    "SixWeekBatchProjects",
-    "_projects.json",
-    projects,
-    batches,
-    "commitmentIds",
-    "projectsId",
-    "sixWeekBatchId"
-  );
+  // await createManyToManyTable(
+  //   "SixWeekBatchProjects",
+  //   "_projects.json",
+  //   projects,
+  //   batches,
+  //   "commitmentIds",
+  //   "projectsId",
+  //   "sixWeekBatchId"
+  // );
 
   // People
   const people = await importHandler(
@@ -157,8 +169,9 @@ const importData = async () => {
   const activities = await importHandler(
     "Activity",
     "_activities.json",
-    ({ fromMeeting, forProjects, ...item }) => ({
+    ({ fromMeeting, forProjects, finishedOn, ...item }) => ({
       ...item,
+      finishedOn: makeCurrent(finishedOn),
       ...mapMeetingIdForActivity(fromMeeting, meetings),
     })
   );
@@ -178,8 +191,9 @@ const importData = async () => {
   await importHandler(
     "PersonLearning",
     "_learnings.json",
-    ({ personId, ...item }) => ({
+    ({ personId, learnedOn, ...item }) => ({
       ...item,
+      learnedOn: makeCurrent(learnedOn, true),
       personId: people.find((p) => p.notionId === personId)?.id,
     })
   );
@@ -188,7 +202,10 @@ const importData = async () => {
   const crmProjects = await importHandler(
     "CrmProject",
     "_crmProjects.json",
-    ({ projectNotionIds, ...item }) => item
+    ({ projectNotionIds, closeDate, ...item }) => ({
+      ...item,
+      closeDate: makeCurrent(closeDate, true),
+    })
   );
 
   // CrmProjectProjects: link CRM Projects with Projects
@@ -221,5 +238,4 @@ const importData = async () => {
 
 // importData();
 // logTables();
-// fillFinishedOn();
 // fillLearningPersonStatus();
