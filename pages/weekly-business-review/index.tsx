@@ -44,7 +44,9 @@ const WeeklyBusinessReviewPage = () => {
 
         {isProcessing && <ShowProcessingStatus {...{ processingStatus }} />}
 
-        <ShowProjectNotes {...{ projectNotes, isProcessing }} />
+        <ShowProjectNotes
+          {...{ projectNotes, isProcessing, setProjectNotes }}
+        />
 
         {!isProcessing && (
           <>
