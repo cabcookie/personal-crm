@@ -1,11 +1,13 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import {
+  getWeekStart,
   ProjectForReview,
   startProcessing,
 } from "@/helpers/weeklyReviewHelpers";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { useProjectsContext } from "@/api/ContextProjects";
+import { useWeeklyReview } from "@/api/useWeeklyReview";
 
 interface CreateAnalysisBtnProps {
   setIsProcessing: Dispatch<SetStateAction<boolean>>;
@@ -20,6 +22,9 @@ export const CreateAnalysisBtn: FC<CreateAnalysisBtnProps> = ({
   setProcessingStatus,
   setProjectNotes,
 }) => {
+  const { weeklyReviews: existingReviewsForReview } =
+    useWeeklyReview(getWeekStart());
+
   return (
     <Button
       disabled={!projects}
@@ -29,6 +34,7 @@ export const CreateAnalysisBtn: FC<CreateAnalysisBtnProps> = ({
           setProcessingStatus,
           setProjectNotes,
           projects,
+          existingReviewsForReview,
         })
       }
     >

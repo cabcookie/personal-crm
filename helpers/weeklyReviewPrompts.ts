@@ -1,8 +1,13 @@
-import { flow, map, join, identity } from "lodash/fp";
-import { ProjectForReview } from "./weeklyReviewHelpers";
+import { flow, map, join, identity, filter } from "lodash/fp";
+import {
+  hasNoCategory,
+  isValidCategory,
+  ProjectForReview,
+} from "./weeklyReviewHelpers";
 
 export const createCategorizationPrompt = flow(
   identity<ProjectForReview[]>,
+  filter(hasNoCategory),
   map(({ name, id, notes }) => `# ${name} (ID: ${id})\n\n${notes}`),
   join("\n"),
   (notes) =>
@@ -11,6 +16,7 @@ export const createCategorizationPrompt = flow(
 
 export const createNarrativePrompt = flow(
   identity<ProjectForReview[]>,
+  filter(isValidCategory),
   map(
     ({ name, id, notes, category }) =>
       `# ${name} (ID: ${id}, CATEGORY: ${category})\n\n${notes}`

@@ -1,20 +1,24 @@
 import { type Schema } from "@/amplify/data/resource";
 import { generateClient, SelectionSet } from "aws-amplify/data";
-import { flow, identity, map, sortBy } from "lodash/fp";
+import { find, flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { formatISO } from "date-fns";
-import { ProjectForReview } from "@/helpers/weeklyReviewHelpers";
+import {
+  getWeekStart,
+  isSameStartOfWeek,
+  ProjectForReview,
+} from "@/helpers/weeklyReviewHelpers";
 import { uniqueId } from "lodash";
 const client = generateClient<Schema>();
 
-export const useWeeklyReview = () => {
+export const useWeeklyReview = (date?: Date) => {
   const {
     isLoading,
     data: weeklyReviews,
     error: errorLoading,
     mutate: mutateWeeklyReviews,
-  } = useSWR("/api/weekly-reviews", fetchWeeklyReviews);
+  } = useSWR("/api/weekly-reviews", fetchWeeklyReviews(date));
 
   const updateWeeklyReviewEntryContent = async (
     entryId: string,
@@ -71,10 +75,39 @@ export const useWeeklyReview = () => {
       return data;
     };
 
+  const getWeeklyReviewAndCreateEntries = async (
+    projects: ProjectForReview[]
+  ) => {
+    if (!weeklyReviews) return;
+    const reviewId = flow(
+      identity<typeof weeklyReviews>,
+      find(isSameStartOfWeek),
+      get("id")
+    )(weeklyReviews);
+    if (!reviewId) return;
+
+    const newEntries = projects.map(projectToWeeklyReviewEntry);
+    const updated = weeklyReviews.map((w) =>
+      w.id !== reviewId
+        ? w
+        : {
+            ...w,
+            entries: [...w.entries, ...newEntries],
+          }
+    );
+    if (updated) mutateWeeklyReviews(updated, false);
+
+    await Promise.all(newEntries.map(createWeeklyReviewEntry(reviewId)));
+    if (updated) mutateWeeklyReviews(updated, false);
+  };
+
   const createWeeklyReview = async (projects: ProjectForReview[]) => {
+    if (weeklyReviews?.some(isSameStartOfWeek))
+      return getWeeklyReviewAndCreateEntries(projects);
+
     const weeklyReview: WeeklyReview = {
       id: uniqueId(),
-      date: new Date(),
+      date: getWeekStart(),
       createdAt: new Date(),
       status: "draft",
       entries: projects.map(projectToWeeklyReviewEntry),
@@ -90,15 +123,12 @@ export const useWeeklyReview = () => {
 
     if (errors) handleApiErrors(errors, "Failed creating weekly review");
 
-    const entries =
-      errors || !data
-        ? []
-        : await Promise.all(
-            weeklyReview.entries.map(createWeeklyReviewEntry(data.id))
-          );
+    if (data)
+      await Promise.all(
+        weeklyReview.entries.map(createWeeklyReviewEntry(data.id))
+      );
 
     mutateWeeklyReviews(updated);
-    console.log("FINISHED CREATING", { ...data, entries });
   };
 
   return {
@@ -175,7 +205,28 @@ const mapWeeklyReview = ({
   entries: entries.map(mapWeeklyReviewEntry),
 });
 
-const fetchWeeklyReviews = async () => {
+const formatWbrData = flow(
+  identity<WeeklyReviewData[] | null>,
+  map(mapWeeklyReview),
+  sortBy((r) => -r.createdAt),
+  sortBy((r) => -r.date)
+);
+
+const getDataByWeekStart = async (date: Date) => {
+  const { data, errors } = await client.models.WeeklyReview.listWbrByWeek(
+    { date: formatISO(date, { representation: "date" }) },
+    { sortDirection: "DESC", selectionSet }
+  );
+
+  if (errors) {
+    handleApiErrors(errors, "Error loading weekly reviews (by date)");
+    throw errors;
+  }
+
+  return formatWbrData(data);
+};
+
+const getReviews = async () => {
   const { data, errors } = await client.models.WeeklyReview.list({
     limit: 100,
     selectionSet,
@@ -186,13 +237,11 @@ const fetchWeeklyReviews = async () => {
     throw errors;
   }
 
-  return flow(
-    identity<WeeklyReviewData[] | null>,
-    map(mapWeeklyReview),
-    sortBy((r) => -r.createdAt),
-    sortBy((r) => -r.date)
-  )(data);
+  return formatWbrData(data);
 };
+
+const fetchWeeklyReviews = (date?: Date) => () =>
+  !date ? getReviews() : getDataByWeekStart(date);
 
 const projectToWeeklyReviewEntry = ({
   id: projectId,
@@ -201,15 +250,15 @@ const projectToWeeklyReviewEntry = ({
   wbrText: content,
 }: ProjectForReview): WeeklyReviewEntry => {
   if (!category) throw `No category defined for project "${project}"`;
-  if (!content)
+  if (!content && category !== "none")
     throw `No narrative defined for project "${project}" and category ${category}`;
 
   return {
     id: uniqueId(),
     projectId,
-    category: category as WeeklyReviewData["entries"][number]["category"],
-    content,
-    generatedContent: content,
+    category,
+    content: content ?? "",
+    generatedContent: content ?? "",
     isEdited: false,
   };
 };
