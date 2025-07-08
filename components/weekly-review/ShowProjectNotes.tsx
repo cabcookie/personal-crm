@@ -3,14 +3,15 @@ import { CopyToClipBoardBtn } from "@/components/CopyToClipBoardBtn";
 import {
   hasMissingCategories,
   hasMissingNarratives,
+  isValidCategory,
   ProjectForReview,
+  validProject,
 } from "@/helpers/weeklyReviewHelpers";
 import { TrendingUp, TrendingDown, Eye, Sparkles } from "lucide-react";
 import {
   createCategorizationPrompt,
   createNarrativePrompt,
 } from "@/helpers/weeklyReviewPrompts";
-import { cn } from "@/lib/utils";
 
 interface ShowProjectNotesProps {
   projectNotes: ProjectForReview[];
@@ -37,7 +38,8 @@ export const ShowProjectNotes: FC<ShowProjectNotesProps> = ({
   isProcessing,
 }) => {
   return (
-    projectNotes.length > 0 && (
+    projectNotes.length > 0 &&
+    hasMissingNarratives(projectNotes) && (
       <div className="space-y-8">
         <h2 className="text-lg font-semibold mb-4">
           <span className="pr-2">Identified Projects</span>
@@ -64,19 +66,18 @@ export const ShowProjectNotes: FC<ShowProjectNotesProps> = ({
           )}
         </h2>
         <div className="space-y-2">
-          {projectNotes.map(({ id, name, category, wbrText }) => (
-            <div key={id}>
-              <div className="flex items-center gap-2">
-                <span className={cn(wbrText && "font-bold")}>{name}</span>
-                {category && getCategoryIcon(category)}
+          {projectNotes
+            .filter(isValidCategory)
+            .filter(validProject)
+            .map(({ id, name, category }) => (
+              <div key={id}>
+                <div className="flex items-center gap-2">
+                  <span>{name}</span>
+                  {category && getCategoryIcon(category)}
+                </div>
               </div>
-              {wbrText && (
-                <div className="text-muted-foreground">{wbrText}</div>
-              )}
-            </div>
-          ))}
+            ))}
         </div>
-        <div></div>
       </div>
     )
   );

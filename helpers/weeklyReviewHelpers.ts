@@ -1,106 +1,31 @@
-import { subWeeks, isAfter, format } from "date-fns";
+import { subWeeks, isAfter, format, startOfWeek, formatISO } from "date-fns";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
-import { ILeanActivity } from "@/components/activities/activity-lean";
 import { Dispatch, SetStateAction } from "react";
 import { generateClient, SelectionSet } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
-import { compact, filter, flow, identity, join, map, sortBy } from "lodash/fp";
+import {
+  compact,
+  filter,
+  flow,
+  identity,
+  join,
+  map,
+  sortBy,
+  get,
+  size,
+} from "lodash/fp";
 import { handleApiErrors } from "@/api/globals";
 import { createDocument } from "@/components/ui-elements/editors/helpers/transformers";
 import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
-
+import { useWeeklyReview, WeeklyReview } from "@/api/useWeeklyReview";
 const client = generateClient<Schema>();
-
-const selectionSet = [
-  "activity.createdAt",
-  "activity.finishedOn",
-  "activity.formatVersion",
-  "activity.forMeeting.topic",
-  "activity.forMeeting.meetingOn",
-  "activity.noteBlocks.formatVersion",
-  "activity.noteBlocks.id",
-  "activity.noteBlocks.content",
-  "activity.noteBlocks.type",
-  "activity.noteBlocks.todo.id",
-  "activity.noteBlocks.todo.todo",
-  "activity.noteBlocks.todo.status",
-  "activity.noteBlocks.todo.doneOn",
-  "activity.noteBlocks.people.id",
-  "activity.noteBlocks.people.personId",
-  "activity.noteBlockIds",
-  "activity.notes",
-  "activity.notesJson",
-] as const;
-
-type NotesData = SelectionSet<
-  Schema["ProjectActivity"]["type"],
-  typeof selectionSet
->;
-
-/**
- * Date calculation utilities for weekly review functionality
- */
-export const getDateWindows = () => {
-  const now = new Date();
-  const twoWeeksAgo = subWeeks(now, 2);
-  const sixWeeksAgo = subWeeks(now, 6);
-  const fourWeeksAgo = subWeeks(now, 4);
-
-  return {
-    now,
-    twoWeeksAgo,
-    sixWeeksAgo,
-    fourWeeksAgo,
-  };
-};
-
-const justLastSixWeeks = ({ date }: { date: Date; content: string }): boolean =>
-  date >= getDateWindows().sixWeeksAgo;
-
-const mapNotes = ({
-  createdAt,
-  finishedOn,
-  forMeeting,
-  formatVersion,
-  noteBlocks,
-  noteBlockIds,
-  notes,
-  notesJson,
-}: NotesData["activity"]) => {
-  const noteDoc = createDocument({
-    formatVersion,
-    notes,
-    notesJson,
-    noteBlockIds,
-    noteBlocks,
-  });
-  const noteDate = new Date(forMeeting?.meetingOn || finishedOn || createdAt);
-  return {
-    date: noteDate,
-    content: `## ${format(noteDate, "yyyy-MM-dd")} – ${forMeeting ? `Meeting: ${forMeeting.topic}` : "Project Notes"}\n\n${getTextFromJsonContent(noteDoc)}\n`,
-  };
-};
-
-export type ProjectForReview = {
-  id: string;
-  name: string;
-  notes: string;
-  category?: string;
-  wbrText?: string;
-};
-
-interface StartProcessingProps {
-  setIsProcessing: Dispatch<SetStateAction<boolean>>;
-  setProcessingStatus: Dispatch<SetStateAction<string>>;
-  setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
-  projects: ReturnType<typeof useProjectsContext>["projects"];
-}
 
 export const startProcessing = async ({
   setIsProcessing,
   setProcessingStatus,
   setProjectNotes,
   projects,
+  existingReviewsForReview,
 }: StartProcessingProps) => {
   if (!projects) return;
   setProjectNotes([]);
@@ -108,21 +33,30 @@ export const startProcessing = async ({
   setProcessingStatus("Identifying relevant projects...");
 
   try {
-    const relevantProjects =
-      filterRelevantProjects(projects).filter(hasRecentActivity);
-    setProcessingStatus(`Found ${relevantProjects.length} projects to analyze`);
+    const relevantProjects = flow(
+      filter(isOpenOrDoneRecently),
+      filter(hasRecentActivity),
+      filter(hasNoExistingReview(existingReviewsForReview))
+    )(projects);
 
-    for (let i = 0; i < relevantProjects.length; i++) {
+    const maxProjectCount = Math.min(relevantProjects.length, 10);
+    setProcessingStatus(`Found ${maxProjectCount} projects to analyze`);
+
+    for (let i = 0; i < maxProjectCount; i++) {
       const project = relevantProjects[i];
       setProcessingStatus(
-        `Analyzing ${i + 1}/${relevantProjects.length}: "${project.project}" - Phase 1: Categorization`
+        `Analyzing ${i + 1}/${maxProjectCount}: "${project.project}"`
       );
 
       const projectNotes = await aggregateProjectNotes(project);
-      if (projectNotes.length < 900) continue;
       setProjectNotes((old) => [
         ...old,
-        { id: project.id, name: project.project, notes: projectNotes },
+        {
+          id: project.id,
+          name: project.project,
+          notes: projectNotes,
+          category: projectNotes.length < 900 ? "none" : undefined,
+        },
       ]);
     }
   } catch (error) {
@@ -133,54 +67,23 @@ export const startProcessing = async ({
   }
 };
 
+interface StartProcessingProps {
+  setIsProcessing: Dispatch<SetStateAction<boolean>>;
+  setProcessingStatus: Dispatch<SetStateAction<string>>;
+  setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
+  projects: ReturnType<typeof useProjectsContext>["projects"];
+  existingReviewsForReview: ReturnType<typeof useWeeklyReview>["weeklyReviews"];
+}
+
 /**
  * Filters projects to include:
  * - All currently open projects (done: false)
  * - Projects closed within the last 2 weeks (doneOn within 2 weeks)
  */
-export const filterRelevantProjects = (projects: Project[]): Project[] => {
-  const { twoWeeksAgo } = getDateWindows();
-
-  return projects.filter((project) => {
-    // Include all open projects
-    if (!project.done) {
-      return true;
-    }
-
-    // Include recently closed projects (within 2 weeks)
-    if (project.doneOn && isAfter(project.doneOn, twoWeeksAgo)) {
-      return true;
-    }
-
-    return false;
-  });
-};
-
-/**
- * Filters activities to include only those from the past 6 weeks
- */
-export const filterActivitiesWithinSixWeeks = (
-  activities: ILeanActivity[]
-): ILeanActivity[] => {
-  const { sixWeeksAgo } = getDateWindows();
-
-  return activities.filter((activity) =>
-    isAfter(activity.finishedOn, sixWeeksAgo)
-  );
-};
-
-/**
- * Filters activities to include only those from the past 4 weeks
- * Used for duplicate detection historical comparison
- */
-export const filterActivitiesWithinFourWeeks = (
-  activities: ILeanActivity[]
-): ILeanActivity[] => {
-  const { fourWeeksAgo } = getDateWindows();
-
-  return activities.filter((activity) =>
-    isAfter(activity.finishedOn, fourWeeksAgo)
-  );
+const isOpenOrDoneRecently = (project: Project): boolean => {
+  if (!project.done) return true;
+  if (!project.doneOn) return false;
+  return isAfter(project.doneOn, weeksAgo(2));
 };
 
 /**
@@ -215,48 +118,111 @@ const aggregateProjectNotes = async (project: Project): Promise<string> => {
 /**
  * Validates if a project has sufficient activity data for analysis
  */
-export const hasRecentActivity = (project: Project): boolean => {
-  const relevantActivities = filterActivitiesWithinSixWeeks(project.activities);
-  return relevantActivities.length > 0;
-};
-
-/**
- * Categories for weekly review classification
- */
-const REVIEW_CATEGORIES = {
-  CUSTOMER_HIGHLIGHTS: "customer_highlights",
-  CUSTOMER_LOWLIGHTS: "customer_lowlights",
-  MARKET_OBSERVATIONS: "market_observations",
-  GENAI_OPPORTUNITIES: "genai_opportunities",
-  NONE: "none",
-} as const;
-
-export type ReviewCategory =
-  (typeof REVIEW_CATEGORIES)[keyof typeof REVIEW_CATEGORIES];
-
-// Database-storable categories (excludes "none")
-export type StorableReviewCategory = Exclude<ReviewCategory, "none">;
-
-/**
- * Type guard for review categories
- */
-const isValidReviewCategory = (
-  category: string
-): category is ReviewCategory => {
-  return Object.values(REVIEW_CATEGORIES).includes(category as ReviewCategory);
-};
-
-/**
- * Type guard for storable review categories (excludes "none")
- */
-export const isStorableReviewCategory = (
-  category: string
-): category is StorableReviewCategory => {
-  return isValidReviewCategory(category) && category !== REVIEW_CATEGORIES.NONE;
-};
+const hasRecentActivity = (project: Project): boolean =>
+  project.activities.some((a) => isAfter(a.finishedOn, weeksAgo(6)));
 
 export const hasMissingCategories = (projectNotes: ProjectForReview[]) =>
-  projectNotes.filter((p) => !p.category).length > 0;
+  projectNotes.some((p) => !p.category);
+
+export const validProject = (p: ProjectForReview) =>
+  !p.wbrText && p.category !== "none";
 
 export const hasMissingNarratives = (projectNotes: ProjectForReview[]) =>
-  projectNotes.filter((p) => !p.wbrText).length > 0;
+  projectNotes.some(validProject);
+
+const selectionSet = [
+  "activity.createdAt",
+  "activity.finishedOn",
+  "activity.formatVersion",
+  "activity.forMeeting.topic",
+  "activity.forMeeting.meetingOn",
+  "activity.noteBlocks.formatVersion",
+  "activity.noteBlocks.id",
+  "activity.noteBlocks.content",
+  "activity.noteBlocks.type",
+  "activity.noteBlocks.todo.id",
+  "activity.noteBlocks.todo.todo",
+  "activity.noteBlocks.todo.status",
+  "activity.noteBlocks.todo.doneOn",
+  "activity.noteBlocks.people.id",
+  "activity.noteBlocks.people.personId",
+  "activity.noteBlockIds",
+  "activity.notes",
+  "activity.notesJson",
+] as const;
+
+type NotesData = SelectionSet<
+  Schema["ProjectActivity"]["type"],
+  typeof selectionSet
+>;
+
+/**
+ * Date calculation utilities for weekly review functionality
+ */
+const weeksAgo = (weeks: number) => subWeeks(new Date(), weeks);
+
+const justLastSixWeeks = ({ date }: { date: Date; content: string }): boolean =>
+  date >= weeksAgo(6);
+
+const mapNotes = ({
+  createdAt,
+  finishedOn,
+  forMeeting,
+  formatVersion,
+  noteBlocks,
+  noteBlockIds,
+  notes,
+  notesJson,
+}: NotesData["activity"]) => {
+  const noteDoc = createDocument({
+    formatVersion,
+    notes,
+    notesJson,
+    noteBlockIds,
+    noteBlocks,
+  });
+  const noteDate = new Date(forMeeting?.meetingOn || finishedOn || createdAt);
+  return {
+    date: noteDate,
+    content: `## ${format(noteDate, "yyyy-MM-dd")} – ${forMeeting ? `Meeting: ${forMeeting.topic}` : "Project Notes"}\n\n${getTextFromJsonContent(noteDoc)}\n`,
+  };
+};
+
+export type ProjectForReview = {
+  id: string;
+  name: string;
+  notes: string;
+  category?: Schema["WeeklyReviewEntry"]["type"]["category"];
+  wbrText?: string;
+};
+
+const hasNoExistingReview =
+  (existing: StartProcessingProps["existingReviewsForReview"]) =>
+  (project: Project) =>
+    !existing?.some((e) => e.entries.some((r) => r.projectId === project.id));
+
+export const hasNoCategory = ({ category }: ProjectForReview) => !category;
+
+export const isValidCategory = ({ category }: ProjectForReview) =>
+  category !== "none";
+
+export const isNoneCategory = ({ category }: ProjectForReview) =>
+  category === "none";
+
+export const getWeekStart = () => startOfWeek(new Date(), { weekStartsOn: 1 });
+
+export const isSameStartOfWeek = ({ date }: WeeklyReview) =>
+  formatISO(date, { representation: "date" }) ===
+  formatISO(getWeekStart(), { representation: "date" });
+
+export const getValidEntries = flow(
+  identity<WeeklyReview>,
+  get("entries"),
+  filter(({ category }) => category !== "none")
+);
+
+export const getEntryCount = flow(
+  identity<WeeklyReview>,
+  getValidEntries,
+  size
+);

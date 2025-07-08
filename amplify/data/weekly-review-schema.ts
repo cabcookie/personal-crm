@@ -4,8 +4,9 @@ import { a } from "@aws-amplify/backend";
 export const tablesWithDeleteProtection: string[] = [];
 
 const weeklyReviewSchema = {
-  WeeklyReviewStatus: a.enum(["draft", "in_progress", "completed"]),
+  WeeklyReviewStatus: a.enum(["draft", "completed"]),
   WeeklyReviewCategory: a.enum([
+    "none",
     "customer_highlights",
     "customer_lowlights",
     "market_observations",
@@ -23,6 +24,7 @@ const weeklyReviewSchema = {
     })
     .secondaryIndexes((index) => [
       index("status").sortKeys(["createdAt"]).queryField("listByWbrStatus"),
+      index("date").sortKeys(["createdAt"]).queryField("listWbrByWeek"),
     ])
     .authorization((allow) => [allow.owner()]),
   WeeklyReviewEntry: a
