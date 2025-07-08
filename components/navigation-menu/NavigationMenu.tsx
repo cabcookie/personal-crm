@@ -19,6 +19,7 @@ import {
   BiCalendarWeek,
   BiConversation,
 } from "react-icons/bi";
+import { TbReportAnalytics } from "react-icons/tb";
 import { GoTasklist } from "react-icons/go";
 import { IconType } from "react-icons/lib";
 import {
@@ -94,6 +95,11 @@ const NavigationMenu = () => {
       shortcut: "^K",
       Icon: BiCalendarWeek,
       url: "/planweek",
+    },
+    {
+      label: "Weekly Business Review",
+      Icon: TbReportAnalytics,
+      url: "/weekly-business-review",
     },
     {
       label: "Chat",

@@ -28,6 +28,9 @@ import prayerSchema, {
 import projectSchema, {
   tablesWithDeleteProtection as projectTdp,
 } from "./project-schema";
+import weeklyReviewSchema, {
+  tablesWithDeleteProtection as weeklyReviewTdp,
+} from "./weekly-review-schema";
 
 export const tablesWithDeleteProtection = [
   ...accountTdp,
@@ -39,6 +42,7 @@ export const tablesWithDeleteProtection = [
   ...planningTdp,
   ...prayerTdp,
   ...projectTdp,
+  ...weeklyReviewTdp,
   "Inbox",
   "Meeting",
 ];
@@ -54,6 +58,7 @@ const schema = a
     ...planningSchema,
     ...prayerSchema,
     ...projectSchema,
+    ...weeklyReviewSchema,
     ...aiSchema,
     LearningStatus: a.enum(["new", "archived"]),
     InboxStatus: a.enum(["new", "done"]),
