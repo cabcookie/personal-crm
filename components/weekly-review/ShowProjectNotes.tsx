@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
 import { CopyToClipBoardBtn } from "@/components/CopyToClipBoardBtn";
 import {
   hasMissingCategories,
@@ -7,36 +7,29 @@ import {
   ProjectForReview,
   validProject,
 } from "@/helpers/weeklyReviewHelpers";
-import { TrendingUp, TrendingDown, Eye, Sparkles } from "lucide-react";
+import { TrendingUp, TrendingDown, Eye, Sparkles, Trash2 } from "lucide-react";
 import {
   createCategorizationPrompt,
   createNarrativePrompt,
 } from "@/helpers/weeklyReviewPrompts";
+import { Button } from "../ui/button";
 
 interface ShowProjectNotesProps {
   projectNotes: ProjectForReview[];
   isProcessing: boolean;
+  setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
 }
-
-export const getCategoryIcon = (category: string) => {
-  switch (category) {
-    case "customer_highlights":
-      return <TrendingUp className="size-4 text-green-500" />;
-    case "customer_lowlights":
-      return <TrendingDown className="size-4 text-red-500" />;
-    case "market_observations":
-      return <Eye className="size-4 text-blue-500" />;
-    case "genai_opportunities":
-      return <Sparkles className="size-4 text-purple-500" />;
-    default:
-      return null;
-  }
-};
 
 export const ShowProjectNotes: FC<ShowProjectNotesProps> = ({
   projectNotes,
   isProcessing,
+  setProjectNotes,
 }) => {
+  const removeFromReview = (projectId: string) => () =>
+    setProjectNotes((p) =>
+      p.map((e) => (e.id !== projectId ? e : { ...e, category: "none" }))
+    );
+
   return (
     projectNotes.length > 0 &&
     hasMissingNarratives(projectNotes) && (
@@ -72,7 +65,14 @@ export const ShowProjectNotes: FC<ShowProjectNotesProps> = ({
             .map(({ id, name, category }) => (
               <div key={id}>
                 <div className="flex items-center gap-2">
-                  <span>{name}</span>
+                  <span>{name} </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={removeFromReview(id)}
+                  >
+                    <Trash2 className="size-4 text-muted-foreground hover:text-black" />
+                  </Button>
                   {category && getCategoryIcon(category)}
                 </div>
               </div>
@@ -81,4 +81,19 @@ export const ShowProjectNotes: FC<ShowProjectNotesProps> = ({
       </div>
     )
   );
+};
+
+export const getCategoryIcon = (category: string) => {
+  switch (category) {
+    case "customer_highlights":
+      return <TrendingUp className="size-4 text-green-500" />;
+    case "customer_lowlights":
+      return <TrendingDown className="size-4 text-red-500" />;
+    case "market_observations":
+      return <Eye className="size-4 text-blue-500" />;
+    case "genai_opportunities":
+      return <Sparkles className="size-4 text-purple-500" />;
+    default:
+      return null;
+  }
 };
