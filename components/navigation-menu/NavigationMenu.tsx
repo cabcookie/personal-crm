@@ -98,7 +98,6 @@ const NavigationMenu = () => {
     },
     {
       label: "Weekly Business Review",
-      shortcut: "^W",
       Icon: TbReportAnalytics,
       url: "/weekly-business-review",
     },
