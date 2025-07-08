@@ -1,36 +1,88 @@
 import MainLayout from "@/components/layouts/MainLayout";
-import ReviewHistory from "@/components/weekly-review/ReviewHistory";
+import { useProjectsContext } from "@/api/ContextProjects";
+import { useState } from "react";
+import {
+  hasMissingCategories,
+  hasMissingNarratives,
+  ProjectForReview,
+} from "@/helpers/weeklyReviewHelpers";
+import { CreateAnalysisBtn } from "@/components/weekly-review/CreateAnalysisBtn";
+import { ShowProcessingStatus } from "@/components/weekly-review/ShowProcessingStatus";
+import { ShowProjectNotes } from "@/components/weekly-review/ShowProjectNotes";
+import { CopyCategorizationResult } from "@/components/weekly-review/CopyCategorizationResult";
+import { CopyNarrativeResult } from "@/components/weekly-review/CopyNarrativeResult";
 import { useWeeklyReview } from "@/api/useWeeklyReview";
-import { useRouter } from "next/router";
+import { Accordion } from "@/components/ui/accordion";
+import LoadingAccordionItem from "@/components/ui-elements/accordion/LoadingAccordionItem";
+import { AlertLoadingError } from "@/components/weekly-review/AlertLoadingError";
+import { AccordionWeeklyReview } from "@/components/weekly-review/AccordionWeeklyReview";
 
 const WeeklyBusinessReviewPage = () => {
-  const { createReview } = useWeeklyReview();
-  const router = useRouter();
-
-  const handleCreateNewReview = async () => {
-    const newReview = await createReview(new Date());
-    if (newReview) {
-      router.push(`/weekly-business-review/${newReview.id}`);
-    }
-  };
+  const { projects } = useProjectsContext();
+  const { isLoading, weeklyReviews, errorLoading, createWeeklyReview } =
+    useWeeklyReview();
+  const [projectNotes, setProjectNotes] = useState<ProjectForReview[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState("");
 
   return (
     <MainLayout
       title="Weekly Business Review"
       sectionName="Weekly Business Review"
-      addButton={{
-        label: "New",
-        onClick: handleCreateNewReview,
-      }}
     >
       <div className="space-y-6">
-        <div className="text-sm text-muted-foreground">
-          Generate AI-powered business intelligence reports from your project
-          activities. Reviews analyze the past 6 weeks of notes from open and
-          recently closed projects.
+        <div className="flex items-center justify-center">
+          <CreateAnalysisBtn
+            {...{
+              setIsProcessing,
+              projects,
+              setProcessingStatus,
+              setProjectNotes,
+            }}
+          />
         </div>
 
-        <ReviewHistory />
+        {isProcessing && <ShowProcessingStatus {...{ processingStatus }} />}
+
+        <ShowProjectNotes {...{ projectNotes, isProcessing }} />
+
+        {!isProcessing && (
+          <>
+            {hasMissingCategories(projectNotes) && (
+              <CopyCategorizationResult {...{ setProjectNotes }} />
+            )}
+
+            {!hasMissingCategories(projectNotes) && (
+              <>
+                {hasMissingNarratives(projectNotes) && (
+                  <CopyNarrativeResult
+                    {...{ setProjectNotes, createWeeklyReview }}
+                  />
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        <Accordion type="single" collapsible>
+          {isLoading ? (
+            <LoadingAccordionItem
+              value="loading-wbr"
+              sizeTitle="xl"
+              sizeSubtitle="lg"
+            />
+          ) : errorLoading ? (
+            <AlertLoadingError />
+          ) : !weeklyReviews ? (
+            <div className="text-sm text-muted-foreground text-center">
+              No weekly reviews.
+            </div>
+          ) : (
+            weeklyReviews?.map((w) => (
+              <AccordionWeeklyReview key={w.id} weeklyReview={w} />
+            ))
+          )}
+        </Accordion>
       </div>
     </MainLayout>
   );

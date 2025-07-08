@@ -18,8 +18,6 @@ const weeklyReviewSchema = {
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       date: a.date().required(),
       status: a.ref("WeeklyReviewStatus").required(),
-      title: a.string(),
-      description: a.string(),
       entries: a.hasMany("WeeklyReviewEntry", "reviewId"),
       createdAt: a.datetime().required(),
     })
@@ -37,10 +35,9 @@ const weeklyReviewSchema = {
       projectId: a.id().required(),
       project: a.belongsTo("Projects", "projectId"),
       category: a.ref("WeeklyReviewCategory").required(),
-      content: a.json().required(),
+      content: a.string(),
       generatedContent: a.string(),
       isEdited: a.boolean().default(false),
-      createdAt: a.datetime().required(),
     })
     .authorization((allow) => [allow.owner()]),
 };
