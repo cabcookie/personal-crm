@@ -31,7 +31,7 @@ const WeeklyBusinessReviewPage = () => {
       sectionName="Weekly Business Review"
     >
       <div className="space-y-6">
-        {!isProcessing && (!projectNotes || projectNotes.length === 0) ? (
+        {!isProcessing ? (
           <div className="flex items-center justify-center">
             <CreateAnalysisBtn
               {...{
