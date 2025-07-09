@@ -50,74 +50,6 @@ export const useWeeklyReview = (date?: Date) => {
     return data;
   };
 
-  const updateWeeklyReviewEntryCategory = async (
-    entryId: string,
-    category: WeeklyReviewData["entries"][number]["category"]
-  ) => {
-    const updated = weeklyReviews?.map((r) => ({
-      ...r,
-      entries: r.entries.map((e) =>
-        e.id !== entryId
-          ? e
-          : {
-              ...e,
-              category,
-            }
-      ),
-    }));
-    if (updated) mutateWeeklyReviews(updated, false);
-
-    const { data, errors } = await client.models.WeeklyReviewEntry.update({
-      id: entryId,
-      category,
-    });
-    if (errors)
-      handleApiErrors(
-        errors,
-        "Failed to update weekly business review entry category"
-      );
-    if (updated) mutateWeeklyReviews(updated);
-
-    return data;
-  };
-
-  const deleteWeeklyReviewEntry = async (entryId: string) => {
-    const updated = weeklyReviews?.map((r) => ({
-      ...r,
-      entries: r.entries.filter((e) => e.id !== entryId),
-    }));
-    if (updated) mutateWeeklyReviews(updated, false);
-
-    const { data, errors } = await client.models.WeeklyReviewEntry.delete({
-      id: entryId,
-    });
-    if (errors)
-      handleApiErrors(errors, "Failed to delete weekly business review entry");
-    if (updated) mutateWeeklyReviews(updated);
-
-    return data;
-  };
-
-  const updateWeeklyReviewStatus = async (
-    reviewId: string,
-    status: WeeklyReviewData["status"]
-  ) => {
-    const updated = weeklyReviews?.map((r) =>
-      r.id !== reviewId ? r : { ...r, status }
-    );
-    if (updated) mutateWeeklyReviews(updated, false);
-
-    const { data, errors } = await client.models.WeeklyReview.update({
-      id: reviewId,
-      status,
-    });
-    if (errors)
-      handleApiErrors(errors, "Failed to update weekly review status");
-    if (updated) mutateWeeklyReviews(updated);
-
-    return data;
-  };
-
   const createWeeklyReviewEntry =
     (reviewId: string) =>
     async ({
@@ -206,9 +138,6 @@ export const useWeeklyReview = (date?: Date) => {
     errorLoading,
     createWeeklyReview,
     updateWeeklyReviewEntryContent,
-    updateWeeklyReviewEntryCategory,
-    deleteWeeklyReviewEntry,
-    updateWeeklyReviewStatus,
   };
 };
 
@@ -315,7 +244,7 @@ const fetchWeeklyReviews = (date?: Date) => () =>
   !date ? getReviews() : getDataByWeekStart(date);
 
 const projectToWeeklyReviewEntry = ({
-  projectId,
+  id: projectId,
   name: project,
   category,
   wbrText: content,

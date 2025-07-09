@@ -14,15 +14,10 @@ import {
   get,
   size,
 } from "lodash/fp";
-import { uniqueId } from "lodash";
 import { handleApiErrors } from "@/api/globals";
 import { createDocument } from "@/components/ui-elements/editors/helpers/transformers";
 import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
-import {
-  useWeeklyReview,
-  WeeklyReview,
-  WeeklyReviewEntry,
-} from "@/api/useWeeklyReview";
+import { useWeeklyReview, WeeklyReview } from "@/api/useWeeklyReview";
 const client = generateClient<Schema>();
 
 export const startProcessing = async ({
@@ -31,7 +26,6 @@ export const startProcessing = async ({
   setProjectNotes,
   projects,
   existingReviewsForReview,
-  createWeeklyReview,
 }: StartProcessingProps) => {
   if (!projects) return;
   setProjectNotes([]);
@@ -48,8 +42,6 @@ export const startProcessing = async ({
     const maxProjectCount = Math.min(relevantProjects.length, 10);
     setProcessingStatus(`Found ${maxProjectCount} projects to analyze`);
 
-    const processedProjects: ProjectForReview[] = [];
-
     for (let i = 0; i < maxProjectCount; i++) {
       const project = relevantProjects[i];
       setProcessingStatus(
@@ -57,29 +49,15 @@ export const startProcessing = async ({
       );
 
       const projectNotes = await aggregateProjectNotes(project);
-      const processedProject = {
-        id: uniqueId(),
-        projectId: project.id,
-        name: project.project,
-        notes: projectNotes,
-        category: projectNotes.length < 900 ? "none" : undefined,
-      } as ProjectForReview;
-
-      processedProjects.push(processedProject);
-      setProjectNotes((old) => [...old, processedProject]);
-    }
-
-    // Check if all projects have category "none" and create weekly review if so
-    const allProjectsNone = processedProjects.every(
-      (p) => p.category === "none"
-    );
-    if (allProjectsNone && processedProjects.length > 0) {
-      setProcessingStatus(
-        "All projects have insufficient notes. Creating weekly review entries..."
-      );
-      await createWeeklyReview(processedProjects);
-      setProjectNotes([]);
-      setProcessingStatus("Weekly review entries created successfully.");
+      setProjectNotes((old) => [
+        ...old,
+        {
+          id: project.id,
+          name: project.project,
+          notes: projectNotes,
+          category: projectNotes.length < 900 ? "none" : undefined,
+        },
+      ]);
     }
   } catch (error) {
     console.error("Error during processing:", error);
@@ -95,7 +73,6 @@ interface StartProcessingProps {
   setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
   projects: ReturnType<typeof useProjectsContext>["projects"];
   existingReviewsForReview: ReturnType<typeof useWeeklyReview>["weeklyReviews"];
-  createWeeklyReview: (projects: ProjectForReview[]) => Promise<void>;
 }
 
 /**
@@ -213,10 +190,9 @@ const mapNotes = ({
 
 export type ProjectForReview = {
   id: string;
-  projectId: string;
   name: string;
   notes: string;
-  category?: WeeklyReviewEntry["category"];
+  category?: Schema["WeeklyReviewEntry"]["type"]["category"];
   wbrText?: string;
 };
 
@@ -250,33 +226,3 @@ export const getEntryCount = flow(
   getValidEntries,
   size
 );
-
-export const getIgnoredEntries = flow(
-  identity<WeeklyReview>,
-  get("entries"),
-  filter(({ category }) => category === "none")
-);
-
-export const getIgnoredEntryCount = flow(
-  identity<WeeklyReview>,
-  getIgnoredEntries,
-  size
-);
-
-/**
- * Checks if there are projects available for review this week
- */
-export const hasProjectsToReview = (
-  projects: ReturnType<typeof useProjectsContext>["projects"],
-  existingReviewsForReview: ReturnType<typeof useWeeklyReview>["weeklyReviews"]
-): boolean => {
-  if (!projects) return false;
-
-  const relevantProjects = flow(
-    filter(isOpenOrDoneRecently),
-    filter(hasRecentActivity),
-    filter(hasNoExistingReview(existingReviewsForReview))
-  )(projects);
-
-  return relevantProjects.length > 0;
-};
