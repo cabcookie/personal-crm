@@ -1,36 +1,38 @@
 import { ProjectForReview } from "@/helpers/weeklyReviewHelpers";
 import { Dispatch, FC, SetStateAction } from "react";
-import { CopyResultBase } from "./CopyResultBase";
+import { PasteResultBase } from "./PasteResultBase";
 import { useWeeklyReview } from "@/api/useWeeklyReview";
 
-interface CopyNarrativeResultProps {
+interface PasteNarrativeResultProps {
   setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
   createWeeklyReview: ReturnType<typeof useWeeklyReview>["createWeeklyReview"];
 }
 
-export const CopyNarrativeResult: FC<CopyNarrativeResultProps> = ({
+export const PasteNarrativeResult: FC<PasteNarrativeResultProps> = ({
   setProjectNotes,
   createWeeklyReview,
 }) => {
-  const processNarrativeJson = (
+  const processNarrativeJson = async (
     jsonData: any[],
     setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>
   ) => {
+    let newNotes: ProjectForReview[] = [];
     setProjectNotes((prevNotes) => {
-      const newNotes = prevNotes.map((note) => {
-        const update = jsonData.find((item) => item.id === note.id);
+      newNotes = prevNotes.map((note) => {
+        const update = jsonData.find((item) => item.entryId === note.id);
         if (update && update.wbrText) {
           return { ...note, wbrText: update.wbrText };
         }
         return note;
       });
-      createWeeklyReview(newNotes);
       return newNotes;
     });
+    await createWeeklyReview(newNotes);
+    setProjectNotes([]);
   };
 
   return (
-    <CopyResultBase
+    <PasteResultBase
       setProjectNotes={setProjectNotes}
       label="Paste narrative result:"
       placeholder="Paste the Amazon Q narrative result here..."

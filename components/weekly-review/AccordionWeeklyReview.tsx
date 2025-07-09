@@ -1,31 +1,40 @@
 import { WeeklyReview } from "@/api/useWeeklyReview";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
-import { format } from "date-fns";
 import { Accordion } from "../ui/accordion";
 import { AccordionWeeklyReviewEntry } from "./AccordionWeeklyReviewEntry";
-import { getEntryCount, getValidEntries } from "@/helpers/weeklyReviewHelpers";
-interface AccordionWeeklyReviewProps {
-  weeklyReview: WeeklyReview;
-}
+import { getValidEntries } from "@/helpers/weeklyReviewHelpers";
+import { IgnoredProjectsList } from "./IgnoredProjectsList";
+import { getWbrSubtitle, WbrTitle } from "./WbrTitle";
+import { WbrStatusToggle } from "./WbrStatusToggle";
 
 export const AccordionWeeklyReview: FC<AccordionWeeklyReviewProps> = ({
   weeklyReview,
 }) => (
   <DefaultAccordionItem
     value={weeklyReview.id}
-    triggerTitle={`Weekly Business Review for ${format(weeklyReview.date, "PP")}`}
-    triggerSubTitle={`Created on ${format(weeklyReview.createdAt, "PPp")}, Entries: ${getEntryCount(weeklyReview)}`}
+    triggerTitle={<WbrTitle {...{ weeklyReview }} />}
+    triggerSubTitle={getWbrSubtitle(weeklyReview)}
     className="tracking-tight"
   >
-    <Accordion type="single" collapsible>
-      {(!weeklyReview.entries || weeklyReview.entries.length === 0) && (
-        <div>No entries found</div>
-      )}
+    <div className="space-y-4">
+      <WbrStatusToggle {...{ weeklyReview }} />
 
-      {getValidEntries(weeklyReview).map((e) => (
-        <AccordionWeeklyReviewEntry key={e.id} weeklyReviewEntry={e} />
-      ))}
-    </Accordion>
+      <Accordion type="single" collapsible>
+        {(!weeklyReview.entries || weeklyReview.entries.length === 0) && (
+          <div>No entries found</div>
+        )}
+
+        {getValidEntries(weeklyReview).map((e) => (
+          <AccordionWeeklyReviewEntry key={e.id} weeklyReviewEntry={e} />
+        ))}
+      </Accordion>
+
+      <IgnoredProjectsList weeklyReview={weeklyReview} />
+    </div>
   </DefaultAccordionItem>
 );
+
+interface AccordionWeeklyReviewProps {
+  weeklyReview: WeeklyReview;
+}
