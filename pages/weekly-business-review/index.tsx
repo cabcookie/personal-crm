@@ -9,8 +9,8 @@ import {
 import { CreateAnalysisBtn } from "@/components/weekly-review/CreateAnalysisBtn";
 import { ShowProcessingStatus } from "@/components/weekly-review/ShowProcessingStatus";
 import { ShowProjectNotes } from "@/components/weekly-review/ShowProjectNotes";
-import { PasteCategorizationResult } from "@/components/weekly-review/PasteCategorizationResult";
-import { PasteNarrativeResult } from "@/components/weekly-review/PasteNarrativeResult";
+import { CopyCategorizationResult } from "@/components/weekly-review/CopyCategorizationResult";
+import { CopyNarrativeResult } from "@/components/weekly-review/CopyNarrativeResult";
 import { useWeeklyReview } from "@/api/useWeeklyReview";
 import { Accordion } from "@/components/ui/accordion";
 import LoadingAccordionItem from "@/components/ui-elements/accordion/LoadingAccordionItem";
@@ -31,45 +31,33 @@ const WeeklyBusinessReviewPage = () => {
       sectionName="Weekly Business Review"
     >
       <div className="space-y-6">
-        {!isProcessing && (!projectNotes || projectNotes.length === 0) ? (
-          <div className="flex items-center justify-center">
-            <CreateAnalysisBtn
-              {...{
-                setIsProcessing,
-                projects,
-                setProcessingStatus,
-                setProjectNotes,
-                createWeeklyReview,
-              }}
-            />
-          </div>
-        ) : (
-          <div className="h-8" />
-        )}
+        <div className="flex items-center justify-center">
+          <CreateAnalysisBtn
+            {...{
+              setIsProcessing,
+              projects,
+              setProcessingStatus,
+              setProjectNotes,
+            }}
+          />
+        </div>
 
         {isProcessing && <ShowProcessingStatus {...{ processingStatus }} />}
 
         <ShowProjectNotes
-          {...{
-            projectNotes,
-            isProcessing,
-            setProjectNotes,
-            createWeeklyReview,
-          }}
+          {...{ projectNotes, isProcessing, setProjectNotes }}
         />
 
         {!isProcessing && (
           <>
             {hasMissingCategories(projectNotes) && (
-              <PasteCategorizationResult
-                {...{ setProjectNotes, createWeeklyReview }}
-              />
+              <CopyCategorizationResult {...{ setProjectNotes }} />
             )}
 
             {!hasMissingCategories(projectNotes) && (
               <>
                 {hasMissingNarratives(projectNotes) && (
-                  <PasteNarrativeResult
+                  <CopyNarrativeResult
                     {...{ setProjectNotes, createWeeklyReview }}
                   />
                 )}
