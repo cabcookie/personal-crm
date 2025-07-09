@@ -13,22 +13,34 @@ import {
   createNarrativePrompt,
 } from "@/helpers/weeklyReviewPrompts";
 import { Button } from "../ui/button";
+import { useWeeklyReview } from "@/api/useWeeklyReview";
 
 interface ShowProjectNotesProps {
   projectNotes: ProjectForReview[];
   isProcessing: boolean;
   setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
+  createWeeklyReview: ReturnType<typeof useWeeklyReview>["createWeeklyReview"];
 }
 
 export const ShowProjectNotes: FC<ShowProjectNotesProps> = ({
   projectNotes,
   isProcessing,
   setProjectNotes,
+  createWeeklyReview,
 }) => {
-  const removeFromReview = (projectId: string) => () =>
-    setProjectNotes((p) =>
-      p.map((e) => (e.id !== projectId ? e : { ...e, category: "none" }))
+  const removeFromReview = (id: string) => async () => {
+    const updatedProjects: ProjectForReview[] = createUpdatedProjects(
+      projectNotes,
+      id
     );
+    setProjectNotes(updatedProjects);
+    // Check if all projects now have category "none" then add to weekly review
+    const allProjectsNone = updatedProjects.every((p) => p.category === "none");
+    if (allProjectsNone && updatedProjects.length > 0) {
+      await createWeeklyReview(updatedProjects);
+      setProjectNotes([]);
+    }
+  };
 
   return (
     projectNotes.length > 0 &&
@@ -96,4 +108,20 @@ export const getCategoryIcon = (category: string) => {
     default:
       return null;
   }
+};
+
+const createUpdatedProjects = (
+  projectNotes: ProjectForReview[],
+  entryId: string
+): ProjectForReview[] => {
+  const projectId = projectNotes.find((n) => n.id === entryId)?.projectId;
+  if (!projectId) return projectNotes;
+  const countProjectEntries = projectNotes.filter(
+    (n) => n.projectId === projectId
+  ).length;
+  if (countProjectEntries > 1)
+    return projectNotes.filter((n) => n.id !== entryId);
+  return projectNotes.map((e) =>
+    e.id !== entryId ? e : { ...e, category: "none" }
+  );
 };
