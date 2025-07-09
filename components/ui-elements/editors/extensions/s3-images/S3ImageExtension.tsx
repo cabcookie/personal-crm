@@ -113,6 +113,15 @@ const S3ImageExtension = Node.create({
     return ["img", mergeAttributes(HTMLAttributes, { "data-type": this.name })];
   },
   addNodeView: () => S3ImageRenderer,
+  addStorage() {
+    return {
+      markdown: {
+        serialize(state: { write: (arg0: string) => void }) {
+          state.write("[IMAGE]\n\n");
+        },
+      },
+    };
+  },
 });
 
 export default S3ImageExtension;

@@ -17,7 +17,7 @@ import {
 import { uniqueId } from "lodash";
 import { handleApiErrors } from "@/api/globals";
 import { createDocument } from "@/components/ui-elements/editors/helpers/transformers";
-import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
+import { getMarkdown } from "@/components/ui-elements/editors/helpers/text-generation";
 import {
   useWeeklyReview,
   WeeklyReview,
@@ -207,7 +207,7 @@ const mapNotes = ({
   const noteDate = new Date(forMeeting?.meetingOn || finishedOn || createdAt);
   return {
     date: noteDate,
-    content: `## ${format(noteDate, "yyyy-MM-dd")} – ${forMeeting ? `Meeting: ${forMeeting.topic}` : "Project Notes"}\n\n${getTextFromJsonContent(noteDoc)}\n`,
+    content: `## ${format(noteDate, "yyyy-MM-dd")} – ${forMeeting ? `Meeting: ${forMeeting.topic}` : "Project Notes"}\n\n${getMarkdown(noteDoc)}\n`,
   };
 };
 

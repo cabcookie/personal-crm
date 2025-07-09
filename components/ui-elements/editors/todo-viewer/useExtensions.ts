@@ -72,7 +72,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
             { href: `/people/${node.attrs.id}` },
             options.HTMLAttributes
           ),
-          `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`,
+          `${options.suggestion.char ?? "@"}${node.attrs.label ?? node.attrs.id}`,
         ],
       }),
       LinkBubbleMenuHandler,
