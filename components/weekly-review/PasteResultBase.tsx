@@ -8,7 +8,7 @@ import {
   useEffect,
 } from "react";
 
-interface CopyResultBaseProps {
+interface PasteResultBaseProps {
   setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
   label: string;
   placeholder: string;
@@ -16,10 +16,10 @@ interface CopyResultBaseProps {
   onProcessJson: (
     jsonData: any[],
     setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>
-  ) => void;
+  ) => Promise<void> | void;
 }
 
-export const CopyResultBase: FC<CopyResultBaseProps> = ({
+export const PasteResultBase: FC<PasteResultBaseProps> = ({
   setProjectNotes,
   label,
   placeholder,
@@ -72,12 +72,12 @@ export const CopyResultBase: FC<CopyResultBaseProps> = ({
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+  const handlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const pastedText = e.clipboardData.getData("text");
     const jsonData = extractJSONFromText(pastedText);
 
     if (jsonData && Array.isArray(jsonData)) {
-      onProcessJson(jsonData, setProjectNotes);
+      await onProcessJson(jsonData, setProjectNotes);
     }
   };
 
