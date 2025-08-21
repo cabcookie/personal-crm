@@ -24,6 +24,7 @@ export const listProjects = async (): Promise<
       })
     );
     if (!response.Items) throw "No records found";
+    console.log("Found", response.Items.length, "items for schema migration.");
     return response.Items;
   } catch (error) {
     console.error("Error listing projects with no pinned value");
@@ -38,20 +39,20 @@ export const updateProjects = async (
   const unprocessed: WriteRequest[] = [];
   for (let i = 0; i < projects.length; i += chunkSize) {
     const chunk = projects.slice(i, i + chunkSize);
-    const chunkResults = await ddb.send(
-      new BatchWriteItemCommand({
-        RequestItems: {
-          [tableName]: chunk.map((item) => ({
-            PutRequest: {
-              Item: {
-                ...item,
-                pinned: marshall({ pinned: "NOTPINNED" }).pinned,
-              },
+    const command = new BatchWriteItemCommand({
+      RequestItems: {
+        [tableName]: chunk.map((item) => ({
+          PutRequest: {
+            Item: {
+              ...item,
+              pinned: marshall({ pinned: "NOTPINNED" }).pinned,
             },
-          })),
-        },
-      })
-    );
+          },
+        })),
+      },
+    });
+    console.log("Chunk", i, "command", JSON.stringify(command, null, 2));
+    const chunkResults = await ddb.send(command);
 
     if (
       chunkResults.UnprocessedItems &&
