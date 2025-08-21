@@ -35,7 +35,7 @@ export const listProjects = async (): Promise<
 export const updateProjects = async (
   projects: Record<string, AttributeValue>[]
 ) => {
-  const chunkSize = 100;
+  const chunkSize = 25;
   const unprocessed: WriteRequest[] = [];
   for (let i = 0; i < projects.length; i += chunkSize) {
     const chunk = projects.slice(i, i + chunkSize);
