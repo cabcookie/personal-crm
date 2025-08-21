@@ -5,7 +5,11 @@ import { useProjectFilter } from "../projects/useProjectFilter";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import { Accordion } from "../ui/accordion";
 
-const ProjectList = () => {
+interface ProjectListProps {
+  showPin?: boolean;
+}
+
+const ProjectList: React.FC<ProjectListProps> = ({ showPin = false }) => {
   const {
     projects,
     loadingProjects,
@@ -46,6 +50,7 @@ const ProjectList = () => {
           <ProjectAccordionItem
             key={project.id}
             project={project}
+            showPin={showPin}
             onMoveUp={moveProjectUp}
             onMoveDown={moveProjectDown}
           />

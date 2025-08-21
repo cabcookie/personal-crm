@@ -3,13 +3,17 @@ import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { calcRevenueTwoYears, make2YearsRevenueText } from "@/helpers/projects";
 import { format } from "date-fns";
 import { flow, map, sum } from "lodash/fp";
-import { FC } from "react";
+import { Pin, PinOff } from "lucide-react";
+import { FC, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import ProjectDetails from "../ui-elements/project-details/project-details";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 type ProjectAccordionItemProps = {
   project?: Project;
   showNotes?: boolean;
+  showPin?: boolean;
   onDelete?: () => void;
   disabled?: boolean;
   disableOrderControls?: boolean;
@@ -22,6 +26,7 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   onDelete,
   disabled,
   showNotes = true,
+  showPin = false,
   disableOrderControls = false,
   onMoveUp,
   onMoveDown,
@@ -30,11 +35,20 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
   const {
     moveProjectUp: globalMoveProjectUp,
     moveProjectDown: globalMoveProjectDown,
+    togglePinProject,
   } = useProjectsContext();
+  const [isPinHovered, setIsPinHovered] = useState(false);
 
   // Use custom move functions if provided, otherwise fallback to global context functions
   const moveProjectUp = onMoveUp || globalMoveProjectUp;
   const moveProjectDown = onMoveDown || globalMoveProjectDown;
+
+  const handlePinClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (project) {
+      togglePinProject(project.id);
+    }
+  };
 
   return (
     project && (
@@ -61,6 +75,37 @@ const ProjectAccordionItem: FC<ProjectAccordionItemProps> = ({
           project.partnerId &&
             `Partner: ${getAccountNamesByIds([project.partnerId])}`,
         ]}
+        actionIcon={
+          showPin && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handlePinClick}
+              onMouseEnter={() => setIsPinHovered(true)}
+              onMouseLeave={() => setIsPinHovered(false)}
+              aria-label={
+                project.pinned === "PINNED" ? "Unpin project" : "Pin project"
+              }
+              className={cn(
+                "h-5 w-5 mt-1 text-muted-foreground",
+                project.pinned === "NOTPINNED" && "hidden group-hover:block"
+              )}
+              asChild
+            >
+              {project.pinned === "PINNED" ? (
+                isPinHovered ? (
+                  <PinOff />
+                ) : (
+                  <Pin />
+                )
+              ) : isPinHovered ? (
+                <Pin />
+              ) : (
+                <PinOff />
+              )}
+            </Button>
+          )
+        }
         disabled={disabled}
         disableOrderControls={disableOrderControls}
         onMoveUp={() => moveProjectUp(project.id)}

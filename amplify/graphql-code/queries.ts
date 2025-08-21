@@ -8,9 +8,65 @@ type GeneratedQuery<InputType, OutputType> = string & {
   __generatedQueryOutput: OutputType;
 };
 
+export const byStatus = /* GraphQL */ `query ByStatus(
+  $createdAt: ModelStringKeyConditionInput
+  $filter: ModelInboxFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $status: InboxStatus!
+) {
+  byStatus(
+    createdAt: $createdAt
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    status: $status
+  ) {
+    items {
+      createdAt
+      formatVersion
+      id
+      movedToAccountLearningId
+      movedToActivityId
+      movedToPersonLearningId
+      note
+      noteJson
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.ByStatusQueryVariables, APITypes.ByStatusQuery>;
+export const chatNamer = /* GraphQL */ `query ChatNamer($content: String) {
+  chatNamer(content: $content) {
+    name
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.ChatNamerQueryVariables, APITypes.ChatNamerQuery>;
+export const generateTasksSummary = /* GraphQL */ `query GenerateTasksSummary($tasks: String) {
+  generateTasksSummary(tasks: $tasks) {
+    summary
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GenerateTasksSummaryQueryVariables,
+  APITypes.GenerateTasksSummaryQuery
+>;
 export const getAccount = /* GraphQL */ `query GetAccount($id: ID!) {
   getAccount(id: $id) {
     accountSubsidiariesId
+    awsAccounts {
+      nextToken
+      __typename
+    }
     controller {
       accountSubsidiariesId
       createdAt
@@ -19,10 +75,12 @@ export const getAccount = /* GraphQL */ `query GetAccount($id: ID!) {
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -32,15 +90,16 @@ export const getAccount = /* GraphQL */ `query GetAccount($id: ID!) {
     id
     introduction
     introductionJson
+    learnings {
+      nextToken
+      __typename
+    }
+    mainColor
     name
     notionId
     order
     owner
     partnerProjects {
-      nextToken
-      __typename
-    }
-    payerAccounts {
       nextToken
       __typename
     }
@@ -56,6 +115,7 @@ export const getAccount = /* GraphQL */ `query GetAccount($id: ID!) {
       nextToken
       __typename
     }
+    shortName
     subsidiaries {
       nextToken
       __typename
@@ -72,6 +132,82 @@ export const getAccount = /* GraphQL */ `query GetAccount($id: ID!) {
   APITypes.GetAccountQueryVariables,
   APITypes.GetAccountQuery
 >;
+export const getAccountLearning = /* GraphQL */ `query GetAccountLearning($id: ID!) {
+  getAccountLearning(id: $id) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      mainColor
+      name
+      notionId
+      order
+      owner
+      shortName
+      updatedAt
+      __typename
+    }
+    accountId
+    createdAt
+    id
+    learnedOn
+    learning
+    owner
+    peopleMentioned {
+      nextToken
+      __typename
+    }
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAccountLearningQueryVariables,
+  APITypes.GetAccountLearningQuery
+>;
+export const getAccountLearningPerson = /* GraphQL */ `query GetAccountLearningPerson($id: ID!) {
+  getAccountLearningPerson(id: $id) {
+    createdAt
+    id
+    learning {
+      accountId
+      createdAt
+      id
+      learnedOn
+      learning
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    learningId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAccountLearningPersonQueryVariables,
+  APITypes.GetAccountLearningPersonQuery
+>;
 export const getAccountPayerAccount = /* GraphQL */ `query GetAccountPayerAccount($id: ID!) {
   getAccountPayerAccount(id: $id) {
     account {
@@ -82,10 +218,12 @@ export const getAccountPayerAccount = /* GraphQL */ `query GetAccountPayerAccoun
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -95,6 +233,7 @@ export const getAccountPayerAccount = /* GraphQL */ `query GetAccountPayerAccoun
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -122,10 +261,12 @@ export const getAccountProjects = /* GraphQL */ `query GetAccountProjects($id: I
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -145,11 +286,15 @@ export const getAccountProjects = /* GraphQL */ `query GetAccountProjects($id: I
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -172,10 +317,12 @@ export const getAccountTerritory = /* GraphQL */ `query GetAccountTerritory($id:
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -224,6 +371,7 @@ export const getActivity = /* GraphQL */ `query GetActivity($id: ID!) {
     formatVersion
     id
     meetingActivitiesId
+    name
     noteBlockIds
     noteBlocks {
       nextToken
@@ -262,6 +410,58 @@ export const getBookOfBible = /* GraphQL */ `query GetBookOfBible($id: ID!) {
 ` as GeneratedQuery<
   APITypes.GetBookOfBibleQueryVariables,
   APITypes.GetBookOfBibleQuery
+>;
+export const getConversationGeneralChat = /* GraphQL */ `query GetConversationGeneralChat($id: ID!) {
+  getConversationGeneralChat(id: $id) {
+    createdAt
+    id
+    messages {
+      nextToken
+      __typename
+    }
+    metadata
+    name
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetConversationGeneralChatQueryVariables,
+  APITypes.GetConversationGeneralChatQuery
+>;
+export const getConversationMessageGeneralChat = /* GraphQL */ `query GetConversationMessageGeneralChat($id: ID!) {
+  getConversationMessageGeneralChat(id: $id) {
+    aiContext
+    associatedUserMessageId
+    content {
+      text
+      __typename
+    }
+    conversation {
+      createdAt
+      id
+      metadata
+      name
+      owner
+      updatedAt
+      __typename
+    }
+    conversationId
+    createdAt
+    id
+    owner
+    role
+    toolConfiguration {
+      __typename
+    }
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetConversationMessageGeneralChatQueryVariables,
+  APITypes.GetConversationMessageGeneralChatQuery
 >;
 export const getCrmProject = /* GraphQL */ `query GetCrmProject($id: ID!) {
   getCrmProject(id: $id) {
@@ -352,11 +552,15 @@ export const getCrmProjectProjects = /* GraphQL */ `query GetCrmProjectProjects(
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -391,6 +595,10 @@ export const getDailyPlan = /* GraphQL */ `query GetDailyPlan($id: ID!) {
     dayGoal
     id
     owner
+    projects {
+      nextToken
+      __typename
+    }
     status
     todos {
       nextToken
@@ -403,6 +611,57 @@ export const getDailyPlan = /* GraphQL */ `query GetDailyPlan($id: ID!) {
 ` as GeneratedQuery<
   APITypes.GetDailyPlanQueryVariables,
   APITypes.GetDailyPlanQuery
+>;
+export const getDailyPlanProject = /* GraphQL */ `query GetDailyPlanProject($id: ID!) {
+  getDailyPlanProject(id: $id) {
+    createdAt
+    dailyPlan {
+      context
+      createdAt
+      day
+      dayGoal
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    dailyPlanId
+    id
+    maybe
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetDailyPlanProjectQueryVariables,
+  APITypes.GetDailyPlanProjectQuery
 >;
 export const getDailyPlanTodo = /* GraphQL */ `query GetDailyPlanTodo($id: ID!) {
   getDailyPlanTodo(id: $id) {
@@ -446,7 +705,9 @@ export const getInbox = /* GraphQL */ `query GetInbox($id: ID!) {
     createdAt
     formatVersion
     id
+    movedToAccountLearningId
     movedToActivityId
+    movedToPersonLearningId
     note
     noteJson
     owner
@@ -577,6 +838,7 @@ export const getNoteBlock = /* GraphQL */ `query GetNoteBlock($id: ID!) {
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -711,6 +973,7 @@ export const getPayerAccount = /* GraphQL */ `query GetPayerAccount($awsAccountN
       __typename
     }
     mainContactId
+    notes
     owner
     reseller {
       accountSubsidiariesId
@@ -720,10 +983,12 @@ export const getPayerAccount = /* GraphQL */ `query GetPayerAccount($awsAccountN
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -761,6 +1026,7 @@ export const getPayerAccountMrr = /* GraphQL */ `query GetPayerAccountMrr($id: I
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -786,6 +1052,10 @@ export const getPayerAccountMrr = /* GraphQL */ `query GetPayerAccountMrr($id: I
 >;
 export const getPerson = /* GraphQL */ `query GetPerson($id: ID!) {
   getPerson(id: $id) {
+    accountLearnings {
+      nextToken
+      __typename
+    }
     accounts {
       nextToken
       __typename
@@ -851,10 +1121,12 @@ export const getPersonAccount = /* GraphQL */ `query GetPersonAccount($id: ID!) 
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -935,6 +1207,7 @@ export const getPersonLearning = /* GraphQL */ `query GetPersonLearning($id: ID!
     }
     personId
     prayer
+    status
     updatedAt
     __typename
   }
@@ -993,6 +1266,7 @@ export const getProjectActivity = /* GraphQL */ `query GetProjectActivity($id: I
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -1017,11 +1291,15 @@ export const getProjectActivity = /* GraphQL */ `query GetProjectActivity($id: I
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1054,6 +1332,10 @@ export const getProjects = /* GraphQL */ `query GetProjects($id: ID!) {
       nextToken
       __typename
     }
+    dayPlans {
+      nextToken
+      __typename
+    }
     done
     doneOn
     dueOn
@@ -1063,6 +1345,7 @@ export const getProjects = /* GraphQL */ `query GetProjects($id: ID!) {
     myNextActionsJson
     notionId
     onHoldTill
+    order
     othersNextActions
     othersNextActionsJson
     owner
@@ -1074,17 +1357,26 @@ export const getProjects = /* GraphQL */ `query GetProjects($id: ID!) {
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
     partnerId
+    pinned
     project
+    tasksSummary
+    tasksSummaryUpdatedAt
     updatedAt
     weekPlans {
+      nextToken
+      __typename
+    }
+    weeklyReviews {
       nextToken
       __typename
     }
@@ -1150,11 +1442,15 @@ export const getSixWeekBatchProjects = /* GraphQL */ `query GetSixWeekBatchProje
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1311,7 +1607,10 @@ export const getUser = /* GraphQL */ `query GetUser($profileId: String!) {
 export const getWeeklyPlan = /* GraphQL */ `query GetWeeklyPlan($id: ID!) {
   getWeeklyPlan(id: $id) {
     createdAt
+    crmUpdateSkipped
+    financialUpdateSkipped
     id
+    inboxSkipped
     owner
     projects {
       nextToken
@@ -1344,11 +1643,15 @@ export const getWeeklyPlanProject = /* GraphQL */ `query GetWeeklyPlanProject($i
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1356,7 +1659,10 @@ export const getWeeklyPlanProject = /* GraphQL */ `query GetWeeklyPlanProject($i
     updatedAt
     weekPlan {
       createdAt
+      crmUpdateSkipped
+      financialUpdateSkipped
       id
+      inboxSkipped
       owner
       startDate
       status
@@ -1370,6 +1676,193 @@ export const getWeeklyPlanProject = /* GraphQL */ `query GetWeeklyPlanProject($i
 ` as GeneratedQuery<
   APITypes.GetWeeklyPlanProjectQueryVariables,
   APITypes.GetWeeklyPlanProjectQuery
+>;
+export const getWeeklyReview = /* GraphQL */ `query GetWeeklyReview($id: ID!) {
+  getWeeklyReview(id: $id) {
+    createdAt
+    date
+    entries {
+      nextToken
+      __typename
+    }
+    id
+    owner
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetWeeklyReviewQueryVariables,
+  APITypes.GetWeeklyReviewQuery
+>;
+export const getWeeklyReviewEntry = /* GraphQL */ `query GetWeeklyReviewEntry($id: ID!) {
+  getWeeklyReviewEntry(id: $id) {
+    category
+    content
+    createdAt
+    generatedContent
+    id
+    isEdited
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    review {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    reviewId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetWeeklyReviewEntryQueryVariables,
+  APITypes.GetWeeklyReviewEntryQuery
+>;
+export const listAccountLearningByAccountId = /* GraphQL */ `query ListAccountLearningByAccountId(
+  $accountId: ID!
+  $filter: ModelAccountLearningFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+) {
+  listAccountLearningByAccountId(
+    accountId: $accountId
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+  ) {
+    items {
+      accountId
+      createdAt
+      id
+      learnedOn
+      learning
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAccountLearningByAccountIdQueryVariables,
+  APITypes.ListAccountLearningByAccountIdQuery
+>;
+export const listAccountLearningPeople = /* GraphQL */ `query ListAccountLearningPeople(
+  $filter: ModelAccountLearningPersonFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAccountLearningPeople(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      createdAt
+      id
+      learningId
+      owner
+      personId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAccountLearningPeopleQueryVariables,
+  APITypes.ListAccountLearningPeopleQuery
+>;
+export const listAccountLearningPersonByLearningId = /* GraphQL */ `query ListAccountLearningPersonByLearningId(
+  $filter: ModelAccountLearningPersonFilterInput
+  $learningId: ID!
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+) {
+  listAccountLearningPersonByLearningId(
+    filter: $filter
+    learningId: $learningId
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+  ) {
+    items {
+      createdAt
+      id
+      learningId
+      owner
+      personId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAccountLearningPersonByLearningIdQueryVariables,
+  APITypes.ListAccountLearningPersonByLearningIdQuery
+>;
+export const listAccountLearnings = /* GraphQL */ `query ListAccountLearnings(
+  $filter: ModelAccountLearningFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAccountLearnings(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      accountId
+      createdAt
+      id
+      learnedOn
+      learning
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAccountLearningsQueryVariables,
+  APITypes.ListAccountLearningsQuery
 >;
 export const listAccountPayerAccountByAwsAccountNumberId = /* GraphQL */ `query ListAccountPayerAccountByAwsAccountNumberId(
   $awsAccountNumberId: ID!
@@ -1555,10 +2048,12 @@ export const listAccounts = /* GraphQL */ `query ListAccounts(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -1582,6 +2077,7 @@ export const listActivities = /* GraphQL */ `query ListActivities(
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -1657,6 +2153,165 @@ export const listByImportStatus = /* GraphQL */ `query ListByImportStatus(
   APITypes.ListByImportStatusQueryVariables,
   APITypes.ListByImportStatusQuery
 >;
+export const listByPartnerId = /* GraphQL */ `query ListByPartnerId(
+  $filter: ModelProjectsFilterInput
+  $limit: Int
+  $nextToken: String
+  $partnerId: ID!
+  $sortDirection: ModelSortDirection
+) {
+  listByPartnerId(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    partnerId: $partnerId
+    sortDirection: $sortDirection
+  ) {
+    items {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListByPartnerIdQueryVariables,
+  APITypes.ListByPartnerIdQuery
+>;
+export const listByPersonId = /* GraphQL */ `query ListByPersonId(
+  $createdAt: ModelStringKeyConditionInput
+  $filter: ModelNoteBlockPersonFilterInput
+  $limit: Int
+  $nextToken: String
+  $personId: ID!
+  $sortDirection: ModelSortDirection
+) {
+  listByPersonId(
+    createdAt: $createdAt
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    personId: $personId
+    sortDirection: $sortDirection
+  ) {
+    items {
+      createdAt
+      id
+      noteBlockId
+      owner
+      personId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListByPersonIdQueryVariables,
+  APITypes.ListByPersonIdQuery
+>;
+export const listByPinnedState = /* GraphQL */ `query ListByPinnedState(
+  $filter: ModelProjectsFilterInput
+  $limit: Int
+  $nextToken: String
+  $pinned: ProjectPinned!
+  $sortDirection: ModelSortDirection
+) {
+  listByPinnedState(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    pinned: $pinned
+    sortDirection: $sortDirection
+  ) {
+    items {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListByPinnedStateQueryVariables,
+  APITypes.ListByPinnedStateQuery
+>;
+export const listByProjectId = /* GraphQL */ `query ListByProjectId(
+  $filter: ModelDailyPlanProjectFilterInput
+  $limit: Int
+  $nextToken: String
+  $projectId: ID!
+  $sortDirection: ModelSortDirection
+  $updatedAt: ModelStringKeyConditionInput
+) {
+  listByProjectId(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    projectId: $projectId
+    sortDirection: $sortDirection
+    updatedAt: $updatedAt
+  ) {
+    items {
+      createdAt
+      dailyPlanId
+      id
+      maybe
+      owner
+      projectId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListByProjectIdQueryVariables,
+  APITypes.ListByProjectIdQuery
+>;
 export const listByStatus = /* GraphQL */ `query ListByStatus(
   $day: ModelStringKeyConditionInput
   $filter: ModelDailyPlanFilterInput
@@ -1691,6 +2346,129 @@ export const listByStatus = /* GraphQL */ `query ListByStatus(
 ` as GeneratedQuery<
   APITypes.ListByStatusQueryVariables,
   APITypes.ListByStatusQuery
+>;
+export const listByTodoId = /* GraphQL */ `query ListByTodoId(
+  $filter: ModelDailyPlanTodoFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $todoId: ID!
+  $updatedAt: ModelStringKeyConditionInput
+) {
+  listByTodoId(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    todoId: $todoId
+    updatedAt: $updatedAt
+  ) {
+    items {
+      createdAt
+      dailyPlanId
+      id
+      owner
+      postPoned
+      todoId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListByTodoIdQueryVariables,
+  APITypes.ListByTodoIdQuery
+>;
+export const listByWbrStatus = /* GraphQL */ `query ListByWbrStatus(
+  $createdAt: ModelStringKeyConditionInput
+  $filter: ModelWeeklyReviewFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $status: WeeklyReviewStatus!
+) {
+  listByWbrStatus(
+    createdAt: $createdAt
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    status: $status
+  ) {
+    items {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListByWbrStatusQueryVariables,
+  APITypes.ListByWbrStatusQuery
+>;
+export const listConversationGeneralChats = /* GraphQL */ `query ListConversationGeneralChats(
+  $filter: ModelConversationGeneralChatFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listConversationGeneralChats(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      createdAt
+      id
+      metadata
+      name
+      owner
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListConversationGeneralChatsQueryVariables,
+  APITypes.ListConversationGeneralChatsQuery
+>;
+export const listConversationMessageGeneralChats = /* GraphQL */ `query ListConversationMessageGeneralChats(
+  $filter: ModelConversationMessageGeneralChatFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listConversationMessageGeneralChats(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      aiContext
+      associatedUserMessageId
+      conversationId
+      createdAt
+      id
+      owner
+      role
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListConversationMessageGeneralChatsQueryVariables,
+  APITypes.ListConversationMessageGeneralChatsQuery
 >;
 export const listCrmProjectImports = /* GraphQL */ `query ListCrmProjectImports(
   $filter: ModelCrmProjectImportFilterInput
@@ -1801,6 +2579,30 @@ export const listCurrentContexts = /* GraphQL */ `query ListCurrentContexts(
   APITypes.ListCurrentContextsQueryVariables,
   APITypes.ListCurrentContextsQuery
 >;
+export const listDailyPlanProjects = /* GraphQL */ `query ListDailyPlanProjects(
+  $filter: ModelDailyPlanProjectFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listDailyPlanProjects(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      createdAt
+      dailyPlanId
+      id
+      maybe
+      owner
+      projectId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListDailyPlanProjectsQueryVariables,
+  APITypes.ListDailyPlanProjectsQuery
+>;
 export const listDailyPlanTodos = /* GraphQL */ `query ListDailyPlanTodos(
   $filter: ModelDailyPlanTodoFilterInput
   $limit: Int
@@ -1850,40 +2652,6 @@ export const listDailyPlans = /* GraphQL */ `query ListDailyPlans(
   APITypes.ListDailyPlansQueryVariables,
   APITypes.ListDailyPlansQuery
 >;
-export const listInboxByStatus = /* GraphQL */ `query ListInboxByStatus(
-  $filter: ModelInboxFilterInput
-  $limit: Int
-  $nextToken: String
-  $sortDirection: ModelSortDirection
-  $status: ID!
-) {
-  listInboxByStatus(
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-    sortDirection: $sortDirection
-    status: $status
-  ) {
-    items {
-      createdAt
-      formatVersion
-      id
-      movedToActivityId
-      note
-      noteJson
-      owner
-      status
-      updatedAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListInboxByStatusQueryVariables,
-  APITypes.ListInboxByStatusQuery
->;
 export const listInboxes = /* GraphQL */ `query ListInboxes(
   $filter: ModelInboxFilterInput
   $limit: Int
@@ -1894,7 +2662,9 @@ export const listInboxes = /* GraphQL */ `query ListInboxes(
       createdAt
       formatVersion
       id
+      movedToAccountLearningId
       movedToActivityId
+      movedToPersonLearningId
       note
       noteJson
       owner
@@ -1910,14 +2680,16 @@ export const listInboxes = /* GraphQL */ `query ListInboxes(
   APITypes.ListInboxesQueryVariables,
   APITypes.ListInboxesQuery
 >;
-export const listMeetingParticipantByPersonId = /* GraphQL */ `query ListMeetingParticipantByPersonId(
+export const listMeetingParticipantByPersonIdAndCreatedAt = /* GraphQL */ `query ListMeetingParticipantByPersonIdAndCreatedAt(
+  $createdAt: ModelStringKeyConditionInput
   $filter: ModelMeetingParticipantFilterInput
   $limit: Int
   $nextToken: String
   $personId: ID!
   $sortDirection: ModelSortDirection
 ) {
-  listMeetingParticipantByPersonId(
+  listMeetingParticipantByPersonIdAndCreatedAt(
+    createdAt: $createdAt
     filter: $filter
     limit: $limit
     nextToken: $nextToken
@@ -1938,8 +2710,8 @@ export const listMeetingParticipantByPersonId = /* GraphQL */ `query ListMeeting
   }
 }
 ` as GeneratedQuery<
-  APITypes.ListMeetingParticipantByPersonIdQueryVariables,
-  APITypes.ListMeetingParticipantByPersonIdQuery
+  APITypes.ListMeetingParticipantByPersonIdAndCreatedAtQueryVariables,
+  APITypes.ListMeetingParticipantByPersonIdAndCreatedAtQuery
 >;
 export const listMeetingParticipants = /* GraphQL */ `query ListMeetingParticipants(
   $filter: ModelMeetingParticipantFilterInput
@@ -2303,6 +3075,7 @@ export const listPayerAccounts = /* GraphQL */ `query ListPayerAccounts(
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -2448,6 +3221,7 @@ export const listPersonLearningByPersonId = /* GraphQL */ `query ListPersonLearn
       owner
       personId
       prayer
+      status
       updatedAt
       __typename
     }
@@ -2473,6 +3247,7 @@ export const listPersonLearnings = /* GraphQL */ `query ListPersonLearnings(
       owner
       personId
       prayer
+      status
       updatedAt
       __typename
     }
@@ -2586,11 +3361,15 @@ export const listProjects = /* GraphQL */ `query ListProjects(
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -2818,6 +3597,39 @@ export const listUsers = /* GraphQL */ `query ListUsers(
   }
 }
 ` as GeneratedQuery<APITypes.ListUsersQueryVariables, APITypes.ListUsersQuery>;
+export const listWbrByWeek = /* GraphQL */ `query ListWbrByWeek(
+  $createdAt: ModelStringKeyConditionInput
+  $date: AWSDate!
+  $filter: ModelWeeklyReviewFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+) {
+  listWbrByWeek(
+    createdAt: $createdAt
+    date: $date
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+  ) {
+    items {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListWbrByWeekQueryVariables,
+  APITypes.ListWbrByWeekQuery
+>;
 export const listWeeklyPlanByStatus = /* GraphQL */ `query ListWeeklyPlanByStatus(
   $filter: ModelWeeklyPlanFilterInput
   $limit: Int
@@ -2834,7 +3646,10 @@ export const listWeeklyPlanByStatus = /* GraphQL */ `query ListWeeklyPlanByStatu
   ) {
     items {
       createdAt
+      crmUpdateSkipped
+      financialUpdateSkipped
       id
+      inboxSkipped
       owner
       startDate
       status
@@ -2884,7 +3699,10 @@ export const listWeeklyPlans = /* GraphQL */ `query ListWeeklyPlans(
   listWeeklyPlans(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       createdAt
+      crmUpdateSkipped
+      financialUpdateSkipped
       id
+      inboxSkipped
       owner
       startDate
       status
@@ -2898,4 +3716,68 @@ export const listWeeklyPlans = /* GraphQL */ `query ListWeeklyPlans(
 ` as GeneratedQuery<
   APITypes.ListWeeklyPlansQueryVariables,
   APITypes.ListWeeklyPlansQuery
+>;
+export const listWeeklyReviewEntries = /* GraphQL */ `query ListWeeklyReviewEntries(
+  $filter: ModelWeeklyReviewEntryFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listWeeklyReviewEntries(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      category
+      content
+      createdAt
+      generatedContent
+      id
+      isEdited
+      owner
+      projectId
+      reviewId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListWeeklyReviewEntriesQueryVariables,
+  APITypes.ListWeeklyReviewEntriesQuery
+>;
+export const listWeeklyReviews = /* GraphQL */ `query ListWeeklyReviews(
+  $filter: ModelWeeklyReviewFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listWeeklyReviews(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListWeeklyReviewsQueryVariables,
+  APITypes.ListWeeklyReviewsQuery
+>;
+export const rewriteProjectNotes = /* GraphQL */ `query RewriteProjectNotes($content: String) {
+  rewriteProjectNotes(content: $content) {
+    response
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.RewriteProjectNotesQueryVariables,
+  APITypes.RewriteProjectNotesQuery
 >;

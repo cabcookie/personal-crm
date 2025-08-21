@@ -24,7 +24,7 @@ Store the commit list for analysis in the next step.
 
 Analyze the commit messages from Step 2 to determine the version bump:
 
-- **BREAKING CHANGE** or commits with `!` → **MAJOR** version bump
+- **BREAKING CHANGE** or commits with an exclamation mark → **MAJOR** version bump
 - **feat:** commits → **MINOR** version bump
 - **fix:** commits → **PATCH** version bump
 - Other commit types (docs, chore, etc.) → **PATCH** version bump
