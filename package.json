@@ -9,18 +9,12 @@
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "prepare": "node .husky/install.mjs",
     "signin:code-assistant": "aws sso login --profile nxsflow-staging",
     "sandbox": "npx ampx sandbox --profile impulso",
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",
     "import-data-prod": "cd scripts && node start-import -env prod",
     "create-code": "npx ampx generate graphql-client-code --out amplify/graphql-code --profile impulso"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
   },
   "release": {
     "branches": [
@@ -120,7 +114,6 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "globals": "^15.11.0",
-    "husky": "^9.0.11",
     "postcss": "^8.4.38",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.3",
