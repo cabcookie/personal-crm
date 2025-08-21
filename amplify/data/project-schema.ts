@@ -12,6 +12,11 @@ export const tablesWithDeleteProtection = [
 ];
 
 const projectSchema = {
+  // ------ Enums
+  CrmProjectImportStatus: a.enum(["WIP", "DONE"]),
+  ProjectPinned: a.enum(["PINNED", "NOTPINNED"]),
+
+  // ------ Models
   AccountProjects: a
     .model({
       owner: a
@@ -24,6 +29,7 @@ const projectSchema = {
     })
     .secondaryIndexes((index) => [index("projectsId"), index("accountId")])
     .authorization((allow) => [allow.owner()]),
+
   SixWeekCycle: a
     .model({
       owner: a
@@ -34,6 +40,7 @@ const projectSchema = {
       batches: a.hasMany("SixWeekBatch", "sixWeekCycleBatchesId"),
     })
     .authorization((allow) => [allow.owner()]),
+
   SixWeekBatchProjects: a
     .model({
       owner: a
@@ -45,6 +52,7 @@ const projectSchema = {
       sixWeekBatch: a.belongsTo("SixWeekBatch", "sixWeekBatchId"),
     })
     .authorization((allow) => [allow.owner()]),
+
   SixWeekBatch: a
     .model({
       owner: a
@@ -73,7 +81,7 @@ const projectSchema = {
       createdOn: a.datetime(),
     })
     .authorization((allow) => [allow.owner()]),
-  CrmProjectImportStatus: a.enum(["WIP", "DONE"]),
+
   CrmProjectImport: a
     .model({
       owner: a
@@ -87,6 +95,7 @@ const projectSchema = {
       index("status").sortKeys(["createdAt"]).queryField("listByImportStatus"),
     ])
     .authorization((allow) => [allow.owner()]),
+
   CrmProjectProjects: a
     .model({
       owner: a
@@ -98,6 +107,7 @@ const projectSchema = {
       crmProject: a.belongsTo("CrmProject", "crmProjectId"),
     })
     .authorization((allow) => [allow.owner()]),
+
   CrmProject: a
     .model({
       owner: a
@@ -122,6 +132,7 @@ const projectSchema = {
       createdDate: a.date(),
     })
     .authorization((allow) => [allow.owner()]),
+
   Projects: a
     .model({
       owner: a
@@ -142,6 +153,11 @@ const projectSchema = {
       order: a.float(),
       tasksSummary: a.string(),
       tasksSummaryUpdatedAt: a.datetime(),
+      pinned: a.ref("ProjectPinned").required(),
+      // Ids for relations
+      partnerId: a.id(),
+      // relations
+      partner: a.belongsTo("Account", "partnerId"),
       accounts: a.hasMany("AccountProjects", "projectsId"),
       batches: a.hasMany("SixWeekBatchProjects", "projectsId"),
       activities: a.hasMany("ProjectActivity", "projectsId"),
@@ -149,11 +165,10 @@ const projectSchema = {
       weekPlans: a.hasMany("WeeklyPlanProject", "projectId"),
       dayPlans: a.hasMany("DailyPlanProject", "projectId"),
       weeklyReviews: a.hasMany("WeeklyReviewEntry", "projectId"),
-      partnerId: a.id(),
-      partner: a.belongsTo("Account", "partnerId"),
     })
     .secondaryIndexes((index) => [
       index("partnerId").queryField("listByPartnerId"),
+      index("pinned").queryField("listByPinnedState"),
     ])
     .authorization((allow) => [allow.owner()]),
 };

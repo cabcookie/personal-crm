@@ -1,3 +1,7 @@
+---
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*)
+---
+
 # Commit The Current Work
 
 This workflow stages every modified file, drafts a **Conventional Commits** message, lets you approve or tweak it, and then commits (and optionally pushes) the result.
@@ -17,12 +21,12 @@ git add -A
    ```
 
 2. Read that diff and decide on the correct **type**
-   (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`,
-   `build`, `ci`, `chore`, `revert`).
-   If the change is breaking, append **`!`** right after the type.
+   (feat, fix, docs, style, refactor, perf, test,
+   build, ci, chore, revert).
+   If the change is breaking, append an exclamation mark right after the type.
 
 3. Compose the message in this exact format
-   _(max 72 chars in the subject line)_
+   (max 72 chars in the subject line)
 
    ```text
    <type>[optional(scope)][!]: <imperative summary>
@@ -34,7 +38,7 @@ git add -A
 
    Ignore references to an implementation plan or which step of that plan has been finished.
 
-4. Store the full message as **\$COMMIT_MSG**.
+4. Store the full message as COMMIT_MSG.
 
 5. Confirm with the user:
 
@@ -51,7 +55,7 @@ git add -A
 
    - If **Regenerate** → repeat Step 2.
    - If **I'll edit it myself** → open an editor pre-filled with
-     **\$COMMIT_MSG**, wait for save, then continue.
+     COMMIT_MSG, wait for save, then continue.
 
 ## Step 3 – Commit
 

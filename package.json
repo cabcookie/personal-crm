@@ -15,7 +15,7 @@
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",
     "import-data-prod": "cd scripts && node start-import -env prod",
-    "create-post-confirmation-code": "npx ampx generate graphql-client-code --out amplify/auth/post-confirmation/graphql --profile impulso"
+    "create-code": "npx ampx generate graphql-client-code --out amplify/graphql-code --profile impulso"
   },
   "husky": {
     "hooks": {
@@ -34,8 +34,9 @@
     "@aws-amplify/ui-react-storage": "^3.1.4",
     "@aws-sdk/client-cognito-identity": "^3.622.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.622.0",
-    "@aws-sdk/client-dynamodb": "^3.622.0",
+    "@aws-sdk/client-dynamodb": "^3.872.0",
     "@aws-sdk/credential-providers": "^3.622.0",
+    "@aws-sdk/util-dynamodb": "^3.872.0",
     "@hookform/resolvers": "^3.4.2",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.0.5",

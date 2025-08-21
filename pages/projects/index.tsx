@@ -2,6 +2,7 @@ import { useProjectsContext } from "@/api/ContextProjects";
 import ProjectList from "@/components/accounts/ProjectList";
 import MainLayout from "@/components/layouts/MainLayout";
 import ProjectFilterBtnGrp from "@/components/projects/project-filter-btn-group";
+import PinnedProjectList from "@/components/projects/PinnedProjectList";
 import {
   useProjectFilter,
   withProjectFilter,
@@ -36,9 +37,11 @@ const ProjectListPage = () => {
           )}
         />
 
+        <PinnedProjectList isVisible={!isSearchActive} showPin />
+
         <ProjectFilterBtnGrp className="bg-bgTransparent sticky top-[7rem] md:top-[8rem] z-[35] pb-2" />
 
-        <ProjectList />
+        <ProjectList showPin />
       </div>
     </MainLayout>
   );

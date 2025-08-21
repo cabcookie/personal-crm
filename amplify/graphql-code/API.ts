@@ -2,9 +2,153 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
+export type ModelStringKeyConditionInput = {
+  beginsWith?: string | null,
+  between?: Array< string | null > | null,
+  eq?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  le?: string | null,
+  lt?: string | null,
+};
+
+export type ModelInboxFilterInput = {
+  and?: Array< ModelInboxFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  formatVersion?: ModelIntInput | null,
+  id?: ModelIDInput | null,
+  movedToAccountLearningId?: ModelStringInput | null,
+  movedToActivityId?: ModelStringInput | null,
+  movedToPersonLearningId?: ModelStringInput | null,
+  not?: ModelInboxFilterInput | null,
+  note?: ModelStringInput | null,
+  noteJson?: ModelStringInput | null,
+  or?: Array< ModelInboxFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelInboxStatusInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelStringInput = {
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  beginsWith?: string | null,
+  between?: Array< string | null > | null,
+  contains?: string | null,
+  eq?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ne?: string | null,
+  notContains?: string | null,
+  size?: ModelSizeInput | null,
+};
+
+export enum ModelAttributeTypes {
+  _null = "_null",
+  binary = "binary",
+  binarySet = "binarySet",
+  bool = "bool",
+  list = "list",
+  map = "map",
+  number = "number",
+  numberSet = "numberSet",
+  string = "string",
+  stringSet = "stringSet",
+}
+
+
+export type ModelSizeInput = {
+  between?: Array< number | null > | null,
+  eq?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ne?: number | null,
+};
+
+export type ModelIntInput = {
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  between?: Array< number | null > | null,
+  eq?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ne?: number | null,
+};
+
+export type ModelIDInput = {
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  beginsWith?: string | null,
+  between?: Array< string | null > | null,
+  contains?: string | null,
+  eq?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ne?: string | null,
+  notContains?: string | null,
+  size?: ModelSizeInput | null,
+};
+
+export type ModelInboxStatusInput = {
+  eq?: InboxStatus | null,
+  ne?: InboxStatus | null,
+};
+
+export enum InboxStatus {
+  done = "done",
+  new = "new",
+}
+
+
+export enum ModelSortDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
+
+export type ModelInboxConnection = {
+  __typename: "ModelInboxConnection",
+  items:  Array<Inbox | null >,
+  nextToken?: string | null,
+};
+
+export type Inbox = {
+  __typename: "Inbox",
+  createdAt: string,
+  formatVersion?: number | null,
+  id: string,
+  movedToAccountLearningId?: string | null,
+  movedToActivityId?: string | null,
+  movedToPersonLearningId?: string | null,
+  note?: string | null,
+  noteJson?: string | null,
+  owner?: string | null,
+  status: InboxStatus,
+  updatedAt: string,
+};
+
+export type ChatNamerReturnType = {
+  __typename: "ChatNamerReturnType",
+  name?: string | null,
+};
+
+export type GenerateTasksSummaryReturnType = {
+  __typename: "GenerateTasksSummaryReturnType",
+  summary?: string | null,
+};
+
 export type Account = {
   __typename: "Account",
   accountSubsidiariesId?: string | null,
+  awsAccounts?: ModelAccountPayerAccountConnection | null,
   controller?: Account | null,
   createdAt: string,
   crmId?: string | null,
@@ -12,155 +156,119 @@ export type Account = {
   id: string,
   introduction?: string | null,
   introductionJson?: string | null,
+  learnings?: ModelAccountLearningConnection | null,
+  mainColor?: string | null,
   name: string,
   notionId?: number | null,
   order?: number | null,
   owner?: string | null,
   partnerProjects?: ModelProjectsConnection | null,
-  payerAccounts?: ModelAccountPayerAccountConnection | null,
   people?: ModelPersonAccountConnection | null,
   projects?: ModelAccountProjectsConnection | null,
   resellingAccounts?: ModelPayerAccountConnection | null,
+  shortName?: string | null,
   subsidiaries?: ModelAccountConnection | null,
   territories?: ModelAccountTerritoryConnection | null,
   updatedAt: string,
 };
 
-export type ModelProjectsConnection = {
-  __typename: "ModelProjectsConnection",
-  items:  Array<Projects | null >,
+export type ModelAccountPayerAccountConnection = {
+  __typename: "ModelAccountPayerAccountConnection",
+  items:  Array<AccountPayerAccount | null >,
   nextToken?: string | null,
 };
 
-export type Projects = {
-  __typename: "Projects",
-  accounts?: ModelAccountProjectsConnection | null,
-  activities?: ModelProjectActivityConnection | null,
-  batches?: ModelSixWeekBatchProjectsConnection | null,
-  context: Context,
-  createdAt: string,
-  crmProjects?: ModelCrmProjectProjectsConnection | null,
-  done?: boolean | null,
-  doneOn?: string | null,
-  dueOn?: string | null,
-  formatVersion?: number | null,
-  id: string,
-  myNextActions?: string | null,
-  myNextActionsJson?: string | null,
-  notionId?: number | null,
-  onHoldTill?: string | null,
-  othersNextActions?: string | null,
-  othersNextActionsJson?: string | null,
-  owner?: string | null,
-  partner?: Account | null,
-  partnerId?: string | null,
-  project: string,
-  updatedAt: string,
-  weekPlans?: ModelWeeklyPlanProjectConnection | null,
-};
-
-export type ModelAccountProjectsConnection = {
-  __typename: "ModelAccountProjectsConnection",
-  items:  Array<AccountProjects | null >,
-  nextToken?: string | null,
-};
-
-export type AccountProjects = {
-  __typename: "AccountProjects",
+export type AccountPayerAccount = {
+  __typename: "AccountPayerAccount",
   account?: Account | null,
   accountId: string,
+  awsAccountNumber?: PayerAccount | null,
+  awsAccountNumberId: string,
   createdAt: string,
   id: string,
   owner?: string | null,
-  projects?: Projects | null,
-  projectsId: string,
   updatedAt: string,
 };
 
-export type ModelProjectActivityConnection = {
-  __typename: "ModelProjectActivityConnection",
-  items:  Array<ProjectActivity | null >,
-  nextToken?: string | null,
-};
-
-export type ProjectActivity = {
-  __typename: "ProjectActivity",
-  activity?: Activity | null,
-  activityId: string,
+export type PayerAccount = {
+  __typename: "PayerAccount",
+  accounts?: ModelAccountPayerAccountConnection | null,
+  awsAccountNumber: string,
   createdAt: string,
-  id: string,
-  owner?: string | null,
-  projects?: Projects | null,
-  projectsId: string,
-  updatedAt: string,
-};
-
-export type Activity = {
-  __typename: "Activity",
-  createdAt: string,
-  finishedOn?: string | null,
-  forMeeting?: Meeting | null,
-  forProjects?: ModelProjectActivityConnection | null,
-  formatVersion?: number | null,
-  id: string,
-  meetingActivitiesId?: string | null,
-  noteBlockIds?: Array< string > | null,
-  noteBlocks?: ModelNoteBlockConnection | null,
+  financials?: ModelPayerAccountMrrConnection | null,
+  isViaReseller?: boolean | null,
+  mainContact?: Person | null,
+  mainContactId?: string | null,
   notes?: string | null,
-  notesJson?: string | null,
-  notionId?: number | null,
   owner?: string | null,
+  reseller?: Account | null,
+  resellerId?: string | null,
   updatedAt: string,
 };
 
-export type Meeting = {
-  __typename: "Meeting",
-  activities?: ModelActivityConnection | null,
-  context?: Context | null,
-  createdAt: string,
-  id: string,
-  immediateTasksDone?: boolean | null,
-  meetingOn?: string | null,
-  notionId?: number | null,
-  owner?: string | null,
-  participants?: ModelMeetingParticipantConnection | null,
-  topic: string,
-  updatedAt: string,
-};
-
-export type ModelActivityConnection = {
-  __typename: "ModelActivityConnection",
-  items:  Array<Activity | null >,
+export type ModelPayerAccountMrrConnection = {
+  __typename: "ModelPayerAccountMrrConnection",
+  items:  Array<PayerAccountMrr | null >,
   nextToken?: string | null,
 };
 
-export enum Context {
-  family = "family",
-  hobby = "hobby",
-  work = "work",
+export type PayerAccountMrr = {
+  __typename: "PayerAccountMrr",
+  awsAccountNumber: string,
+  companyName: string,
+  createdAt: string,
+  id: string,
+  isEstimated: boolean,
+  isReseller: boolean,
+  month?: Month | null,
+  monthId: string,
+  mrr?: number | null,
+  owner?: string | null,
+  payerAccount?: PayerAccount | null,
+  updatedAt: string,
+  upload?: MrrDataUpload | null,
+  uploadId: string,
+};
+
+export type Month = {
+  __typename: "Month",
+  createdAt: string,
+  id: string,
+  latestUpload?: MrrDataUpload | null,
+  latestUploadId: string,
+  month: string,
+  owner?: string | null,
+  payerMrrs?: ModelPayerAccountMrrConnection | null,
+  updatedAt: string,
+};
+
+export type MrrDataUpload = {
+  __typename: "MrrDataUpload",
+  createdAt: string,
+  id: string,
+  latestMonths?: ModelMonthConnection | null,
+  owner?: string | null,
+  payerMrrs?: ModelPayerAccountMrrConnection | null,
+  s3Key: string,
+  status: AnalyticsImportStatus,
+  updatedAt: string,
+};
+
+export type ModelMonthConnection = {
+  __typename: "ModelMonthConnection",
+  items:  Array<Month | null >,
+  nextToken?: string | null,
+};
+
+export enum AnalyticsImportStatus {
+  DONE = "DONE",
+  WIP = "WIP",
 }
 
 
-export type ModelMeetingParticipantConnection = {
-  __typename: "ModelMeetingParticipantConnection",
-  items:  Array<MeetingParticipant | null >,
-  nextToken?: string | null,
-};
-
-export type MeetingParticipant = {
-  __typename: "MeetingParticipant",
-  createdAt: string,
-  id: string,
-  meeting?: Meeting | null,
-  meetingId: string,
-  owner?: string | null,
-  person?: Person | null,
-  personId: string,
-  updatedAt: string,
-};
-
 export type Person = {
   __typename: "Person",
+  accountLearnings?: ModelAccountLearningPersonConnection | null,
   accounts?: ModelPersonAccountConnection | null,
   birthday?: string | null,
   createdAt: string,
@@ -180,6 +288,44 @@ export type Person = {
   relationshipsTo?: ModelPersonRelationshipConnection | null,
   updatedAt: string,
 };
+
+export type ModelAccountLearningPersonConnection = {
+  __typename: "ModelAccountLearningPersonConnection",
+  items:  Array<AccountLearningPerson | null >,
+  nextToken?: string | null,
+};
+
+export type AccountLearningPerson = {
+  __typename: "AccountLearningPerson",
+  createdAt: string,
+  id: string,
+  learning?: AccountLearning | null,
+  learningId: string,
+  owner?: string | null,
+  person?: Person | null,
+  personId: string,
+  updatedAt: string,
+};
+
+export type AccountLearning = {
+  __typename: "AccountLearning",
+  account?: Account | null,
+  accountId: string,
+  createdAt: string,
+  id: string,
+  learnedOn?: string | null,
+  learning?: string | null,
+  owner?: string | null,
+  peopleMentioned?: ModelAccountLearningPersonConnection | null,
+  status: LearningStatus,
+  updatedAt: string,
+};
+
+export enum LearningStatus {
+  archived = "archived",
+  new = "new",
+}
+
 
 export type ModelPersonAccountConnection = {
   __typename: "ModelPersonAccountConnection",
@@ -248,6 +394,7 @@ export type PersonLearning = {
   person?: Person | null,
   personId: string,
   prayer?: PrayerStatus | null,
+  status: LearningStatus,
   updatedAt: string,
 };
 
@@ -259,246 +406,131 @@ export enum PrayerStatus {
 }
 
 
-export type ModelNoteBlockPersonConnection = {
-  __typename: "ModelNoteBlockPersonConnection",
-  items:  Array<NoteBlockPerson | null >,
+export type ModelMeetingParticipantConnection = {
+  __typename: "ModelMeetingParticipantConnection",
+  items:  Array<MeetingParticipant | null >,
   nextToken?: string | null,
 };
 
-export type NoteBlockPerson = {
-  __typename: "NoteBlockPerson",
+export type MeetingParticipant = {
+  __typename: "MeetingParticipant",
   createdAt: string,
   id: string,
-  noteBlock?: NoteBlock | null,
-  noteBlockId: string,
+  meeting?: Meeting | null,
+  meetingId: string,
   owner?: string | null,
   person?: Person | null,
   personId: string,
   updatedAt: string,
 };
 
-export type NoteBlock = {
-  __typename: "NoteBlock",
+export type Meeting = {
+  __typename: "Meeting",
+  activities?: ModelActivityConnection | null,
+  context?: Context | null,
+  createdAt: string,
+  id: string,
+  immediateTasksDone?: boolean | null,
+  meetingOn?: string | null,
+  notionId?: number | null,
+  owner?: string | null,
+  participants?: ModelMeetingParticipantConnection | null,
+  topic: string,
+  updatedAt: string,
+};
+
+export type ModelActivityConnection = {
+  __typename: "ModelActivityConnection",
+  items:  Array<Activity | null >,
+  nextToken?: string | null,
+};
+
+export type Activity = {
+  __typename: "Activity",
+  createdAt: string,
+  finishedOn?: string | null,
+  forMeeting?: Meeting | null,
+  forProjects?: ModelProjectActivityConnection | null,
+  formatVersion?: number | null,
+  id: string,
+  meetingActivitiesId?: string | null,
+  name?: string | null,
+  noteBlockIds?: Array< string > | null,
+  noteBlocks?: ModelNoteBlockConnection | null,
+  notes?: string | null,
+  notesJson?: string | null,
+  notionId?: number | null,
+  owner?: string | null,
+  updatedAt: string,
+};
+
+export type ModelProjectActivityConnection = {
+  __typename: "ModelProjectActivityConnection",
+  items:  Array<ProjectActivity | null >,
+  nextToken?: string | null,
+};
+
+export type ProjectActivity = {
+  __typename: "ProjectActivity",
   activity?: Activity | null,
   activityId: string,
-  content?: string | null,
   createdAt: string,
-  formatVersion: number,
   id: string,
   owner?: string | null,
-  people?: ModelNoteBlockPersonConnection | null,
-  todo?: Todo | null,
-  todoId?: string | null,
-  type: string,
+  projects?: Projects | null,
+  projectsId: string,
   updatedAt: string,
 };
 
-export type Todo = {
-  __typename: "Todo",
-  activity?: NoteBlock | null,
-  createdAt: string,
-  dailyTodos?: ModelDailyPlanTodoConnection | null,
-  doneOn?: string | null,
-  id: string,
-  owner?: string | null,
-  status: TodoStatus,
-  todo: string,
-  updatedAt: string,
-};
-
-export type ModelDailyPlanTodoConnection = {
-  __typename: "ModelDailyPlanTodoConnection",
-  items:  Array<DailyPlanTodo | null >,
-  nextToken?: string | null,
-};
-
-export type DailyPlanTodo = {
-  __typename: "DailyPlanTodo",
-  createdAt: string,
-  dailyPlan?: DailyPlan | null,
-  dailyPlanId: string,
-  id: string,
-  owner?: string | null,
-  postPoned?: boolean | null,
-  todo?: Todo | null,
-  todoId: string,
-  updatedAt: string,
-};
-
-export type DailyPlan = {
-  __typename: "DailyPlan",
+export type Projects = {
+  __typename: "Projects",
+  accounts?: ModelAccountProjectsConnection | null,
+  activities?: ModelProjectActivityConnection | null,
+  batches?: ModelSixWeekBatchProjectsConnection | null,
   context: Context,
   createdAt: string,
-  day: string,
-  dayGoal: string,
+  crmProjects?: ModelCrmProjectProjectsConnection | null,
+  dayPlans?: ModelDailyPlanProjectConnection | null,
+  done?: boolean | null,
+  doneOn?: string | null,
+  dueOn?: string | null,
+  formatVersion?: number | null,
   id: string,
+  myNextActions?: string | null,
+  myNextActionsJson?: string | null,
+  notionId?: number | null,
+  onHoldTill?: string | null,
+  order?: number | null,
+  othersNextActions?: string | null,
+  othersNextActionsJson?: string | null,
   owner?: string | null,
-  status: DailyPlanStatus,
-  todos?: ModelDailyPlanTodoConnection | null,
+  partner?: Account | null,
+  partnerId?: string | null,
+  pinned: ProjectPinned,
+  project: string,
+  tasksSummary?: string | null,
+  tasksSummaryUpdatedAt?: string | null,
   updatedAt: string,
+  weekPlans?: ModelWeeklyPlanProjectConnection | null,
+  weeklyReviews?: ModelWeeklyReviewEntryConnection | null,
 };
 
-export enum DailyPlanStatus {
-  CANCELLED = "CANCELLED",
-  DONE = "DONE",
-  OPEN = "OPEN",
-  PLANNING = "PLANNING",
-}
-
-
-export enum TodoStatus {
-  DONE = "DONE",
-  OPEN = "OPEN",
-}
-
-
-export type ModelPayerAccountConnection = {
-  __typename: "ModelPayerAccountConnection",
-  items:  Array<PayerAccount | null >,
+export type ModelAccountProjectsConnection = {
+  __typename: "ModelAccountProjectsConnection",
+  items:  Array<AccountProjects | null >,
   nextToken?: string | null,
 };
 
-export type PayerAccount = {
-  __typename: "PayerAccount",
-  accounts?: ModelAccountPayerAccountConnection | null,
-  awsAccountNumber: string,
-  createdAt: string,
-  financials?: ModelPayerAccountMrrConnection | null,
-  isViaReseller?: boolean | null,
-  mainContact?: Person | null,
-  mainContactId?: string | null,
-  owner?: string | null,
-  reseller?: Account | null,
-  resellerId?: string | null,
-  updatedAt: string,
-};
-
-export type ModelAccountPayerAccountConnection = {
-  __typename: "ModelAccountPayerAccountConnection",
-  items:  Array<AccountPayerAccount | null >,
-  nextToken?: string | null,
-};
-
-export type AccountPayerAccount = {
-  __typename: "AccountPayerAccount",
+export type AccountProjects = {
+  __typename: "AccountProjects",
   account?: Account | null,
   accountId: string,
-  awsAccountNumber?: PayerAccount | null,
-  awsAccountNumberId: string,
   createdAt: string,
   id: string,
   owner?: string | null,
+  projects?: Projects | null,
+  projectsId: string,
   updatedAt: string,
-};
-
-export type ModelPayerAccountMrrConnection = {
-  __typename: "ModelPayerAccountMrrConnection",
-  items:  Array<PayerAccountMrr | null >,
-  nextToken?: string | null,
-};
-
-export type PayerAccountMrr = {
-  __typename: "PayerAccountMrr",
-  awsAccountNumber: string,
-  companyName: string,
-  createdAt: string,
-  id: string,
-  isEstimated: boolean,
-  isReseller: boolean,
-  month?: Month | null,
-  monthId: string,
-  mrr?: number | null,
-  owner?: string | null,
-  payerAccount?: PayerAccount | null,
-  updatedAt: string,
-  upload?: MrrDataUpload | null,
-  uploadId: string,
-};
-
-export type Month = {
-  __typename: "Month",
-  createdAt: string,
-  id: string,
-  latestUpload?: MrrDataUpload | null,
-  latestUploadId: string,
-  month: string,
-  owner?: string | null,
-  payerMrrs?: ModelPayerAccountMrrConnection | null,
-  updatedAt: string,
-};
-
-export type MrrDataUpload = {
-  __typename: "MrrDataUpload",
-  createdAt: string,
-  id: string,
-  latestMonths?: ModelMonthConnection | null,
-  owner?: string | null,
-  payerMrrs?: ModelPayerAccountMrrConnection | null,
-  s3Key: string,
-  status: AnalyticsImportStatus,
-  updatedAt: string,
-};
-
-export type ModelMonthConnection = {
-  __typename: "ModelMonthConnection",
-  items:  Array<Month | null >,
-  nextToken?: string | null,
-};
-
-export enum AnalyticsImportStatus {
-  DONE = "DONE",
-  WIP = "WIP",
-}
-
-
-export type User = {
-  __typename: "User",
-  createdAt: string,
-  email?: string | null,
-  name?: string | null,
-  person?: Person | null,
-  personId?: string | null,
-  profileId: string,
-  profilePicture?: string | null,
-  updatedAt: string,
-};
-
-export type ModelPersonRelationshipConnection = {
-  __typename: "ModelPersonRelationshipConnection",
-  items:  Array<PersonRelationship | null >,
-  nextToken?: string | null,
-};
-
-export type PersonRelationship = {
-  __typename: "PersonRelationship",
-  createdAt: string,
-  date?: string | null,
-  endDate?: string | null,
-  id: string,
-  owner?: string | null,
-  person?: Person | null,
-  personId?: string | null,
-  relatedPerson?: Person | null,
-  relatedPersonId?: string | null,
-  typeName?: RelationshipTypeEnum | null,
-  updatedAt: string,
-};
-
-export enum RelationshipTypeEnum {
-  child = "child",
-  fiance = "fiance",
-  friend = "friend",
-  parent = "parent",
-  partner = "partner",
-  smallgroup = "smallgroup",
-  spouse = "spouse",
-}
-
-
-export type ModelNoteBlockConnection = {
-  __typename: "ModelNoteBlockConnection",
-  items:  Array<NoteBlock | null >,
-  nextToken?: string | null,
 };
 
 export type ModelSixWeekBatchProjectsConnection = {
@@ -544,6 +576,13 @@ export type SixWeekBatch = {
 export enum SixWeekBatchAppetite {
   big = "big",
   small = "small",
+}
+
+
+export enum Context {
+  family = "family",
+  hobby = "hobby",
+  work = "work",
 }
 
 
@@ -617,6 +656,125 @@ export type CrmProject = {
   updatedAt: string,
 };
 
+export type ModelDailyPlanProjectConnection = {
+  __typename: "ModelDailyPlanProjectConnection",
+  items:  Array<DailyPlanProject | null >,
+  nextToken?: string | null,
+};
+
+export type DailyPlanProject = {
+  __typename: "DailyPlanProject",
+  createdAt: string,
+  dailyPlan?: DailyPlan | null,
+  dailyPlanId: string,
+  id: string,
+  maybe?: boolean | null,
+  owner?: string | null,
+  project?: Projects | null,
+  projectId: string,
+  updatedAt: string,
+};
+
+export type DailyPlan = {
+  __typename: "DailyPlan",
+  context: Context,
+  createdAt: string,
+  day: string,
+  dayGoal: string,
+  id: string,
+  owner?: string | null,
+  projects?: ModelDailyPlanProjectConnection | null,
+  status: DailyPlanStatus,
+  todos?: ModelDailyPlanTodoConnection | null,
+  updatedAt: string,
+};
+
+export enum DailyPlanStatus {
+  CANCELLED = "CANCELLED",
+  DONE = "DONE",
+  OPEN = "OPEN",
+  PLANNING = "PLANNING",
+}
+
+
+export type ModelDailyPlanTodoConnection = {
+  __typename: "ModelDailyPlanTodoConnection",
+  items:  Array<DailyPlanTodo | null >,
+  nextToken?: string | null,
+};
+
+export type DailyPlanTodo = {
+  __typename: "DailyPlanTodo",
+  createdAt: string,
+  dailyPlan?: DailyPlan | null,
+  dailyPlanId: string,
+  id: string,
+  owner?: string | null,
+  postPoned?: boolean | null,
+  todo?: Todo | null,
+  todoId: string,
+  updatedAt: string,
+};
+
+export type Todo = {
+  __typename: "Todo",
+  activity?: NoteBlock | null,
+  createdAt: string,
+  dailyTodos?: ModelDailyPlanTodoConnection | null,
+  doneOn?: string | null,
+  id: string,
+  owner?: string | null,
+  status: TodoStatus,
+  todo: string,
+  updatedAt: string,
+};
+
+export type NoteBlock = {
+  __typename: "NoteBlock",
+  activity?: Activity | null,
+  activityId: string,
+  content?: string | null,
+  createdAt: string,
+  formatVersion: number,
+  id: string,
+  owner?: string | null,
+  people?: ModelNoteBlockPersonConnection | null,
+  todo?: Todo | null,
+  todoId?: string | null,
+  type: string,
+  updatedAt: string,
+};
+
+export type ModelNoteBlockPersonConnection = {
+  __typename: "ModelNoteBlockPersonConnection",
+  items:  Array<NoteBlockPerson | null >,
+  nextToken?: string | null,
+};
+
+export type NoteBlockPerson = {
+  __typename: "NoteBlockPerson",
+  createdAt: string,
+  id: string,
+  noteBlock?: NoteBlock | null,
+  noteBlockId: string,
+  owner?: string | null,
+  person?: Person | null,
+  personId: string,
+  updatedAt: string,
+};
+
+export enum TodoStatus {
+  DONE = "DONE",
+  OPEN = "OPEN",
+}
+
+
+export enum ProjectPinned {
+  NOTPINNED = "NOTPINNED",
+  PINNED = "PINNED",
+}
+
+
 export type ModelWeeklyPlanProjectConnection = {
   __typename: "ModelWeeklyPlanProjectConnection",
   items:  Array<WeeklyPlanProject | null >,
@@ -638,7 +796,10 @@ export type WeeklyPlanProject = {
 export type WeeklyPlan = {
   __typename: "WeeklyPlan",
   createdAt: string,
+  crmUpdateSkipped?: boolean | null,
+  financialUpdateSkipped?: boolean | null,
   id: string,
+  inboxSkipped?: boolean | null,
   owner?: string | null,
   projects?: ModelWeeklyPlanProjectConnection | null,
   startDate: string,
@@ -652,6 +813,124 @@ export enum PlanningStatus {
   WIP = "WIP",
 }
 
+
+export type ModelWeeklyReviewEntryConnection = {
+  __typename: "ModelWeeklyReviewEntryConnection",
+  items:  Array<WeeklyReviewEntry | null >,
+  nextToken?: string | null,
+};
+
+export type WeeklyReviewEntry = {
+  __typename: "WeeklyReviewEntry",
+  category: WeeklyReviewCategory,
+  content?: string | null,
+  createdAt: string,
+  generatedContent?: string | null,
+  id: string,
+  isEdited?: boolean | null,
+  owner?: string | null,
+  project?: Projects | null,
+  projectId: string,
+  review?: WeeklyReview | null,
+  reviewId: string,
+  updatedAt: string,
+};
+
+export enum WeeklyReviewCategory {
+  customer_highlights = "customer_highlights",
+  customer_lowlights = "customer_lowlights",
+  genai_opportunities = "genai_opportunities",
+  market_observations = "market_observations",
+  none = "none",
+}
+
+
+export type WeeklyReview = {
+  __typename: "WeeklyReview",
+  createdAt: string,
+  date: string,
+  entries?: ModelWeeklyReviewEntryConnection | null,
+  id: string,
+  owner?: string | null,
+  status: WeeklyReviewStatus,
+  updatedAt: string,
+};
+
+export enum WeeklyReviewStatus {
+  completed = "completed",
+  draft = "draft",
+}
+
+
+export type ModelNoteBlockConnection = {
+  __typename: "ModelNoteBlockConnection",
+  items:  Array<NoteBlock | null >,
+  nextToken?: string | null,
+};
+
+export type ModelPayerAccountConnection = {
+  __typename: "ModelPayerAccountConnection",
+  items:  Array<PayerAccount | null >,
+  nextToken?: string | null,
+};
+
+export type User = {
+  __typename: "User",
+  createdAt: string,
+  email?: string | null,
+  name?: string | null,
+  person?: Person | null,
+  personId?: string | null,
+  profileId: string,
+  profilePicture?: string | null,
+  updatedAt: string,
+};
+
+export type ModelPersonRelationshipConnection = {
+  __typename: "ModelPersonRelationshipConnection",
+  items:  Array<PersonRelationship | null >,
+  nextToken?: string | null,
+};
+
+export type PersonRelationship = {
+  __typename: "PersonRelationship",
+  createdAt: string,
+  date?: string | null,
+  endDate?: string | null,
+  id: string,
+  owner?: string | null,
+  person?: Person | null,
+  personId?: string | null,
+  relatedPerson?: Person | null,
+  relatedPersonId?: string | null,
+  typeName?: RelationshipTypeEnum | null,
+  updatedAt: string,
+};
+
+export enum RelationshipTypeEnum {
+  child = "child",
+  employer = "employer",
+  fiance = "fiance",
+  friend = "friend",
+  manager = "manager",
+  parent = "parent",
+  partner = "partner",
+  smallgroup = "smallgroup",
+  spouse = "spouse",
+}
+
+
+export type ModelAccountLearningConnection = {
+  __typename: "ModelAccountLearningConnection",
+  items:  Array<AccountLearning | null >,
+  nextToken?: string | null,
+};
+
+export type ModelProjectsConnection = {
+  __typename: "ModelProjectsConnection",
+  items:  Array<Projects | null >,
+  nextToken?: string | null,
+};
 
 export type ModelAccountConnection = {
   __typename: "ModelAccountConnection",
@@ -748,6 +1027,134 @@ export enum Section {
 }
 
 
+export type ConversationGeneralChat = {
+  __typename: "ConversationGeneralChat",
+  createdAt: string,
+  id: string,
+  messages?: ModelConversationMessageGeneralChatConnection | null,
+  metadata?: string | null,
+  name?: string | null,
+  owner?: string | null,
+  updatedAt: string,
+};
+
+export type ModelConversationMessageGeneralChatConnection = {
+  __typename: "ModelConversationMessageGeneralChatConnection",
+  items:  Array<ConversationMessageGeneralChat | null >,
+  nextToken?: string | null,
+};
+
+export type ConversationMessageGeneralChat = {
+  __typename: "ConversationMessageGeneralChat",
+  aiContext?: string | null,
+  associatedUserMessageId?: string | null,
+  content?:  Array<AmplifyAIContentBlock | null > | null,
+  conversation?: ConversationGeneralChat | null,
+  conversationId: string,
+  createdAt: string,
+  id: string,
+  owner?: string | null,
+  role?: AmplifyAIConversationParticipantRole | null,
+  toolConfiguration?: AmplifyAIToolConfiguration | null,
+  updatedAt: string,
+};
+
+export type AmplifyAIConversationMessage = {
+  __typename: "AmplifyAIConversationMessage",
+  aiContext?: string | null,
+  associatedUserMessageId?: string | null,
+  content?:  Array<AmplifyAIContentBlock | null > | null,
+  conversationId: string,
+  createdAt?: string | null,
+  id: string,
+  owner?: string | null,
+  role?: AmplifyAIConversationParticipantRole | null,
+  toolConfiguration?: AmplifyAIToolConfiguration | null,
+  updatedAt?: string | null,
+};
+
+export type AmplifyAIContentBlock = {
+  __typename: "AmplifyAIContentBlock",
+  document?: AmplifyAIDocumentBlock | null,
+  image?: AmplifyAIImageBlock | null,
+  text?: string | null,
+  toolResult?: AmplifyAIToolResultBlock | null,
+  toolUse?: AmplifyAIToolUseBlock | null,
+};
+
+export type AmplifyAIDocumentBlock = {
+  __typename: "AmplifyAIDocumentBlock",
+  format: string,
+  name: string,
+  source: AmplifyAIDocumentBlockSource,
+};
+
+export type AmplifyAIDocumentBlockSource = {
+  __typename: "AmplifyAIDocumentBlockSource",
+  bytes?: string | null,
+};
+
+export type AmplifyAIImageBlock = {
+  __typename: "AmplifyAIImageBlock",
+  format: string,
+  source: AmplifyAIImageBlockSource,
+};
+
+export type AmplifyAIImageBlockSource = {
+  __typename: "AmplifyAIImageBlockSource",
+  bytes?: string | null,
+};
+
+export type AmplifyAIToolResultBlock = {
+  __typename: "AmplifyAIToolResultBlock",
+  content:  Array<AmplifyAIToolResultContentBlock >,
+  status?: string | null,
+  toolUseId: string,
+};
+
+export type AmplifyAIToolResultContentBlock = {
+  __typename: "AmplifyAIToolResultContentBlock",
+  document?: AmplifyAIDocumentBlock | null,
+  image?: AmplifyAIImageBlock | null,
+  json?: string | null,
+  text?: string | null,
+};
+
+export type AmplifyAIToolUseBlock = {
+  __typename: "AmplifyAIToolUseBlock",
+  input: string,
+  name: string,
+  toolUseId: string,
+};
+
+export enum AmplifyAIConversationParticipantRole {
+  assistant = "assistant",
+  user = "user",
+}
+
+
+export type AmplifyAIToolConfiguration = {
+  __typename: "AmplifyAIToolConfiguration",
+  tools?:  Array<AmplifyAITool | null > | null,
+};
+
+export type AmplifyAITool = {
+  __typename: "AmplifyAITool",
+  toolSpec?: AmplifyAIToolSpecification | null,
+};
+
+export type AmplifyAIToolSpecification = {
+  __typename: "AmplifyAIToolSpecification",
+  description?: string | null,
+  inputSchema: AmplifyAIToolInputSchema,
+  name: string,
+};
+
+export type AmplifyAIToolInputSchema = {
+  __typename: "AmplifyAIToolInputSchema",
+  json?: string | null,
+};
+
 export type CrmProjectImport = {
   __typename: "CrmProjectImport",
   createdAt: string,
@@ -773,17 +1180,35 @@ export type CurrentContext = {
   updatedAt: string,
 };
 
-export type Inbox = {
-  __typename: "Inbox",
-  createdAt: string,
-  formatVersion?: number | null,
-  id: string,
-  movedToActivityId?: string | null,
-  note?: string | null,
-  noteJson?: string | null,
-  owner?: string | null,
-  status: string,
-  updatedAt: string,
+export type ModelAccountLearningFilterInput = {
+  accountId?: ModelIDInput | null,
+  and?: Array< ModelAccountLearningFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  learnedOn?: ModelStringInput | null,
+  learning?: ModelStringInput | null,
+  not?: ModelAccountLearningFilterInput | null,
+  or?: Array< ModelAccountLearningFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelLearningStatusInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelLearningStatusInput = {
+  eq?: LearningStatus | null,
+  ne?: LearningStatus | null,
+};
+
+export type ModelAccountLearningPersonFilterInput = {
+  and?: Array< ModelAccountLearningPersonFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  learningId?: ModelIDInput | null,
+  not?: ModelAccountLearningPersonFilterInput | null,
+  or?: Array< ModelAccountLearningPersonFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  personId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
 };
 
 export type ModelAccountPayerAccountFilterInput = {
@@ -797,68 +1222,6 @@ export type ModelAccountPayerAccountFilterInput = {
   owner?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
 };
-
-export type ModelIDInput = {
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  beginsWith?: string | null,
-  between?: Array< string | null > | null,
-  contains?: string | null,
-  eq?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ne?: string | null,
-  notContains?: string | null,
-  size?: ModelSizeInput | null,
-};
-
-export enum ModelAttributeTypes {
-  _null = "_null",
-  binary = "binary",
-  binarySet = "binarySet",
-  bool = "bool",
-  list = "list",
-  map = "map",
-  number = "number",
-  numberSet = "numberSet",
-  string = "string",
-  stringSet = "stringSet",
-}
-
-
-export type ModelSizeInput = {
-  between?: Array< number | null > | null,
-  eq?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ne?: number | null,
-};
-
-export type ModelStringInput = {
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  beginsWith?: string | null,
-  between?: Array< string | null > | null,
-  contains?: string | null,
-  eq?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  le?: string | null,
-  lt?: string | null,
-  ne?: string | null,
-  notContains?: string | null,
-  size?: ModelSizeInput | null,
-};
-
-export enum ModelSortDirection {
-  ASC = "ASC",
-  DESC = "DESC",
-}
-
 
 export type ModelAccountProjectsFilterInput = {
   accountId?: ModelIDInput | null,
@@ -893,25 +1256,15 @@ export type ModelAccountFilterInput = {
   id?: ModelIDInput | null,
   introduction?: ModelStringInput | null,
   introductionJson?: ModelStringInput | null,
+  mainColor?: ModelStringInput | null,
   name?: ModelStringInput | null,
   not?: ModelAccountFilterInput | null,
   notionId?: ModelIntInput | null,
   or?: Array< ModelAccountFilterInput | null > | null,
   order?: ModelIntInput | null,
   owner?: ModelStringInput | null,
+  shortName?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
-};
-
-export type ModelIntInput = {
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  between?: Array< number | null > | null,
-  eq?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ne?: number | null,
 };
 
 export type ModelActivityFilterInput = {
@@ -921,6 +1274,7 @@ export type ModelActivityFilterInput = {
   formatVersion?: ModelIntInput | null,
   id?: ModelIDInput | null,
   meetingActivitiesId?: ModelIDInput | null,
+  name?: ModelStringInput | null,
   not?: ModelActivityFilterInput | null,
   noteBlockIds?: ModelStringInput | null,
   notes?: ModelStringInput | null,
@@ -957,16 +1311,6 @@ export type ModelBookOfBibleConnection = {
   nextToken?: string | null,
 };
 
-export type ModelStringKeyConditionInput = {
-  beginsWith?: string | null,
-  between?: Array< string | null > | null,
-  eq?: string | null,
-  ge?: string | null,
-  gt?: string | null,
-  le?: string | null,
-  lt?: string | null,
-};
-
 export type ModelCrmProjectImportFilterInput = {
   and?: Array< ModelCrmProjectImportFilterInput | null > | null,
   createdAt?: ModelStringInput | null,
@@ -990,6 +1334,87 @@ export type ModelCrmProjectImportConnection = {
   nextToken?: string | null,
 };
 
+export type ModelProjectsFilterInput = {
+  and?: Array< ModelProjectsFilterInput | null > | null,
+  context?: ModelContextInput | null,
+  createdAt?: ModelStringInput | null,
+  done?: ModelBooleanInput | null,
+  doneOn?: ModelStringInput | null,
+  dueOn?: ModelStringInput | null,
+  formatVersion?: ModelIntInput | null,
+  id?: ModelIDInput | null,
+  myNextActions?: ModelStringInput | null,
+  myNextActionsJson?: ModelStringInput | null,
+  not?: ModelProjectsFilterInput | null,
+  notionId?: ModelIntInput | null,
+  onHoldTill?: ModelStringInput | null,
+  or?: Array< ModelProjectsFilterInput | null > | null,
+  order?: ModelFloatInput | null,
+  othersNextActions?: ModelStringInput | null,
+  othersNextActionsJson?: ModelStringInput | null,
+  owner?: ModelStringInput | null,
+  partnerId?: ModelIDInput | null,
+  pinned?: ModelProjectPinnedInput | null,
+  project?: ModelStringInput | null,
+  tasksSummary?: ModelStringInput | null,
+  tasksSummaryUpdatedAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelContextInput = {
+  eq?: Context | null,
+  ne?: Context | null,
+};
+
+export type ModelBooleanInput = {
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  eq?: boolean | null,
+  ne?: boolean | null,
+};
+
+export type ModelFloatInput = {
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+  between?: Array< number | null > | null,
+  eq?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ne?: number | null,
+};
+
+export type ModelProjectPinnedInput = {
+  eq?: ProjectPinned | null,
+  ne?: ProjectPinned | null,
+};
+
+export type ModelNoteBlockPersonFilterInput = {
+  and?: Array< ModelNoteBlockPersonFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  not?: ModelNoteBlockPersonFilterInput | null,
+  noteBlockId?: ModelIDInput | null,
+  or?: Array< ModelNoteBlockPersonFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  personId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelDailyPlanProjectFilterInput = {
+  and?: Array< ModelDailyPlanProjectFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dailyPlanId?: ModelIDInput | null,
+  id?: ModelIDInput | null,
+  maybe?: ModelBooleanInput | null,
+  not?: ModelDailyPlanProjectFilterInput | null,
+  or?: Array< ModelDailyPlanProjectFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  projectId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
 export type ModelDailyPlanFilterInput = {
   and?: Array< ModelDailyPlanFilterInput | null > | null,
   context?: ModelContextInput | null,
@@ -1004,11 +1429,6 @@ export type ModelDailyPlanFilterInput = {
   updatedAt?: ModelStringInput | null,
 };
 
-export type ModelContextInput = {
-  eq?: Context | null,
-  ne?: Context | null,
-};
-
 export type ModelDailyPlanStatusInput = {
   eq?: DailyPlanStatus | null,
   ne?: DailyPlanStatus | null,
@@ -1018,6 +1438,79 @@ export type ModelDailyPlanConnection = {
   __typename: "ModelDailyPlanConnection",
   items:  Array<DailyPlan | null >,
   nextToken?: string | null,
+};
+
+export type ModelDailyPlanTodoFilterInput = {
+  and?: Array< ModelDailyPlanTodoFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dailyPlanId?: ModelIDInput | null,
+  id?: ModelIDInput | null,
+  not?: ModelDailyPlanTodoFilterInput | null,
+  or?: Array< ModelDailyPlanTodoFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  postPoned?: ModelBooleanInput | null,
+  todoId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelWeeklyReviewFilterInput = {
+  and?: Array< ModelWeeklyReviewFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  date?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  not?: ModelWeeklyReviewFilterInput | null,
+  or?: Array< ModelWeeklyReviewFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelWeeklyReviewStatusInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelWeeklyReviewStatusInput = {
+  eq?: WeeklyReviewStatus | null,
+  ne?: WeeklyReviewStatus | null,
+};
+
+export type ModelWeeklyReviewConnection = {
+  __typename: "ModelWeeklyReviewConnection",
+  items:  Array<WeeklyReview | null >,
+  nextToken?: string | null,
+};
+
+export type ModelConversationGeneralChatFilterInput = {
+  and?: Array< ModelConversationGeneralChatFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  metadata?: ModelStringInput | null,
+  name?: ModelStringInput | null,
+  not?: ModelConversationGeneralChatFilterInput | null,
+  or?: Array< ModelConversationGeneralChatFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelConversationGeneralChatConnection = {
+  __typename: "ModelConversationGeneralChatConnection",
+  items:  Array<ConversationGeneralChat | null >,
+  nextToken?: string | null,
+};
+
+export type ModelConversationMessageGeneralChatFilterInput = {
+  aiContext?: ModelStringInput | null,
+  and?: Array< ModelConversationMessageGeneralChatFilterInput | null > | null,
+  associatedUserMessageId?: ModelIDInput | null,
+  conversationId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  not?: ModelConversationMessageGeneralChatFilterInput | null,
+  or?: Array< ModelConversationMessageGeneralChatFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  role?: ModelAmplifyAIConversationParticipantRoleInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelAmplifyAIConversationParticipantRoleInput = {
+  eq?: AmplifyAIConversationParticipantRole | null,
+  ne?: AmplifyAIConversationParticipantRole | null,
 };
 
 export type ModelCrmProjectProjectsFilterInput = {
@@ -1058,13 +1551,6 @@ export type ModelCrmProjectFilterInput = {
   updatedAt?: ModelStringInput | null,
 };
 
-export type ModelBooleanInput = {
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-  eq?: boolean | null,
-  ne?: boolean | null,
-};
-
 export type ModelCrmProjectConnection = {
   __typename: "ModelCrmProjectConnection",
   items:  Array<CrmProject | null >,
@@ -1085,40 +1571,6 @@ export type ModelCurrentContextFilterInput = {
 export type ModelCurrentContextConnection = {
   __typename: "ModelCurrentContextConnection",
   items:  Array<CurrentContext | null >,
-  nextToken?: string | null,
-};
-
-export type ModelDailyPlanTodoFilterInput = {
-  and?: Array< ModelDailyPlanTodoFilterInput | null > | null,
-  createdAt?: ModelStringInput | null,
-  dailyPlanId?: ModelIDInput | null,
-  id?: ModelIDInput | null,
-  not?: ModelDailyPlanTodoFilterInput | null,
-  or?: Array< ModelDailyPlanTodoFilterInput | null > | null,
-  owner?: ModelStringInput | null,
-  postPoned?: ModelBooleanInput | null,
-  todoId?: ModelIDInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
-export type ModelInboxFilterInput = {
-  and?: Array< ModelInboxFilterInput | null > | null,
-  createdAt?: ModelStringInput | null,
-  formatVersion?: ModelIntInput | null,
-  id?: ModelIDInput | null,
-  movedToActivityId?: ModelStringInput | null,
-  not?: ModelInboxFilterInput | null,
-  note?: ModelStringInput | null,
-  noteJson?: ModelStringInput | null,
-  or?: Array< ModelInboxFilterInput | null > | null,
-  owner?: ModelStringInput | null,
-  status?: ModelIDInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
-export type ModelInboxConnection = {
-  __typename: "ModelInboxConnection",
-  items:  Array<Inbox | null >,
   nextToken?: string | null,
 };
 
@@ -1205,18 +1657,6 @@ export type ModelNoteBlockFilterInput = {
   updatedAt?: ModelStringInput | null,
 };
 
-export type ModelNoteBlockPersonFilterInput = {
-  and?: Array< ModelNoteBlockPersonFilterInput | null > | null,
-  createdAt?: ModelStringInput | null,
-  id?: ModelIDInput | null,
-  not?: ModelNoteBlockPersonFilterInput | null,
-  noteBlockId?: ModelIDInput | null,
-  or?: Array< ModelNoteBlockPersonFilterInput | null > | null,
-  owner?: ModelStringInput | null,
-  personId?: ModelIDInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
 export type ModelNotesBibleChapterFilterInput = {
   and?: Array< ModelNotesBibleChapterFilterInput | null > | null,
   bookId?: ModelIDInput | null,
@@ -1258,6 +1698,7 @@ export type ModelPayerAccountFilterInput = {
   isViaReseller?: ModelBooleanInput | null,
   mainContactId?: ModelIDInput | null,
   not?: ModelPayerAccountFilterInput | null,
+  notes?: ModelStringInput | null,
   or?: Array< ModelPayerAccountFilterInput | null > | null,
   owner?: ModelStringInput | null,
   resellerId?: ModelIDInput | null,
@@ -1329,6 +1770,7 @@ export type ModelPersonLearningFilterInput = {
   owner?: ModelStringInput | null,
   personId?: ModelIDInput | null,
   prayer?: ModelPrayerStatusInput | null,
+  status?: ModelLearningStatusInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
@@ -1366,29 +1808,6 @@ export type ModelProjectActivityFilterInput = {
   or?: Array< ModelProjectActivityFilterInput | null > | null,
   owner?: ModelStringInput | null,
   projectsId?: ModelIDInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
-export type ModelProjectsFilterInput = {
-  and?: Array< ModelProjectsFilterInput | null > | null,
-  context?: ModelContextInput | null,
-  createdAt?: ModelStringInput | null,
-  done?: ModelBooleanInput | null,
-  doneOn?: ModelStringInput | null,
-  dueOn?: ModelStringInput | null,
-  formatVersion?: ModelIntInput | null,
-  id?: ModelIDInput | null,
-  myNextActions?: ModelStringInput | null,
-  myNextActionsJson?: ModelStringInput | null,
-  not?: ModelProjectsFilterInput | null,
-  notionId?: ModelIntInput | null,
-  onHoldTill?: ModelStringInput | null,
-  or?: Array< ModelProjectsFilterInput | null > | null,
-  othersNextActions?: ModelStringInput | null,
-  othersNextActionsJson?: ModelStringInput | null,
-  owner?: ModelStringInput | null,
-  partnerId?: ModelIDInput | null,
-  project?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
@@ -1532,7 +1951,10 @@ export type ModelUserConnection = {
 export type ModelWeeklyPlanFilterInput = {
   and?: Array< ModelWeeklyPlanFilterInput | null > | null,
   createdAt?: ModelStringInput | null,
+  crmUpdateSkipped?: ModelBooleanInput | null,
+  financialUpdateSkipped?: ModelBooleanInput | null,
   id?: ModelIDInput | null,
+  inboxSkipped?: ModelBooleanInput | null,
   not?: ModelWeeklyPlanFilterInput | null,
   or?: Array< ModelWeeklyPlanFilterInput | null > | null,
   owner?: ModelStringInput | null,
@@ -1564,6 +1986,32 @@ export type ModelWeeklyPlanProjectFilterInput = {
   weekPlanId?: ModelIDInput | null,
 };
 
+export type ModelWeeklyReviewEntryFilterInput = {
+  and?: Array< ModelWeeklyReviewEntryFilterInput | null > | null,
+  category?: ModelWeeklyReviewCategoryInput | null,
+  content?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  generatedContent?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  isEdited?: ModelBooleanInput | null,
+  not?: ModelWeeklyReviewEntryFilterInput | null,
+  or?: Array< ModelWeeklyReviewEntryFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  projectId?: ModelIDInput | null,
+  reviewId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelWeeklyReviewCategoryInput = {
+  eq?: WeeklyReviewCategory | null,
+  ne?: WeeklyReviewCategory | null,
+};
+
+export type RewriteProjectNotesReturnType = {
+  __typename: "RewriteProjectNotesReturnType",
+  response?: string | null,
+};
+
 export type ModelAccountConditionInput = {
   accountSubsidiariesId?: ModelIDInput | null,
   and?: Array< ModelAccountConditionInput | null > | null,
@@ -1572,12 +2020,14 @@ export type ModelAccountConditionInput = {
   formatVersion?: ModelIntInput | null,
   introduction?: ModelStringInput | null,
   introductionJson?: ModelStringInput | null,
+  mainColor?: ModelStringInput | null,
   name?: ModelStringInput | null,
   not?: ModelAccountConditionInput | null,
   notionId?: ModelIntInput | null,
   or?: Array< ModelAccountConditionInput | null > | null,
   order?: ModelIntInput | null,
   owner?: ModelStringInput | null,
+  shortName?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
@@ -1588,10 +2038,52 @@ export type CreateAccountInput = {
   id?: string | null,
   introduction?: string | null,
   introductionJson?: string | null,
+  mainColor?: string | null,
   name: string,
   notionId?: number | null,
   order?: number | null,
   owner?: string | null,
+  shortName?: string | null,
+};
+
+export type ModelAccountLearningConditionInput = {
+  accountId?: ModelIDInput | null,
+  and?: Array< ModelAccountLearningConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  learnedOn?: ModelStringInput | null,
+  learning?: ModelStringInput | null,
+  not?: ModelAccountLearningConditionInput | null,
+  or?: Array< ModelAccountLearningConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelLearningStatusInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateAccountLearningInput = {
+  accountId: string,
+  id?: string | null,
+  learnedOn?: string | null,
+  learning?: string | null,
+  owner?: string | null,
+  status: LearningStatus,
+};
+
+export type ModelAccountLearningPersonConditionInput = {
+  and?: Array< ModelAccountLearningPersonConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  learningId?: ModelIDInput | null,
+  not?: ModelAccountLearningPersonConditionInput | null,
+  or?: Array< ModelAccountLearningPersonConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  personId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateAccountLearningPersonInput = {
+  id?: string | null,
+  learningId: string,
+  owner?: string | null,
+  personId: string,
 };
 
 export type ModelAccountPayerAccountConditionInput = {
@@ -1654,6 +2146,7 @@ export type ModelActivityConditionInput = {
   finishedOn?: ModelStringInput | null,
   formatVersion?: ModelIntInput | null,
   meetingActivitiesId?: ModelIDInput | null,
+  name?: ModelStringInput | null,
   not?: ModelActivityConditionInput | null,
   noteBlockIds?: ModelStringInput | null,
   notes?: ModelStringInput | null,
@@ -1669,11 +2162,105 @@ export type CreateActivityInput = {
   formatVersion?: number | null,
   id?: string | null,
   meetingActivitiesId?: string | null,
+  name?: string | null,
   noteBlockIds?: Array< string > | null,
   notes?: string | null,
   notesJson?: string | null,
   notionId?: number | null,
   owner?: string | null,
+};
+
+export type CreateConversationMessageGeneralChatAssistantInput = {
+  associatedUserMessageId?: string | null,
+  content?: Array< AmplifyAIContentBlockInput | null > | null,
+  conversationId?: string | null,
+};
+
+export type AmplifyAIContentBlockInput = {
+  document?: AmplifyAIDocumentBlockInput | null,
+  image?: AmplifyAIImageBlockInput | null,
+  text?: string | null,
+  toolResult?: AmplifyAIToolResultBlockInput | null,
+  toolUse?: AmplifyAIToolUseBlockInput | null,
+};
+
+export type AmplifyAIDocumentBlockInput = {
+  format: string,
+  name: string,
+  source: AmplifyAIDocumentBlockSourceInput,
+};
+
+export type AmplifyAIDocumentBlockSourceInput = {
+  bytes?: string | null,
+};
+
+export type AmplifyAIImageBlockInput = {
+  format: string,
+  source: AmplifyAIImageBlockSourceInput,
+};
+
+export type AmplifyAIImageBlockSourceInput = {
+  bytes?: string | null,
+};
+
+export type AmplifyAIToolResultBlockInput = {
+  content: Array< AmplifyAIToolResultContentBlockInput >,
+  status?: string | null,
+  toolUseId: string,
+};
+
+export type AmplifyAIToolResultContentBlockInput = {
+  document?: AmplifyAIDocumentBlockInput | null,
+  image?: AmplifyAIImageBlockInput | null,
+  json?: string | null,
+  text?: string | null,
+};
+
+export type AmplifyAIToolUseBlockInput = {
+  input: string,
+  name: string,
+  toolUseId: string,
+};
+
+export type CreateConversationMessageGeneralChatAssistantStreamingInput = {
+  accumulatedTurnContent?: Array< AmplifyAIContentBlockInput | null > | null,
+  associatedUserMessageId: string,
+  contentBlockDeltaIndex?: number | null,
+  contentBlockDoneAtIndex?: number | null,
+  contentBlockIndex?: number | null,
+  contentBlockText?: string | null,
+  contentBlockToolUse?: string | null,
+  conversationId: string,
+  errors?: Array< AmplifyAIConversationTurnErrorInput | null > | null,
+  p?: string | null,
+  stopReason?: string | null,
+};
+
+export type AmplifyAIConversationTurnErrorInput = {
+  errorType: string,
+  message: string,
+};
+
+export type AmplifyAIConversationMessageStreamPart = {
+  __typename: "AmplifyAIConversationMessageStreamPart",
+  associatedUserMessageId: string,
+  contentBlockDeltaIndex?: number | null,
+  contentBlockDoneAtIndex?: number | null,
+  contentBlockIndex?: number | null,
+  contentBlockText?: string | null,
+  contentBlockToolUse?: AmplifyAIToolUseBlock | null,
+  conversationId: string,
+  errors?:  Array<AmplifyAIConversationTurnError | null > | null,
+  id: string,
+  owner?: string | null,
+  p?: string | null,
+  stopReason?: string | null,
+};
+
+export type AmplifyAIConversationTurnError = {
+  __typename: "AmplifyAIConversationTurnError",
+  errorType: string,
+  message: string,
 };
 
 export type ModelBookOfBibleConditionInput = {
@@ -1697,6 +2284,64 @@ export type CreateBookOfBibleInput = {
   noOfChapters?: number | null,
   notionId?: number | null,
   section: Section,
+};
+
+export type ModelConversationGeneralChatConditionInput = {
+  and?: Array< ModelConversationGeneralChatConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  metadata?: ModelStringInput | null,
+  name?: ModelStringInput | null,
+  not?: ModelConversationGeneralChatConditionInput | null,
+  or?: Array< ModelConversationGeneralChatConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateConversationGeneralChatInput = {
+  id?: string | null,
+  metadata?: string | null,
+  name?: string | null,
+};
+
+export type ModelConversationMessageGeneralChatConditionInput = {
+  aiContext?: ModelStringInput | null,
+  and?: Array< ModelConversationMessageGeneralChatConditionInput | null > | null,
+  associatedUserMessageId?: ModelIDInput | null,
+  conversationId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  not?: ModelConversationMessageGeneralChatConditionInput | null,
+  or?: Array< ModelConversationMessageGeneralChatConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  role?: ModelAmplifyAIConversationParticipantRoleInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateConversationMessageGeneralChatInput = {
+  aiContext?: string | null,
+  associatedUserMessageId?: string | null,
+  content?: Array< AmplifyAIContentBlockInput | null > | null,
+  conversationId: string,
+  id?: string | null,
+  role?: AmplifyAIConversationParticipantRole | null,
+  toolConfiguration?: AmplifyAIToolConfigurationInput | null,
+};
+
+export type AmplifyAIToolConfigurationInput = {
+  tools?: Array< AmplifyAIToolInput | null > | null,
+};
+
+export type AmplifyAIToolInput = {
+  toolSpec?: AmplifyAIToolSpecificationInput | null,
+};
+
+export type AmplifyAIToolSpecificationInput = {
+  description?: string | null,
+  inputSchema: AmplifyAIToolInputSchemaInput,
+  name: string,
+};
+
+export type AmplifyAIToolInputSchemaInput = {
+  json?: string | null,
 };
 
 export type ModelCrmProjectConditionInput = {
@@ -1820,6 +2465,27 @@ export type CreateDailyPlanInput = {
   status: DailyPlanStatus,
 };
 
+export type ModelDailyPlanProjectConditionInput = {
+  and?: Array< ModelDailyPlanProjectConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dailyPlanId?: ModelIDInput | null,
+  maybe?: ModelBooleanInput | null,
+  not?: ModelDailyPlanProjectConditionInput | null,
+  or?: Array< ModelDailyPlanProjectConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  projectId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateDailyPlanProjectInput = {
+  dailyPlanId: string,
+  id?: string | null,
+  maybe?: boolean | null,
+  owner?: string | null,
+  projectId: string,
+  updatedAt?: string | null,
+};
+
 export type ModelDailyPlanTodoConditionInput = {
   and?: Array< ModelDailyPlanTodoConditionInput | null > | null,
   createdAt?: ModelStringInput | null,
@@ -1838,30 +2504,36 @@ export type CreateDailyPlanTodoInput = {
   owner?: string | null,
   postPoned?: boolean | null,
   todoId: string,
+  updatedAt?: string | null,
 };
 
 export type ModelInboxConditionInput = {
   and?: Array< ModelInboxConditionInput | null > | null,
   createdAt?: ModelStringInput | null,
   formatVersion?: ModelIntInput | null,
+  movedToAccountLearningId?: ModelStringInput | null,
   movedToActivityId?: ModelStringInput | null,
+  movedToPersonLearningId?: ModelStringInput | null,
   not?: ModelInboxConditionInput | null,
   note?: ModelStringInput | null,
   noteJson?: ModelStringInput | null,
   or?: Array< ModelInboxConditionInput | null > | null,
   owner?: ModelStringInput | null,
-  status?: ModelIDInput | null,
+  status?: ModelInboxStatusInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
 export type CreateInboxInput = {
+  createdAt?: string | null,
   formatVersion?: number | null,
   id?: string | null,
+  movedToAccountLearningId?: string | null,
   movedToActivityId?: string | null,
+  movedToPersonLearningId?: string | null,
   note?: string | null,
   noteJson?: string | null,
   owner?: string | null,
-  status: string,
+  status: InboxStatus,
 };
 
 export type ModelMeetingConditionInput = {
@@ -1900,6 +2572,7 @@ export type ModelMeetingParticipantConditionInput = {
 };
 
 export type CreateMeetingParticipantInput = {
+  createdAt?: string | null,
   id?: string | null,
   meetingId: string,
   owner?: string | null,
@@ -1979,6 +2652,7 @@ export type ModelNoteBlockPersonConditionInput = {
 };
 
 export type CreateNoteBlockPersonInput = {
+  createdAt?: string | null,
   id?: string | null,
   noteBlockId: string,
   owner?: string | null,
@@ -2017,6 +2691,7 @@ export type ModelPayerAccountConditionInput = {
   isViaReseller?: ModelBooleanInput | null,
   mainContactId?: ModelIDInput | null,
   not?: ModelPayerAccountConditionInput | null,
+  notes?: ModelStringInput | null,
   or?: Array< ModelPayerAccountConditionInput | null > | null,
   owner?: ModelStringInput | null,
   resellerId?: ModelIDInput | null,
@@ -2027,6 +2702,7 @@ export type CreatePayerAccountInput = {
   awsAccountNumber: string,
   isViaReseller?: boolean | null,
   mainContactId?: string | null,
+  notes?: string | null,
   owner?: string | null,
   resellerId?: string | null,
 };
@@ -2137,6 +2813,7 @@ export type ModelPersonLearningConditionInput = {
   owner?: ModelStringInput | null,
   personId?: ModelIDInput | null,
   prayer?: ModelPrayerStatusInput | null,
+  status?: ModelLearningStatusInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
@@ -2147,6 +2824,7 @@ export type CreatePersonLearningInput = {
   owner?: string | null,
   personId: string,
   prayer?: PrayerStatus | null,
+  status: LearningStatus,
 };
 
 export type ModelPersonRelationshipConditionInput = {
@@ -2205,11 +2883,15 @@ export type ModelProjectsConditionInput = {
   notionId?: ModelIntInput | null,
   onHoldTill?: ModelStringInput | null,
   or?: Array< ModelProjectsConditionInput | null > | null,
+  order?: ModelFloatInput | null,
   othersNextActions?: ModelStringInput | null,
   othersNextActionsJson?: ModelStringInput | null,
   owner?: ModelStringInput | null,
   partnerId?: ModelIDInput | null,
+  pinned?: ModelProjectPinnedInput | null,
   project?: ModelStringInput | null,
+  tasksSummary?: ModelStringInput | null,
+  tasksSummaryUpdatedAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
 };
 
@@ -2224,11 +2906,15 @@ export type CreateProjectsInput = {
   myNextActionsJson?: string | null,
   notionId?: number | null,
   onHoldTill?: string | null,
+  order?: number | null,
   othersNextActions?: string | null,
   othersNextActionsJson?: string | null,
   owner?: string | null,
   partnerId?: string | null,
+  pinned: ProjectPinned,
   project: string,
+  tasksSummary?: string | null,
+  tasksSummaryUpdatedAt?: string | null,
 };
 
 export type ModelSixWeekBatchConditionInput = {
@@ -2387,6 +3073,9 @@ export type CreateUserInput = {
 export type ModelWeeklyPlanConditionInput = {
   and?: Array< ModelWeeklyPlanConditionInput | null > | null,
   createdAt?: ModelStringInput | null,
+  crmUpdateSkipped?: ModelBooleanInput | null,
+  financialUpdateSkipped?: ModelBooleanInput | null,
+  inboxSkipped?: ModelBooleanInput | null,
   not?: ModelWeeklyPlanConditionInput | null,
   or?: Array< ModelWeeklyPlanConditionInput | null > | null,
   owner?: ModelStringInput | null,
@@ -2396,7 +3085,10 @@ export type ModelWeeklyPlanConditionInput = {
 };
 
 export type CreateWeeklyPlanInput = {
+  crmUpdateSkipped?: boolean | null,
+  financialUpdateSkipped?: boolean | null,
   id?: string | null,
+  inboxSkipped?: boolean | null,
   owner?: string | null,
   startDate: string,
   status: PlanningStatus,
@@ -2420,7 +3112,60 @@ export type CreateWeeklyPlanProjectInput = {
   weekPlanId: string,
 };
 
+export type ModelWeeklyReviewConditionInput = {
+  and?: Array< ModelWeeklyReviewConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  date?: ModelStringInput | null,
+  not?: ModelWeeklyReviewConditionInput | null,
+  or?: Array< ModelWeeklyReviewConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelWeeklyReviewStatusInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateWeeklyReviewInput = {
+  createdAt?: string | null,
+  date: string,
+  id?: string | null,
+  owner?: string | null,
+  status: WeeklyReviewStatus,
+};
+
+export type ModelWeeklyReviewEntryConditionInput = {
+  and?: Array< ModelWeeklyReviewEntryConditionInput | null > | null,
+  category?: ModelWeeklyReviewCategoryInput | null,
+  content?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  generatedContent?: ModelStringInput | null,
+  isEdited?: ModelBooleanInput | null,
+  not?: ModelWeeklyReviewEntryConditionInput | null,
+  or?: Array< ModelWeeklyReviewEntryConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  projectId?: ModelIDInput | null,
+  reviewId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateWeeklyReviewEntryInput = {
+  category: WeeklyReviewCategory,
+  content?: string | null,
+  generatedContent?: string | null,
+  id?: string | null,
+  isEdited?: boolean | null,
+  owner?: string | null,
+  projectId: string,
+  reviewId: string,
+};
+
 export type DeleteAccountInput = {
+  id: string,
+};
+
+export type DeleteAccountLearningInput = {
+  id: string,
+};
+
+export type DeleteAccountLearningPersonInput = {
   id: string,
 };
 
@@ -2444,6 +3189,14 @@ export type DeleteBookOfBibleInput = {
   id: string,
 };
 
+export type DeleteConversationGeneralChatInput = {
+  id: string,
+};
+
+export type DeleteConversationMessageGeneralChatInput = {
+  id: string,
+};
+
 export type DeleteCrmProjectInput = {
   id: string,
 };
@@ -2461,6 +3214,10 @@ export type DeleteCurrentContextInput = {
 };
 
 export type DeleteDailyPlanInput = {
+  id: string,
+};
+
+export type DeleteDailyPlanProjectInput = {
   id: string,
 };
 
@@ -2572,6 +3329,14 @@ export type DeleteWeeklyPlanProjectInput = {
   id: string,
 };
 
+export type DeleteWeeklyReviewInput = {
+  id: string,
+};
+
+export type DeleteWeeklyReviewEntryInput = {
+  id: string,
+};
+
 export type UpdateAccountInput = {
   accountSubsidiariesId?: string | null,
   crmId?: string | null,
@@ -2579,10 +3344,28 @@ export type UpdateAccountInput = {
   id: string,
   introduction?: string | null,
   introductionJson?: string | null,
+  mainColor?: string | null,
   name?: string | null,
   notionId?: number | null,
   order?: number | null,
   owner?: string | null,
+  shortName?: string | null,
+};
+
+export type UpdateAccountLearningInput = {
+  accountId?: string | null,
+  id: string,
+  learnedOn?: string | null,
+  learning?: string | null,
+  owner?: string | null,
+  status?: LearningStatus | null,
+};
+
+export type UpdateAccountLearningPersonInput = {
+  id: string,
+  learningId?: string | null,
+  owner?: string | null,
+  personId?: string | null,
 };
 
 export type UpdateAccountPayerAccountInput = {
@@ -2611,6 +3394,7 @@ export type UpdateActivityInput = {
   formatVersion?: number | null,
   id: string,
   meetingActivitiesId?: string | null,
+  name?: string | null,
   noteBlockIds?: Array< string > | null,
   notes?: string | null,
   notesJson?: string | null,
@@ -2625,6 +3409,12 @@ export type UpdateBookOfBibleInput = {
   noOfChapters?: number | null,
   notionId?: number | null,
   section?: Section | null,
+};
+
+export type UpdateConversationGeneralChatInput = {
+  id: string,
+  metadata?: string | null,
+  name?: string | null,
 };
 
 export type UpdateCrmProjectInput = {
@@ -2678,22 +3468,35 @@ export type UpdateDailyPlanInput = {
   status?: DailyPlanStatus | null,
 };
 
+export type UpdateDailyPlanProjectInput = {
+  dailyPlanId?: string | null,
+  id: string,
+  maybe?: boolean | null,
+  owner?: string | null,
+  projectId?: string | null,
+  updatedAt?: string | null,
+};
+
 export type UpdateDailyPlanTodoInput = {
   dailyPlanId?: string | null,
   id: string,
   owner?: string | null,
   postPoned?: boolean | null,
   todoId?: string | null,
+  updatedAt?: string | null,
 };
 
 export type UpdateInboxInput = {
+  createdAt?: string | null,
   formatVersion?: number | null,
   id: string,
+  movedToAccountLearningId?: string | null,
   movedToActivityId?: string | null,
+  movedToPersonLearningId?: string | null,
   note?: string | null,
   noteJson?: string | null,
   owner?: string | null,
-  status?: string | null,
+  status?: InboxStatus | null,
 };
 
 export type UpdateMeetingInput = {
@@ -2707,6 +3510,7 @@ export type UpdateMeetingInput = {
 };
 
 export type UpdateMeetingParticipantInput = {
+  createdAt?: string | null,
   id: string,
   meetingId?: string | null,
   owner?: string | null,
@@ -2739,6 +3543,7 @@ export type UpdateNoteBlockInput = {
 };
 
 export type UpdateNoteBlockPersonInput = {
+  createdAt?: string | null,
   id: string,
   noteBlockId?: string | null,
   owner?: string | null,
@@ -2760,6 +3565,7 @@ export type UpdatePayerAccountInput = {
   awsAccountNumber: string,
   isViaReseller?: boolean | null,
   mainContactId?: string | null,
+  notes?: string | null,
   owner?: string | null,
   resellerId?: string | null,
 };
@@ -2811,6 +3617,7 @@ export type UpdatePersonLearningInput = {
   owner?: string | null,
   personId?: string | null,
   prayer?: PrayerStatus | null,
+  status?: LearningStatus | null,
 };
 
 export type UpdatePersonRelationshipInput = {
@@ -2841,11 +3648,15 @@ export type UpdateProjectsInput = {
   myNextActionsJson?: string | null,
   notionId?: number | null,
   onHoldTill?: string | null,
+  order?: number | null,
   othersNextActions?: string | null,
   othersNextActionsJson?: string | null,
   owner?: string | null,
   partnerId?: string | null,
+  pinned?: ProjectPinned | null,
   project?: string | null,
+  tasksSummary?: string | null,
+  tasksSummaryUpdatedAt?: string | null,
 };
 
 export type UpdateSixWeekBatchInput = {
@@ -2911,7 +3722,10 @@ export type UpdateUserInput = {
 };
 
 export type UpdateWeeklyPlanInput = {
+  crmUpdateSkipped?: boolean | null,
+  financialUpdateSkipped?: boolean | null,
   id: string,
+  inboxSkipped?: boolean | null,
   owner?: string | null,
   startDate?: string | null,
   status?: PlanningStatus | null,
@@ -2924,6 +3738,25 @@ export type UpdateWeeklyPlanProjectInput = {
   weekPlanId?: string | null,
 };
 
+export type UpdateWeeklyReviewInput = {
+  createdAt?: string | null,
+  date?: string | null,
+  id: string,
+  owner?: string | null,
+  status?: WeeklyReviewStatus | null,
+};
+
+export type UpdateWeeklyReviewEntryInput = {
+  category?: WeeklyReviewCategory | null,
+  content?: string | null,
+  generatedContent?: string | null,
+  id: string,
+  isEdited?: boolean | null,
+  owner?: string | null,
+  projectId?: string | null,
+  reviewId?: string | null,
+};
+
 export type ModelSubscriptionAccountFilterInput = {
   accountSubsidiariesId?: ModelSubscriptionIDInput | null,
   and?: Array< ModelSubscriptionAccountFilterInput | null > | null,
@@ -2933,11 +3766,13 @@ export type ModelSubscriptionAccountFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   introduction?: ModelSubscriptionStringInput | null,
   introductionJson?: ModelSubscriptionStringInput | null,
+  mainColor?: ModelSubscriptionStringInput | null,
   name?: ModelSubscriptionStringInput | null,
   notionId?: ModelSubscriptionIntInput | null,
   or?: Array< ModelSubscriptionAccountFilterInput | null > | null,
   order?: ModelSubscriptionIntInput | null,
   owner?: ModelStringInput | null,
+  shortName?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
@@ -2983,6 +3818,30 @@ export type ModelSubscriptionIntInput = {
   notIn?: Array< number | null > | null,
 };
 
+export type ModelSubscriptionAccountLearningFilterInput = {
+  accountId?: ModelSubscriptionIDInput | null,
+  and?: Array< ModelSubscriptionAccountLearningFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  learnedOn?: ModelSubscriptionStringInput | null,
+  learning?: ModelSubscriptionStringInput | null,
+  or?: Array< ModelSubscriptionAccountLearningFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ModelSubscriptionAccountLearningPersonFilterInput = {
+  and?: Array< ModelSubscriptionAccountLearningPersonFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  learningId?: ModelSubscriptionIDInput | null,
+  or?: Array< ModelSubscriptionAccountLearningPersonFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  personId?: ModelSubscriptionIDInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
 export type ModelSubscriptionAccountPayerAccountFilterInput = {
   accountId?: ModelSubscriptionIDInput | null,
   and?: Array< ModelSubscriptionAccountPayerAccountFilterInput | null > | null,
@@ -3023,6 +3882,7 @@ export type ModelSubscriptionActivityFilterInput = {
   formatVersion?: ModelSubscriptionIntInput | null,
   id?: ModelSubscriptionIDInput | null,
   meetingActivitiesId?: ModelSubscriptionIDInput | null,
+  name?: ModelSubscriptionStringInput | null,
   noteBlockIds?: ModelSubscriptionStringInput | null,
   notes?: ModelSubscriptionStringInput | null,
   notesJson?: ModelSubscriptionStringInput | null,
@@ -3043,6 +3903,19 @@ export type ModelSubscriptionBookOfBibleFilterInput = {
   or?: Array< ModelSubscriptionBookOfBibleFilterInput | null > | null,
   owner?: ModelStringInput | null,
   section?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ModelSubscriptionConversationMessageGeneralChatFilterInput = {
+  aiContext?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionConversationMessageGeneralChatFilterInput | null > | null,
+  associatedUserMessageId?: ModelSubscriptionIDInput | null,
+  conversationId?: ModelSubscriptionIDInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  or?: Array< ModelSubscriptionConversationMessageGeneralChatFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  role?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
@@ -3121,6 +3994,18 @@ export type ModelSubscriptionDailyPlanFilterInput = {
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
+export type ModelSubscriptionDailyPlanProjectFilterInput = {
+  and?: Array< ModelSubscriptionDailyPlanProjectFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  dailyPlanId?: ModelSubscriptionIDInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  maybe?: ModelSubscriptionBooleanInput | null,
+  or?: Array< ModelSubscriptionDailyPlanProjectFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  projectId?: ModelSubscriptionIDInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
 export type ModelSubscriptionDailyPlanTodoFilterInput = {
   and?: Array< ModelSubscriptionDailyPlanTodoFilterInput | null > | null,
   createdAt?: ModelSubscriptionStringInput | null,
@@ -3138,12 +4023,14 @@ export type ModelSubscriptionInboxFilterInput = {
   createdAt?: ModelSubscriptionStringInput | null,
   formatVersion?: ModelSubscriptionIntInput | null,
   id?: ModelSubscriptionIDInput | null,
+  movedToAccountLearningId?: ModelSubscriptionStringInput | null,
   movedToActivityId?: ModelSubscriptionStringInput | null,
+  movedToPersonLearningId?: ModelSubscriptionStringInput | null,
   note?: ModelSubscriptionStringInput | null,
   noteJson?: ModelSubscriptionStringInput | null,
   or?: Array< ModelSubscriptionInboxFilterInput | null > | null,
   owner?: ModelStringInput | null,
-  status?: ModelSubscriptionIDInput | null,
+  status?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
@@ -3241,6 +4128,7 @@ export type ModelSubscriptionPayerAccountFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   isViaReseller?: ModelSubscriptionBooleanInput | null,
   mainContactId?: ModelSubscriptionIDInput | null,
+  notes?: ModelSubscriptionStringInput | null,
   or?: Array< ModelSubscriptionPayerAccountFilterInput | null > | null,
   owner?: ModelStringInput | null,
   resellerId?: ModelSubscriptionIDInput | null,
@@ -3313,6 +4201,7 @@ export type ModelSubscriptionPersonLearningFilterInput = {
   owner?: ModelStringInput | null,
   personId?: ModelSubscriptionIDInput | null,
   prayer?: ModelSubscriptionStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
@@ -3355,12 +4244,28 @@ export type ModelSubscriptionProjectsFilterInput = {
   notionId?: ModelSubscriptionIntInput | null,
   onHoldTill?: ModelSubscriptionStringInput | null,
   or?: Array< ModelSubscriptionProjectsFilterInput | null > | null,
+  order?: ModelSubscriptionFloatInput | null,
   othersNextActions?: ModelSubscriptionStringInput | null,
   othersNextActionsJson?: ModelSubscriptionStringInput | null,
   owner?: ModelStringInput | null,
   partnerId?: ModelSubscriptionIDInput | null,
+  pinned?: ModelSubscriptionStringInput | null,
   project?: ModelSubscriptionStringInput | null,
+  tasksSummary?: ModelSubscriptionStringInput | null,
+  tasksSummaryUpdatedAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ModelSubscriptionFloatInput = {
+  between?: Array< number | null > | null,
+  eq?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  in?: Array< number | null > | null,
+  le?: number | null,
+  lt?: number | null,
+  ne?: number | null,
+  notIn?: Array< number | null > | null,
 };
 
 export type ModelSubscriptionSixWeekBatchFilterInput = {
@@ -3457,7 +4362,10 @@ export type ModelSubscriptionUserFilterInput = {
 export type ModelSubscriptionWeeklyPlanFilterInput = {
   and?: Array< ModelSubscriptionWeeklyPlanFilterInput | null > | null,
   createdAt?: ModelSubscriptionStringInput | null,
+  crmUpdateSkipped?: ModelSubscriptionBooleanInput | null,
+  financialUpdateSkipped?: ModelSubscriptionBooleanInput | null,
   id?: ModelSubscriptionIDInput | null,
+  inboxSkipped?: ModelSubscriptionBooleanInput | null,
   or?: Array< ModelSubscriptionWeeklyPlanFilterInput | null > | null,
   owner?: ModelStringInput | null,
   startDate?: ModelSubscriptionStringInput | null,
@@ -3476,6 +4384,84 @@ export type ModelSubscriptionWeeklyPlanProjectFilterInput = {
   weekPlanId?: ModelSubscriptionIDInput | null,
 };
 
+export type ModelSubscriptionWeeklyReviewFilterInput = {
+  and?: Array< ModelSubscriptionWeeklyReviewFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  date?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  or?: Array< ModelSubscriptionWeeklyReviewFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ModelSubscriptionWeeklyReviewEntryFilterInput = {
+  and?: Array< ModelSubscriptionWeeklyReviewEntryFilterInput | null > | null,
+  category?: ModelSubscriptionStringInput | null,
+  content?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  generatedContent?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  isEdited?: ModelSubscriptionBooleanInput | null,
+  or?: Array< ModelSubscriptionWeeklyReviewEntryFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  projectId?: ModelSubscriptionIDInput | null,
+  reviewId?: ModelSubscriptionIDInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ByStatusQueryVariables = {
+  createdAt?: ModelStringKeyConditionInput | null,
+  filter?: ModelInboxFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+  status: InboxStatus,
+};
+
+export type ByStatusQuery = {
+  byStatus?:  {
+    __typename: "ModelInboxConnection",
+    items:  Array< {
+      __typename: "Inbox",
+      createdAt: string,
+      formatVersion?: number | null,
+      id: string,
+      movedToAccountLearningId?: string | null,
+      movedToActivityId?: string | null,
+      movedToPersonLearningId?: string | null,
+      note?: string | null,
+      noteJson?: string | null,
+      owner?: string | null,
+      status: InboxStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ChatNamerQueryVariables = {
+  content?: string | null,
+};
+
+export type ChatNamerQuery = {
+  chatNamer?:  {
+    __typename: "ChatNamerReturnType",
+    name?: string | null,
+  } | null,
+};
+
+export type GenerateTasksSummaryQueryVariables = {
+  tasks?: string | null,
+};
+
+export type GenerateTasksSummaryQuery = {
+  generateTasksSummary?:  {
+    __typename: "GenerateTasksSummaryReturnType",
+    summary?: string | null,
+  } | null,
+};
+
 export type GetAccountQueryVariables = {
   id: string,
 };
@@ -3484,6 +4470,10 @@ export type GetAccountQuery = {
   getAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -3493,10 +4483,12 @@ export type GetAccountQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -3505,16 +4497,17 @@ export type GetAccountQuery = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -3529,6 +4522,7 @@ export type GetAccountQuery = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -3537,6 +4531,84 @@ export type GetAccountQuery = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type GetAccountLearningQueryVariables = {
+  id: string,
+};
+
+export type GetAccountLearningQuery = {
+  getAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type GetAccountLearningPersonQueryVariables = {
+  id: string,
+};
+
+export type GetAccountLearningPersonQuery = {
+  getAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -3557,10 +4629,12 @@ export type GetAccountPayerAccountQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -3570,6 +4644,7 @@ export type GetAccountPayerAccountQuery = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -3598,10 +4673,12 @@ export type GetAccountProjectsQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -3621,11 +4698,15 @@ export type GetAccountProjectsQuery = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -3649,10 +4730,12 @@ export type GetAccountTerritoryQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -3701,6 +4784,7 @@ export type GetActivityQuery = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -3733,6 +4817,60 @@ export type GetBookOfBibleQuery = {
     notionId?: number | null,
     owner?: string | null,
     section: Section,
+    updatedAt: string,
+  } | null,
+};
+
+export type GetConversationGeneralChatQueryVariables = {
+  id: string,
+};
+
+export type GetConversationGeneralChatQuery = {
+  getConversationGeneralChat?:  {
+    __typename: "ConversationGeneralChat",
+    createdAt: string,
+    id: string,
+    messages?:  {
+      __typename: "ModelConversationMessageGeneralChatConnection",
+      nextToken?: string | null,
+    } | null,
+    metadata?: string | null,
+    name?: string | null,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type GetConversationMessageGeneralChatQueryVariables = {
+  id: string,
+};
+
+export type GetConversationMessageGeneralChatQuery = {
+  getConversationMessageGeneralChat?:  {
+    __typename: "ConversationMessageGeneralChat",
+    aiContext?: string | null,
+    associatedUserMessageId?: string | null,
+    content?:  Array< {
+      __typename: "AmplifyAIContentBlock",
+      text?: string | null,
+    } | null > | null,
+    conversation?:  {
+      __typename: "ConversationGeneralChat",
+      createdAt: string,
+      id: string,
+      metadata?: string | null,
+      name?: string | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    conversationId: string,
+    createdAt: string,
+    id: string,
+    owner?: string | null,
+    role?: AmplifyAIConversationParticipantRole | null,
+    toolConfiguration?:  {
+      __typename: "AmplifyAIToolConfiguration",
+    } | null,
     updatedAt: string,
   } | null,
 };
@@ -3834,11 +4972,15 @@ export type GetCrmProjectProjectsQuery = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -3874,11 +5016,67 @@ export type GetDailyPlanQuery = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type GetDailyPlanProjectQueryVariables = {
+  id: string,
+};
+
+export type GetDailyPlanProjectQuery = {
+  getDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -3931,11 +5129,13 @@ export type GetInboxQuery = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -4074,6 +5274,7 @@ export type GetNoteBlockQuery = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -4210,6 +5411,7 @@ export type GetPayerAccountQuery = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -4220,10 +5422,12 @@ export type GetPayerAccountQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -4262,6 +5466,7 @@ export type GetPayerAccountMrrQuery = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -4287,6 +5492,10 @@ export type GetPersonQueryVariables = {
 export type GetPersonQuery = {
   getPerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -4357,10 +5566,12 @@ export type GetPersonAccountQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -4442,6 +5653,7 @@ export type GetPersonLearningQuery = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -4503,6 +5715,7 @@ export type GetProjectActivityQuery = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -4527,11 +5740,15 @@ export type GetProjectActivityQuery = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -4564,6 +5781,10 @@ export type GetProjectsQuery = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -4573,6 +5794,7 @@ export type GetProjectsQuery = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -4585,17 +5807,26 @@ export type GetProjectsQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -4663,11 +5894,15 @@ export type GetSixWeekBatchProjectsQuery = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -4835,7 +6070,10 @@ export type GetWeeklyPlanQuery = {
   getWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -4870,11 +6108,15 @@ export type GetWeeklyPlanProjectQuery = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -4882,13 +6124,185 @@ export type GetWeeklyPlanProjectQuery = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null,
     weekPlanId: string,
+  } | null,
+};
+
+export type GetWeeklyReviewQueryVariables = {
+  id: string,
+};
+
+export type GetWeeklyReviewQuery = {
+  getWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type GetWeeklyReviewEntryQueryVariables = {
+  id: string,
+};
+
+export type GetWeeklyReviewEntryQuery = {
+  getWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListAccountLearningByAccountIdQueryVariables = {
+  accountId: string,
+  filter?: ModelAccountLearningFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListAccountLearningByAccountIdQuery = {
+  listAccountLearningByAccountId?:  {
+    __typename: "ModelAccountLearningConnection",
+    items:  Array< {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListAccountLearningPeopleQueryVariables = {
+  filter?: ModelAccountLearningPersonFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAccountLearningPeopleQuery = {
+  listAccountLearningPeople?:  {
+    __typename: "ModelAccountLearningPersonConnection",
+    items:  Array< {
+      __typename: "AccountLearningPerson",
+      createdAt: string,
+      id: string,
+      learningId: string,
+      owner?: string | null,
+      personId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListAccountLearningPersonByLearningIdQueryVariables = {
+  filter?: ModelAccountLearningPersonFilterInput | null,
+  learningId: string,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListAccountLearningPersonByLearningIdQuery = {
+  listAccountLearningPersonByLearningId?:  {
+    __typename: "ModelAccountLearningPersonConnection",
+    items:  Array< {
+      __typename: "AccountLearningPerson",
+      createdAt: string,
+      id: string,
+      learningId: string,
+      owner?: string | null,
+      personId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListAccountLearningsQueryVariables = {
+  filter?: ModelAccountLearningFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAccountLearningsQuery = {
+  listAccountLearnings?:  {
+    __typename: "ModelAccountLearningConnection",
+    items:  Array< {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
   } | null,
 };
 
@@ -5048,10 +6462,12 @@ export type ListAccountsQuery = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -5074,6 +6490,7 @@ export type ListActivitiesQuery = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -5135,6 +6552,135 @@ export type ListByImportStatusQuery = {
   } | null,
 };
 
+export type ListByPartnerIdQueryVariables = {
+  filter?: ModelProjectsFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  partnerId: string,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListByPartnerIdQuery = {
+  listByPartnerId?:  {
+    __typename: "ModelProjectsConnection",
+    items:  Array< {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListByPersonIdQueryVariables = {
+  createdAt?: ModelStringKeyConditionInput | null,
+  filter?: ModelNoteBlockPersonFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  personId: string,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListByPersonIdQuery = {
+  listByPersonId?:  {
+    __typename: "ModelNoteBlockPersonConnection",
+    items:  Array< {
+      __typename: "NoteBlockPerson",
+      createdAt: string,
+      id: string,
+      noteBlockId: string,
+      owner?: string | null,
+      personId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListByPinnedStateQueryVariables = {
+  filter?: ModelProjectsFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  pinned: ProjectPinned,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListByPinnedStateQuery = {
+  listByPinnedState?:  {
+    __typename: "ModelProjectsConnection",
+    items:  Array< {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListByProjectIdQueryVariables = {
+  filter?: ModelDailyPlanProjectFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  projectId: string,
+  sortDirection?: ModelSortDirection | null,
+  updatedAt?: ModelStringKeyConditionInput | null,
+};
+
+export type ListByProjectIdQuery = {
+  listByProjectId?:  {
+    __typename: "ModelDailyPlanProjectConnection",
+    items:  Array< {
+      __typename: "DailyPlanProject",
+      createdAt: string,
+      dailyPlanId: string,
+      id: string,
+      maybe?: boolean | null,
+      owner?: string | null,
+      projectId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type ListByStatusQueryVariables = {
   day?: ModelStringKeyConditionInput | null,
   filter?: ModelDailyPlanFilterInput | null,
@@ -5156,6 +6702,103 @@ export type ListByStatusQuery = {
       id: string,
       owner?: string | null,
       status: DailyPlanStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListByTodoIdQueryVariables = {
+  filter?: ModelDailyPlanTodoFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+  todoId: string,
+  updatedAt?: ModelStringKeyConditionInput | null,
+};
+
+export type ListByTodoIdQuery = {
+  listByTodoId?:  {
+    __typename: "ModelDailyPlanTodoConnection",
+    items:  Array< {
+      __typename: "DailyPlanTodo",
+      createdAt: string,
+      dailyPlanId: string,
+      id: string,
+      owner?: string | null,
+      postPoned?: boolean | null,
+      todoId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListByWbrStatusQueryVariables = {
+  createdAt?: ModelStringKeyConditionInput | null,
+  filter?: ModelWeeklyReviewFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+  status: WeeklyReviewStatus,
+};
+
+export type ListByWbrStatusQuery = {
+  listByWbrStatus?:  {
+    __typename: "ModelWeeklyReviewConnection",
+    items:  Array< {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListConversationGeneralChatsQueryVariables = {
+  filter?: ModelConversationGeneralChatFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListConversationGeneralChatsQuery = {
+  listConversationGeneralChats?:  {
+    __typename: "ModelConversationGeneralChatConnection",
+    items:  Array< {
+      __typename: "ConversationGeneralChat",
+      createdAt: string,
+      id: string,
+      metadata?: string | null,
+      name?: string | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListConversationMessageGeneralChatsQueryVariables = {
+  filter?: ModelConversationMessageGeneralChatFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListConversationMessageGeneralChatsQuery = {
+  listConversationMessageGeneralChats?:  {
+    __typename: "ModelConversationMessageGeneralChatConnection",
+    items:  Array< {
+      __typename: "ConversationMessageGeneralChat",
+      aiContext?: string | null,
+      associatedUserMessageId?: string | null,
+      conversationId: string,
+      createdAt: string,
+      id: string,
+      owner?: string | null,
+      role?: AmplifyAIConversationParticipantRole | null,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -5263,6 +6906,29 @@ export type ListCurrentContextsQuery = {
   } | null,
 };
 
+export type ListDailyPlanProjectsQueryVariables = {
+  filter?: ModelDailyPlanProjectFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListDailyPlanProjectsQuery = {
+  listDailyPlanProjects?:  {
+    __typename: "ModelDailyPlanProjectConnection",
+    items:  Array< {
+      __typename: "DailyPlanProject",
+      createdAt: string,
+      dailyPlanId: string,
+      id: string,
+      maybe?: boolean | null,
+      owner?: string | null,
+      projectId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type ListDailyPlanTodosQueryVariables = {
   filter?: ModelDailyPlanTodoFilterInput | null,
   limit?: number | null,
@@ -5310,33 +6976,6 @@ export type ListDailyPlansQuery = {
   } | null,
 };
 
-export type ListInboxByStatusQueryVariables = {
-  filter?: ModelInboxFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-  sortDirection?: ModelSortDirection | null,
-  status: string,
-};
-
-export type ListInboxByStatusQuery = {
-  listInboxByStatus?:  {
-    __typename: "ModelInboxConnection",
-    items:  Array< {
-      __typename: "Inbox",
-      createdAt: string,
-      formatVersion?: number | null,
-      id: string,
-      movedToActivityId?: string | null,
-      note?: string | null,
-      noteJson?: string | null,
-      owner?: string | null,
-      status: string,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type ListInboxesQueryVariables = {
   filter?: ModelInboxFilterInput | null,
   limit?: number | null,
@@ -5351,18 +6990,21 @@ export type ListInboxesQuery = {
       createdAt: string,
       formatVersion?: number | null,
       id: string,
+      movedToAccountLearningId?: string | null,
       movedToActivityId?: string | null,
+      movedToPersonLearningId?: string | null,
       note?: string | null,
       noteJson?: string | null,
       owner?: string | null,
-      status: string,
+      status: InboxStatus,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
   } | null,
 };
 
-export type ListMeetingParticipantByPersonIdQueryVariables = {
+export type ListMeetingParticipantByPersonIdAndCreatedAtQueryVariables = {
+  createdAt?: ModelStringKeyConditionInput | null,
   filter?: ModelMeetingParticipantFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
@@ -5370,8 +7012,8 @@ export type ListMeetingParticipantByPersonIdQueryVariables = {
   sortDirection?: ModelSortDirection | null,
 };
 
-export type ListMeetingParticipantByPersonIdQuery = {
-  listMeetingParticipantByPersonId?:  {
+export type ListMeetingParticipantByPersonIdAndCreatedAtQuery = {
+  listMeetingParticipantByPersonIdAndCreatedAt?:  {
     __typename: "ModelMeetingParticipantConnection",
     items:  Array< {
       __typename: "MeetingParticipant",
@@ -5700,6 +7342,7 @@ export type ListPayerAccountsQuery = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -5828,6 +7471,7 @@ export type ListPersonLearningByPersonIdQuery = {
       owner?: string | null,
       personId: string,
       prayer?: PrayerStatus | null,
+      status: LearningStatus,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -5852,6 +7496,7 @@ export type ListPersonLearningsQuery = {
       owner?: string | null,
       personId: string,
       prayer?: PrayerStatus | null,
+      status: LearningStatus,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -5951,11 +7596,15 @@ export type ListProjectsQuery = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -6156,6 +7805,31 @@ export type ListUsersQuery = {
   } | null,
 };
 
+export type ListWbrByWeekQueryVariables = {
+  createdAt?: ModelStringKeyConditionInput | null,
+  date: string,
+  filter?: ModelWeeklyReviewFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListWbrByWeekQuery = {
+  listWbrByWeek?:  {
+    __typename: "ModelWeeklyReviewConnection",
+    items:  Array< {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type ListWeeklyPlanByStatusQueryVariables = {
   filter?: ModelWeeklyPlanFilterInput | null,
   limit?: number | null,
@@ -6170,7 +7844,10 @@ export type ListWeeklyPlanByStatusQuery = {
     items:  Array< {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
@@ -6214,13 +7891,75 @@ export type ListWeeklyPlansQuery = {
     items:  Array< {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
+  } | null,
+};
+
+export type ListWeeklyReviewEntriesQueryVariables = {
+  filter?: ModelWeeklyReviewEntryFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListWeeklyReviewEntriesQuery = {
+  listWeeklyReviewEntries?:  {
+    __typename: "ModelWeeklyReviewEntryConnection",
+    items:  Array< {
+      __typename: "WeeklyReviewEntry",
+      category: WeeklyReviewCategory,
+      content?: string | null,
+      createdAt: string,
+      generatedContent?: string | null,
+      id: string,
+      isEdited?: boolean | null,
+      owner?: string | null,
+      projectId: string,
+      reviewId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListWeeklyReviewsQueryVariables = {
+  filter?: ModelWeeklyReviewFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListWeeklyReviewsQuery = {
+  listWeeklyReviews?:  {
+    __typename: "ModelWeeklyReviewConnection",
+    items:  Array< {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type RewriteProjectNotesQueryVariables = {
+  content?: string | null,
+};
+
+export type RewriteProjectNotesQuery = {
+  rewriteProjectNotes?:  {
+    __typename: "RewriteProjectNotesReturnType",
+    response?: string | null,
   } | null,
 };
 
@@ -6233,6 +7972,10 @@ export type CreateAccountMutation = {
   createAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -6242,10 +7985,12 @@ export type CreateAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -6254,16 +7999,17 @@ export type CreateAccountMutation = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -6278,6 +8024,7 @@ export type CreateAccountMutation = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -6286,6 +8033,86 @@ export type CreateAccountMutation = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateAccountLearningMutationVariables = {
+  condition?: ModelAccountLearningConditionInput | null,
+  input: CreateAccountLearningInput,
+};
+
+export type CreateAccountLearningMutation = {
+  createAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateAccountLearningPersonMutationVariables = {
+  condition?: ModelAccountLearningPersonConditionInput | null,
+  input: CreateAccountLearningPersonInput,
+};
+
+export type CreateAccountLearningPersonMutation = {
+  createAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -6307,10 +8134,12 @@ export type CreateAccountPayerAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -6320,6 +8149,7 @@ export type CreateAccountPayerAccountMutation = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -6349,10 +8179,12 @@ export type CreateAccountProjectsMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -6372,11 +8204,15 @@ export type CreateAccountProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -6401,10 +8237,12 @@ export type CreateAccountTerritoryMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -6454,6 +8292,7 @@ export type CreateActivityMutation = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -6464,6 +8303,71 @@ export type CreateActivityMutation = {
     notionId?: number | null,
     owner?: string | null,
     updatedAt: string,
+  } | null,
+};
+
+export type CreateAssistantResponseGeneralChatMutationVariables = {
+  input: CreateConversationMessageGeneralChatAssistantInput,
+};
+
+export type CreateAssistantResponseGeneralChatMutation = {
+  createAssistantResponseGeneralChat?:  {
+    __typename: "ConversationMessageGeneralChat",
+    aiContext?: string | null,
+    associatedUserMessageId?: string | null,
+    content?:  Array< {
+      __typename: "AmplifyAIContentBlock",
+      text?: string | null,
+    } | null > | null,
+    conversation?:  {
+      __typename: "ConversationGeneralChat",
+      createdAt: string,
+      id: string,
+      metadata?: string | null,
+      name?: string | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    conversationId: string,
+    createdAt: string,
+    id: string,
+    owner?: string | null,
+    role?: AmplifyAIConversationParticipantRole | null,
+    toolConfiguration?:  {
+      __typename: "AmplifyAIToolConfiguration",
+    } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateAssistantResponseStreamGeneralChatMutationVariables = {
+  input: CreateConversationMessageGeneralChatAssistantStreamingInput,
+};
+
+export type CreateAssistantResponseStreamGeneralChatMutation = {
+  createAssistantResponseStreamGeneralChat?:  {
+    __typename: "AmplifyAIConversationMessageStreamPart",
+    associatedUserMessageId: string,
+    contentBlockDeltaIndex?: number | null,
+    contentBlockDoneAtIndex?: number | null,
+    contentBlockIndex?: number | null,
+    contentBlockText?: string | null,
+    contentBlockToolUse?:  {
+      __typename: "AmplifyAIToolUseBlock",
+      input: string,
+      name: string,
+      toolUseId: string,
+    } | null,
+    conversationId: string,
+    errors?:  Array< {
+      __typename: "AmplifyAIConversationTurnError",
+      errorType: string,
+      message: string,
+    } | null > | null,
+    id: string,
+    owner?: string | null,
+    p?: string | null,
+    stopReason?: string | null,
   } | null,
 };
 
@@ -6487,6 +8391,62 @@ export type CreateBookOfBibleMutation = {
     notionId?: number | null,
     owner?: string | null,
     section: Section,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateConversationGeneralChatMutationVariables = {
+  condition?: ModelConversationGeneralChatConditionInput | null,
+  input: CreateConversationGeneralChatInput,
+};
+
+export type CreateConversationGeneralChatMutation = {
+  createConversationGeneralChat?:  {
+    __typename: "ConversationGeneralChat",
+    createdAt: string,
+    id: string,
+    messages?:  {
+      __typename: "ModelConversationMessageGeneralChatConnection",
+      nextToken?: string | null,
+    } | null,
+    metadata?: string | null,
+    name?: string | null,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateConversationMessageGeneralChatMutationVariables = {
+  condition?: ModelConversationMessageGeneralChatConditionInput | null,
+  input: CreateConversationMessageGeneralChatInput,
+};
+
+export type CreateConversationMessageGeneralChatMutation = {
+  createConversationMessageGeneralChat?:  {
+    __typename: "ConversationMessageGeneralChat",
+    aiContext?: string | null,
+    associatedUserMessageId?: string | null,
+    content?:  Array< {
+      __typename: "AmplifyAIContentBlock",
+      text?: string | null,
+    } | null > | null,
+    conversation?:  {
+      __typename: "ConversationGeneralChat",
+      createdAt: string,
+      id: string,
+      metadata?: string | null,
+      name?: string | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    conversationId: string,
+    createdAt: string,
+    id: string,
+    owner?: string | null,
+    role?: AmplifyAIConversationParticipantRole | null,
+    toolConfiguration?:  {
+      __typename: "AmplifyAIToolConfiguration",
+    } | null,
     updatedAt: string,
   } | null,
 };
@@ -6591,11 +8551,15 @@ export type CreateCrmProjectProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -6633,11 +8597,68 @@ export type CreateDailyPlanMutation = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateDailyPlanProjectMutationVariables = {
+  condition?: ModelDailyPlanProjectConditionInput | null,
+  input: CreateDailyPlanProjectInput,
+};
+
+export type CreateDailyPlanProjectMutation = {
+  createDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -6692,11 +8713,13 @@ export type CreateInboxMutation = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -6840,6 +8863,7 @@ export type CreateNoteBlockMutation = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -6979,6 +9003,7 @@ export type CreatePayerAccountMutation = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -6989,10 +9014,12 @@ export type CreatePayerAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -7032,6 +9059,7 @@ export type CreatePayerAccountMrrMutation = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -7058,6 +9086,10 @@ export type CreatePersonMutationVariables = {
 export type CreatePersonMutation = {
   createPerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -7129,10 +9161,12 @@ export type CreatePersonAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -7216,6 +9250,7 @@ export type CreatePersonLearningMutation = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -7279,6 +9314,7 @@ export type CreateProjectActivityMutation = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -7303,11 +9339,15 @@ export type CreateProjectActivityMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -7341,6 +9381,10 @@ export type CreateProjectsMutation = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -7350,6 +9394,7 @@ export type CreateProjectsMutation = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -7362,17 +9407,26 @@ export type CreateProjectsMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -7442,11 +9496,15 @@ export type CreateSixWeekBatchProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -7620,7 +9678,10 @@ export type CreateWeeklyPlanMutation = {
   createWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -7656,11 +9717,15 @@ export type CreateWeeklyPlanProjectMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -7668,13 +9733,91 @@ export type CreateWeeklyPlanProjectMutation = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null,
     weekPlanId: string,
+  } | null,
+};
+
+export type CreateWeeklyReviewMutationVariables = {
+  condition?: ModelWeeklyReviewConditionInput | null,
+  input: CreateWeeklyReviewInput,
+};
+
+export type CreateWeeklyReviewMutation = {
+  createWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateWeeklyReviewEntryMutationVariables = {
+  condition?: ModelWeeklyReviewEntryConditionInput | null,
+  input: CreateWeeklyReviewEntryInput,
+};
+
+export type CreateWeeklyReviewEntryMutation = {
+  createWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -7687,6 +9830,10 @@ export type DeleteAccountMutation = {
   deleteAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -7696,10 +9843,12 @@ export type DeleteAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -7708,16 +9857,17 @@ export type DeleteAccountMutation = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -7732,6 +9882,7 @@ export type DeleteAccountMutation = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -7740,6 +9891,86 @@ export type DeleteAccountMutation = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteAccountLearningMutationVariables = {
+  condition?: ModelAccountLearningConditionInput | null,
+  input: DeleteAccountLearningInput,
+};
+
+export type DeleteAccountLearningMutation = {
+  deleteAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteAccountLearningPersonMutationVariables = {
+  condition?: ModelAccountLearningPersonConditionInput | null,
+  input: DeleteAccountLearningPersonInput,
+};
+
+export type DeleteAccountLearningPersonMutation = {
+  deleteAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -7761,10 +9992,12 @@ export type DeleteAccountPayerAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -7774,6 +10007,7 @@ export type DeleteAccountPayerAccountMutation = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -7803,10 +10037,12 @@ export type DeleteAccountProjectsMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -7826,11 +10062,15 @@ export type DeleteAccountProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -7855,10 +10095,12 @@ export type DeleteAccountTerritoryMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -7908,6 +10150,7 @@ export type DeleteActivityMutation = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -7941,6 +10184,62 @@ export type DeleteBookOfBibleMutation = {
     notionId?: number | null,
     owner?: string | null,
     section: Section,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteConversationGeneralChatMutationVariables = {
+  condition?: ModelConversationGeneralChatConditionInput | null,
+  input: DeleteConversationGeneralChatInput,
+};
+
+export type DeleteConversationGeneralChatMutation = {
+  deleteConversationGeneralChat?:  {
+    __typename: "ConversationGeneralChat",
+    createdAt: string,
+    id: string,
+    messages?:  {
+      __typename: "ModelConversationMessageGeneralChatConnection",
+      nextToken?: string | null,
+    } | null,
+    metadata?: string | null,
+    name?: string | null,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteConversationMessageGeneralChatMutationVariables = {
+  condition?: ModelConversationMessageGeneralChatConditionInput | null,
+  input: DeleteConversationMessageGeneralChatInput,
+};
+
+export type DeleteConversationMessageGeneralChatMutation = {
+  deleteConversationMessageGeneralChat?:  {
+    __typename: "ConversationMessageGeneralChat",
+    aiContext?: string | null,
+    associatedUserMessageId?: string | null,
+    content?:  Array< {
+      __typename: "AmplifyAIContentBlock",
+      text?: string | null,
+    } | null > | null,
+    conversation?:  {
+      __typename: "ConversationGeneralChat",
+      createdAt: string,
+      id: string,
+      metadata?: string | null,
+      name?: string | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    conversationId: string,
+    createdAt: string,
+    id: string,
+    owner?: string | null,
+    role?: AmplifyAIConversationParticipantRole | null,
+    toolConfiguration?:  {
+      __typename: "AmplifyAIToolConfiguration",
+    } | null,
     updatedAt: string,
   } | null,
 };
@@ -8045,11 +10344,15 @@ export type DeleteCrmProjectProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -8087,11 +10390,68 @@ export type DeleteDailyPlanMutation = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteDailyPlanProjectMutationVariables = {
+  condition?: ModelDailyPlanProjectConditionInput | null,
+  input: DeleteDailyPlanProjectInput,
+};
+
+export type DeleteDailyPlanProjectMutation = {
+  deleteDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -8146,11 +10506,13 @@ export type DeleteInboxMutation = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -8294,6 +10656,7 @@ export type DeleteNoteBlockMutation = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -8433,6 +10796,7 @@ export type DeletePayerAccountMutation = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -8443,10 +10807,12 @@ export type DeletePayerAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -8486,6 +10852,7 @@ export type DeletePayerAccountMrrMutation = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -8512,6 +10879,10 @@ export type DeletePersonMutationVariables = {
 export type DeletePersonMutation = {
   deletePerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -8583,10 +10954,12 @@ export type DeletePersonAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -8670,6 +11043,7 @@ export type DeletePersonLearningMutation = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -8733,6 +11107,7 @@ export type DeleteProjectActivityMutation = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -8757,11 +11132,15 @@ export type DeleteProjectActivityMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -8795,6 +11174,10 @@ export type DeleteProjectsMutation = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -8804,6 +11187,7 @@ export type DeleteProjectsMutation = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -8816,17 +11200,26 @@ export type DeleteProjectsMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -8896,11 +11289,15 @@ export type DeleteSixWeekBatchProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -9074,7 +11471,10 @@ export type DeleteWeeklyPlanMutation = {
   deleteWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -9110,11 +11510,15 @@ export type DeleteWeeklyPlanProjectMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -9122,7 +11526,10 @@ export type DeleteWeeklyPlanProjectMutation = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
@@ -9130,6 +11537,119 @@ export type DeleteWeeklyPlanProjectMutation = {
     } | null,
     weekPlanId: string,
   } | null,
+};
+
+export type DeleteWeeklyReviewMutationVariables = {
+  condition?: ModelWeeklyReviewConditionInput | null,
+  input: DeleteWeeklyReviewInput,
+};
+
+export type DeleteWeeklyReviewMutation = {
+  deleteWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteWeeklyReviewEntryMutationVariables = {
+  condition?: ModelWeeklyReviewEntryConditionInput | null,
+  input: DeleteWeeklyReviewEntryInput,
+};
+
+export type DeleteWeeklyReviewEntryMutation = {
+  deleteWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type GeneralChatMutationVariables = {
+  aiContext?: string | null,
+  content?: Array< AmplifyAIContentBlockInput | null > | null,
+  conversationId: string,
+  toolConfiguration?: AmplifyAIToolConfigurationInput | null,
+};
+
+export type GeneralChatMutation = {
+  generalChat: ( {
+      __typename: "ConversationMessageGeneralChat",
+      aiContext?: string | null,
+      associatedUserMessageId?: string | null,
+      content?:  Array< {
+        __typename: "AmplifyAIContentBlock",
+        text?: string | null,
+      } | null > | null,
+      conversationId: string,
+      createdAt?: string | null,
+      id: string,
+      owner?: string | null,
+      role?: AmplifyAIConversationParticipantRole | null,
+      toolConfiguration?:  {
+        __typename: "AmplifyAIToolConfiguration",
+      } | null,
+      updatedAt?: string | null,
+      conversation?:  {
+        __typename: "ConversationGeneralChat",
+        createdAt: string,
+        id: string,
+        metadata?: string | null,
+        name?: string | null,
+        owner?: string | null,
+        updatedAt: string,
+      } | null,
+    }
+  ) | null,
 };
 
 export type UpdateAccountMutationVariables = {
@@ -9141,6 +11661,10 @@ export type UpdateAccountMutation = {
   updateAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -9150,10 +11674,12 @@ export type UpdateAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -9162,16 +11688,17 @@ export type UpdateAccountMutation = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -9186,6 +11713,7 @@ export type UpdateAccountMutation = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -9194,6 +11722,86 @@ export type UpdateAccountMutation = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateAccountLearningMutationVariables = {
+  condition?: ModelAccountLearningConditionInput | null,
+  input: UpdateAccountLearningInput,
+};
+
+export type UpdateAccountLearningMutation = {
+  updateAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateAccountLearningPersonMutationVariables = {
+  condition?: ModelAccountLearningPersonConditionInput | null,
+  input: UpdateAccountLearningPersonInput,
+};
+
+export type UpdateAccountLearningPersonMutation = {
+  updateAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -9215,10 +11823,12 @@ export type UpdateAccountPayerAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -9228,6 +11838,7 @@ export type UpdateAccountPayerAccountMutation = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -9257,10 +11868,12 @@ export type UpdateAccountProjectsMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -9280,11 +11893,15 @@ export type UpdateAccountProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -9309,10 +11926,12 @@ export type UpdateAccountTerritoryMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -9362,6 +11981,7 @@ export type UpdateActivityMutation = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -9395,6 +12015,27 @@ export type UpdateBookOfBibleMutation = {
     notionId?: number | null,
     owner?: string | null,
     section: Section,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateConversationGeneralChatMutationVariables = {
+  condition?: ModelConversationGeneralChatConditionInput | null,
+  input: UpdateConversationGeneralChatInput,
+};
+
+export type UpdateConversationGeneralChatMutation = {
+  updateConversationGeneralChat?:  {
+    __typename: "ConversationGeneralChat",
+    createdAt: string,
+    id: string,
+    messages?:  {
+      __typename: "ModelConversationMessageGeneralChatConnection",
+      nextToken?: string | null,
+    } | null,
+    metadata?: string | null,
+    name?: string | null,
+    owner?: string | null,
     updatedAt: string,
   } | null,
 };
@@ -9499,11 +12140,15 @@ export type UpdateCrmProjectProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -9541,11 +12186,68 @@ export type UpdateDailyPlanMutation = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateDailyPlanProjectMutationVariables = {
+  condition?: ModelDailyPlanProjectConditionInput | null,
+  input: UpdateDailyPlanProjectInput,
+};
+
+export type UpdateDailyPlanProjectMutation = {
+  updateDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -9600,11 +12302,13 @@ export type UpdateInboxMutation = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -9748,6 +12452,7 @@ export type UpdateNoteBlockMutation = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -9887,6 +12592,7 @@ export type UpdatePayerAccountMutation = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -9897,10 +12603,12 @@ export type UpdatePayerAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -9940,6 +12648,7 @@ export type UpdatePayerAccountMrrMutation = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -9966,6 +12675,10 @@ export type UpdatePersonMutationVariables = {
 export type UpdatePersonMutation = {
   updatePerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -10037,10 +12750,12 @@ export type UpdatePersonAccountMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -10124,6 +12839,7 @@ export type UpdatePersonLearningMutation = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -10187,6 +12903,7 @@ export type UpdateProjectActivityMutation = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -10211,11 +12928,15 @@ export type UpdateProjectActivityMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -10249,6 +12970,10 @@ export type UpdateProjectsMutation = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -10258,6 +12983,7 @@ export type UpdateProjectsMutation = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -10270,17 +12996,26 @@ export type UpdateProjectsMutation = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -10350,11 +13085,15 @@ export type UpdateSixWeekBatchProjectsMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -10528,7 +13267,10 @@ export type UpdateWeeklyPlanMutation = {
   updateWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -10564,11 +13306,15 @@ export type UpdateWeeklyPlanProjectMutation = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -10576,13 +13322,91 @@ export type UpdateWeeklyPlanProjectMutation = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null,
     weekPlanId: string,
+  } | null,
+};
+
+export type UpdateWeeklyReviewMutationVariables = {
+  condition?: ModelWeeklyReviewConditionInput | null,
+  input: UpdateWeeklyReviewInput,
+};
+
+export type UpdateWeeklyReviewMutation = {
+  updateWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateWeeklyReviewEntryMutationVariables = {
+  condition?: ModelWeeklyReviewEntryConditionInput | null,
+  input: UpdateWeeklyReviewEntryInput,
+};
+
+export type UpdateWeeklyReviewEntryMutation = {
+  updateWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -10595,6 +13419,10 @@ export type OnCreateAccountSubscription = {
   onCreateAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -10604,10 +13432,12 @@ export type OnCreateAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -10616,16 +13446,17 @@ export type OnCreateAccountSubscription = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -10640,6 +13471,7 @@ export type OnCreateAccountSubscription = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -10648,6 +13480,86 @@ export type OnCreateAccountSubscription = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateAccountLearningSubscriptionVariables = {
+  filter?: ModelSubscriptionAccountLearningFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateAccountLearningSubscription = {
+  onCreateAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateAccountLearningPersonSubscriptionVariables = {
+  filter?: ModelSubscriptionAccountLearningPersonFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateAccountLearningPersonSubscription = {
+  onCreateAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -10669,10 +13581,12 @@ export type OnCreateAccountPayerAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -10682,6 +13596,7 @@ export type OnCreateAccountPayerAccountSubscription = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -10711,10 +13626,12 @@ export type OnCreateAccountProjectsSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -10734,11 +13651,15 @@ export type OnCreateAccountProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -10763,10 +13684,12 @@ export type OnCreateAccountTerritorySubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -10816,6 +13739,7 @@ export type OnCreateActivitySubscription = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -10826,6 +13750,37 @@ export type OnCreateActivitySubscription = {
     notionId?: number | null,
     owner?: string | null,
     updatedAt: string,
+  } | null,
+};
+
+export type OnCreateAssistantResponseGeneralChatSubscriptionVariables = {
+  conversationId?: string | null,
+};
+
+export type OnCreateAssistantResponseGeneralChatSubscription = {
+  onCreateAssistantResponseGeneralChat?:  {
+    __typename: "AmplifyAIConversationMessageStreamPart",
+    associatedUserMessageId: string,
+    contentBlockDeltaIndex?: number | null,
+    contentBlockDoneAtIndex?: number | null,
+    contentBlockIndex?: number | null,
+    contentBlockText?: string | null,
+    contentBlockToolUse?:  {
+      __typename: "AmplifyAIToolUseBlock",
+      input: string,
+      name: string,
+      toolUseId: string,
+    } | null,
+    conversationId: string,
+    errors?:  Array< {
+      __typename: "AmplifyAIConversationTurnError",
+      errorType: string,
+      message: string,
+    } | null > | null,
+    id: string,
+    owner?: string | null,
+    p?: string | null,
+    stopReason?: string | null,
   } | null,
 };
 
@@ -10849,6 +13804,41 @@ export type OnCreateBookOfBibleSubscription = {
     notionId?: number | null,
     owner?: string | null,
     section: Section,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateConversationMessageGeneralChatSubscriptionVariables = {
+  filter?: ModelSubscriptionConversationMessageGeneralChatFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateConversationMessageGeneralChatSubscription = {
+  onCreateConversationMessageGeneralChat?:  {
+    __typename: "ConversationMessageGeneralChat",
+    aiContext?: string | null,
+    associatedUserMessageId?: string | null,
+    content?:  Array< {
+      __typename: "AmplifyAIContentBlock",
+      text?: string | null,
+    } | null > | null,
+    conversation?:  {
+      __typename: "ConversationGeneralChat",
+      createdAt: string,
+      id: string,
+      metadata?: string | null,
+      name?: string | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    conversationId: string,
+    createdAt: string,
+    id: string,
+    owner?: string | null,
+    role?: AmplifyAIConversationParticipantRole | null,
+    toolConfiguration?:  {
+      __typename: "AmplifyAIToolConfiguration",
+    } | null,
     updatedAt: string,
   } | null,
 };
@@ -10953,11 +13943,15 @@ export type OnCreateCrmProjectProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -10995,11 +13989,68 @@ export type OnCreateDailyPlanSubscription = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateDailyPlanProjectSubscriptionVariables = {
+  filter?: ModelSubscriptionDailyPlanProjectFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateDailyPlanProjectSubscription = {
+  onCreateDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -11054,11 +14105,13 @@ export type OnCreateInboxSubscription = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -11202,6 +14255,7 @@ export type OnCreateNoteBlockSubscription = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -11341,6 +14395,7 @@ export type OnCreatePayerAccountSubscription = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -11351,10 +14406,12 @@ export type OnCreatePayerAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -11394,6 +14451,7 @@ export type OnCreatePayerAccountMrrSubscription = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -11420,6 +14478,10 @@ export type OnCreatePersonSubscriptionVariables = {
 export type OnCreatePersonSubscription = {
   onCreatePerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -11491,10 +14553,12 @@ export type OnCreatePersonAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -11578,6 +14642,7 @@ export type OnCreatePersonLearningSubscription = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -11641,6 +14706,7 @@ export type OnCreateProjectActivitySubscription = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -11665,11 +14731,15 @@ export type OnCreateProjectActivitySubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -11703,6 +14773,10 @@ export type OnCreateProjectsSubscription = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -11712,6 +14786,7 @@ export type OnCreateProjectsSubscription = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -11724,17 +14799,26 @@ export type OnCreateProjectsSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -11804,11 +14888,15 @@ export type OnCreateSixWeekBatchProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -11982,7 +15070,10 @@ export type OnCreateWeeklyPlanSubscription = {
   onCreateWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -12018,11 +15109,15 @@ export type OnCreateWeeklyPlanProjectSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -12030,13 +15125,91 @@ export type OnCreateWeeklyPlanProjectSubscription = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null,
     weekPlanId: string,
+  } | null,
+};
+
+export type OnCreateWeeklyReviewSubscriptionVariables = {
+  filter?: ModelSubscriptionWeeklyReviewFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateWeeklyReviewSubscription = {
+  onCreateWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateWeeklyReviewEntrySubscriptionVariables = {
+  filter?: ModelSubscriptionWeeklyReviewEntryFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateWeeklyReviewEntrySubscription = {
+  onCreateWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -12049,6 +15222,10 @@ export type OnDeleteAccountSubscription = {
   onDeleteAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -12058,10 +15235,12 @@ export type OnDeleteAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -12070,16 +15249,17 @@ export type OnDeleteAccountSubscription = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -12094,6 +15274,7 @@ export type OnDeleteAccountSubscription = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -12102,6 +15283,86 @@ export type OnDeleteAccountSubscription = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteAccountLearningSubscriptionVariables = {
+  filter?: ModelSubscriptionAccountLearningFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteAccountLearningSubscription = {
+  onDeleteAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteAccountLearningPersonSubscriptionVariables = {
+  filter?: ModelSubscriptionAccountLearningPersonFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteAccountLearningPersonSubscription = {
+  onDeleteAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -12123,10 +15384,12 @@ export type OnDeleteAccountPayerAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -12136,6 +15399,7 @@ export type OnDeleteAccountPayerAccountSubscription = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -12165,10 +15429,12 @@ export type OnDeleteAccountProjectsSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -12188,11 +15454,15 @@ export type OnDeleteAccountProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -12217,10 +15487,12 @@ export type OnDeleteAccountTerritorySubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -12270,6 +15542,7 @@ export type OnDeleteActivitySubscription = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -12407,11 +15680,15 @@ export type OnDeleteCrmProjectProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -12449,11 +15726,68 @@ export type OnDeleteDailyPlanSubscription = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteDailyPlanProjectSubscriptionVariables = {
+  filter?: ModelSubscriptionDailyPlanProjectFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteDailyPlanProjectSubscription = {
+  onDeleteDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -12508,11 +15842,13 @@ export type OnDeleteInboxSubscription = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -12656,6 +15992,7 @@ export type OnDeleteNoteBlockSubscription = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -12795,6 +16132,7 @@ export type OnDeletePayerAccountSubscription = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -12805,10 +16143,12 @@ export type OnDeletePayerAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -12848,6 +16188,7 @@ export type OnDeletePayerAccountMrrSubscription = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -12874,6 +16215,10 @@ export type OnDeletePersonSubscriptionVariables = {
 export type OnDeletePersonSubscription = {
   onDeletePerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -12945,10 +16290,12 @@ export type OnDeletePersonAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -13032,6 +16379,7 @@ export type OnDeletePersonLearningSubscription = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -13095,6 +16443,7 @@ export type OnDeleteProjectActivitySubscription = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -13119,11 +16468,15 @@ export type OnDeleteProjectActivitySubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -13157,6 +16510,10 @@ export type OnDeleteProjectsSubscription = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -13166,6 +16523,7 @@ export type OnDeleteProjectsSubscription = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -13178,17 +16536,26 @@ export type OnDeleteProjectsSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -13258,11 +16625,15 @@ export type OnDeleteSixWeekBatchProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -13436,7 +16807,10 @@ export type OnDeleteWeeklyPlanSubscription = {
   onDeleteWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -13472,11 +16846,15 @@ export type OnDeleteWeeklyPlanProjectSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -13484,13 +16862,91 @@ export type OnDeleteWeeklyPlanProjectSubscription = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null,
     weekPlanId: string,
+  } | null,
+};
+
+export type OnDeleteWeeklyReviewSubscriptionVariables = {
+  filter?: ModelSubscriptionWeeklyReviewFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteWeeklyReviewSubscription = {
+  onDeleteWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteWeeklyReviewEntrySubscriptionVariables = {
+  filter?: ModelSubscriptionWeeklyReviewEntryFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteWeeklyReviewEntrySubscription = {
+  onDeleteWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -13503,6 +16959,10 @@ export type OnUpdateAccountSubscription = {
   onUpdateAccount?:  {
     __typename: "Account",
     accountSubsidiariesId?: string | null,
+    awsAccounts?:  {
+      __typename: "ModelAccountPayerAccountConnection",
+      nextToken?: string | null,
+    } | null,
     controller?:  {
       __typename: "Account",
       accountSubsidiariesId?: string | null,
@@ -13512,10 +16972,12 @@ export type OnUpdateAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     createdAt: string,
@@ -13524,16 +16986,17 @@ export type OnUpdateAccountSubscription = {
     id: string,
     introduction?: string | null,
     introductionJson?: string | null,
+    learnings?:  {
+      __typename: "ModelAccountLearningConnection",
+      nextToken?: string | null,
+    } | null,
+    mainColor?: string | null,
     name: string,
     notionId?: number | null,
     order?: number | null,
     owner?: string | null,
     partnerProjects?:  {
       __typename: "ModelProjectsConnection",
-      nextToken?: string | null,
-    } | null,
-    payerAccounts?:  {
-      __typename: "ModelAccountPayerAccountConnection",
       nextToken?: string | null,
     } | null,
     people?:  {
@@ -13548,6 +17011,7 @@ export type OnUpdateAccountSubscription = {
       __typename: "ModelPayerAccountConnection",
       nextToken?: string | null,
     } | null,
+    shortName?: string | null,
     subsidiaries?:  {
       __typename: "ModelAccountConnection",
       nextToken?: string | null,
@@ -13556,6 +17020,86 @@ export type OnUpdateAccountSubscription = {
       __typename: "ModelAccountTerritoryConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateAccountLearningSubscriptionVariables = {
+  filter?: ModelSubscriptionAccountLearningFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateAccountLearningSubscription = {
+  onUpdateAccountLearning?:  {
+    __typename: "AccountLearning",
+    account?:  {
+      __typename: "Account",
+      accountSubsidiariesId?: string | null,
+      createdAt: string,
+      crmId?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      introduction?: string | null,
+      introductionJson?: string | null,
+      mainColor?: string | null,
+      name: string,
+      notionId?: number | null,
+      order?: number | null,
+      owner?: string | null,
+      shortName?: string | null,
+      updatedAt: string,
+    } | null,
+    accountId: string,
+    createdAt: string,
+    id: string,
+    learnedOn?: string | null,
+    learning?: string | null,
+    owner?: string | null,
+    peopleMentioned?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
+    status: LearningStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateAccountLearningPersonSubscriptionVariables = {
+  filter?: ModelSubscriptionAccountLearningPersonFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateAccountLearningPersonSubscription = {
+  onUpdateAccountLearningPerson?:  {
+    __typename: "AccountLearningPerson",
+    createdAt: string,
+    id: string,
+    learning?:  {
+      __typename: "AccountLearning",
+      accountId: string,
+      createdAt: string,
+      id: string,
+      learnedOn?: string | null,
+      learning?: string | null,
+      owner?: string | null,
+      status: LearningStatus,
+      updatedAt: string,
+    } | null,
+    learningId: string,
+    owner?: string | null,
+    person?:  {
+      __typename: "Person",
+      birthday?: string | null,
+      createdAt: string,
+      dateOfDeath?: string | null,
+      howToSay?: string | null,
+      id: string,
+      name: string,
+      notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null,
+    personId: string,
     updatedAt: string,
   } | null,
 };
@@ -13577,10 +17121,12 @@ export type OnUpdateAccountPayerAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -13590,6 +17136,7 @@ export type OnUpdateAccountPayerAccountSubscription = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -13619,10 +17166,12 @@ export type OnUpdateAccountProjectsSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -13642,11 +17191,15 @@ export type OnUpdateAccountProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -13671,10 +17224,12 @@ export type OnUpdateAccountTerritorySubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -13724,6 +17279,7 @@ export type OnUpdateActivitySubscription = {
     formatVersion?: number | null,
     id: string,
     meetingActivitiesId?: string | null,
+    name?: string | null,
     noteBlockIds?: Array< string > | null,
     noteBlocks?:  {
       __typename: "ModelNoteBlockConnection",
@@ -13861,11 +17417,15 @@ export type OnUpdateCrmProjectProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -13903,11 +17463,68 @@ export type OnUpdateDailyPlanSubscription = {
     dayGoal: string,
     id: string,
     owner?: string | null,
+    projects?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     status: DailyPlanStatus,
     todos?:  {
       __typename: "ModelDailyPlanTodoConnection",
       nextToken?: string | null,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateDailyPlanProjectSubscriptionVariables = {
+  filter?: ModelSubscriptionDailyPlanProjectFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateDailyPlanProjectSubscription = {
+  onUpdateDailyPlanProject?:  {
+    __typename: "DailyPlanProject",
+    createdAt: string,
+    dailyPlan?:  {
+      __typename: "DailyPlan",
+      context: Context,
+      createdAt: string,
+      day: string,
+      dayGoal: string,
+      id: string,
+      owner?: string | null,
+      status: DailyPlanStatus,
+      updatedAt: string,
+    } | null,
+    dailyPlanId: string,
+    id: string,
+    maybe?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
     updatedAt: string,
   } | null,
 };
@@ -13962,11 +17579,13 @@ export type OnUpdateInboxSubscription = {
     createdAt: string,
     formatVersion?: number | null,
     id: string,
+    movedToAccountLearningId?: string | null,
     movedToActivityId?: string | null,
+    movedToPersonLearningId?: string | null,
     note?: string | null,
     noteJson?: string | null,
     owner?: string | null,
-    status: string,
+    status: InboxStatus,
     updatedAt: string,
   } | null,
 };
@@ -14110,6 +17729,7 @@ export type OnUpdateNoteBlockSubscription = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -14249,6 +17869,7 @@ export type OnUpdatePayerAccountSubscription = {
       updatedAt: string,
     } | null,
     mainContactId?: string | null,
+    notes?: string | null,
     owner?: string | null,
     reseller?:  {
       __typename: "Account",
@@ -14259,10 +17880,12 @@ export type OnUpdatePayerAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     resellerId?: string | null,
@@ -14302,6 +17925,7 @@ export type OnUpdatePayerAccountMrrSubscription = {
       createdAt: string,
       isViaReseller?: boolean | null,
       mainContactId?: string | null,
+      notes?: string | null,
       owner?: string | null,
       resellerId?: string | null,
       updatedAt: string,
@@ -14328,6 +17952,10 @@ export type OnUpdatePersonSubscriptionVariables = {
 export type OnUpdatePersonSubscription = {
   onUpdatePerson?:  {
     __typename: "Person",
+    accountLearnings?:  {
+      __typename: "ModelAccountLearningPersonConnection",
+      nextToken?: string | null,
+    } | null,
     accounts?:  {
       __typename: "ModelPersonAccountConnection",
       nextToken?: string | null,
@@ -14399,10 +18027,12 @@ export type OnUpdatePersonAccountSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     accountId: string,
@@ -14486,6 +18116,7 @@ export type OnUpdatePersonLearningSubscription = {
     } | null,
     personId: string,
     prayer?: PrayerStatus | null,
+    status: LearningStatus,
     updatedAt: string,
   } | null,
 };
@@ -14549,6 +18180,7 @@ export type OnUpdateProjectActivitySubscription = {
       formatVersion?: number | null,
       id: string,
       meetingActivitiesId?: string | null,
+      name?: string | null,
       noteBlockIds?: Array< string > | null,
       notes?: string | null,
       notesJson?: string | null,
@@ -14573,11 +18205,15 @@ export type OnUpdateProjectActivitySubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -14611,6 +18247,10 @@ export type OnUpdateProjectsSubscription = {
       __typename: "ModelCrmProjectProjectsConnection",
       nextToken?: string | null,
     } | null,
+    dayPlans?:  {
+      __typename: "ModelDailyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
     done?: boolean | null,
     doneOn?: string | null,
     dueOn?: string | null,
@@ -14620,6 +18260,7 @@ export type OnUpdateProjectsSubscription = {
     myNextActionsJson?: string | null,
     notionId?: number | null,
     onHoldTill?: string | null,
+    order?: number | null,
     othersNextActions?: string | null,
     othersNextActionsJson?: string | null,
     owner?: string | null,
@@ -14632,17 +18273,26 @@ export type OnUpdateProjectsSubscription = {
       id: string,
       introduction?: string | null,
       introductionJson?: string | null,
+      mainColor?: string | null,
       name: string,
       notionId?: number | null,
       order?: number | null,
       owner?: string | null,
+      shortName?: string | null,
       updatedAt: string,
     } | null,
     partnerId?: string | null,
+    pinned: ProjectPinned,
     project: string,
+    tasksSummary?: string | null,
+    tasksSummaryUpdatedAt?: string | null,
     updatedAt: string,
     weekPlans?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
+      nextToken?: string | null,
+    } | null,
+    weeklyReviews?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
   } | null,
@@ -14712,11 +18362,15 @@ export type OnUpdateSixWeekBatchProjectsSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectsId: string,
@@ -14890,7 +18544,10 @@ export type OnUpdateWeeklyPlanSubscription = {
   onUpdateWeeklyPlan?:  {
     __typename: "WeeklyPlan",
     createdAt: string,
+    crmUpdateSkipped?: boolean | null,
+    financialUpdateSkipped?: boolean | null,
     id: string,
+    inboxSkipped?: boolean | null,
     owner?: string | null,
     projects?:  {
       __typename: "ModelWeeklyPlanProjectConnection",
@@ -14926,11 +18583,15 @@ export type OnUpdateWeeklyPlanProjectSubscription = {
       myNextActionsJson?: string | null,
       notionId?: number | null,
       onHoldTill?: string | null,
+      order?: number | null,
       othersNextActions?: string | null,
       othersNextActionsJson?: string | null,
       owner?: string | null,
       partnerId?: string | null,
+      pinned: ProjectPinned,
       project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
       updatedAt: string,
     } | null,
     projectId: string,
@@ -14938,12 +18599,90 @@ export type OnUpdateWeeklyPlanProjectSubscription = {
     weekPlan?:  {
       __typename: "WeeklyPlan",
       createdAt: string,
+      crmUpdateSkipped?: boolean | null,
+      financialUpdateSkipped?: boolean | null,
       id: string,
+      inboxSkipped?: boolean | null,
       owner?: string | null,
       startDate: string,
       status: PlanningStatus,
       updatedAt: string,
     } | null,
     weekPlanId: string,
+  } | null,
+};
+
+export type OnUpdateWeeklyReviewSubscriptionVariables = {
+  filter?: ModelSubscriptionWeeklyReviewFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateWeeklyReviewSubscription = {
+  onUpdateWeeklyReview?:  {
+    __typename: "WeeklyReview",
+    createdAt: string,
+    date: string,
+    entries?:  {
+      __typename: "ModelWeeklyReviewEntryConnection",
+      nextToken?: string | null,
+    } | null,
+    id: string,
+    owner?: string | null,
+    status: WeeklyReviewStatus,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateWeeklyReviewEntrySubscriptionVariables = {
+  filter?: ModelSubscriptionWeeklyReviewEntryFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateWeeklyReviewEntrySubscription = {
+  onUpdateWeeklyReviewEntry?:  {
+    __typename: "WeeklyReviewEntry",
+    category: WeeklyReviewCategory,
+    content?: string | null,
+    createdAt: string,
+    generatedContent?: string | null,
+    id: string,
+    isEdited?: boolean | null,
+    owner?: string | null,
+    project?:  {
+      __typename: "Projects",
+      context: Context,
+      createdAt: string,
+      done?: boolean | null,
+      doneOn?: string | null,
+      dueOn?: string | null,
+      formatVersion?: number | null,
+      id: string,
+      myNextActions?: string | null,
+      myNextActionsJson?: string | null,
+      notionId?: number | null,
+      onHoldTill?: string | null,
+      order?: number | null,
+      othersNextActions?: string | null,
+      othersNextActionsJson?: string | null,
+      owner?: string | null,
+      partnerId?: string | null,
+      pinned: ProjectPinned,
+      project: string,
+      tasksSummary?: string | null,
+      tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null,
+    projectId: string,
+    review?:  {
+      __typename: "WeeklyReview",
+      createdAt: string,
+      date: string,
+      id: string,
+      owner?: string | null,
+      status: WeeklyReviewStatus,
+      updatedAt: string,
+    } | null,
+    reviewId: string,
+    updatedAt: string,
   } | null,
 };

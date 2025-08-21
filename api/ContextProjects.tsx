@@ -30,6 +30,7 @@ import {
   createProjectActivityApi,
 } from "./helpers/activity";
 import { CrmProject, mapCrmProject } from "./useCrmProjects";
+import { usePinnedProjects, PinnedProject } from "./usePinnedProjects";
 import { debounce } from "lodash";
 const client = generateClient<Schema>();
 
@@ -41,6 +42,9 @@ interface ProjectsContextType {
   errorProjects: any;
   loadingProjects: boolean;
   isNormalizing: boolean;
+  pinnedProjects: PinnedProject[] | undefined;
+  errorPinnedProjects: any;
+  loadingPinnedProjects: boolean;
   createProject: (
     projectName: string
   ) => Promise<Schema["Projects"]["type"] | undefined>;
@@ -92,6 +96,7 @@ interface ProjectsContextType {
     projectId: string,
     newOrder?: number
   ) => Promise<string | undefined>;
+  togglePinProject: (projectId: string) => Promise<string | undefined>;
 }
 
 export type Project = {
@@ -113,6 +118,7 @@ export type Project = {
   crmProjects: CrmProject[];
   hasOldVersionedActivityFormat: boolean;
   involvedPeopleIds: string[];
+  pinned: Schema["ProjectPinned"]["type"];
 };
 
 const selectionSet = [
@@ -129,6 +135,7 @@ const selectionSet = [
   "othersNextActionsJson",
   "context",
   "order",
+  "pinned",
   "accounts.accountId",
   "accounts.createdAt",
   "partner.id",
@@ -182,6 +189,7 @@ const mapProject: (project: ProjectData) => Project = ({
   othersNextActionsJson,
   context,
   order,
+  pinned,
   accounts,
   activities,
   crmProjects,
@@ -282,6 +290,7 @@ const mapProject: (project: ProjectData) => Project = ({
           .some(
             (a) => !a.activity?.formatVersion || a.activity.formatVersion < 3
           ),
+    pinned,
   } as Project;
 };
 
@@ -390,91 +399,6 @@ const normalizeProjectOrders = debounce(
   30000
 );
 
-/**
- * Detects projects that need legacy migration (no order values assigned)
- * @param projects Array of projects to analyze
- * @returns true if migration is needed (projects with null/undefined order)
- */
-const detectLegacyMigrationNeeded = (projects: Project[]): boolean => {
-  return projects.some((project) => project.order === 1000); // Default fallback value indicates no proper order assigned
-};
-
-/**
- * Migrates legacy projects by assigning proper order values based on current pipeline-based sorting
- * @param context The context for which to migrate projects
- * @param projects Current projects array
- * @param mutateProjects SWR mutate function for revalidation
- */
-const migrateLegacyProjects = async (
-  context: Context,
-  projects: Project[],
-  mutateProjects: KeyedMutator<Project[] | undefined>
-) => {
-  try {
-    // Filter projects that need migration (those with default order value 1000)
-    const projectsNeedingMigration = projects.filter((p) => p.order === 1000);
-
-    if (projectsNeedingMigration.length === 0) return;
-
-    // Sort projects using the current pipeline-based logic to maintain existing visual order
-    // This preserves the order users are accustomed to seeing
-    const sortedProjects = [...projects].sort((a: Project, b: Project) => {
-      // Primary sort: pipeline value (higher pipeline first)
-      if (b.pipeline !== a.pipeline) {
-        return b.pipeline - a.pipeline;
-      }
-      // Secondary sort: creation date (newer first) - using project ID as proxy
-      return b.id.localeCompare(a.id);
-    });
-
-    // Assign sequential order values starting from 1
-    const migratedProjects: Project[] = [];
-    let orderCounter = 1;
-
-    for (const project of sortedProjects) {
-      if (project.order !== 1000) {
-        // Project already has a proper order value, skip migration
-        migratedProjects.push(project);
-        continue;
-      }
-
-      // Update project order in database
-      const { errors } = await client.models.Projects.update({
-        id: project.id,
-        order: orderCounter,
-      });
-
-      if (errors) {
-        console.error(
-          `Error migrating project order for ${project.id}:`,
-          errors
-        );
-        handleApiErrors(
-          errors,
-          `Error migrating project order for ${project.project}`
-        );
-        // Continue with other projects even if one fails
-        migratedProjects.push(project);
-        continue;
-      }
-
-      // Update local project object
-      const migratedProject = { ...project, order: orderCounter };
-      migratedProjects.push(migratedProject);
-
-      orderCounter++;
-    }
-
-    // Update the local state with migrated order values
-    const finalProjects = migratedProjects.sort(
-      (a: Project, b: Project) => a.order - b.order
-    );
-    mutateProjects(finalProjects);
-  } catch (error) {
-    console.error("Error during legacy project migration:", error);
-  }
-};
-
 const fetchProjects = (context?: Context) => async () => {
   if (!context) return;
   const { data, errors } = await client.models.Projects.list({
@@ -520,23 +444,21 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     mutate: mutateProjects,
   } = useSWR(`/api/projects/${context}`, fetchProjects(context));
 
+  const {
+    pinnedProjects,
+    errorPinnedProjects,
+    loadingPinnedProjects,
+    mutatePinnedProjects,
+  } = usePinnedProjects(context);
+
   // Check if normalization is currently in progress for this context
   const isNormalizing = context
     ? normalizationPending.get(context) || false
     : false;
 
-  // Detect if legacy migration is needed and run it immediately
-  // Migration runs before normalization to ensure all projects have proper order values
   if (projects && context && !loadingProjects && !isNormalizing) {
-    const needsMigration = detectLegacyMigrationNeeded(projects);
-    if (needsMigration) {
-      // Run migration immediately (no debounce needed for migration)
-      migrateLegacyProjects(context, projects, mutateProjects);
-    } else {
-      // Only check for normalization if migration isn't needed
-      if (detectOrderNormalizationNeeded(projects))
-        normalizeProjectOrders(context, projects, mutateProjects);
-    }
+    if (detectOrderNormalizationNeeded(projects))
+      normalizeProjectOrders(context, projects, mutateProjects);
   }
 
   const createProject = async (
@@ -560,6 +482,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       pipeline: 0,
       order: nextOrder,
       hasOldVersionedActivityFormat: false,
+      pinned: "NOTPINNED",
     };
 
     const updatedProjects = [...(projects || []), newProject];
@@ -570,6 +493,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
       project: projectName,
       done: false,
       order: nextOrder,
+      pinned: "NOTPINNED",
     });
     if (errors) handleApiErrors(errors, "Error creating project");
     mutateProjects(updatedProjects);
@@ -898,6 +822,63 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.id;
   };
 
+  const togglePinProject = async (
+    projectId: string
+  ): Promise<string | undefined> => {
+    if (!projects) return;
+
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    const newPinnedState: Schema["ProjectPinned"]["type"] =
+      project.pinned === "PINNED" ? "NOTPINNED" : "PINNED";
+
+    // Optimistic UI update for projects list
+    const updatedProjects = projects.map((p) =>
+      p.id === projectId ? { ...p, pinned: newPinnedState } : p
+    );
+    mutateProjects(updatedProjects, false);
+
+    // Optimistic UI update for pinned projects list
+    if (pinnedProjects) {
+      let updatedPinnedProjects;
+      if (newPinnedState === "PINNED") {
+        // Add to pinned list
+        const projectToPinAsAny = project as any;
+        updatedPinnedProjects = [
+          ...pinnedProjects,
+          projectToPinAsAny as PinnedProject,
+        ];
+      } else {
+        // Remove from pinned list
+        updatedPinnedProjects = pinnedProjects.filter(
+          (p) => p.id !== projectId
+        );
+      }
+      mutatePinnedProjects(updatedPinnedProjects, false);
+    }
+
+    // Update database
+    const { data, errors } = await client.models.Projects.update({
+      id: projectId,
+      pinned: newPinnedState,
+    });
+
+    if (errors) {
+      handleApiErrors(errors, "Error toggling project pin");
+      // Revert optimistic updates on error
+      mutateProjects(projects);
+      mutatePinnedProjects(pinnedProjects);
+      return;
+    }
+
+    // Revalidate both lists to ensure consistency
+    mutateProjects(updatedProjects);
+    mutatePinnedProjects();
+
+    return data?.id;
+  };
+
   return (
     <ProjectsContext.Provider
       value={{
@@ -905,6 +886,9 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         errorProjects,
         loadingProjects,
         isNormalizing,
+        pinnedProjects,
+        errorPinnedProjects,
+        loadingPinnedProjects,
         createProject,
         getProjectById,
         createProjectActivity,
@@ -920,6 +904,7 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         deleteLegacyNextActions,
         moveProjectUp,
         moveProjectDown,
+        togglePinProject,
       }}
     >
       {children}

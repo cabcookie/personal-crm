@@ -3,12 +3,40 @@ import { RemovalPolicy } from "aws-cdk-lib";
 import { auth } from "./auth/resource";
 import { data, tablesWithDeleteProtection } from "./data/resource";
 import { storage } from "./storage/resource";
+import { dataSchemaMigrationsFn } from "./functions/data-schema-migrations/resource";
+import { DataSchemaMigrations } from "./custom/data-schema-migrations/resource";
 
 const backend = defineBackend({
   auth,
   data,
   storage,
+  dataSchemaMigrationsFn,
 });
+
+/**
+ * Creating a custom resource which runs a Lambda function on every deploy.
+ * You can use this Lambda function to run schema migrations. This is very
+ * useful when a new required field has been added e.g.
+ */
+
+const dataMigrationsStack = backend.dataSchemaMigrationsFn.stack;
+const cfnDataMigrationFn = backend.dataSchemaMigrationsFn.resources.lambda;
+
+new DataSchemaMigrations(dataMigrationsStack, "DataMigrations", {
+  dataSchemaMigrationFn: cfnDataMigrationFn,
+});
+
+try {
+  const table = backend.data.resources.tables["Projects"];
+  if (!table) throw "Table not found";
+  backend.dataSchemaMigrationsFn.addEnvironment(
+    "PROJECTS_TABLE_NAME",
+    table.tableName
+  );
+  table.grantReadWriteData(cfnDataMigrationFn);
+} catch (error) {
+  console.error(error);
+}
 
 /**
  * Ensure that when new tables are moved into production, they do not initially
@@ -28,6 +56,7 @@ const backend = defineBackend({
  */
 
 const { amplifyDynamoDbTables } = backend.data.resources.cfnResources;
+
 const backendType = backend.auth.resources.userPool.node.tryGetContext(
   "amplify-backend-type"
 );

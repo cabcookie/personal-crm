@@ -3,16 +3,16 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionTriggerSubTitle,
-  AccordionTriggerTitle,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AccordionItemProps } from "@radix-ui/react-accordion";
 import { filter, flow, join } from "lodash/fp";
-import { ChevronUp, ChevronDown, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { ElementRef, ReactNode, forwardRef } from "react";
 import { BiLinkExternal } from "react-icons/bi";
+import { OrderButtons } from "./OrderButtons";
 
 interface DefaultAccordionItemProps extends AccordionItemProps {
   triggerTitle: ReactNode;
@@ -24,6 +24,7 @@ interface DefaultAccordionItemProps extends AccordionItemProps {
     | (string | undefined | null | boolean)[];
   isVisible?: boolean;
   onDelete?: () => void;
+  actionIcon?: ReactNode;
   badge?: ReactNode;
   onMoveUp?: () => void;
   onMoveDown?: () => void;
@@ -43,6 +44,7 @@ const DefaultAccordionItem = forwardRef<
       className,
       children,
       onDelete,
+      actionIcon,
       badge,
       onMoveUp,
       onMoveDown,
@@ -55,61 +57,53 @@ const DefaultAccordionItem = forwardRef<
     isVisible && (
       <AccordionItem value={value} ref={ref} {...props}>
         <div className="flex h-full items-center">
-          {(onMoveUp || onMoveDown) && !disableOrderControls && (
-            <div className="flex flex-col gap-0.5">
-              {onMoveUp && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={onMoveUp}
-                >
-                  <ChevronUp className="h-3 w-3 text-muted-foreground hover:text-primary" />
-                </Button>
-              )}
-              {onMoveDown && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0"
-                  onClick={onMoveDown}
-                >
-                  <ChevronDown className="h-3 w-3 text-muted-foreground hover:text-primary" />
-                </Button>
-              )}
-            </div>
-          )}
           <AccordionTrigger
-            className={cn(props.disabled && "text-muted-foreground", className)}
+            className={cn(
+              props.disabled && "text-muted-foreground max-w-full",
+              className
+            )}
           >
-            <AccordionTriggerTitle>
-              {badge}
-              {triggerTitle}
-              {link && (
-                <Link
-                  href={link}
-                  className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <BiLinkExternal />
-                </Link>
+            <div className="flex items-center max-w-full gap-2">
+              {(((onMoveUp || onMoveDown) && !disableOrderControls) ||
+                badge) && (
+                <div className="shrink-0 flex items-center gap-1">
+                  {!disableOrderControls && (
+                    <OrderButtons onMoveDown={onMoveDown} onMoveUp={onMoveUp} />
+                  )}
+                  {badge}
+                </div>
               )}
-              {onDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete();
-                  }}
-                  asChild
-                >
-                  <Trash2 className="mt-1 h-4 w-4 text-muted-foreground hover:text-primary" />
-                </Button>
-              )}
-            </AccordionTriggerTitle>
+              <div className="flex-1 truncate sm:text-left group-data-[state=open]:text-wrap group-data-[state=open]:text-left">
+                {triggerTitle}
+              </div>
+              <div className="shrink-0 flex items-center gap-1.5">
+                {actionIcon}
+                {link && (
+                  <Link
+                    href={link}
+                    className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <BiLinkExternal className="h-4 w-4" />
+                  </Link>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    asChild
+                  >
+                    <Trash2 className="mt-1 h-4 w-4 text-muted-foreground hover:text-primary" />
+                  </Button>
+                )}
+              </div>
+            </div>
             <AccordionTriggerSubTitle>
               {typeof triggerSubTitle === "string"
                 ? triggerSubTitle

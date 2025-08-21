@@ -14,6 +14,10 @@ export const onCreateAccount = /* GraphQL */ `subscription OnCreateAccount(
 ) {
   onCreateAccount(filter: $filter, owner: $owner) {
     accountSubsidiariesId
+    awsAccounts {
+      nextToken
+      __typename
+    }
     controller {
       accountSubsidiariesId
       createdAt
@@ -22,10 +26,12 @@ export const onCreateAccount = /* GraphQL */ `subscription OnCreateAccount(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -35,15 +41,16 @@ export const onCreateAccount = /* GraphQL */ `subscription OnCreateAccount(
     id
     introduction
     introductionJson
+    learnings {
+      nextToken
+      __typename
+    }
+    mainColor
     name
     notionId
     order
     owner
     partnerProjects {
-      nextToken
-      __typename
-    }
-    payerAccounts {
       nextToken
       __typename
     }
@@ -59,6 +66,7 @@ export const onCreateAccount = /* GraphQL */ `subscription OnCreateAccount(
       nextToken
       __typename
     }
+    shortName
     subsidiaries {
       nextToken
       __typename
@@ -75,6 +83,88 @@ export const onCreateAccount = /* GraphQL */ `subscription OnCreateAccount(
   APITypes.OnCreateAccountSubscriptionVariables,
   APITypes.OnCreateAccountSubscription
 >;
+export const onCreateAccountLearning = /* GraphQL */ `subscription OnCreateAccountLearning(
+  $filter: ModelSubscriptionAccountLearningFilterInput
+  $owner: String
+) {
+  onCreateAccountLearning(filter: $filter, owner: $owner) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      mainColor
+      name
+      notionId
+      order
+      owner
+      shortName
+      updatedAt
+      __typename
+    }
+    accountId
+    createdAt
+    id
+    learnedOn
+    learning
+    owner
+    peopleMentioned {
+      nextToken
+      __typename
+    }
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAccountLearningSubscriptionVariables,
+  APITypes.OnCreateAccountLearningSubscription
+>;
+export const onCreateAccountLearningPerson = /* GraphQL */ `subscription OnCreateAccountLearningPerson(
+  $filter: ModelSubscriptionAccountLearningPersonFilterInput
+  $owner: String
+) {
+  onCreateAccountLearningPerson(filter: $filter, owner: $owner) {
+    createdAt
+    id
+    learning {
+      accountId
+      createdAt
+      id
+      learnedOn
+      learning
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    learningId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAccountLearningPersonSubscriptionVariables,
+  APITypes.OnCreateAccountLearningPersonSubscription
+>;
 export const onCreateAccountPayerAccount = /* GraphQL */ `subscription OnCreateAccountPayerAccount(
   $filter: ModelSubscriptionAccountPayerAccountFilterInput
   $owner: String
@@ -88,10 +178,12 @@ export const onCreateAccountPayerAccount = /* GraphQL */ `subscription OnCreateA
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -101,6 +193,7 @@ export const onCreateAccountPayerAccount = /* GraphQL */ `subscription OnCreateA
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -131,10 +224,12 @@ export const onCreateAccountProjects = /* GraphQL */ `subscription OnCreateAccou
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -154,11 +249,15 @@ export const onCreateAccountProjects = /* GraphQL */ `subscription OnCreateAccou
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -184,10 +283,12 @@ export const onCreateAccountTerritory = /* GraphQL */ `subscription OnCreateAcco
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -239,6 +340,7 @@ export const onCreateActivity = /* GraphQL */ `subscription OnCreateActivity(
     formatVersion
     id
     meetingActivitiesId
+    name
     noteBlockIds
     noteBlocks {
       nextToken
@@ -255,6 +357,36 @@ export const onCreateActivity = /* GraphQL */ `subscription OnCreateActivity(
 ` as GeneratedSubscription<
   APITypes.OnCreateActivitySubscriptionVariables,
   APITypes.OnCreateActivitySubscription
+>;
+export const onCreateAssistantResponseGeneralChat = /* GraphQL */ `subscription OnCreateAssistantResponseGeneralChat($conversationId: ID) {
+  onCreateAssistantResponseGeneralChat(conversationId: $conversationId) {
+    associatedUserMessageId
+    contentBlockDeltaIndex
+    contentBlockDoneAtIndex
+    contentBlockIndex
+    contentBlockText
+    contentBlockToolUse {
+      input
+      name
+      toolUseId
+      __typename
+    }
+    conversationId
+    errors {
+      errorType
+      message
+      __typename
+    }
+    id
+    owner
+    p
+    stopReason
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateAssistantResponseGeneralChatSubscriptionVariables,
+  APITypes.OnCreateAssistantResponseGeneralChatSubscription
 >;
 export const onCreateBookOfBible = /* GraphQL */ `subscription OnCreateBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput
@@ -280,6 +412,42 @@ export const onCreateBookOfBible = /* GraphQL */ `subscription OnCreateBookOfBib
 ` as GeneratedSubscription<
   APITypes.OnCreateBookOfBibleSubscriptionVariables,
   APITypes.OnCreateBookOfBibleSubscription
+>;
+export const onCreateConversationMessageGeneralChat = /* GraphQL */ `subscription OnCreateConversationMessageGeneralChat(
+  $filter: ModelSubscriptionConversationMessageGeneralChatFilterInput
+  $owner: String
+) {
+  onCreateConversationMessageGeneralChat(filter: $filter, owner: $owner) {
+    aiContext
+    associatedUserMessageId
+    content {
+      text
+      __typename
+    }
+    conversation {
+      createdAt
+      id
+      metadata
+      name
+      owner
+      updatedAt
+      __typename
+    }
+    conversationId
+    createdAt
+    id
+    owner
+    role
+    toolConfiguration {
+      __typename
+    }
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateConversationMessageGeneralChatSubscriptionVariables,
+  APITypes.OnCreateConversationMessageGeneralChatSubscription
 >;
 export const onCreateCrmProject = /* GraphQL */ `subscription OnCreateCrmProject(
   $filter: ModelSubscriptionCrmProjectFilterInput
@@ -379,11 +547,15 @@ export const onCreateCrmProjectProjects = /* GraphQL */ `subscription OnCreateCr
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -424,6 +596,10 @@ export const onCreateDailyPlan = /* GraphQL */ `subscription OnCreateDailyPlan(
     dayGoal
     id
     owner
+    projects {
+      nextToken
+      __typename
+    }
     status
     todos {
       nextToken
@@ -436,6 +612,60 @@ export const onCreateDailyPlan = /* GraphQL */ `subscription OnCreateDailyPlan(
 ` as GeneratedSubscription<
   APITypes.OnCreateDailyPlanSubscriptionVariables,
   APITypes.OnCreateDailyPlanSubscription
+>;
+export const onCreateDailyPlanProject = /* GraphQL */ `subscription OnCreateDailyPlanProject(
+  $filter: ModelSubscriptionDailyPlanProjectFilterInput
+  $owner: String
+) {
+  onCreateDailyPlanProject(filter: $filter, owner: $owner) {
+    createdAt
+    dailyPlan {
+      context
+      createdAt
+      day
+      dayGoal
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    dailyPlanId
+    id
+    maybe
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateDailyPlanProjectSubscriptionVariables,
+  APITypes.OnCreateDailyPlanProjectSubscription
 >;
 export const onCreateDailyPlanTodo = /* GraphQL */ `subscription OnCreateDailyPlanTodo(
   $filter: ModelSubscriptionDailyPlanTodoFilterInput
@@ -485,7 +715,9 @@ export const onCreateInbox = /* GraphQL */ `subscription OnCreateInbox(
     createdAt
     formatVersion
     id
+    movedToAccountLearningId
     movedToActivityId
+    movedToPersonLearningId
     note
     noteJson
     owner
@@ -637,6 +869,7 @@ export const onCreateNoteBlock = /* GraphQL */ `subscription OnCreateNoteBlock(
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -780,6 +1013,7 @@ export const onCreatePayerAccount = /* GraphQL */ `subscription OnCreatePayerAcc
       __typename
     }
     mainContactId
+    notes
     owner
     reseller {
       accountSubsidiariesId
@@ -789,10 +1023,12 @@ export const onCreatePayerAccount = /* GraphQL */ `subscription OnCreatePayerAcc
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -833,6 +1069,7 @@ export const onCreatePayerAccountMrr = /* GraphQL */ `subscription OnCreatePayer
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -861,6 +1098,10 @@ export const onCreatePerson = /* GraphQL */ `subscription OnCreatePerson(
   $owner: String
 ) {
   onCreatePerson(filter: $filter, owner: $owner) {
+    accountLearnings {
+      nextToken
+      __typename
+    }
     accounts {
       nextToken
       __typename
@@ -932,10 +1173,12 @@ export const onCreatePersonAccount = /* GraphQL */ `subscription OnCreatePersonA
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -1022,6 +1265,7 @@ export const onCreatePersonLearning = /* GraphQL */ `subscription OnCreatePerson
     }
     personId
     prayer
+    status
     updatedAt
     __typename
   }
@@ -1086,6 +1330,7 @@ export const onCreateProjectActivity = /* GraphQL */ `subscription OnCreateProje
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -1110,11 +1355,15 @@ export const onCreateProjectActivity = /* GraphQL */ `subscription OnCreateProje
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1150,6 +1399,10 @@ export const onCreateProjects = /* GraphQL */ `subscription OnCreateProjects(
       nextToken
       __typename
     }
+    dayPlans {
+      nextToken
+      __typename
+    }
     done
     doneOn
     dueOn
@@ -1159,6 +1412,7 @@ export const onCreateProjects = /* GraphQL */ `subscription OnCreateProjects(
     myNextActionsJson
     notionId
     onHoldTill
+    order
     othersNextActions
     othersNextActionsJson
     owner
@@ -1170,17 +1424,26 @@ export const onCreateProjects = /* GraphQL */ `subscription OnCreateProjects(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
     partnerId
+    pinned
     project
+    tasksSummary
+    tasksSummaryUpdatedAt
     updatedAt
     weekPlans {
+      nextToken
+      __typename
+    }
+    weeklyReviews {
       nextToken
       __typename
     }
@@ -1252,11 +1515,15 @@ export const onCreateSixWeekBatchProjects = /* GraphQL */ `subscription OnCreate
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1437,7 +1704,10 @@ export const onCreateWeeklyPlan = /* GraphQL */ `subscription OnCreateWeeklyPlan
 ) {
   onCreateWeeklyPlan(filter: $filter, owner: $owner) {
     createdAt
+    crmUpdateSkipped
+    financialUpdateSkipped
     id
+    inboxSkipped
     owner
     projects {
       nextToken
@@ -1473,11 +1743,15 @@ export const onCreateWeeklyPlanProject = /* GraphQL */ `subscription OnCreateWee
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1485,7 +1759,10 @@ export const onCreateWeeklyPlanProject = /* GraphQL */ `subscription OnCreateWee
     updatedAt
     weekPlan {
       createdAt
+      crmUpdateSkipped
+      financialUpdateSkipped
       id
+      inboxSkipped
       owner
       startDate
       status
@@ -1500,12 +1777,93 @@ export const onCreateWeeklyPlanProject = /* GraphQL */ `subscription OnCreateWee
   APITypes.OnCreateWeeklyPlanProjectSubscriptionVariables,
   APITypes.OnCreateWeeklyPlanProjectSubscription
 >;
+export const onCreateWeeklyReview = /* GraphQL */ `subscription OnCreateWeeklyReview(
+  $filter: ModelSubscriptionWeeklyReviewFilterInput
+  $owner: String
+) {
+  onCreateWeeklyReview(filter: $filter, owner: $owner) {
+    createdAt
+    date
+    entries {
+      nextToken
+      __typename
+    }
+    id
+    owner
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateWeeklyReviewSubscriptionVariables,
+  APITypes.OnCreateWeeklyReviewSubscription
+>;
+export const onCreateWeeklyReviewEntry = /* GraphQL */ `subscription OnCreateWeeklyReviewEntry(
+  $filter: ModelSubscriptionWeeklyReviewEntryFilterInput
+  $owner: String
+) {
+  onCreateWeeklyReviewEntry(filter: $filter, owner: $owner) {
+    category
+    content
+    createdAt
+    generatedContent
+    id
+    isEdited
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    review {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    reviewId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateWeeklyReviewEntrySubscriptionVariables,
+  APITypes.OnCreateWeeklyReviewEntrySubscription
+>;
 export const onDeleteAccount = /* GraphQL */ `subscription OnDeleteAccount(
   $filter: ModelSubscriptionAccountFilterInput
   $owner: String
 ) {
   onDeleteAccount(filter: $filter, owner: $owner) {
     accountSubsidiariesId
+    awsAccounts {
+      nextToken
+      __typename
+    }
     controller {
       accountSubsidiariesId
       createdAt
@@ -1514,10 +1872,12 @@ export const onDeleteAccount = /* GraphQL */ `subscription OnDeleteAccount(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -1527,15 +1887,16 @@ export const onDeleteAccount = /* GraphQL */ `subscription OnDeleteAccount(
     id
     introduction
     introductionJson
+    learnings {
+      nextToken
+      __typename
+    }
+    mainColor
     name
     notionId
     order
     owner
     partnerProjects {
-      nextToken
-      __typename
-    }
-    payerAccounts {
       nextToken
       __typename
     }
@@ -1551,6 +1912,7 @@ export const onDeleteAccount = /* GraphQL */ `subscription OnDeleteAccount(
       nextToken
       __typename
     }
+    shortName
     subsidiaries {
       nextToken
       __typename
@@ -1567,6 +1929,88 @@ export const onDeleteAccount = /* GraphQL */ `subscription OnDeleteAccount(
   APITypes.OnDeleteAccountSubscriptionVariables,
   APITypes.OnDeleteAccountSubscription
 >;
+export const onDeleteAccountLearning = /* GraphQL */ `subscription OnDeleteAccountLearning(
+  $filter: ModelSubscriptionAccountLearningFilterInput
+  $owner: String
+) {
+  onDeleteAccountLearning(filter: $filter, owner: $owner) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      mainColor
+      name
+      notionId
+      order
+      owner
+      shortName
+      updatedAt
+      __typename
+    }
+    accountId
+    createdAt
+    id
+    learnedOn
+    learning
+    owner
+    peopleMentioned {
+      nextToken
+      __typename
+    }
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAccountLearningSubscriptionVariables,
+  APITypes.OnDeleteAccountLearningSubscription
+>;
+export const onDeleteAccountLearningPerson = /* GraphQL */ `subscription OnDeleteAccountLearningPerson(
+  $filter: ModelSubscriptionAccountLearningPersonFilterInput
+  $owner: String
+) {
+  onDeleteAccountLearningPerson(filter: $filter, owner: $owner) {
+    createdAt
+    id
+    learning {
+      accountId
+      createdAt
+      id
+      learnedOn
+      learning
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    learningId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteAccountLearningPersonSubscriptionVariables,
+  APITypes.OnDeleteAccountLearningPersonSubscription
+>;
 export const onDeleteAccountPayerAccount = /* GraphQL */ `subscription OnDeleteAccountPayerAccount(
   $filter: ModelSubscriptionAccountPayerAccountFilterInput
   $owner: String
@@ -1580,10 +2024,12 @@ export const onDeleteAccountPayerAccount = /* GraphQL */ `subscription OnDeleteA
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -1593,6 +2039,7 @@ export const onDeleteAccountPayerAccount = /* GraphQL */ `subscription OnDeleteA
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -1623,10 +2070,12 @@ export const onDeleteAccountProjects = /* GraphQL */ `subscription OnDeleteAccou
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -1646,11 +2095,15 @@ export const onDeleteAccountProjects = /* GraphQL */ `subscription OnDeleteAccou
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1676,10 +2129,12 @@ export const onDeleteAccountTerritory = /* GraphQL */ `subscription OnDeleteAcco
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -1731,6 +2186,7 @@ export const onDeleteActivity = /* GraphQL */ `subscription OnDeleteActivity(
     formatVersion
     id
     meetingActivitiesId
+    name
     noteBlockIds
     noteBlocks {
       nextToken
@@ -1871,11 +2327,15 @@ export const onDeleteCrmProjectProjects = /* GraphQL */ `subscription OnDeleteCr
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -1916,6 +2376,10 @@ export const onDeleteDailyPlan = /* GraphQL */ `subscription OnDeleteDailyPlan(
     dayGoal
     id
     owner
+    projects {
+      nextToken
+      __typename
+    }
     status
     todos {
       nextToken
@@ -1928,6 +2392,60 @@ export const onDeleteDailyPlan = /* GraphQL */ `subscription OnDeleteDailyPlan(
 ` as GeneratedSubscription<
   APITypes.OnDeleteDailyPlanSubscriptionVariables,
   APITypes.OnDeleteDailyPlanSubscription
+>;
+export const onDeleteDailyPlanProject = /* GraphQL */ `subscription OnDeleteDailyPlanProject(
+  $filter: ModelSubscriptionDailyPlanProjectFilterInput
+  $owner: String
+) {
+  onDeleteDailyPlanProject(filter: $filter, owner: $owner) {
+    createdAt
+    dailyPlan {
+      context
+      createdAt
+      day
+      dayGoal
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    dailyPlanId
+    id
+    maybe
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteDailyPlanProjectSubscriptionVariables,
+  APITypes.OnDeleteDailyPlanProjectSubscription
 >;
 export const onDeleteDailyPlanTodo = /* GraphQL */ `subscription OnDeleteDailyPlanTodo(
   $filter: ModelSubscriptionDailyPlanTodoFilterInput
@@ -1977,7 +2495,9 @@ export const onDeleteInbox = /* GraphQL */ `subscription OnDeleteInbox(
     createdAt
     formatVersion
     id
+    movedToAccountLearningId
     movedToActivityId
+    movedToPersonLearningId
     note
     noteJson
     owner
@@ -2129,6 +2649,7 @@ export const onDeleteNoteBlock = /* GraphQL */ `subscription OnDeleteNoteBlock(
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -2272,6 +2793,7 @@ export const onDeletePayerAccount = /* GraphQL */ `subscription OnDeletePayerAcc
       __typename
     }
     mainContactId
+    notes
     owner
     reseller {
       accountSubsidiariesId
@@ -2281,10 +2803,12 @@ export const onDeletePayerAccount = /* GraphQL */ `subscription OnDeletePayerAcc
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -2325,6 +2849,7 @@ export const onDeletePayerAccountMrr = /* GraphQL */ `subscription OnDeletePayer
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -2353,6 +2878,10 @@ export const onDeletePerson = /* GraphQL */ `subscription OnDeletePerson(
   $owner: String
 ) {
   onDeletePerson(filter: $filter, owner: $owner) {
+    accountLearnings {
+      nextToken
+      __typename
+    }
     accounts {
       nextToken
       __typename
@@ -2424,10 +2953,12 @@ export const onDeletePersonAccount = /* GraphQL */ `subscription OnDeletePersonA
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -2514,6 +3045,7 @@ export const onDeletePersonLearning = /* GraphQL */ `subscription OnDeletePerson
     }
     personId
     prayer
+    status
     updatedAt
     __typename
   }
@@ -2578,6 +3110,7 @@ export const onDeleteProjectActivity = /* GraphQL */ `subscription OnDeleteProje
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -2602,11 +3135,15 @@ export const onDeleteProjectActivity = /* GraphQL */ `subscription OnDeleteProje
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -2642,6 +3179,10 @@ export const onDeleteProjects = /* GraphQL */ `subscription OnDeleteProjects(
       nextToken
       __typename
     }
+    dayPlans {
+      nextToken
+      __typename
+    }
     done
     doneOn
     dueOn
@@ -2651,6 +3192,7 @@ export const onDeleteProjects = /* GraphQL */ `subscription OnDeleteProjects(
     myNextActionsJson
     notionId
     onHoldTill
+    order
     othersNextActions
     othersNextActionsJson
     owner
@@ -2662,17 +3204,26 @@ export const onDeleteProjects = /* GraphQL */ `subscription OnDeleteProjects(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
     partnerId
+    pinned
     project
+    tasksSummary
+    tasksSummaryUpdatedAt
     updatedAt
     weekPlans {
+      nextToken
+      __typename
+    }
+    weeklyReviews {
       nextToken
       __typename
     }
@@ -2744,11 +3295,15 @@ export const onDeleteSixWeekBatchProjects = /* GraphQL */ `subscription OnDelete
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -2929,7 +3484,10 @@ export const onDeleteWeeklyPlan = /* GraphQL */ `subscription OnDeleteWeeklyPlan
 ) {
   onDeleteWeeklyPlan(filter: $filter, owner: $owner) {
     createdAt
+    crmUpdateSkipped
+    financialUpdateSkipped
     id
+    inboxSkipped
     owner
     projects {
       nextToken
@@ -2965,11 +3523,15 @@ export const onDeleteWeeklyPlanProject = /* GraphQL */ `subscription OnDeleteWee
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -2977,7 +3539,10 @@ export const onDeleteWeeklyPlanProject = /* GraphQL */ `subscription OnDeleteWee
     updatedAt
     weekPlan {
       createdAt
+      crmUpdateSkipped
+      financialUpdateSkipped
       id
+      inboxSkipped
       owner
       startDate
       status
@@ -2992,12 +3557,93 @@ export const onDeleteWeeklyPlanProject = /* GraphQL */ `subscription OnDeleteWee
   APITypes.OnDeleteWeeklyPlanProjectSubscriptionVariables,
   APITypes.OnDeleteWeeklyPlanProjectSubscription
 >;
+export const onDeleteWeeklyReview = /* GraphQL */ `subscription OnDeleteWeeklyReview(
+  $filter: ModelSubscriptionWeeklyReviewFilterInput
+  $owner: String
+) {
+  onDeleteWeeklyReview(filter: $filter, owner: $owner) {
+    createdAt
+    date
+    entries {
+      nextToken
+      __typename
+    }
+    id
+    owner
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteWeeklyReviewSubscriptionVariables,
+  APITypes.OnDeleteWeeklyReviewSubscription
+>;
+export const onDeleteWeeklyReviewEntry = /* GraphQL */ `subscription OnDeleteWeeklyReviewEntry(
+  $filter: ModelSubscriptionWeeklyReviewEntryFilterInput
+  $owner: String
+) {
+  onDeleteWeeklyReviewEntry(filter: $filter, owner: $owner) {
+    category
+    content
+    createdAt
+    generatedContent
+    id
+    isEdited
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    review {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    reviewId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteWeeklyReviewEntrySubscriptionVariables,
+  APITypes.OnDeleteWeeklyReviewEntrySubscription
+>;
 export const onUpdateAccount = /* GraphQL */ `subscription OnUpdateAccount(
   $filter: ModelSubscriptionAccountFilterInput
   $owner: String
 ) {
   onUpdateAccount(filter: $filter, owner: $owner) {
     accountSubsidiariesId
+    awsAccounts {
+      nextToken
+      __typename
+    }
     controller {
       accountSubsidiariesId
       createdAt
@@ -3006,10 +3652,12 @@ export const onUpdateAccount = /* GraphQL */ `subscription OnUpdateAccount(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -3019,15 +3667,16 @@ export const onUpdateAccount = /* GraphQL */ `subscription OnUpdateAccount(
     id
     introduction
     introductionJson
+    learnings {
+      nextToken
+      __typename
+    }
+    mainColor
     name
     notionId
     order
     owner
     partnerProjects {
-      nextToken
-      __typename
-    }
-    payerAccounts {
       nextToken
       __typename
     }
@@ -3043,6 +3692,7 @@ export const onUpdateAccount = /* GraphQL */ `subscription OnUpdateAccount(
       nextToken
       __typename
     }
+    shortName
     subsidiaries {
       nextToken
       __typename
@@ -3059,6 +3709,88 @@ export const onUpdateAccount = /* GraphQL */ `subscription OnUpdateAccount(
   APITypes.OnUpdateAccountSubscriptionVariables,
   APITypes.OnUpdateAccountSubscription
 >;
+export const onUpdateAccountLearning = /* GraphQL */ `subscription OnUpdateAccountLearning(
+  $filter: ModelSubscriptionAccountLearningFilterInput
+  $owner: String
+) {
+  onUpdateAccountLearning(filter: $filter, owner: $owner) {
+    account {
+      accountSubsidiariesId
+      createdAt
+      crmId
+      formatVersion
+      id
+      introduction
+      introductionJson
+      mainColor
+      name
+      notionId
+      order
+      owner
+      shortName
+      updatedAt
+      __typename
+    }
+    accountId
+    createdAt
+    id
+    learnedOn
+    learning
+    owner
+    peopleMentioned {
+      nextToken
+      __typename
+    }
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateAccountLearningSubscriptionVariables,
+  APITypes.OnUpdateAccountLearningSubscription
+>;
+export const onUpdateAccountLearningPerson = /* GraphQL */ `subscription OnUpdateAccountLearningPerson(
+  $filter: ModelSubscriptionAccountLearningPersonFilterInput
+  $owner: String
+) {
+  onUpdateAccountLearningPerson(filter: $filter, owner: $owner) {
+    createdAt
+    id
+    learning {
+      accountId
+      createdAt
+      id
+      learnedOn
+      learning
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    learningId
+    owner
+    person {
+      birthday
+      createdAt
+      dateOfDeath
+      howToSay
+      id
+      name
+      notionId
+      owner
+      updatedAt
+      __typename
+    }
+    personId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateAccountLearningPersonSubscriptionVariables,
+  APITypes.OnUpdateAccountLearningPersonSubscription
+>;
 export const onUpdateAccountPayerAccount = /* GraphQL */ `subscription OnUpdateAccountPayerAccount(
   $filter: ModelSubscriptionAccountPayerAccountFilterInput
   $owner: String
@@ -3072,10 +3804,12 @@ export const onUpdateAccountPayerAccount = /* GraphQL */ `subscription OnUpdateA
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -3085,6 +3819,7 @@ export const onUpdateAccountPayerAccount = /* GraphQL */ `subscription OnUpdateA
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -3115,10 +3850,12 @@ export const onUpdateAccountProjects = /* GraphQL */ `subscription OnUpdateAccou
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -3138,11 +3875,15 @@ export const onUpdateAccountProjects = /* GraphQL */ `subscription OnUpdateAccou
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -3168,10 +3909,12 @@ export const onUpdateAccountTerritory = /* GraphQL */ `subscription OnUpdateAcco
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -3223,6 +3966,7 @@ export const onUpdateActivity = /* GraphQL */ `subscription OnUpdateActivity(
     formatVersion
     id
     meetingActivitiesId
+    name
     noteBlockIds
     noteBlocks {
       nextToken
@@ -3363,11 +4107,15 @@ export const onUpdateCrmProjectProjects = /* GraphQL */ `subscription OnUpdateCr
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -3408,6 +4156,10 @@ export const onUpdateDailyPlan = /* GraphQL */ `subscription OnUpdateDailyPlan(
     dayGoal
     id
     owner
+    projects {
+      nextToken
+      __typename
+    }
     status
     todos {
       nextToken
@@ -3420,6 +4172,60 @@ export const onUpdateDailyPlan = /* GraphQL */ `subscription OnUpdateDailyPlan(
 ` as GeneratedSubscription<
   APITypes.OnUpdateDailyPlanSubscriptionVariables,
   APITypes.OnUpdateDailyPlanSubscription
+>;
+export const onUpdateDailyPlanProject = /* GraphQL */ `subscription OnUpdateDailyPlanProject(
+  $filter: ModelSubscriptionDailyPlanProjectFilterInput
+  $owner: String
+) {
+  onUpdateDailyPlanProject(filter: $filter, owner: $owner) {
+    createdAt
+    dailyPlan {
+      context
+      createdAt
+      day
+      dayGoal
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    dailyPlanId
+    id
+    maybe
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateDailyPlanProjectSubscriptionVariables,
+  APITypes.OnUpdateDailyPlanProjectSubscription
 >;
 export const onUpdateDailyPlanTodo = /* GraphQL */ `subscription OnUpdateDailyPlanTodo(
   $filter: ModelSubscriptionDailyPlanTodoFilterInput
@@ -3469,7 +4275,9 @@ export const onUpdateInbox = /* GraphQL */ `subscription OnUpdateInbox(
     createdAt
     formatVersion
     id
+    movedToAccountLearningId
     movedToActivityId
+    movedToPersonLearningId
     note
     noteJson
     owner
@@ -3621,6 +4429,7 @@ export const onUpdateNoteBlock = /* GraphQL */ `subscription OnUpdateNoteBlock(
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -3764,6 +4573,7 @@ export const onUpdatePayerAccount = /* GraphQL */ `subscription OnUpdatePayerAcc
       __typename
     }
     mainContactId
+    notes
     owner
     reseller {
       accountSubsidiariesId
@@ -3773,10 +4583,12 @@ export const onUpdatePayerAccount = /* GraphQL */ `subscription OnUpdatePayerAcc
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -3817,6 +4629,7 @@ export const onUpdatePayerAccountMrr = /* GraphQL */ `subscription OnUpdatePayer
       createdAt
       isViaReseller
       mainContactId
+      notes
       owner
       resellerId
       updatedAt
@@ -3845,6 +4658,10 @@ export const onUpdatePerson = /* GraphQL */ `subscription OnUpdatePerson(
   $owner: String
 ) {
   onUpdatePerson(filter: $filter, owner: $owner) {
+    accountLearnings {
+      nextToken
+      __typename
+    }
     accounts {
       nextToken
       __typename
@@ -3916,10 +4733,12 @@ export const onUpdatePersonAccount = /* GraphQL */ `subscription OnUpdatePersonA
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
@@ -4006,6 +4825,7 @@ export const onUpdatePersonLearning = /* GraphQL */ `subscription OnUpdatePerson
     }
     personId
     prayer
+    status
     updatedAt
     __typename
   }
@@ -4070,6 +4890,7 @@ export const onUpdateProjectActivity = /* GraphQL */ `subscription OnUpdateProje
       formatVersion
       id
       meetingActivitiesId
+      name
       noteBlockIds
       notes
       notesJson
@@ -4094,11 +4915,15 @@ export const onUpdateProjectActivity = /* GraphQL */ `subscription OnUpdateProje
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -4134,6 +4959,10 @@ export const onUpdateProjects = /* GraphQL */ `subscription OnUpdateProjects(
       nextToken
       __typename
     }
+    dayPlans {
+      nextToken
+      __typename
+    }
     done
     doneOn
     dueOn
@@ -4143,6 +4972,7 @@ export const onUpdateProjects = /* GraphQL */ `subscription OnUpdateProjects(
     myNextActionsJson
     notionId
     onHoldTill
+    order
     othersNextActions
     othersNextActionsJson
     owner
@@ -4154,17 +4984,26 @@ export const onUpdateProjects = /* GraphQL */ `subscription OnUpdateProjects(
       id
       introduction
       introductionJson
+      mainColor
       name
       notionId
       order
       owner
+      shortName
       updatedAt
       __typename
     }
     partnerId
+    pinned
     project
+    tasksSummary
+    tasksSummaryUpdatedAt
     updatedAt
     weekPlans {
+      nextToken
+      __typename
+    }
+    weeklyReviews {
       nextToken
       __typename
     }
@@ -4236,11 +5075,15 @@ export const onUpdateSixWeekBatchProjects = /* GraphQL */ `subscription OnUpdate
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -4421,7 +5264,10 @@ export const onUpdateWeeklyPlan = /* GraphQL */ `subscription OnUpdateWeeklyPlan
 ) {
   onUpdateWeeklyPlan(filter: $filter, owner: $owner) {
     createdAt
+    crmUpdateSkipped
+    financialUpdateSkipped
     id
+    inboxSkipped
     owner
     projects {
       nextToken
@@ -4457,11 +5303,15 @@ export const onUpdateWeeklyPlanProject = /* GraphQL */ `subscription OnUpdateWee
       myNextActionsJson
       notionId
       onHoldTill
+      order
       othersNextActions
       othersNextActionsJson
       owner
       partnerId
+      pinned
       project
+      tasksSummary
+      tasksSummaryUpdatedAt
       updatedAt
       __typename
     }
@@ -4469,7 +5319,10 @@ export const onUpdateWeeklyPlanProject = /* GraphQL */ `subscription OnUpdateWee
     updatedAt
     weekPlan {
       createdAt
+      crmUpdateSkipped
+      financialUpdateSkipped
       id
+      inboxSkipped
       owner
       startDate
       status
@@ -4483,4 +5336,81 @@ export const onUpdateWeeklyPlanProject = /* GraphQL */ `subscription OnUpdateWee
 ` as GeneratedSubscription<
   APITypes.OnUpdateWeeklyPlanProjectSubscriptionVariables,
   APITypes.OnUpdateWeeklyPlanProjectSubscription
+>;
+export const onUpdateWeeklyReview = /* GraphQL */ `subscription OnUpdateWeeklyReview(
+  $filter: ModelSubscriptionWeeklyReviewFilterInput
+  $owner: String
+) {
+  onUpdateWeeklyReview(filter: $filter, owner: $owner) {
+    createdAt
+    date
+    entries {
+      nextToken
+      __typename
+    }
+    id
+    owner
+    status
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateWeeklyReviewSubscriptionVariables,
+  APITypes.OnUpdateWeeklyReviewSubscription
+>;
+export const onUpdateWeeklyReviewEntry = /* GraphQL */ `subscription OnUpdateWeeklyReviewEntry(
+  $filter: ModelSubscriptionWeeklyReviewEntryFilterInput
+  $owner: String
+) {
+  onUpdateWeeklyReviewEntry(filter: $filter, owner: $owner) {
+    category
+    content
+    createdAt
+    generatedContent
+    id
+    isEdited
+    owner
+    project {
+      context
+      createdAt
+      done
+      doneOn
+      dueOn
+      formatVersion
+      id
+      myNextActions
+      myNextActionsJson
+      notionId
+      onHoldTill
+      order
+      othersNextActions
+      othersNextActionsJson
+      owner
+      partnerId
+      pinned
+      project
+      tasksSummary
+      tasksSummaryUpdatedAt
+      updatedAt
+      __typename
+    }
+    projectId
+    review {
+      createdAt
+      date
+      id
+      owner
+      status
+      updatedAt
+      __typename
+    }
+    reviewId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateWeeklyReviewEntrySubscriptionVariables,
+  APITypes.OnUpdateWeeklyReviewEntrySubscription
 >;

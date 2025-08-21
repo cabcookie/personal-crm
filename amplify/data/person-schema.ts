@@ -11,6 +11,7 @@ export const tablesWithDeleteProtection = [
 ];
 
 const personSchmema = {
+  // ------ Enums
   PersonDetailsEnum: a.enum([
     "linkedIn",
     "phonePrivate",
@@ -21,6 +22,7 @@ const personSchmema = {
     "instagram",
     "amazonalias",
   ]),
+
   RelationshipTypeEnum: a.enum([
     "parent",
     "child",
@@ -32,84 +34,104 @@ const personSchmema = {
     "manager",
     "employer",
   ]),
+
+  // ------ Models
   MeetingParticipant: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      meetingId: a.id().required(),
-      meeting: a.belongsTo("Meeting", "meetingId"),
-      personId: a.id().required(),
-      person: a.belongsTo("Person", "personId"),
       createdAt: a.datetime().required(),
+      // FKs
+      meetingId: a.id().required(),
+      personId: a.id().required(),
+      // relations
+      meeting: a.belongsTo("Meeting", "meetingId"),
+      person: a.belongsTo("Person", "personId"),
     })
     .secondaryIndexes((index) => [index("personId").sortKeys(["createdAt"])])
     .authorization((allow) => [allow.owner()]),
+
   PersonAccount: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      personId: a.id().required(),
-      person: a.belongsTo("Person", "personId"),
-      accountId: a.id().required(),
-      account: a.belongsTo("Account", "accountId"),
       startDate: a.date(),
       endDate: a.date(),
       position: a.string(),
+      // FKs
+      personId: a.id().required(),
+      accountId: a.id().required(),
+      // relations
+      person: a.belongsTo("Person", "personId"),
+      account: a.belongsTo("Account", "accountId"),
     })
     .secondaryIndexes((index) => [index("accountId")])
     .authorization((allow) => [allow.owner()]),
+
   PersonDetail: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      personId: a.id().required(),
-      person: a.belongsTo("Person", "personId"),
       label: a.ref("PersonDetailsEnum").required(),
       detail: a.string().required(),
+      // FKs
+      personId: a.id().required(),
+      // relations
+      person: a.belongsTo("Person", "personId"),
     })
     .authorization((allow) => [allow.owner()]),
+
   PersonLearning: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
       learnedOn: a.date(),
-      personId: a.id().required(),
-      person: a.belongsTo("Person", "personId"),
       learning: a.json(),
       prayer: a.ref("PrayerStatus"),
       status: a.ref("LearningStatus").required(),
+      // FKs
+      personId: a.id().required(),
+      // relations
+      person: a.belongsTo("Person", "personId"),
     })
     .secondaryIndexes((index) => [index("personId")])
     .authorization((allow) => [allow.owner()]),
+
   User: a
     .model({
-      profileId: a.string().required(),
       email: a.string(),
       name: a.string(),
       profilePicture: a.string(),
+      // FKs
+      profileId: a.string().required(),
       personId: a.id(),
+      // relations
       person: a.belongsTo("Person", "personId"),
     })
     .identifier(["profileId"])
     .authorization((allow) => [allow.ownerDefinedIn("profileId")]),
+
   PersonRelationship: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      personId: a.id(),
-      person: a.belongsTo("Person", "personId"),
       typeName: a.ref("RelationshipTypeEnum"),
-      relatedPersonId: a.id(),
-      relatedPerson: a.belongsTo("Person", "relatedPersonId"),
       date: a.date(),
       endDate: a.date(),
+      // FKs
+      personId: a.id(),
+      relatedPersonId: a.id(),
+      // relations
+      person: a.belongsTo("Person", "personId"),
+      relatedPerson: a.belongsTo("Person", "relatedPersonId"),
     })
     .authorization((allow) => [allow.owner()]),
+
   Person: a
     .model({
       owner: a
@@ -120,6 +142,7 @@ const personSchmema = {
       howToSay: a.string(),
       birthday: a.date(),
       dateOfDeath: a.date(),
+      // relations
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
       payerAccounts: a.hasMany("PayerAccount", "mainContactId"),

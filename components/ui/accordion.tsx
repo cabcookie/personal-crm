@@ -39,21 +39,6 @@ const AccordionTrigger = React.forwardRef<
 ));
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
-const AccordionTriggerTitle: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-}> = ({ children, className }) => (
-  <div
-    className={cn(
-      "flex flex-row gap-2 pr-2 truncate",
-      "group-data-[state=open]:text-wrap group-data-[state=open]:text-left",
-      className
-    )}
-  >
-    {children}
-  </div>
-);
-
 const AccordionTriggerSubTitle: React.FC<{
   children: React.ReactNode;
   className?: string;
@@ -90,5 +75,4 @@ export {
   AccordionItem,
   AccordionTrigger,
   AccordionTriggerSubTitle,
-  AccordionTriggerTitle,
 };
