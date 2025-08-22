@@ -45,7 +45,7 @@ const AccordionTriggerSubTitle: React.FC<{
 }> = ({ children, className }) => (
   <div
     className={cn(
-      "font-normal text-sm flex flex-row gap-2 truncate",
+      "font-normal text-sm flex flex-row gap-2",
       "group-data-[state=open]:hidden",
       className
     )}
