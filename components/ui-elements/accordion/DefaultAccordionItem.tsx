@@ -63,60 +63,63 @@ const DefaultAccordionItem = forwardRef<
               className
             )}
           >
-            <div className="flex items-center max-w-full gap-2">
-              {(((onMoveUp || onMoveDown) && !disableOrderControls) ||
-                badge) && (
-                <div className="shrink-0 flex items-center gap-1">
-                  {!disableOrderControls && (
-                    <OrderButtons onMoveDown={onMoveDown} onMoveUp={onMoveUp} />
-                  )}
-                  {badge}
+            <div className="flex items-start gap-2 w-full">
+              {(onMoveUp || onMoveDown) && !disableOrderControls && (
+                <div className="shrink-0">
+                  <OrderButtons onMoveDown={onMoveDown} onMoveUp={onMoveUp} />
                 </div>
               )}
-              <div className="flex-1 truncate sm:text-left group-data-[state=open]:text-wrap group-data-[state=open]:text-left">
-                {triggerTitle}
-              </div>
-              <div className="shrink-0 flex items-center gap-1.5">
-                {actionIcon}
-                {link && (
-                  <Link
-                    href={link}
-                    className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <BiLinkExternal className="h-4 w-4" />
-                  </Link>
-                )}
-                {onDelete && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete();
-                    }}
-                    asChild
-                  >
-                    <Trash2 className="mt-1 h-4 w-4 text-muted-foreground hover:text-primary" />
-                  </Button>
-                )}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  {badge && <div className="shrink-0">{badge}</div>}
+                  <div className="flex-1 truncate sm:text-left group-data-[state=open]:text-wrap group-data-[state=open]:text-left">
+                    {triggerTitle}
+                  </div>
+                  <div className="shrink-0 flex items-center gap-1.5">
+                    {actionIcon}
+                    {link && (
+                      <Link
+                        href={link}
+                        className="mt-1 text-muted-foreground hover:text-primary flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <BiLinkExternal className="h-4 w-4" />
+                      </Link>
+                    )}
+                    {onDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete();
+                        }}
+                        asChild
+                      >
+                        <Trash2 className="mt-1 h-4 w-4 text-muted-foreground hover:text-primary" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <AccordionTriggerSubTitle className="items-center min-w-full">
+                  <div className="flex-1 truncate sm:text-left">
+                    {typeof triggerSubTitle === "string"
+                      ? triggerSubTitle
+                      : typeof triggerSubTitle === "boolean"
+                        ? ""
+                        : flow(
+                            filter(
+                              (t: string | undefined | boolean) =>
+                                typeof t === "string" && t !== ""
+                            ),
+                            join(", ")
+                          )(triggerSubTitle)}
+                  </div>
+                </AccordionTriggerSubTitle>
               </div>
             </div>
-            <AccordionTriggerSubTitle>
-              {typeof triggerSubTitle === "string"
-                ? triggerSubTitle
-                : typeof triggerSubTitle === "boolean"
-                  ? ""
-                  : flow(
-                      filter(
-                        (t: string | undefined | boolean) =>
-                          typeof t === "string" && t !== ""
-                      ),
-                      join(", ")
-                    )(triggerSubTitle)}
-            </AccordionTriggerSubTitle>
           </AccordionTrigger>
         </div>
         <AccordionContent className="my-2 bg-[--context-color-bg] px-1 md:px-2">
