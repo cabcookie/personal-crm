@@ -1,4 +1,3 @@
-import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import {
   addMinutesToDate,
@@ -6,7 +5,6 @@ import {
   toISODateTimeString,
 } from "@/helpers/functional";
 import { calcRevenueTwoYears } from "@/helpers/projects";
-import { generateClient } from "aws-amplify/data";
 import { flow, isUndefined, omitBy } from "lodash";
 import { findIndex, get, identity } from "lodash/fp";
 import useSWR from "swr";
@@ -16,7 +14,7 @@ import {
   mapCrmProject,
   selectionSetCrmProject,
 } from "./useCrmProjects";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const STAGES_PROBABILITY = [
   { stage: "Prospect", probability: 10 },

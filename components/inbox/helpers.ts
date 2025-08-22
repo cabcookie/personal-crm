@@ -1,4 +1,3 @@
-import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
 import { createMentionedPersonApi } from "@/api/helpers/people";
 import { createBlockApi, createTodoApi } from "@/api/helpers/todo";
@@ -8,9 +7,8 @@ import {
   getPersonId,
 } from "@/components/ui-elements/editors/helpers/mentioned-people-cud";
 import { JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/data";
 import { compact, flow, map } from "lodash/fp";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const createTodo = async (block: JSONContent) => {
   if (block.type !== "taskItem") return;

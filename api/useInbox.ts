@@ -12,7 +12,6 @@ import {
 import { newDateTimeString, toISODateString } from "@/helpers/functional";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { Editor, JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/data";
 import { debounce } from "lodash";
 import { compact } from "lodash/fp";
 import useSWR from "swr";
@@ -23,7 +22,7 @@ import {
   createProjectActivityApi,
   updateActivityBlockIds,
 } from "./helpers/activity";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type InboxStatus = Schema["InboxStatus"]["type"];
 

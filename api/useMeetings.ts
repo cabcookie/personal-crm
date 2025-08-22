@@ -7,13 +7,13 @@ import {
   newDateTimeString,
   toISODateString,
 } from "@/helpers/functional";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { flow, get, map, some, sortBy, uniq } from "lodash/fp";
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Activity, mapActivity } from "./useActivity";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type Meeting = {
   id: string;

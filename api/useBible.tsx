@@ -6,11 +6,11 @@ import {
 } from "@/helpers/bible/bible";
 import { transformNotesVersion } from "@/helpers/bible/transformers";
 import { JSONContent } from "@tiptap/core";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type BibleBookChapter = {
   id: string;

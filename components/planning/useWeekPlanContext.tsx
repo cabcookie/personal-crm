@@ -1,7 +1,5 @@
-import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
 import useWeekPlan, { WeeklyPlan } from "@/api/useWeekPlan";
-import { generateClient } from "aws-amplify/data";
 import { addDays } from "date-fns";
 import {
   ComponentType,
@@ -12,7 +10,7 @@ import {
   useState,
 } from "react";
 import { toast } from "../ui/use-toast";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 interface WeekPlanType {
   weekPlan: WeeklyPlan | undefined;

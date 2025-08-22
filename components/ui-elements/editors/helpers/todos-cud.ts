@@ -1,11 +1,8 @@
 /* Create, update, delete operations on todos (i.e., Todo) */
-
-import { type Schema } from "@/amplify/data/resource";
 import { createTodoApi } from "@/api/helpers/todo";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { newDateString, not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/api";
 import {
   compact,
   filter,
@@ -19,7 +16,7 @@ import {
 import { stringifyBlock } from "./blocks";
 import { isUpToDate } from "./compare";
 import TransactionError from "./transaction-error";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type TTodoCreationSet = {
   tempId: string;

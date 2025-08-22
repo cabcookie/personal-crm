@@ -8,7 +8,7 @@ import {
   PersonRelationship,
 } from "@/helpers/person/relationships";
 import { JSONContent } from "@tiptap/core";
-import { generateClient, SelectionSet } from "aws-amplify/api";
+import { SelectionSet } from "aws-amplify/data";
 import {
   filter,
   flatMap,
@@ -22,8 +22,7 @@ import {
 } from "lodash/fp";
 import { Dispatch, SetStateAction } from "react";
 import { getDateOrUndefined, makeDate } from "../functional";
-
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type PersonLearning = {
   learning: string;

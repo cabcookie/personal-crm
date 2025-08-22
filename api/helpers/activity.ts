@@ -1,8 +1,6 @@
-import { type Schema } from "@/amplify/data/resource";
 import { newDateTimeString, toISODateTimeString } from "@/helpers/functional";
-import { generateClient } from "aws-amplify/data";
 import { handleApiErrors } from "../globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const createActivityApi = async (createdAt?: Date) => {
   const { data, errors } = await client.models.Activity.create({

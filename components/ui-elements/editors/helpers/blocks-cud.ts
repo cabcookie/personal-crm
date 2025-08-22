@@ -1,16 +1,13 @@
 /* Create, update, delete operations on blocks (i.e., NoteBlock) */
-
-import { type Schema } from "@/amplify/data/resource";
 import { createBlockApi } from "@/api/helpers/todo";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/api";
 import { filter, find, flow, map, some } from "lodash/fp";
 import { getBlocks, stringifyBlock } from "./blocks";
 import { isUpToDate } from "./compare";
 import TransactionError from "./transaction-error";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type TBlockCreationSetTodo = {
   content: null;

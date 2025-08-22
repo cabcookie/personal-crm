@@ -1,9 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { compact, flow, identity, map, reduce, sortBy } from "lodash/fp";
 import useSWR from "swr";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = [
   "activity.id",

@@ -1,7 +1,7 @@
 import { subWeeks, isAfter, format, startOfWeek, formatISO } from "date-fns";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import { Dispatch, SetStateAction } from "react";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { type Schema } from "@/amplify/data/resource";
 import {
   compact,
@@ -23,7 +23,7 @@ import {
   WeeklyReview,
   WeeklyReviewEntry,
 } from "@/api/useWeeklyReview";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const startProcessing = async ({
   setIsProcessing,

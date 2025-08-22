@@ -1,12 +1,12 @@
 import { type Schema } from "@/amplify/data/resource";
 import { toast } from "@/components/ui/use-toast";
 import { toISODateString } from "@/helpers/functional";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { addDays, format } from "date-fns";
 import { filter, flow, union } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const _WEEK_PLAN_STATUS = ["WIP", "DONE", "CANCELLED"];
 type TWeekPlanStatus = (typeof _WEEK_PLAN_STATUS)[number];

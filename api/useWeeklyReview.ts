@@ -1,5 +1,5 @@
 import { type Schema } from "@/amplify/data/resource";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { find, flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
@@ -10,7 +10,7 @@ import {
   ProjectForReview,
 } from "@/helpers/weeklyReviewHelpers";
 import { uniqueId } from "lodash";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const useWeeklyReview = (date?: Date) => {
   const {

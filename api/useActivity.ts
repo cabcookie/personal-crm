@@ -12,12 +12,12 @@ import { UpdateNotesFunction } from "@/components/ui-elements/editors/helpers/up
 import { useToast } from "@/components/ui/use-toast";
 import { toISODateTimeString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { useState } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { createProjectActivityApi } from "./helpers/activity";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type TempIdMapping = {
   tempId: string;

@@ -10,13 +10,13 @@ import {
   calcRevenueTwoYears,
   mapPipelineFields,
 } from "@/helpers/projects";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { flatMap, flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { Project, useProjectsContext } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
 import { CRM_STAGES, TCrmStages } from "./useCrmProject";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type CrmProject = {
   id: string;

@@ -5,11 +5,11 @@ import {
   getTodoJson,
   getTodoStatus,
 } from "@/helpers/todos";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { filter, flatMap, flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { getTodoOrder, Todo } from "./useProjectTodos";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type MeetingTodo = Todo & {
   meetingId: string;

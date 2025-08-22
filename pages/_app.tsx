@@ -1,4 +1,3 @@
-import config from "@/amplify_outputs.json";
 import { AccountsContextProvider } from "@/api/ContextAccounts";
 import { ProjectsContextProvider } from "@/api/ContextProjects";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
@@ -8,11 +7,11 @@ import {
   SetContextStateFn,
   useContextContext,
 } from "@/contexts/ContextContext";
+import { loadAmplify } from "@/lib/amplify";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
 import { withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import { Amplify } from "aws-amplify";
 import type { AppProps } from "next/app";
 import { Inter as FontSans } from "next/font/google";
 import Head from "next/head";
@@ -22,7 +21,7 @@ const fontSans = FontSans({
   variable: "--font-sans",
 });
 
-Amplify.configure(config);
+loadAmplify();
 
 const CONTEXT_LOCAL_STORAGE_NAME = "currentContext";
 

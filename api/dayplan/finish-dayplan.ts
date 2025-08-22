@@ -1,7 +1,5 @@
-import { type Schema } from "@/amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
 import { CrudOptions, handleApiErrors } from "../globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 interface DataProps {
   dayPlanId: string;

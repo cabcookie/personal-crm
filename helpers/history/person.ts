@@ -1,12 +1,11 @@
 import { SelectionSet } from "aws-amplify/data";
 import { Schema } from "@/amplify/data/resource";
 import { getTextFromJsonContent } from "@/components/ui-elements/editors/helpers/text-generation";
-import { client } from "@/pages/projects/[id]/history/index";
+import { client } from "@/lib/amplify";
 import { union } from "lodash";
 import { sortBy, identity, map, flow } from "lodash/fp";
 import { AccountData } from "./account";
 import { getLocaleDateString, makeDate, type Learning } from "./generals";
-import { type Project } from "./project";
 
 export type Person = {
   id: string;

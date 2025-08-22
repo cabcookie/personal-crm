@@ -6,12 +6,12 @@ import {
   mapPersonToSuggestion,
   SuggestionItem,
 } from "@/helpers/ui-notes-writer/suggestions";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { filter, flow, join, map, some, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { fetchUser, User } from "./useUser";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type LeanPerson = {
   id: string;

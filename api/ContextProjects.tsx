@@ -10,7 +10,7 @@ import {
 import { calcPipeline } from "@/helpers/projects";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import {
   compact,
@@ -32,7 +32,7 @@ import {
 import { CrmProject, mapCrmProject } from "./useCrmProjects";
 import { usePinnedProjects, PinnedProject } from "./usePinnedProjects";
 import { debounce } from "lodash";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 // Global state for normalization scheduling
 const normalizationPending = new Map<string, boolean>();

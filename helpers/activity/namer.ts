@@ -1,15 +1,11 @@
-import { type Schema } from "@/amplify/data/resource";
 import { Activity } from "@/api/useActivity";
-import { generateClient as generateApiClient } from "aws-amplify/api";
-import { generateClient } from "aws-amplify/data";
 import { debounce } from "lodash";
 import { format, isFuture, isPast } from "date-fns";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
 import { generateText } from "@tiptap/core";
 import { Extensions } from "@tiptap/core";
 
-const client = generateClient<Schema>();
-const apiClient = generateApiClient<Schema>({ authMode: "userPool" });
+import { client } from "@/lib/amplify";
 
 export const nameActivity = debounce(
   async (activity: Activity, extensions: Extensions) => {
@@ -107,7 +103,7 @@ const getNotes = (activity: Activity, extensions: Extensions) =>
   generateText(activity.notes ?? emptyDocument, extensions);
 
 const getNameForActivity = async (content: string) => {
-  const { data, errors } = await apiClient.generations.chatNamer({
+  const { data, errors } = await client.generations.chatNamer({
     content,
   });
   if (errors || !data) {

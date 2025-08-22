@@ -7,11 +7,11 @@ import {
   getMonthMrr,
   getMonths,
 } from "@/helpers/analytics/api-actions";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { flatMap, flow, get, identity } from "lodash/fp";
 import useSWR, { KeyedMutator } from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const wipSelectionSet = [
   "latestMonths.month",

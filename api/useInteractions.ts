@@ -5,12 +5,12 @@ import {
   PeersOrCustomersFilter,
   reduceInteractions,
 } from "@/helpers/interactions";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { filter, flow, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { fetchUser } from "./useUser";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = [
   "startDate",

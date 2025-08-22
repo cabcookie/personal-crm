@@ -12,7 +12,7 @@ import {
 } from "@/helpers/payers/api-actions";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import {
   filter,
   find,
@@ -26,7 +26,7 @@ import {
 import { FC, ReactNode, createContext, useContext } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type UpdateAccountProps = {
   id: string;

@@ -1,7 +1,5 @@
-import { type Schema } from "@/amplify/data/resource";
 import { not } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/data";
 import {
   filter,
   flatMap,
@@ -14,7 +12,7 @@ import {
 } from "lodash/fp";
 import { handleApiErrors } from "../globals";
 
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const getMentionedPeople = async (learningId: string) => {
   const { data, errors } =

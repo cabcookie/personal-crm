@@ -3,13 +3,13 @@ import { toast } from "@/components/ui/use-toast";
 import { getDateOrUndefined } from "@/helpers/functional";
 import { uploadFileToS3 } from "@/helpers/s3/upload-files";
 import { AuthUser, getCurrentUser } from "aws-amplify/auth";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { remove } from "aws-amplify/storage";
 import { isFuture } from "date-fns";
 import { filter, first, flow, get, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type TUpdateProfileInfo = {
   displayName: string;
