@@ -36,6 +36,7 @@ NEW_VERSION=1.3.0
 ## Step 4 – Update version numbers
 
 Update the version numbers in the `./VERSION` script with the new version.
+Bump the version in `package.json` and `package-lock.json`.
 
 ## Step 5 – Locate release planning documentation
 
@@ -199,7 +200,7 @@ RELEASE_TITLE=$(head -1 "docs/releases/v$NEW_VERSION.md" | sed 's/^# //')
 RELEASE_DESCRIPTION=$(sed -n '/## Neue Funktionen und Änderungen/,/## Detaillierte Änderungen/p' "docs/releases/v$NEW_VERSION.md" | head -n -1 | tail -n +2)
 ```
 
-If no existing pull request was found in Step 14, create a new pull request:
+If no existing pull request was found in Step 14, create a new pull request. Make sure you create it for the `main` branch in the current repository:
 
 ```xml
 <use_mcp_tool>
