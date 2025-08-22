@@ -1,7 +1,5 @@
-import { type Schema } from "@/amplify/data/resource";
 import { newDateTimeString } from "@/helpers/functional";
-import { generateClient } from "aws-amplify/api";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const createMentionedPersonApi = (
   noteBlockId: string,

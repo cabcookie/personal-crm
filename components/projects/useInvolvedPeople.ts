@@ -1,135 +1,98 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
-import { fetchUser, User } from "@/api/useUser";
-import { getAccounts } from "@/helpers/person/accounts";
-import { generateClient, SelectionSet } from "aws-amplify/data";
-import {
-  compact,
-  filter,
-  flatMap,
-  flow,
-  get,
-  identity,
-  join,
-  map,
-  reduce,
-  some,
-  sortBy,
-} from "lodash/fp";
+import { fetchUser } from "@/api/useUser";
+import usePeople, { LeanPerson } from "@/api/usePeople";
+import { SelectionSet } from "aws-amplify/data";
+import { filter, map, sortBy, identity, flow } from "lodash/fp";
 import useSWR from "swr";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = [
-  "activity.createdAt",
-  "activity.finishedOn",
-  "activity.forMeeting.participants.person.id",
-  "activity.forMeeting.participants.person.name",
-  "activity.forMeeting.participants.person.howToSay",
-  "activity.forMeeting.participants.person.accounts.id",
-  "activity.forMeeting.participants.person.accounts.startDate",
-  "activity.forMeeting.participants.person.accounts.endDate",
-  "activity.forMeeting.participants.person.accounts.position",
-  "activity.forMeeting.participants.person.accounts.account.id",
-  "activity.forMeeting.participants.person.accounts.account.name",
+  "activity.forMeeting.meetingOn",
+  "activity.forMeeting.createdAt",
+  "activity.forMeeting.participants.personId",
 ] as const;
 
 type InvolvedPersonData = SelectionSet<
   Schema["ProjectActivity"]["type"],
-  // @ts-expect-error selectionSet is deep, however it works perfectly
   typeof selectionSet
 >;
 
-type InvolvedPerson = {
-  id: string;
-  name: string;
+type InvolvedPerson = LeanPerson & {
   lastInteraction: Date;
-  howToSay?: string;
-  accountNames?: string;
-  isPeerOfUser?: boolean;
 };
 
-const getCurrentAccounts = flow(
-  getAccounts,
-  filter((pa) => pa.isCurrent)
-);
+const getInvolvedPeopleIds = (data: InvolvedPersonData[]) => {
+  // Create a record of latest interaction dates per person ID
+  const latestDatesPerPerson: Record<string, Date> = {};
 
-const mapInvolvedPerson =
-  (user: User) =>
-  ({
-    createdAt,
-    finishedOn,
-    forMeeting,
-  }: InvolvedPersonData["activity"]): InvolvedPerson[] =>
-    flow(
-      identity<typeof forMeeting>,
-      get("participants"),
-      map("person"),
-      map(({ id, name, howToSay, accounts }) => ({
-        id,
-        name,
-        howToSay: howToSay || undefined,
-        lastInteraction: new Date(finishedOn || createdAt),
-        accountNames: flow(
-          getCurrentAccounts,
-          map(
-            ({ accountName, position }) =>
-              `${accountName}${!position ? "" : `, ${position}`}`
-          ),
-          join(", ")
-        )(accounts),
-        isPeerOfUser: !user.currentAccountId
-          ? undefined
-          : flow(
-              getCurrentAccounts,
-              some(({ accountId }) => accountId === user.currentAccountId)
-            )(accounts),
-      }))
-    )(forMeeting);
+  // Process all activities to find latest date for each person
+  data.forEach((item) => {
+    if (!item.activity?.forMeeting) return;
 
-const fetchInvolvedPeople = (projectId: string) => async () => {
-  const user = await fetchUser();
-  const options = { limit: 1000, selectionSet };
-  const operation =
-    client.models.ProjectActivity.listProjectActivityByProjectsId;
-  // @ts-expect-error selectionSet is deep, however it works perfectly
-  const { data, errors } = await operation({ projectsId: projectId }, options);
-  if (errors) {
-    handleApiErrors(errors, "Loading InvolvedPerson failed");
-    throw errors;
-  }
-  try {
-    return flow(
-      identity<InvolvedPersonData[] | undefined>,
-      map("activity"),
-      compact,
-      flatMap(mapInvolvedPerson(user)),
-      sortBy((p) => -p.lastInteraction.getTime()),
-      reduce<InvolvedPerson, InvolvedPerson[]>(
-        (prev, curr) =>
-          prev.some(
-            (p) =>
-              p.id === curr.id &&
-              p.lastInteraction.getTime() > curr.lastInteraction.getTime()
-          )
-            ? prev
-            : [...prev.filter((p) => p.id !== curr.id), curr],
-        []
-      )
-    )(data);
-  } catch (error) {
-    console.error("fetchInvolvedPeople", error);
-    throw error;
-  }
+    const { meetingOn, createdAt, participants } = item.activity.forMeeting;
+    const interactionDate = new Date(meetingOn || createdAt);
+
+    participants?.forEach((participant) => {
+      const personId = participant.personId;
+
+      if (
+        !latestDatesPerPerson[personId] ||
+        interactionDate > latestDatesPerPerson[personId]
+      ) {
+        latestDatesPerPerson[personId] = interactionDate;
+      }
+    });
+  });
+
+  return latestDatesPerPerson;
 };
+
+const fetchInvolvedPeople =
+  (people: LeanPerson[] | undefined, projectId: string) =>
+  async (): Promise<InvolvedPerson[]> => {
+    if (!people) return [];
+
+    await fetchUser();
+    const { data, errors } =
+      await client.models.ProjectActivity.listProjectActivityByProjectsId(
+        { projectsId: projectId },
+        { limit: 1000, selectionSet }
+      );
+    if (errors) {
+      handleApiErrors(errors, "Loading InvolvedPerson failed");
+      throw errors;
+    }
+    if (!data) return [];
+
+    const latestDatesPerPerson = getInvolvedPeopleIds(data);
+
+    try {
+      // Create InvolvedPerson array by combining people with their latest interaction dates
+      return flow(
+        identity<LeanPerson[]>,
+        filter(({ id }) => Boolean(latestDatesPerPerson[id])),
+        map<LeanPerson, InvolvedPerson>((person) => ({
+          ...person,
+          lastInteraction: latestDatesPerPerson[person.id],
+        })),
+        sortBy(({ lastInteraction }) => -lastInteraction.getTime())
+      )(people);
+    } catch (error) {
+      console.error("fetchInvolvedPeople", error);
+      throw error;
+    }
+  };
 
 const useInvolvedPeople = (projectId: string) => {
+  const { people } = usePeople();
   const {
     data: involvedPeople,
     isLoading,
     error,
   } = useSWR(
-    `/api/project/id/${projectId}/involved-people`,
-    fetchInvolvedPeople(projectId)
+    `/api/project/id/${projectId}/involved-people/${people?.length ?? 0}`,
+    fetchInvolvedPeople(people, projectId)
   );
 
   return { involvedPeople, isLoading, error };

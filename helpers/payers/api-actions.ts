@@ -1,8 +1,7 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
-import { generateClient } from "aws-amplify/data";
 import { flow, get, identity } from "lodash/fp";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const createPayerAndAccountLink = async (
   accountId: string,
@@ -36,21 +35,6 @@ const getOrCreatePayerAccount = async (payerId: string) => {
   }
   if (data) return data.awsAccountNumber;
   return createPayerAccount(payerId);
-};
-
-const createPayerPersonLink = async (
-  personId: string | null,
-  payerId: string
-) => {
-  const { data, errors } = await client.models.PayerAccount.update({
-    awsAccountNumber: payerId,
-    mainContactId: personId,
-  });
-  if (errors) {
-    handleApiErrors(errors, "Linking person to paye failed");
-    throw errors;
-  }
-  return data?.awsAccountNumber;
 };
 
 const createPayerAccountLink = async (accountId: string, payerId: string) => {

@@ -5,11 +5,11 @@ import { Context, useContextContext } from "@/contexts/ContextContext";
 import { getTodos } from "@/helpers/dailyplans";
 import { newDateTimeString, not, toISODateString } from "@/helpers/functional";
 import { JSONContent } from "@tiptap/core";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
 import { filter, find, flow, get, identity, map } from "lodash/fp";
 import useSWR from "swr";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type DailyPlanStatus = Schema["DailyPlanStatus"]["type"];
 

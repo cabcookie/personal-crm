@@ -5,13 +5,12 @@ import {
   UpdateProgressBarFn,
   uploadFile,
 } from "@/helpers/analytics/process-upload";
-import { generateClient } from "aws-amplify/data";
 import { flow, get, map } from "lodash/fp";
 import { ChangeEvent } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Mrr, MrrMutator } from "./useMrr";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type MrrImportData = Schema["MrrDataUpload"]["type"];
 

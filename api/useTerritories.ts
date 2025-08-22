@@ -6,12 +6,12 @@ import {
 } from "@/components/responsibility-date-ranges/ResponsibilityDateRangeRecord";
 import { toast } from "@/components/ui/use-toast";
 import { formatRevenue, toISODateString } from "@/helpers/functional";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { differenceInDays, format } from "date-fns";
 import { filter, first, flow, get, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 // const monthlyQuotaShare = [
 //   0.0766, 0.07455, 0.07972, 0.08011, 0.08278, 0.08066, 0.08506, 0.08634,

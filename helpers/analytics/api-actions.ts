@@ -6,9 +6,9 @@ import {
   UpdateProgressBarFn,
 } from "@/helpers/analytics/process-upload";
 import { newDateTimeString } from "@/helpers/functional";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { map } from "lodash/fp";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const createUploadRecord = async (s3Path: string) => {
   const { data, errors } = await client.models.MrrDataUpload.create({

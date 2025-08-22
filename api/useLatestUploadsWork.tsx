@@ -1,10 +1,10 @@
 import { type Schema } from "@/amplify/data/resource";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { differenceInCalendarDays } from "date-fns";
 import { first, flow, get, identity } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = ["createdAt"] as const;
 

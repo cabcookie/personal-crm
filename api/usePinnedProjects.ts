@@ -5,7 +5,7 @@ import { uniqArraySorted } from "@/helpers/functional";
 import { calcPipeline } from "@/helpers/projects";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
-import { SelectionSet, generateClient } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { differenceInDays } from "date-fns";
 import {
   compact,
@@ -19,8 +19,7 @@ import {
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { CrmProject, mapCrmProject } from "./useCrmProjects";
-
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type PinnedProject = {
   id: string;

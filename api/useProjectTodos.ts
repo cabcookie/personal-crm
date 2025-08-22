@@ -15,7 +15,7 @@ import {
   notAnOrphan,
 } from "@/helpers/todos";
 import { JSONContent } from "@tiptap/core";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { format } from "date-fns";
 import {
   filter,
@@ -38,7 +38,7 @@ import {
 } from "./helpers/activity";
 import { createMentionedPersonApi } from "./helpers/people";
 import { createBlockApi, createTodoApi } from "./helpers/todo";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type Todo = {
   todoId: string;

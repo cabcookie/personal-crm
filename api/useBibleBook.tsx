@@ -1,11 +1,9 @@
-import { type Schema } from "@/amplify/data/resource";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
-import { generateClient } from "aws-amplify/data";
 import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { BibleBook, mapBible, selectionSet } from "./useBible";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const fetchBibleBook =
   (bookId: string | undefined) => async (): Promise<BibleBook | undefined> => {

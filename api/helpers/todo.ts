@@ -1,7 +1,5 @@
-import { type Schema } from "@/amplify/data/resource";
 import { newDateString } from "@/helpers/functional";
-import { generateClient } from "aws-amplify/data";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const createTodoApi = (content: string, done: boolean) =>
   client.models.Todo.create({

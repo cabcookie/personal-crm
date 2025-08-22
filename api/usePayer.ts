@@ -3,11 +3,11 @@ import {
   createPayerAndAccountLink,
   deletePayerAccountLink,
 } from "@/helpers/payers/api-actions";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { map } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type PayerData = SelectionSet<
   Schema["PayerAccount"]["type"],

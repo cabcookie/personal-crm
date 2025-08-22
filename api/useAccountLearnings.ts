@@ -4,14 +4,13 @@ import { toast } from "@/components/ui/use-toast";
 import { invertSign, toISODateString } from "@/helpers/functional";
 import { transformNotesVersion } from "@/helpers/ui-notes-writer";
 import { JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/data";
 import { getTime } from "date-fns";
 import { flow, get, identity, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { updateMentionedPeople } from "./helpers/account-learning";
 
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type AccountLearning = {
   id: string;

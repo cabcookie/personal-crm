@@ -5,6 +5,7 @@
   "scripts": {
     "install-dependencies": "npm i",
     "dev": "next dev",
+    "prebuild": "tsc --noEmit",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

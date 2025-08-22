@@ -1,15 +1,13 @@
-import { type Schema } from "@/amplify/data/resource";
 import { emptyDocument } from "@/components/ui-elements/editors/helpers/document";
 import { toast } from "@/components/ui/use-toast";
 import { Context } from "@/contexts/ContextContext";
 import { newDateTimeString, toISODateTimeString } from "@/helpers/functional";
-import { generateClient } from "aws-amplify/data";
 import { format } from "date-fns";
 import { useRouter } from "next/router";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type MeetingUpdateProps = {
   meetingOn: Date;

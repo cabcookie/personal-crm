@@ -4,11 +4,11 @@ import {
   isCurrentRole,
   personName,
 } from "@/helpers/account-people";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { filter, flow, identity, map, sortBy, uniq } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = [
   "startDate",

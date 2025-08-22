@@ -1,11 +1,11 @@
 import { type Schema } from "@/amplify/data/resource";
 import { JSONContent } from "@tiptap/core";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import { first, flow, get, identity } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { BibleBook, BibleBookData, mapBible } from "./useBible";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = [
   "id",

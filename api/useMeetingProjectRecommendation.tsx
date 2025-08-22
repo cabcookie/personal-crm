@@ -1,9 +1,7 @@
-import { type Schema } from "@/amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
 import { flatMap, flatten, flow, get, uniq } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const fetchPerson = async (personId: string) => {
   const { data, errors } = await client.models.Person.get(

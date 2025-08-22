@@ -19,10 +19,10 @@ import {
   getRelationType,
   PersonRelationship,
 } from "@/helpers/person/relationships";
-import { generateClient, SelectionSet } from "aws-amplify/data";
+import { SelectionSet } from "aws-amplify/data";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 const selectionSet = [
   "id",

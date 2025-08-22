@@ -1,9 +1,6 @@
-import { generateClient } from "aws-amplify/data";
-import { generateClient as generateApi } from "aws-amplify/api";
 import { flow, identity, get, map } from "lodash/fp";
 import { useRouter } from "next/router";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Schema } from "@/amplify/data/resource";
 import HistoryLearnings from "@/components/history/learnings";
 import HistoryPeopleRoles from "@/components/history/people-roles";
 import HistoryNotes from "@/components/history/notes";
@@ -13,9 +10,7 @@ import { mapNotes, type Note } from "@/helpers/history/activity";
 import { getPeople, type Person, mapPeopleIds } from "@/helpers/history/person";
 import { getProject, type Project } from "@/helpers/history/project";
 import { Button } from "@/components/ui/button";
-
-export const client = generateClient<Schema>();
-const api = generateApi<Schema>({ authMode: "userPool" });
+import { client } from "@/lib/amplify";
 
 const loadKnowledge = async (
   projectId: string,
@@ -82,7 +77,7 @@ const ProjectHistoryPage = () => {
         "",
       ]) ?? []),
     ].join("\n");
-    const { data, errors } = await api.generations.rewriteProjectNotes({
+    const { data, errors } = await client.generations.rewriteProjectNotes({
       content,
     });
     console.log({ data, errors });

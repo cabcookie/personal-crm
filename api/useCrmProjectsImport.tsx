@@ -6,14 +6,13 @@ import {
   percentLoaded,
   uploadFileToS3,
 } from "@/helpers/s3/upload-files";
-import { generateClient } from "aws-amplify/data";
 import { addDays, min } from "date-fns";
 import { floor, flow } from "lodash/fp";
 import { ChangeEvent } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { CrmProject } from "./useCrmProjects";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export type DataChanged = {
   new: Omit<CrmProject, "id">[];

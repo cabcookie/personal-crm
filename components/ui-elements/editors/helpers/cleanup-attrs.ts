@@ -1,12 +1,10 @@
-import { type Schema } from "@/amplify/data/resource";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { Editor, JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/api";
 import { isEqual } from "lodash";
 import { flow } from "lodash/fp";
 import { getBlockIds, LIST_TYPES } from "./blocks";
 import TransactionError from "./transaction-error";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 export const mapIds = (
   editor: Editor,

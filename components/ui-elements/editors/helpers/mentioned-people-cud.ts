@@ -1,15 +1,12 @@
 /* Create, update, delete operations on mentioned people (i.e., NoteMentionedPersonPerson) */
-
-import { type Schema } from "@/amplify/data/resource";
 import { createMentionedPersonApi } from "@/api/helpers/people";
 import { Activity, TempIdMapping } from "@/api/useActivity";
 import { not } from "@/helpers/functional";
 import { Editor, JSONContent } from "@tiptap/core";
-import { generateClient } from "aws-amplify/api";
 import { filter, flow, get, map, reduce, some } from "lodash/fp";
 import { mapIds } from "./cleanup-attrs";
 import TransactionError from "./transaction-error";
-const client = generateClient<Schema>();
+import { client } from "@/lib/amplify";
 
 type TMentionedPersonCreationSet = {
   tempId: string;
