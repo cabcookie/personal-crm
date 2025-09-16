@@ -1,7 +1,10 @@
 import { a } from "@aws-amplify/backend";
 
 // Note: Delete protection will be added in a later step due to Amplify configuration challenges
-export const tablesWithDeleteProtection: string[] = [];
+export const tablesWithDeleteProtection: string[] = [
+  "WeeklyReview",
+  "WeeklyReviewEntry",
+];
 
 const weeklyReviewSchema = {
   WeeklyReviewStatus: a.enum(["draft", "completed"]),
