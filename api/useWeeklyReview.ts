@@ -170,6 +170,8 @@ export const useWeeklyReview = (date?: Date) => {
   };
 
   const createWeeklyReview = async (projects: ProjectForReview[]) => {
+    if (projects.length === 0) return;
+
     if (weeklyReviews?.some(isSameStartOfWeek))
       return getWeeklyReviewAndCreateEntries(projects);
 

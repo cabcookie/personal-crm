@@ -49,4 +49,5 @@ For inclusion in executive review, developments must meet at least ONE of these 
 
 1. Read all project notes thoroughly
 2. Apply the decision framework systematically
-3. Identify the categories for the project`;
+3. Identify the categories for the project
+4. Return an array of categories (e.g., ['customer_highlights', 'genai_opportunities'] or ['none'] if no categories apply)`;

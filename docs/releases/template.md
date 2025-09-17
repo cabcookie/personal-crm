@@ -1,9 +1,13 @@
-# :RELEASE_NAME (Version :VERSION)
+# Release: {VERSION}: {RELEASE_NAME}
 
-## Neue Funktionen und Änderungen
+## Major Changes
 
-<!-- Describe the main changes on a high level. It is a good opportunity to track your todos here and then overtime turn them into explanations of the achieved changes. -->
+<!-- Describe the main changes on a high level and the impact this has for the user -->
 
-## Detaillierte Änderungen
+## Fixes
 
-<!-- This will be maintained by the commit-msg hook. However, before merging changes, you can review them and adjust where needed -->
+<!-- Describe bug fixed on a high level and the impact this has for the user -->
+
+## Details
+
+<!-- Describe changes in details; create section for categories like UI, API etc. -->

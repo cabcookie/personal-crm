@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git --no-pager diff --cached)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "mcp__ide__getDiagnostics",
+      "Bash(npx tsc:*)",
+      "Bash(git log:*)",
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(git describe:*)"
+    ],
+    "deny": []
+  }
+}
