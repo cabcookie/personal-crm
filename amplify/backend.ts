@@ -5,6 +5,7 @@ import { data, tablesWithDeleteProtection } from "./data/resource";
 import { storage } from "./storage/resource";
 import { dataSchemaMigrationsFn } from "./functions/data-schema-migrations/resource";
 import { DataSchemaMigrations } from "./custom/data-schema-migrations/resource";
+import { InferenceProfileIAM } from "./custom/inference-profile-iam/resource";
 
 const backend = defineBackend({
   auth,
@@ -37,6 +38,32 @@ try {
 } catch (error) {
   console.error(error);
 }
+
+/**
+ * Fixing the bug that Amplify does not support inference profiles at the moment.
+ */
+const dataNestedStacks = backend.data.resources.nestedStacks;
+// Object.keys(dataNestedStacks).forEach((key) => {
+//   console.log("Data nested stack:", key);
+// });
+
+const stacks = [
+  "GenerationBedrockDataSourceCategorizeProjectStack",
+  "GenerationBedrockDataSourceGenerateWeeklyNarrativeStack",
+  "GenerationBedrockDataSourceUpdateNarrativeStack",
+  "GenerationBedrockDataSourceRewriteProjectNotesStack",
+];
+stacks.forEach((stackName) => {
+  try {
+    const stack = dataNestedStacks[stackName];
+    const resourceId = stackName
+      .replace(/Stack$/, "Iam")
+      .replace(/GenerationBedrockDataSource/, "");
+    new InferenceProfileIAM(stack, resourceId);
+  } catch (error) {
+    console.error(`Could not find ${stackName} stack`, error);
+  }
+});
 
 /**
  * Ensure that when new tables are moved into production, they do not initially

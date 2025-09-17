@@ -1,6 +1,6 @@
 {
   "name": "personal-crm",
-  "version": "1.110.1",
+  "version": "1.111.2",
   "private": true,
   "scripts": {
     "install-dependencies": "npm i",
@@ -12,6 +12,7 @@
     "lint:fix": "next lint --fix",
     "signin:code-assistant": "aws sso login --profile nxsflow-staging",
     "sandbox": "npx ampx sandbox --profile impulso",
+    "sandbox:debug": "npx ampx sandbox --profile impulso --debug",
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",
     "import-data-prod": "cd scripts && node start-import -env prod",

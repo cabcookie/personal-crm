@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import {
   getWeekStart,
   ProjectForReview,
@@ -9,13 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Play, Loader2 } from "lucide-react";
 import { useProjectsContext } from "@/api/ContextProjects";
 import { useWeeklyReview } from "@/api/useWeeklyReview";
+import { useTimeFrameFilter } from "./useTimeFrameFilter";
+import { useAccountsContext } from "@/api/ContextAccounts";
 
 interface CreateAnalysisBtnProps {
   setIsProcessing: Dispatch<SetStateAction<boolean>>;
   setProcessingStatus: Dispatch<SetStateAction<string>>;
   setProjectNotes: Dispatch<SetStateAction<ProjectForReview[]>>;
   projects: ReturnType<typeof useProjectsContext>["projects"];
-  createWeeklyReview: (projects: ProjectForReview[]) => Promise<void>;
 }
 
 export const CreateAnalysisBtn: FC<CreateAnalysisBtnProps> = ({
@@ -23,12 +24,22 @@ export const CreateAnalysisBtn: FC<CreateAnalysisBtnProps> = ({
   projects,
   setProcessingStatus,
   setProjectNotes,
-  createWeeklyReview,
 }) => {
   const { weeklyReviews: existingReviewsForReview } =
     useWeeklyReview(getWeekStart());
+  const { weeksToReview } = useTimeFrameFilter();
+  const [hasProjects, setHasProjects] = useState(false);
+  const { accounts } = useAccountsContext();
 
-  const hasProjects = hasProjectsToReview(projects, existingReviewsForReview);
+  useEffect(() => {
+    if (!projects) return;
+    const updated = hasProjectsToReview(
+      projects,
+      existingReviewsForReview,
+      weeksToReview
+    );
+    setHasProjects(updated);
+  }, [projects, weeksToReview, existingReviewsForReview]);
 
   return (
     <>
@@ -42,7 +53,8 @@ export const CreateAnalysisBtn: FC<CreateAnalysisBtnProps> = ({
               setProjectNotes,
               projects,
               existingReviewsForReview,
-              createWeeklyReview,
+              weeksToReview,
+              accounts,
             })
           }
         >

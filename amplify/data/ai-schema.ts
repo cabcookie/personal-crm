@@ -2,12 +2,16 @@ import { a } from "@aws-amplify/backend";
 import { projectCategorizationPrompt } from "./prompts/project-categorization";
 import { generateTasksSummaryPrompt } from "./prompts/generate-task-summary";
 import { rewriteProjectNotesPrompt } from "./prompts/rewrite-project-notes";
-import { generateWeeklyNarrativePrompt } from "./prompts/generate-weekly-narrative";
+import {
+  generateWeeklyNarrativePrompt,
+  improveWeeklyNarrativePrompt,
+} from "./prompts/generate-weekly-narrative";
+import { ClaudeSonnet4Us } from "./models";
 
 const aiSchema = {
   generalChat: a
     .conversation({
-      aiModel: a.ai.model("Claude Sonnet 4"),
+      aiModel: ClaudeSonnet4Us,
       systemPrompt: "You are a helpful assistant.",
     })
     .authorization((allow) => allow.owner()),
@@ -22,7 +26,7 @@ const aiSchema = {
     .authorization((allow) => [allow.authenticated()]),
   rewriteProjectNotes: a
     .generation({
-      aiModel: a.ai.model("Claude Sonnet 4"),
+      aiModel: ClaudeSonnet4Us,
       systemPrompt: rewriteProjectNotesPrompt,
     })
     .arguments({ content: a.string() })
@@ -36,33 +40,41 @@ const aiSchema = {
     .arguments({ tasks: a.string() })
     .returns(a.customType({ summary: a.string() }))
     .authorization((allow) => [allow.authenticated()]),
-  categorizeProjects: a
+  categorizeProject: a
     .generation({
-      aiModel: a.ai.model("Claude Sonnet 4"),
+      aiModel: ClaudeSonnet4Us,
       systemPrompt: projectCategorizationPrompt,
     })
     .arguments({
-      projectId: a.string(),
       projectName: a.string(),
       notes: a.string(),
     })
-    .returns(
-      a.customType({ projectId: a.string(), category: a.string().array() })
-    )
+    .returns(a.string().array())
     .authorization((allow) => [allow.authenticated()]),
   generateWeeklyNarrative: a
     .generation({
-      aiModel: a.ai.model("Claude Sonnet 4"),
+      aiModel: ClaudeSonnet4Us,
       systemPrompt: generateWeeklyNarrativePrompt,
     })
     .arguments({
-      projectId: a.string(),
-      accountNames: a.string().array(),
       projectName: a.string(),
+      accountNames: a.string().array(),
       notes: a.string(),
       category: a.string(),
     })
-    .returns(a.customType({ projectId: a.string(), narrative: a.string() }))
+    .returns(a.string())
+    .authorization((allow) => [allow.authenticated()]),
+  updateNarrative: a
+    .generation({
+      aiModel: ClaudeSonnet4Us,
+      systemPrompt: improveWeeklyNarrativePrompt,
+    })
+    .arguments({
+      category: a.string(),
+      existingNarrative: a.string(),
+      userFeedback: a.string(),
+    })
+    .returns(a.string())
     .authorization((allow) => [allow.authenticated()]),
 };
 

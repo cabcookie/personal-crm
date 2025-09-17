@@ -7,6 +7,8 @@ import { getCategoryIcon } from "./ShowProjectNotes";
 import { EntryEditor } from "../ui-elements/editors/weekly-review/EntryEditor";
 import { Trash2, X } from "lucide-react";
 import { ButtonInAccordion } from "./ButtonInAccordion";
+import { CopyToClipboardBtn } from "./CopyToClipboardBtn";
+import { ImprovementInput } from "./ImprovementInput";
 
 interface AccordionWeeklyReviewEntryProps {
   weeklyReviewEntry: WeeklyReviewEntry;
@@ -24,6 +26,7 @@ export const AccordionWeeklyReviewEntry: FC<
   useEffect(() => {
     setProject(projects?.find((p) => p.id === weeklyReviewEntry.projectId));
   }, [projects, weeklyReviewEntry.projectId]);
+
   useEffect(() => {
     setContent(weeklyReviewEntry.content || "");
   }, [weeklyReviewEntry.content]);
@@ -60,12 +63,14 @@ export const AccordionWeeklyReviewEntry: FC<
               label="Delete"
               Icon={Trash2}
             />
+            <CopyToClipboardBtn content={content} />
           </div>
         </div>
       }
       triggerSubTitle={weeklyReviewEntry.content}
     >
       <EntryEditor {...{ content, entryId: weeklyReviewEntry.id }} />
+      <ImprovementInput {...{ weeklyReviewEntry, setContent }} />
     </DefaultAccordionItem>
   );
 };
