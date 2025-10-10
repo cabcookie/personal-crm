@@ -18,7 +18,6 @@ const CopyProjectNotesButtons: FC<CopyProjectNotesButtonsProps> = ({
   const onClick = async (weeks: number) => {
     setCopyingNotes(true);
     try {
-      console.log("Copy notes from last", weeks, "weeks");
       await copyProjectNotes(projectId, weeks);
     } catch (error) {
       console.error("Failed to copy notes:", error);

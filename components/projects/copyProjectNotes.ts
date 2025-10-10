@@ -9,7 +9,6 @@ import { getMarkdown } from "../ui-elements/editors/helpers/text-generation";
 
 export const copyProjectNotes = async (projectId: string, weeks: number) => {
   const notes = await loadProjectNotes(projectId, weeks);
-  console.log(`Copied notes from last ${weeks} weeks:`, notes);
   await navigator.clipboard.writeText(notes);
 };
 
@@ -17,9 +16,6 @@ const loadProjectNotes = async (
   projectId: string,
   weeks: number
 ): Promise<string> => {
-  console.log(
-    `Loading project notes from last ${weeks} weeks for project ${projectId}`
-  );
   const { data, errors } =
     await client.models.ProjectActivity.listProjectActivityByProjectsId(
       { projectsId: projectId },
