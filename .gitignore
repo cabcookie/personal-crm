@@ -41,3 +41,5 @@ amplify_outputs*
 scripts/import-data/*
 scripts/env.json
 .cline-env.local
+
+/logs
