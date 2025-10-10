@@ -10,7 +10,9 @@
       "Bash(git log:*)",
       "Bash(grep:*)",
       "Bash(cat:*)",
-      "Bash(git describe:*)"
+      "Bash(git describe:*)",
+      "Bash(aws lambda list-functions:*)",
+      "Bash(git --no-pager diff)"
     ],
     "deny": []
   }
