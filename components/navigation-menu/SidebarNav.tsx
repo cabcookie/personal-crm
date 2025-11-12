@@ -8,6 +8,7 @@ const sidebarNavItems = [
   { title: "Profile", href: "/profile" },
   { title: "Planning", href: "/profile/planning" },
   { title: "Labels", href: "/profile/labels" },
+  { title: "Integrations", href: "/profile/integrations" },
 ];
 
 const SidebarNav: FC<HTMLAttributes<HTMLElement>> = ({
