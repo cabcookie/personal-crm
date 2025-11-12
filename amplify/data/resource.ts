@@ -7,6 +7,9 @@ import activitySchema, {
   tablesWithDeleteProtection as activityTdp,
 } from "./activity-schema";
 import aiSchema from "./ai-schema";
+// import {
+//   tablesWithDeleteProtection as aiSchemaTdp,
+// } from "./ai-schema";
 import analyticsSchema, {
   tablesWithDeleteProtection as analyticsTdp,
 } from "./analytics-schema";
@@ -31,6 +34,7 @@ import projectSchema, {
 import weeklyReviewSchema, {
   tablesWithDeleteProtection as weeklyReviewTdp,
 } from "./weekly-review-schema";
+import { getDataForAiFn } from "../functions/get-data-for-ai/resource";
 
 export const tablesWithDeleteProtection = [
   ...accountTdp,
@@ -43,6 +47,7 @@ export const tablesWithDeleteProtection = [
   ...prayerTdp,
   ...projectTdp,
   ...weeklyReviewTdp,
+  // ...aiSchemaTdp,
   "Inbox",
   "Meeting",
 ];
@@ -95,7 +100,10 @@ const schema = a
       })
       .authorization((allow) => [allow.owner()]),
   })
-  .authorization((allow) => [allow.resource(postConfirmation)]);
+  .authorization((allow) => [
+    allow.resource(postConfirmation),
+    allow.resource(getDataForAiFn),
+  ]);
 
 export type Schema = ClientSchema<typeof schema>;
 

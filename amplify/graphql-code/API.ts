@@ -986,6 +986,23 @@ export type TerritoryResponsibility = {
   updatedAt: string,
 };
 
+export type ApiKeysForAi = {
+  __typename: "ApiKeysForAi",
+  apiKey: string,
+  createdAt: string,
+  dataSource: AiDataSource,
+  itemId: string,
+  owner?: string | null,
+  updatedAt: string,
+};
+
+export enum AiDataSource {
+  account = "account",
+  person = "person",
+  project = "project",
+}
+
+
 export type BookOfBible = {
   __typename: "BookOfBible",
   alias: string,
@@ -1180,6 +1197,12 @@ export type CurrentContext = {
   updatedAt: string,
 };
 
+export type GetDataForAiReturnType = {
+  __typename: "GetDataForAiReturnType",
+  data?: string | null,
+  error?: string | null,
+};
+
 export type ModelAccountLearningFilterInput = {
   accountId?: ModelIDInput | null,
   and?: Array< ModelAccountLearningFilterInput | null > | null,
@@ -1283,6 +1306,30 @@ export type ModelActivityFilterInput = {
   or?: Array< ModelActivityFilterInput | null > | null,
   owner?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
+};
+
+export type ModelApiKeysForAiFilterInput = {
+  and?: Array< ModelApiKeysForAiFilterInput | null > | null,
+  apiKey?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  dataSource?: ModelAiDataSourceInput | null,
+  id?: ModelIDInput | null,
+  itemId?: ModelStringInput | null,
+  not?: ModelApiKeysForAiFilterInput | null,
+  or?: Array< ModelApiKeysForAiFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelAiDataSourceInput = {
+  eq?: AiDataSource | null,
+  ne?: AiDataSource | null,
+};
+
+export type ModelApiKeysForAiConnection = {
+  __typename: "ModelApiKeysForAiConnection",
+  items:  Array<ApiKeysForAi | null >,
+  nextToken?: string | null,
 };
 
 export type ModelBookOfBibleFilterInput = {
@@ -2167,6 +2214,24 @@ export type CreateActivityInput = {
   notes?: string | null,
   notesJson?: string | null,
   notionId?: number | null,
+  owner?: string | null,
+};
+
+export type ModelApiKeysForAiConditionInput = {
+  and?: Array< ModelApiKeysForAiConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dataSource?: ModelAiDataSourceInput | null,
+  itemId?: ModelStringInput | null,
+  not?: ModelApiKeysForAiConditionInput | null,
+  or?: Array< ModelApiKeysForAiConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateApiKeysForAiInput = {
+  apiKey: string,
+  dataSource: AiDataSource,
+  itemId: string,
   owner?: string | null,
 };
 
@@ -3185,6 +3250,10 @@ export type DeleteActivityInput = {
   id: string,
 };
 
+export type DeleteApiKeysForAiInput = {
+  apiKey: string,
+};
+
 export type DeleteBookOfBibleInput = {
   id: string,
 };
@@ -3399,6 +3468,13 @@ export type UpdateActivityInput = {
   notes?: string | null,
   notesJson?: string | null,
   notionId?: number | null,
+  owner?: string | null,
+};
+
+export type UpdateApiKeysForAiInput = {
+  apiKey: string,
+  dataSource?: AiDataSource | null,
+  itemId?: string | null,
   owner?: string | null,
 };
 
@@ -3888,6 +3964,18 @@ export type ModelSubscriptionActivityFilterInput = {
   notesJson?: ModelSubscriptionStringInput | null,
   notionId?: ModelSubscriptionIntInput | null,
   or?: Array< ModelSubscriptionActivityFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ModelSubscriptionApiKeysForAiFilterInput = {
+  and?: Array< ModelSubscriptionApiKeysForAiFilterInput | null > | null,
+  apiKey?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  dataSource?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  itemId?: ModelSubscriptionStringInput | null,
+  or?: Array< ModelSubscriptionApiKeysForAiFilterInput | null > | null,
   owner?: ModelStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
@@ -4440,6 +4528,15 @@ export type ByStatusQuery = {
   } | null,
 };
 
+export type CategorizeProjectQueryVariables = {
+  notes?: string | null,
+  projectName?: string | null,
+};
+
+export type CategorizeProjectQuery = {
+  categorizeProject?: Array< string | null > | null,
+};
+
 export type ChatNamerQueryVariables = {
   content?: string | null,
 };
@@ -4460,6 +4557,17 @@ export type GenerateTasksSummaryQuery = {
     __typename: "GenerateTasksSummaryReturnType",
     summary?: string | null,
   } | null,
+};
+
+export type GenerateWeeklyNarrativeQueryVariables = {
+  accountNames?: Array< string | null > | null,
+  category?: string | null,
+  notes?: string | null,
+  projectName?: string | null,
+};
+
+export type GenerateWeeklyNarrativeQuery = {
+  generateWeeklyNarrative?: string | null,
 };
 
 export type GetAccountQueryVariables = {
@@ -4798,6 +4906,22 @@ export type GetActivityQuery = {
   } | null,
 };
 
+export type GetApiKeysForAiQueryVariables = {
+  apiKey: string,
+};
+
+export type GetApiKeysForAiQuery = {
+  getApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
 export type GetBookOfBibleQueryVariables = {
   id: string,
 };
@@ -5116,6 +5240,18 @@ export type GetDailyPlanTodoQuery = {
     } | null,
     todoId: string,
     updatedAt: string,
+  } | null,
+};
+
+export type GetDataForAiQueryVariables = {
+  apiKey?: string | null,
+};
+
+export type GetDataForAiQuery = {
+  getDataForAi?:  {
+    __typename: "GetDataForAiReturnType",
+    data?: string | null,
+    error?: string | null,
   } | null,
 };
 
@@ -6495,6 +6631,30 @@ export type ListActivitiesQuery = {
       notes?: string | null,
       notesJson?: string | null,
       notionId?: number | null,
+      owner?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListApiKeysForAisQueryVariables = {
+  apiKey?: string | null,
+  filter?: ModelApiKeysForAiFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListApiKeysForAisQuery = {
+  listApiKeysForAis?:  {
+    __typename: "ModelApiKeysForAiConnection",
+    items:  Array< {
+      __typename: "ApiKeysForAi",
+      apiKey: string,
+      createdAt: string,
+      dataSource: AiDataSource,
+      itemId: string,
       owner?: string | null,
       updatedAt: string,
     } | null >,
@@ -7963,6 +8123,16 @@ export type RewriteProjectNotesQuery = {
   } | null,
 };
 
+export type UpdateNarrativeQueryVariables = {
+  category?: string | null,
+  existingNarrative?: string | null,
+  userFeedback?: string | null,
+};
+
+export type UpdateNarrativeQuery = {
+  updateNarrative?: string | null,
+};
+
 export type CreateAccountMutationVariables = {
   condition?: ModelAccountConditionInput | null,
   input: CreateAccountInput,
@@ -8301,6 +8471,23 @@ export type CreateActivityMutation = {
     notes?: string | null,
     notesJson?: string | null,
     notionId?: number | null,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateApiKeysForAiMutationVariables = {
+  condition?: ModelApiKeysForAiConditionInput | null,
+  input: CreateApiKeysForAiInput,
+};
+
+export type CreateApiKeysForAiMutation = {
+  createApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
     owner?: string | null,
     updatedAt: string,
   } | null,
@@ -10164,6 +10351,23 @@ export type DeleteActivityMutation = {
   } | null,
 };
 
+export type DeleteApiKeysForAiMutationVariables = {
+  condition?: ModelApiKeysForAiConditionInput | null,
+  input: DeleteApiKeysForAiInput,
+};
+
+export type DeleteApiKeysForAiMutation = {
+  deleteApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
 export type DeleteBookOfBibleMutationVariables = {
   condition?: ModelBookOfBibleConditionInput | null,
   input: DeleteBookOfBibleInput,
@@ -11995,6 +12199,23 @@ export type UpdateActivityMutation = {
   } | null,
 };
 
+export type UpdateApiKeysForAiMutationVariables = {
+  condition?: ModelApiKeysForAiConditionInput | null,
+  input: UpdateApiKeysForAiInput,
+};
+
+export type UpdateApiKeysForAiMutation = {
+  updateApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
 export type UpdateBookOfBibleMutationVariables = {
   condition?: ModelBookOfBibleConditionInput | null,
   input: UpdateBookOfBibleInput,
@@ -13748,6 +13969,23 @@ export type OnCreateActivitySubscription = {
     notes?: string | null,
     notesJson?: string | null,
     notionId?: number | null,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateApiKeysForAiSubscriptionVariables = {
+  filter?: ModelSubscriptionApiKeysForAiFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateApiKeysForAiSubscription = {
+  onCreateApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
     owner?: string | null,
     updatedAt: string,
   } | null,
@@ -15556,6 +15794,23 @@ export type OnDeleteActivitySubscription = {
   } | null,
 };
 
+export type OnDeleteApiKeysForAiSubscriptionVariables = {
+  filter?: ModelSubscriptionApiKeysForAiFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteApiKeysForAiSubscription = {
+  onDeleteApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
 export type OnDeleteBookOfBibleSubscriptionVariables = {
   filter?: ModelSubscriptionBookOfBibleFilterInput | null,
   owner?: string | null,
@@ -17288,6 +17543,23 @@ export type OnUpdateActivitySubscription = {
     notes?: string | null,
     notesJson?: string | null,
     notionId?: number | null,
+    owner?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateApiKeysForAiSubscriptionVariables = {
+  filter?: ModelSubscriptionApiKeysForAiFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateApiKeysForAiSubscription = {
+  onUpdateApiKeysForAi?:  {
+    __typename: "ApiKeysForAi",
+    apiKey: string,
+    createdAt: string,
+    dataSource: AiDataSource,
+    itemId: string,
     owner?: string | null,
     updatedAt: string,
   } | null,

@@ -43,6 +43,13 @@ export const byStatus = /* GraphQL */ `query ByStatus(
   }
 }
 ` as GeneratedQuery<APITypes.ByStatusQueryVariables, APITypes.ByStatusQuery>;
+export const categorizeProject = /* GraphQL */ `query CategorizeProject($notes: String, $projectName: String) {
+  categorizeProject(notes: $notes, projectName: $projectName)
+}
+` as GeneratedQuery<
+  APITypes.CategorizeProjectQueryVariables,
+  APITypes.CategorizeProjectQuery
+>;
 export const chatNamer = /* GraphQL */ `query ChatNamer($content: String) {
   chatNamer(content: $content) {
     name
@@ -59,6 +66,23 @@ export const generateTasksSummary = /* GraphQL */ `query GenerateTasksSummary($t
 ` as GeneratedQuery<
   APITypes.GenerateTasksSummaryQueryVariables,
   APITypes.GenerateTasksSummaryQuery
+>;
+export const generateWeeklyNarrative = /* GraphQL */ `query GenerateWeeklyNarrative(
+  $accountNames: [String]
+  $category: String
+  $notes: String
+  $projectName: String
+) {
+  generateWeeklyNarrative(
+    accountNames: $accountNames
+    category: $category
+    notes: $notes
+    projectName: $projectName
+  )
+}
+` as GeneratedQuery<
+  APITypes.GenerateWeeklyNarrativeQueryVariables,
+  APITypes.GenerateWeeklyNarrativeQuery
 >;
 export const getAccount = /* GraphQL */ `query GetAccount($id: ID!) {
   getAccount(id: $id) {
@@ -389,6 +413,21 @@ export const getActivity = /* GraphQL */ `query GetActivity($id: ID!) {
   APITypes.GetActivityQueryVariables,
   APITypes.GetActivityQuery
 >;
+export const getApiKeysForAi = /* GraphQL */ `query GetApiKeysForAi($apiKey: String!) {
+  getApiKeysForAi(apiKey: $apiKey) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetApiKeysForAiQueryVariables,
+  APITypes.GetApiKeysForAiQuery
+>;
 export const getBookOfBible = /* GraphQL */ `query GetBookOfBible($id: ID!) {
   getBookOfBible(id: $id) {
     alias
@@ -699,6 +738,17 @@ export const getDailyPlanTodo = /* GraphQL */ `query GetDailyPlanTodo($id: ID!) 
 ` as GeneratedQuery<
   APITypes.GetDailyPlanTodoQueryVariables,
   APITypes.GetDailyPlanTodoQuery
+>;
+export const getDataForAi = /* GraphQL */ `query GetDataForAi($apiKey: String) {
+  getDataForAi(apiKey: $apiKey) {
+    data
+    error
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetDataForAiQueryVariables,
+  APITypes.GetDataForAiQuery
 >;
 export const getInbox = /* GraphQL */ `query GetInbox($id: ID!) {
   getInbox(id: $id) {
@@ -2093,6 +2143,37 @@ export const listActivities = /* GraphQL */ `query ListActivities(
 ` as GeneratedQuery<
   APITypes.ListActivitiesQueryVariables,
   APITypes.ListActivitiesQuery
+>;
+export const listApiKeysForAis = /* GraphQL */ `query ListApiKeysForAis(
+  $apiKey: String
+  $filter: ModelApiKeysForAiFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+) {
+  listApiKeysForAis(
+    apiKey: $apiKey
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+  ) {
+    items {
+      apiKey
+      createdAt
+      dataSource
+      itemId
+      owner
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListApiKeysForAisQueryVariables,
+  APITypes.ListApiKeysForAisQuery
 >;
 export const listBookOfBibles = /* GraphQL */ `query ListBookOfBibles(
   $filter: ModelBookOfBibleFilterInput
@@ -3780,4 +3861,19 @@ export const rewriteProjectNotes = /* GraphQL */ `query RewriteProjectNotes($con
 ` as GeneratedQuery<
   APITypes.RewriteProjectNotesQueryVariables,
   APITypes.RewriteProjectNotesQuery
+>;
+export const updateNarrative = /* GraphQL */ `query UpdateNarrative(
+  $category: String
+  $existingNarrative: String
+  $userFeedback: String
+) {
+  updateNarrative(
+    category: $category
+    existingNarrative: $existingNarrative
+    userFeedback: $userFeedback
+  )
+}
+` as GeneratedQuery<
+  APITypes.UpdateNarrativeQueryVariables,
+  APITypes.UpdateNarrativeQuery
 >;

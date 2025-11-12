@@ -1,6 +1,6 @@
 {
   "name": "personal-crm",
-  "version": "1.112.1",
+  "version": "1.113.0",
   "private": true,
   "scripts": {
     "install-dependencies": "npm i",
@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "@aws-amplify/adapter-nextjs": "^1.6.11",
     "@aws-amplify/backend-ai": "^1.1.0",
     "@aws-amplify/ui-react": "^6.7.1",
     "@aws-amplify/ui-react-ai": "^1.1.0",
@@ -66,7 +67,7 @@
     "@tiptap/react": "^2.5.6",
     "@tiptap/starter-kit": "^2.5.6",
     "@tiptap/suggestion": "^2.5.6",
-    "aws-amplify": "^6.4.0",
+    "aws-amplify": "^6.15.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
