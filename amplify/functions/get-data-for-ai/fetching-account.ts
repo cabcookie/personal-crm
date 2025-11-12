@@ -1,9 +1,9 @@
+import { fetchingProject } from "./fetching-projects";
 import { client } from "./handler";
-import { accountInformation, mapProjectIds, queryAccount } from "./helpers";
+import { accountInformation, getProjectIds, queryAccount } from "./helpers";
 
 export const fetchingAccount = async (accountId: string) => {
   console.log("Fetching data for Account ID:", accountId);
-
   console.log("Using query:", queryAccount);
 
   const { data, errors } = await client.graphql({
@@ -22,13 +22,10 @@ export const fetchingAccount = async (accountId: string) => {
       "Error in fetchingAccount: No data returned for the specified account ID"
     );
 
-  const projectIds = [
-    ...(data.getAccount.projects?.items.map((p) => p.id) || []),
-    ...(data.getAccount.subsidiaries?.items.reduce<string[]>(
-      mapProjectIds,
-      []
-    ) || []),
-  ];
+  // const projectIds = ;
+  const projects = await Promise.all(
+    getProjectIds(data.getAccount).map(fetchingProject)
+  );
 
-  return { account: accountInformation(data.getAccount), projectIds };
+  return { account: accountInformation(data.getAccount), projects };
 };

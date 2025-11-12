@@ -186,3 +186,4 @@ No test framework currently configured. Manual testing through:
 - GraphQL subscriptions enable real-time updates across browser tabs
 - TipTap editor supports mentions (@), tasks, and S3 image uploads
 - The app supports multiple contexts (e.g., Work, Family) for data segregation
+- Always use the repo cabcookie/personal-crm for Pull Requests (searching, creating, etc.)

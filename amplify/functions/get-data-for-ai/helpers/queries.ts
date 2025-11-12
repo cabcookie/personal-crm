@@ -1,6 +1,3 @@
-import { GetAccountQueryVariables } from "../../../graphql-code/API";
-import { GetAccountData, accountDataFields } from "./accounts";
-
 /* ========= FUNCTIONS ========= */
 
 export const mapQuery =
@@ -15,51 +12,8 @@ export const mapQuery =
     return prev;
   };
 
-/* ========= CONSTANTS ========= */
-
-export const queryAccount = [
-  "query GetAccount($id: ID!)",
-  [
-    "getAccount(id: $id)",
-    [
-      ...accountDataFields,
-      "subsidiaries",
-      [
-        "nextToken",
-        "items",
-        [
-          ...accountDataFields,
-          "subsidiaries",
-          [
-            "nextToken",
-            "items",
-            [
-              ...accountDataFields,
-              "subsidiaries",
-              [
-                "nextToken",
-                "items",
-                [
-                  ...accountDataFields,
-                  "subsidiaries",
-                  ["nextToken", "items", accountDataFields],
-                ],
-              ],
-            ],
-          ],
-        ],
-      ],
-    ],
-  ],
-].reduce<string>(mapQuery(0), "") as GeneratedQuery;
-
 /* =========== TYPES =========== */
 
 export type NextToken = {
-  nextToken: string | null;
-};
-
-type GeneratedQuery = string & {
-  __generatedQueryInput: GetAccountQueryVariables;
-  __generatedQueryOutput: GetAccountData;
+  nextToken?: string | null;
 };

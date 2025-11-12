@@ -1,6 +1,6 @@
 {
   "name": "personal-crm",
-  "version": "1.113.0",
+  "version": "1.114.0",
   "private": true,
   "scripts": {
     "install-dependencies": "npm i",
@@ -97,11 +97,10 @@
     "@aws-amplify/backend-cli": "^1.1.0",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.13.0",
-    "@faker-js/faker": "^9.0.3",
     "@tailwindcss/typography": "^0.5.13",
     "@types/aws-lambda": "^8.10.141",
     "@types/encodeurl": "^1.0.2",
-    "@types/node": "^20",
+    "@types/node": "^24.10.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^8.11.0",
