@@ -358,6 +358,24 @@ export const createActivity = /* GraphQL */ `mutation CreateActivity(
   APITypes.CreateActivityMutationVariables,
   APITypes.CreateActivityMutation
 >;
+export const createApiKeysForAi = /* GraphQL */ `mutation CreateApiKeysForAi(
+  $condition: ModelApiKeysForAiConditionInput
+  $input: CreateApiKeysForAiInput!
+) {
+  createApiKeysForAi(condition: $condition, input: $input) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateApiKeysForAiMutationVariables,
+  APITypes.CreateApiKeysForAiMutation
+>;
 export const createAssistantResponseGeneralChat = /* GraphQL */ `mutation CreateAssistantResponseGeneralChat(
   $input: CreateConversationMessageGeneralChatAssistantInput!
 ) {
@@ -2263,6 +2281,24 @@ export const deleteActivity = /* GraphQL */ `mutation DeleteActivity(
   APITypes.DeleteActivityMutationVariables,
   APITypes.DeleteActivityMutation
 >;
+export const deleteApiKeysForAi = /* GraphQL */ `mutation DeleteApiKeysForAi(
+  $condition: ModelApiKeysForAiConditionInput
+  $input: DeleteApiKeysForAiInput!
+) {
+  deleteApiKeysForAi(condition: $condition, input: $input) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteApiKeysForAiMutationVariables,
+  APITypes.DeleteApiKeysForAiMutation
+>;
 export const deleteBookOfBible = /* GraphQL */ `mutation DeleteBookOfBible(
   $condition: ModelBookOfBibleConditionInput
   $input: DeleteBookOfBibleInput!
@@ -4145,6 +4181,24 @@ export const updateActivity = /* GraphQL */ `mutation UpdateActivity(
 ` as GeneratedMutation<
   APITypes.UpdateActivityMutationVariables,
   APITypes.UpdateActivityMutation
+>;
+export const updateApiKeysForAi = /* GraphQL */ `mutation UpdateApiKeysForAi(
+  $condition: ModelApiKeysForAiConditionInput
+  $input: UpdateApiKeysForAiInput!
+) {
+  updateApiKeysForAi(condition: $condition, input: $input) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateApiKeysForAiMutationVariables,
+  APITypes.UpdateApiKeysForAiMutation
 >;
 export const updateBookOfBible = /* GraphQL */ `mutation UpdateBookOfBible(
   $condition: ModelBookOfBibleConditionInput

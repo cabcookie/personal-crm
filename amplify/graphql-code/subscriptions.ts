@@ -358,6 +358,24 @@ export const onCreateActivity = /* GraphQL */ `subscription OnCreateActivity(
   APITypes.OnCreateActivitySubscriptionVariables,
   APITypes.OnCreateActivitySubscription
 >;
+export const onCreateApiKeysForAi = /* GraphQL */ `subscription OnCreateApiKeysForAi(
+  $filter: ModelSubscriptionApiKeysForAiFilterInput
+  $owner: String
+) {
+  onCreateApiKeysForAi(filter: $filter, owner: $owner) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateApiKeysForAiSubscriptionVariables,
+  APITypes.OnCreateApiKeysForAiSubscription
+>;
 export const onCreateAssistantResponseGeneralChat = /* GraphQL */ `subscription OnCreateAssistantResponseGeneralChat($conversationId: ID) {
   onCreateAssistantResponseGeneralChat(conversationId: $conversationId) {
     associatedUserMessageId
@@ -2204,6 +2222,24 @@ export const onDeleteActivity = /* GraphQL */ `subscription OnDeleteActivity(
   APITypes.OnDeleteActivitySubscriptionVariables,
   APITypes.OnDeleteActivitySubscription
 >;
+export const onDeleteApiKeysForAi = /* GraphQL */ `subscription OnDeleteApiKeysForAi(
+  $filter: ModelSubscriptionApiKeysForAiFilterInput
+  $owner: String
+) {
+  onDeleteApiKeysForAi(filter: $filter, owner: $owner) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteApiKeysForAiSubscriptionVariables,
+  APITypes.OnDeleteApiKeysForAiSubscription
+>;
 export const onDeleteBookOfBible = /* GraphQL */ `subscription OnDeleteBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput
   $owner: String
@@ -3983,6 +4019,24 @@ export const onUpdateActivity = /* GraphQL */ `subscription OnUpdateActivity(
 ` as GeneratedSubscription<
   APITypes.OnUpdateActivitySubscriptionVariables,
   APITypes.OnUpdateActivitySubscription
+>;
+export const onUpdateApiKeysForAi = /* GraphQL */ `subscription OnUpdateApiKeysForAi(
+  $filter: ModelSubscriptionApiKeysForAiFilterInput
+  $owner: String
+) {
+  onUpdateApiKeysForAi(filter: $filter, owner: $owner) {
+    apiKey
+    createdAt
+    dataSource
+    itemId
+    owner
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateApiKeysForAiSubscriptionVariables,
+  APITypes.OnUpdateApiKeysForAiSubscription
 >;
 export const onUpdateBookOfBible = /* GraphQL */ `subscription OnUpdateBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput

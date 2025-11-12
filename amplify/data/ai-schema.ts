@@ -7,14 +7,18 @@ import {
   improveWeeklyNarrativePrompt,
 } from "./prompts/generate-weekly-narrative";
 import { ClaudeSonnet4Us } from "./models";
+import { getDataForAiFn } from "../functions/get-data-for-ai/resource";
 
 const aiSchema = {
+  // ------- Chat Conversations
   generalChat: a
     .conversation({
       aiModel: ClaudeSonnet4Us,
       systemPrompt: "You are a helpful assistant.",
     })
     .authorization((allow) => allow.owner()),
+
+  // ------- Chat Generations
   chatNamer: a
     .generation({
       aiModel: a.ai.model("Amazon Nova Lite"),
@@ -24,6 +28,7 @@ const aiSchema = {
     .arguments({ content: a.string() })
     .returns(a.customType({ name: a.string() }))
     .authorization((allow) => [allow.authenticated()]),
+
   rewriteProjectNotes: a
     .generation({
       aiModel: ClaudeSonnet4Us,
@@ -32,6 +37,7 @@ const aiSchema = {
     .arguments({ content: a.string() })
     .returns(a.customType({ response: a.string() }))
     .authorization((allow) => [allow.authenticated()]),
+
   generateTasksSummary: a
     .generation({
       aiModel: a.ai.model("Amazon Nova Lite"),
@@ -40,6 +46,7 @@ const aiSchema = {
     .arguments({ tasks: a.string() })
     .returns(a.customType({ summary: a.string() }))
     .authorization((allow) => [allow.authenticated()]),
+
   categorizeProject: a
     .generation({
       aiModel: ClaudeSonnet4Us,
@@ -51,6 +58,7 @@ const aiSchema = {
     })
     .returns(a.string().array())
     .authorization((allow) => [allow.authenticated()]),
+
   generateWeeklyNarrative: a
     .generation({
       aiModel: ClaudeSonnet4Us,
@@ -64,6 +72,7 @@ const aiSchema = {
     })
     .returns(a.string())
     .authorization((allow) => [allow.authenticated()]),
+
   updateNarrative: a
     .generation({
       aiModel: ClaudeSonnet4Us,
@@ -76,6 +85,37 @@ const aiSchema = {
     })
     .returns(a.string())
     .authorization((allow) => [allow.authenticated()]),
+
+  // ------- Enums
+  AiDataSource: a.enum(["account", "project", "person"]),
+
+  // ------- Models
+  ApiKeysForAi: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      apiKey: a.string().required(),
+      dataSource: a.ref("AiDataSource").required(),
+      itemId: a.string().required(),
+    })
+    .identifier(["apiKey"])
+    .authorization((allow) => [allow.owner(), allow.guest().to(["get"])]),
+
+  // ------- Queries
+  getDataForAi: a
+    .query()
+    .arguments({ apiKey: a.string() })
+    .returns(
+      a.customType({
+        data: a.json(),
+        error: a.string(),
+      })
+    )
+    .handler(a.handler.function(getDataForAiFn))
+    .authorization((allow) => [allow.guest()]),
 };
 
 export default aiSchema;
+
+export const tablesWithDeleteProtection = ["ApiKeysForAi"];
