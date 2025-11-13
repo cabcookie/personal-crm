@@ -117,6 +117,7 @@
     "postcss": "^8.4.38",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.3",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "yaml": "2.8.1"
   }
 }
