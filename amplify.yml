@@ -3,14 +3,16 @@ backend:
   phases:
     build:
       commands:
-        - nvm install 22.21.1
+        # - nvm install 22.21.1
+        - node -v
         - npm ci
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
     build:
       commands:
-        - nvm install 22.21.1
+        # - nvm install 22.21.1
+        - node -v
         - npm ci
         - npm run build
   artifacts:
@@ -19,4 +21,6 @@ frontend:
       - "**/*"
   cache:
     paths:
+      - .next/cache/**/*
+      - .npm/**/*
       - node_modules/**/*
