@@ -4,6 +4,7 @@ import { generateClient } from "aws-amplify/data";
 import { env } from "$amplify/env/get-data-for-ai";
 import { fetchingApiKey } from "./fetching-apikey";
 import { fetchingAccount } from "./fetching-account";
+import { contentTypes } from "./helpers";
 
 Amplify.configure(
   {
@@ -40,20 +41,28 @@ export const client = generateClient<Schema>({
 export const handler: Schema["getDataForAi"]["functionHandler"] = async (
   event
 ) => {
-  console.log("getDataForAi event:", JSON.stringify(event));
-
   try {
     const apiKey = event.arguments.apiKey;
     if (!apiKey) throw new Error("API key is required");
     const dataToRetrieve = await fetchingApiKey(apiKey);
+
     if (dataToRetrieve.dataSource === "account") {
-      const accountData = await fetchingAccount(dataToRetrieve.itemId);
-      return { data: accountData };
+      const result = await fetchingAccount(dataToRetrieve.itemId);
+      console.log("ACCOUNT Result:", { result, contentTypes });
+      return { data: result };
     }
 
-    return { data: dataToRetrieve };
+    return {
+      data: null,
+      error: `Routine ${dataToRetrieve.dataSource} isn't yet implemented. Try later again.`,
+    };
   } catch (error) {
     console.error("Error in getDataForAi handler:", error);
-    return { error: error instanceof Error ? error.message : "Unknown error" };
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error: " + JSON.stringify(error),
+    };
   }
 };

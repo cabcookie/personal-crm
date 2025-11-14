@@ -60,7 +60,7 @@ type NavigationItem = (UrlNavigationItem | ActionNavigationItem) & {
 };
 
 const NavigationMenu = () => {
-  const { isWorkContext, context } = useContextContext();
+  const { isWorkContext, isFamilyContext, context } = useContextContext();
   const { menuIsOpen, toggleMenu } = useNavMenuContext();
   const { projects, createProject } = useProjectsContext();
   const { accounts } = useAccountsContext();
@@ -116,9 +116,9 @@ const NavigationMenu = () => {
   ];
 
   const otherNavigation: NavigationItem[] = [
-    // ...(isFamilyContext()
-    //   ? [{ label: "Bible Reading", url: "/bible/books" }]
-    //   : []),
+    ...(isFamilyContext()
+      ? [{ label: "Bible Reading", url: "/bible/books" }]
+      : []),
     { label: "Projects", url: "/projects", shortcut: "^P" },
     ...(isWorkContext()
       ? [
@@ -127,6 +127,7 @@ const NavigationMenu = () => {
           { label: "CRM Projects", url: "/crm-projects" },
           { label: "Customer Financials", url: "/customer-financials" },
           { label: "Count of Interactions", url: "/interactions" },
+          { label: "API Integrations", url: "/profile/integrations" },
         ]
       : []),
     { label: "Inbox", url: "/inbox", shortcut: "^I" },

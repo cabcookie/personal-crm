@@ -63,9 +63,7 @@ export const ApiKey: FC<ApiKeyProps> = ({ apiKey }) => {
           {/* Show the API Key TEST RESULT */}
           {testResult && (
             <div className="text-xs bg-muted p-3 rounded-md">
-              <pre className="overflow-auto max-h-32">
-                {JSON.stringify(testResult, null, 2)}
-              </pre>
+              <pre className="overflow-auto max-h-60">{testResult}</pre>
             </div>
           )}
         </div>

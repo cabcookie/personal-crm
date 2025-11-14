@@ -1,5 +1,5 @@
 import { GetAccountQueryVariables } from "../../../graphql-code/API";
-import { mapQuery, NextToken } from "./queries";
+import { getMarkdown, ProjectResult, mapQuery, NextToken, notNull } from ".";
 
 /* ========= CONSTANTS ========= */
 
@@ -9,21 +9,63 @@ export const accountDataFields = [
   "formatVersion",
   "introduction",
   "introductionJson",
-  "projects",
-  ["nextToken", "items", ["id", "done", "doneOn", "onHoldTill"]],
+  "projects(limit: 500)",
+  ["nextToken", "items", ["projects", ["id", "done", "doneOn", "onHoldTill"]]],
   "learnings",
   ["nextToken", "items", ["learnedOn", "learning"]],
 ];
 
 /* ========= FUNCTIONS ========= */
 
-export const accountInformation = (
+export const flatMapAccounts = (
   accountData: AccountData & { subsidiaries?: SubsidaryData }
-): string => {
-  const name = accountData.name;
-  const intro = accountData.introductionJson || accountData.introduction || "";
-  return `## Account: ${name}\n\n${!intro ? "" : `${intro}\n\n`}${accountData.subsidiaries?.items.map(accountInformation).join("")}`;
+): AccountResult[] => {
+  const intro = !accountData.introductionJson
+    ? accountData.introduction || ""
+    : getMarkdown(JSON.parse(accountData.introductionJson));
+  return [
+    {
+      id: accountData.id,
+      information: [
+        ["#", "Account:", accountData.name].join(" "),
+        !intro ? null : ["##", "Information about the account"].join(" "),
+        !intro ? null : intro.replace(/^(#+)\s/gm, "###$1 "),
+      ]
+        .filter(notNull)
+        .join("\n\n"),
+      projectIds:
+        accountData.projects?.items.map((p) => p.projects.id).filter(notNull) ||
+        [],
+    },
+    ...(accountData.subsidiaries?.items.flatMap(flatMapAccounts) || []),
+  ];
 };
+
+export const createAccountTexts =
+  (projects: (ProjectResult | null)[]) => (data: AccountResult) => {
+    const pinnedProjects = getProjectsForAccount(data, projects, true);
+    const unpinnedProjects = getProjectsForAccount(data, projects, false);
+    const total = pinnedProjects.length + unpinnedProjects.length;
+    if (total === 0) return null;
+
+    const projectTexts = [pinnedProjects, unpinnedProjects].join("\n\n");
+
+    return `${data.information}${projectTexts}}`;
+  };
+
+const getProjectsForAccount = (
+  accountData: AccountResult,
+  projects: (ProjectResult | null)[],
+  pinned: boolean
+) =>
+  accountData.projectIds
+    .map((projectId) => {
+      const project = projects.find((p) => p?.id === projectId);
+      if (!project || project.pinned !== pinned) return null;
+      return project.text;
+    })
+    .filter(notNull)
+    .join("\n\n");
 
 /* ========== QUERIES ========== */
 
@@ -65,6 +107,12 @@ export const queryAccount = [
 
 /* =========== TYPES =========== */
 
+export type AccountResult = {
+  id: string;
+  information: string;
+  projectIds: string[];
+};
+
 type GeneratedAccountQuery = string & {
   __generatedQueryInput: GetAccountQueryVariables;
   __generatedQueryOutput: GetAccountData;
@@ -85,10 +133,12 @@ export type AccountData = {
   } | null;
   projects?: {
     items: Array<{
-      id: string;
-      done: string;
-      doneOn: string;
-      onHoldTill?: string | null;
+      projects: {
+        id: string;
+        done: string;
+        doneOn: string;
+        onHoldTill?: string | null;
+      };
     }>;
     nextToken?: string | null;
   } | null;

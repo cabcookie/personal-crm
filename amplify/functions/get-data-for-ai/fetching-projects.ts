@@ -1,5 +1,5 @@
 import { client } from "./handler";
-import { mapProjects, queryProject } from "./helpers";
+import { mapProject, queryProject } from "./helpers";
 
 export const fetchingProject = async (projectId: string) => {
   console.log("Fetching data for Project ID:", projectId);
@@ -16,12 +16,14 @@ export const fetchingProject = async (projectId: string) => {
         errors.map((err) => err.message).join(". ") || "Query failed"
       }`
     );
-  if (!data || !data.getProjects)
-    throw new Error(
-      "Error in fetchingProject: No data returned for the specified project ID"
+  if (!data || !data.getProjects) {
+    console.warn(
+      "fetchingProject: No data returned for the specified project ID"
     );
+    return null;
+  }
 
-  const projects = await mapProjects(data.getProjects);
+  console.log("Data for project", projectId, ":", data);
 
-  return projects;
+  return mapProject(data.getProjects);
 };

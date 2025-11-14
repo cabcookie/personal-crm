@@ -43,3 +43,4 @@ scripts/env.json
 .cline-env.local
 
 /logs
+api/temp/
