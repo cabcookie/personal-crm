@@ -105,6 +105,7 @@ const useApiKeys = () => {
       }
 
       const result = await response.json();
+      console.log({ result });
 
       if (result.error) {
         throw new Error(result.error);

@@ -1,41 +1,19 @@
-import { AccountData, SubsidaryData, NextToken, mapQuery } from ".";
-import { differenceInBusinessDays } from "date-fns";
+import {
+  AccountData,
+  SubsidaryData,
+  NextToken,
+  mapQuery,
+  getPerson,
+  getMarkdown,
+  notNull,
+  getPeopleFromCache,
+} from ".";
+import { differenceInBusinessDays, format } from "date-fns";
 import { GetProjectsQueryVariables } from "../../../graphql-code/API";
 import { Schema } from "../../../data/resource";
+import { compact, uniq } from "lodash/fp";
 
-/* ========= FUNCTIONS ========= */
-
-export const mapProjects = async (
-  project: NonNullable<GetProjectData["getProjects"]>
-) => ({
-  ...project,
-  activities: project.activities?.items
-    .map((a) =>
-      !a?.activity
-        ? null
-        : {
-            ...a.activity,
-            finishedOn:
-              a.activity.forMeeting?.meetingOn ||
-              a.activity.forMeeting?.createdAt ||
-              a.activity.finishedOn ||
-              a.activity.createdAt,
-            blocks: a.activity.noteBlockIds
-              ?.map((blockId) =>
-                a.activity?.noteBlocks?.items.find(
-                  (block) => block?.id === blockId
-                )
-              )
-              .filter((b) => !!b),
-          }
-    )
-    .filter((a) => !!a),
-});
-
-const mapProjectIds = (
-  prev: string[],
-  curr: NonNullable<SubsidaryData>["items"][number]
-): string[] => [...prev, ...getProjectIds(curr)];
+/* ====== PUBLIC FUNCTIONS ===== */
 
 export const getProjectIds = (
   data: AccountData & {
@@ -45,22 +23,152 @@ export const getProjectIds = (
   ...(data.projects?.items
     .filter(
       (p) =>
-        (!!p.onHoldTill &&
-          differenceInBusinessDays(new Date(), p.onHoldTill) >= 0) ||
-        !p.done ||
-        !p.doneOn ||
-        differenceInBusinessDays(new Date(), p.doneOn) <= 25
+        (!!p.projects.onHoldTill &&
+          differenceInBusinessDays(new Date(), p.projects.onHoldTill) >= 0) ||
+        !p.projects.done ||
+        !p.projects.doneOn ||
+        differenceInBusinessDays(new Date(), p.projects.doneOn) <= 10
     )
-    .map((p) => p.id) || []),
+    .map((p) => p.projects.id) || []),
   ...(data.subsidiaries?.items.reduce<string[]>(mapProjectIds, []) || []),
 ];
+
+export const mapProject = async (
+  project: NonNullable<GetProjectData["getProjects"]>
+): Promise<ProjectResult | null> => {
+  try {
+    if (!project.activities) return null;
+
+    // Get all valid activities
+    const cleanActivities = project.activities.items
+      .map((a) => a?.activity)
+      .filter((a) => !!a);
+    if (cleanActivities.length === 0) return null;
+
+    const now = new Date();
+
+    // Map with activity dates, sort them (descending), and filter for last 20 business days
+    const activitiesSorted = cleanActivities
+      .map((a) => ({
+        ...a,
+        activityOn: new Date(
+          a.forMeeting?.meetingOn ||
+            a.forMeeting?.createdAt ||
+            a.finishedOn ||
+            a.createdAt
+        ),
+      }))
+      .filter((a) => differenceInBusinessDays(now, a.activityOn) <= 20)
+      .sort((a, b) => b.activityOn.getTime() - a.activityOn.getTime());
+
+    // Get markdown text with a header from each activity
+    const activityNotes = await Promise.all(
+      activitiesSorted.map(async (a) => {
+        // Map the blocks of the activity
+        const blocks = a.noteBlockIds
+          ?.map((id) => a.noteBlocks?.items.find((b) => b?.id === id))
+          .filter((b) => !!b);
+        if (!blocks) return "";
+
+        // Turn blocks into texts
+        const notes = blocks
+          .map((b) =>
+            b.type === "taskItem"
+              ? !b.todo?.todo
+                ? ""
+                : getMarkdown(b.todo.todo)
+              : !b.content
+                ? ""
+                : getMarkdown(b.content)
+          )
+          .join("");
+        if (!notes || notes.length < 10) return "";
+
+        const meeting = await getMeetingText(a);
+
+        return [
+          ["###", meeting, format(a.activityOn, "PPPp")]
+            .filter(notNull)
+            .join(" "),
+          notes,
+        ].join("\n\n");
+      })
+    );
+    if (!activityNotes.join(""))
+      return { id: project.id, text: "", pinned: false };
+
+    // Retrieve the people involved or mentioned in project to list them in the project header
+    const peopleInvolvedIds = uniq([
+      ...getMeetingParticipantsFromProject(project),
+      ...getMentionedPeopleInProject(project),
+    ]).filter((p) => !!p) as string[];
+    const peopleFromCache = getPeopleFromCache(peopleInvolvedIds);
+    const remainingPeople = await Promise.all(
+      peopleFromCache.remainingIds.map(getPerson)
+    );
+    const peopleText = [...peopleFromCache.people, remainingPeople].join(", ");
+    const peopleInvolvedText =
+      peopleText.length === 0
+        ? null
+        : ["**People involved:**", peopleText].join(" ");
+
+    // Name the project notes header and return the ProjectResult
+    const projectNotes = [["##", "Project:", `'${project.project}'`].join(" ")];
+    return {
+      id: project.id,
+      text: [projectNotes, peopleInvolvedText, activityNotes.join("")]
+        .filter(notNull)
+        .join("\n\n"),
+      pinned: project.pinned === "PINNED",
+    };
+  } catch (error) {
+    console.error("ERROR in mapProject:", error);
+    return { id: project.id, text: "", pinned: false };
+  }
+};
+
+/* ===== PRIVATE FUNCTIONS ===== */
+
+const getMeetingText = async (a: TActivity) => {
+  if (!a.forMeeting) return null;
+  const peopleIds = compact(
+    a.forMeeting.participants?.items.map((p) => p?.personId)
+  );
+  const people = await Promise.all(peopleIds.map(getPerson));
+  return ["Meeting:", `'${a.forMeeting.topic}'`, `(${people.join(", ")})`].join(
+    " "
+  );
+};
+
+const getMentionedPeopleInProject = (
+  project: NonNullable<GetProjectData["getProjects"]>
+) =>
+  project.activities?.items.flatMap((a) =>
+    a?.activity?.noteBlockIds?.flatMap((id) =>
+      a.activity?.noteBlocks?.items
+        .find((b) => b?.id === id)
+        ?.people?.items.map((p) => p?.personId)
+    )
+  ) || [];
+
+const getMeetingParticipantsFromProject = (
+  project: NonNullable<GetProjectData["getProjects"]>
+) =>
+  project.activities?.items.flatMap((a) =>
+    a?.activity?.forMeeting?.participants?.items.map((p) => p?.personId)
+  ) || [];
+
+const mapProjectIds = (
+  prev: string[],
+  curr: NonNullable<SubsidaryData>["items"][number]
+): string[] => [...prev, ...getProjectIds(curr)];
 
 /* ========== QUERIES ========== */
 
 export const queryProject = [
   "query GetProject($id: ID!)",
   [
-    "getProjects",
+    "getProjects(id: $id)",
     [
       "id",
       "project",
@@ -111,6 +219,16 @@ export const queryProject = [
 ].reduce<string>(mapQuery(0), "") as GeneratedProjectQuery;
 
 /* =========== TYPES =========== */
+
+export type ProjectResult = { id: string; text: string; pinned: boolean };
+
+type TActivity = NonNullable<
+  NonNullable<
+    NonNullable<
+      NonNullable<GetProjectData["getProjects"]>["activities"]
+    >["items"][number]
+  >["activity"]
+>;
 
 type GeneratedProjectQuery = string & {
   __generatedQueryInput: GetProjectsQueryVariables;
