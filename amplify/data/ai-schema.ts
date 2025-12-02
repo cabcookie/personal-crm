@@ -88,6 +88,7 @@ const aiSchema = {
 
   // ------- Enums
   AiDataSource: a.enum(["account", "project", "person"]),
+  ExportStatus: a.enum(["CREATED", "GENERATED", "COMPLETED"]),
 
   // ------- Models
   ApiKeysForAi: a
@@ -101,6 +102,22 @@ const aiSchema = {
     })
     .identifier(["apiKey"])
     .authorization((allow) => [allow.owner(), allow.guest().to(["get"])]),
+
+  ExportTask: a
+    .model({
+      owner: a.string().required(),
+      dataSource: a.ref("AiDataSource").required(),
+      itemId: a.string().required(),
+      itemName: a.string(),
+      status: a.ref("ExportStatus").required(),
+      startDate: a.datetime().required(),
+      endDate: a.datetime().required(),
+      result: a.string(),
+      error: a.string(),
+      ttl: a.integer(),
+    })
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes((index) => [index("status")]),
 
   // ------- Queries
   getDataForAi: a
@@ -118,4 +135,4 @@ const aiSchema = {
 
 export default aiSchema;
 
-export const tablesWithDeleteProtection = ["ApiKeysForAi"];
+export const tablesWithDeleteProtection = [];
