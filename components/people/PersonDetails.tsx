@@ -11,7 +11,6 @@ import PersonLearnings from "./PersonLearnings";
 import PersonNotes from "./PersonNotes";
 import PersonRelationships from "./PersonRelationships";
 import PersonUpdateForm from "./PersonUpdateForm";
-import { ExportButton } from "@/components/exports/ExportButton";
 
 type PersonDetailsProps = {
   personId?: string;
@@ -71,13 +70,6 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           >
             Delete
           </Button>
-
-          <ExportButton
-            dataSource="person"
-            itemId={person.id}
-            itemName={person.name}
-            presets={[90, 360, 5 * 360]}
-          />
         </div>
       )}
 

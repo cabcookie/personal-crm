@@ -26,7 +26,7 @@ const client = generateClient<Schema>();
 interface ExportDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  dataSource: "account" | "project" | "person";
+  dataSource: Schema["ExportTaskDataSource"]["type"];
   itemId: string;
   itemName: string;
   presets?: number[]; // Days to go back (e.g., [7, 14, 28])

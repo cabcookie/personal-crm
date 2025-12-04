@@ -2,9 +2,10 @@ import { FC, useState } from "react";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExportDialog } from "./ExportDialog";
+import { Schema } from "@/amplify/data/resource";
 
 interface ExportButtonProps {
-  dataSource: "account" | "project" | "person";
+  dataSource: Schema["ExportTaskDataSource"]["type"];
   itemId: string;
   itemName: string;
   presets?: number[]; // Days to go back (e.g., [7, 14, 28])
