@@ -358,24 +358,6 @@ export const createActivity = /* GraphQL */ `mutation CreateActivity(
   APITypes.CreateActivityMutationVariables,
   APITypes.CreateActivityMutation
 >;
-export const createApiKeysForAi = /* GraphQL */ `mutation CreateApiKeysForAi(
-  $condition: ModelApiKeysForAiConditionInput
-  $input: CreateApiKeysForAiInput!
-) {
-  createApiKeysForAi(condition: $condition, input: $input) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.CreateApiKeysForAiMutationVariables,
-  APITypes.CreateApiKeysForAiMutation
->;
 export const createAssistantResponseGeneralChat = /* GraphQL */ `mutation CreateAssistantResponseGeneralChat(
   $input: CreateConversationMessageGeneralChatAssistantInput!
 ) {
@@ -783,6 +765,31 @@ export const createDailyPlanTodo = /* GraphQL */ `mutation CreateDailyPlanTodo(
 ` as GeneratedMutation<
   APITypes.CreateDailyPlanTodoMutationVariables,
   APITypes.CreateDailyPlanTodoMutation
+>;
+export const createExportTask = /* GraphQL */ `mutation CreateExportTask(
+  $condition: ModelExportTaskConditionInput
+  $input: CreateExportTaskInput!
+) {
+  createExportTask(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateExportTaskMutationVariables,
+  APITypes.CreateExportTaskMutation
 >;
 export const createInbox = /* GraphQL */ `mutation CreateInbox(
   $condition: ModelInboxConditionInput
@@ -2281,24 +2288,6 @@ export const deleteActivity = /* GraphQL */ `mutation DeleteActivity(
   APITypes.DeleteActivityMutationVariables,
   APITypes.DeleteActivityMutation
 >;
-export const deleteApiKeysForAi = /* GraphQL */ `mutation DeleteApiKeysForAi(
-  $condition: ModelApiKeysForAiConditionInput
-  $input: DeleteApiKeysForAiInput!
-) {
-  deleteApiKeysForAi(condition: $condition, input: $input) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.DeleteApiKeysForAiMutationVariables,
-  APITypes.DeleteApiKeysForAiMutation
->;
 export const deleteBookOfBible = /* GraphQL */ `mutation DeleteBookOfBible(
   $condition: ModelBookOfBibleConditionInput
   $input: DeleteBookOfBibleInput!
@@ -2639,6 +2628,31 @@ export const deleteDailyPlanTodo = /* GraphQL */ `mutation DeleteDailyPlanTodo(
 ` as GeneratedMutation<
   APITypes.DeleteDailyPlanTodoMutationVariables,
   APITypes.DeleteDailyPlanTodoMutation
+>;
+export const deleteExportTask = /* GraphQL */ `mutation DeleteExportTask(
+  $condition: ModelExportTaskConditionInput
+  $input: DeleteExportTaskInput!
+) {
+  deleteExportTask(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteExportTaskMutationVariables,
+  APITypes.DeleteExportTaskMutation
 >;
 export const deleteInbox = /* GraphQL */ `mutation DeleteInbox(
   $condition: ModelInboxConditionInput
@@ -4182,24 +4196,6 @@ export const updateActivity = /* GraphQL */ `mutation UpdateActivity(
   APITypes.UpdateActivityMutationVariables,
   APITypes.UpdateActivityMutation
 >;
-export const updateApiKeysForAi = /* GraphQL */ `mutation UpdateApiKeysForAi(
-  $condition: ModelApiKeysForAiConditionInput
-  $input: UpdateApiKeysForAiInput!
-) {
-  updateApiKeysForAi(condition: $condition, input: $input) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateApiKeysForAiMutationVariables,
-  APITypes.UpdateApiKeysForAiMutation
->;
 export const updateBookOfBible = /* GraphQL */ `mutation UpdateBookOfBible(
   $condition: ModelBookOfBibleConditionInput
   $input: UpdateBookOfBibleInput!
@@ -4504,6 +4500,31 @@ export const updateDailyPlanTodo = /* GraphQL */ `mutation UpdateDailyPlanTodo(
 ` as GeneratedMutation<
   APITypes.UpdateDailyPlanTodoMutationVariables,
   APITypes.UpdateDailyPlanTodoMutation
+>;
+export const updateExportTask = /* GraphQL */ `mutation UpdateExportTask(
+  $condition: ModelExportTaskConditionInput
+  $input: UpdateExportTaskInput!
+) {
+  updateExportTask(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateExportTaskMutationVariables,
+  APITypes.UpdateExportTaskMutation
 >;
 export const updateInbox = /* GraphQL */ `mutation UpdateInbox(
   $condition: ModelInboxConditionInput

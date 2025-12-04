@@ -13,6 +13,7 @@
     "signin:code-assistant": "aws sso login --profile nxsflow-staging",
     "sandbox": "npx ampx sandbox --profile impulso",
     "sandbox:debug": "npx ampx sandbox --profile impulso --debug",
+    "sandbox:logs": "npx ampx sandbox --profile impulso --stream-function-logs",
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",
     "import-data-prod": "cd scripts && node start-import -env prod",

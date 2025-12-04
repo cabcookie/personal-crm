@@ -413,21 +413,6 @@ export const getActivity = /* GraphQL */ `query GetActivity($id: ID!) {
   APITypes.GetActivityQueryVariables,
   APITypes.GetActivityQuery
 >;
-export const getApiKeysForAi = /* GraphQL */ `query GetApiKeysForAi($apiKey: String!) {
-  getApiKeysForAi(apiKey: $apiKey) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.GetApiKeysForAiQueryVariables,
-  APITypes.GetApiKeysForAiQuery
->;
 export const getBookOfBible = /* GraphQL */ `query GetBookOfBible($id: ID!) {
   getBookOfBible(id: $id) {
     alias
@@ -739,16 +724,27 @@ export const getDailyPlanTodo = /* GraphQL */ `query GetDailyPlanTodo($id: ID!) 
   APITypes.GetDailyPlanTodoQueryVariables,
   APITypes.GetDailyPlanTodoQuery
 >;
-export const getDataForAi = /* GraphQL */ `query GetDataForAi($apiKey: String) {
-  getDataForAi(apiKey: $apiKey) {
-    data
+export const getExportTask = /* GraphQL */ `query GetExportTask($id: ID!) {
+  getExportTask(id: $id) {
+    createdAt
+    dataSource
+    endDate
     error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
     __typename
   }
 }
 ` as GeneratedQuery<
-  APITypes.GetDataForAiQueryVariables,
-  APITypes.GetDataForAiQuery
+  APITypes.GetExportTaskQueryVariables,
+  APITypes.GetExportTaskQuery
 >;
 export const getInbox = /* GraphQL */ `query GetInbox($id: ID!) {
   getInbox(id: $id) {
@@ -2144,37 +2140,6 @@ export const listActivities = /* GraphQL */ `query ListActivities(
   APITypes.ListActivitiesQueryVariables,
   APITypes.ListActivitiesQuery
 >;
-export const listApiKeysForAis = /* GraphQL */ `query ListApiKeysForAis(
-  $apiKey: String
-  $filter: ModelApiKeysForAiFilterInput
-  $limit: Int
-  $nextToken: String
-  $sortDirection: ModelSortDirection
-) {
-  listApiKeysForAis(
-    apiKey: $apiKey
-    filter: $filter
-    limit: $limit
-    nextToken: $nextToken
-    sortDirection: $sortDirection
-  ) {
-    items {
-      apiKey
-      createdAt
-      dataSource
-      itemId
-      owner
-      updatedAt
-      __typename
-    }
-    nextToken
-    __typename
-  }
-}
-` as GeneratedQuery<
-  APITypes.ListApiKeysForAisQueryVariables,
-  APITypes.ListApiKeysForAisQuery
->;
 export const listBookOfBibles = /* GraphQL */ `query ListBookOfBibles(
   $filter: ModelBookOfBibleFilterInput
   $limit: Int
@@ -2732,6 +2697,76 @@ export const listDailyPlans = /* GraphQL */ `query ListDailyPlans(
 ` as GeneratedQuery<
   APITypes.ListDailyPlansQueryVariables,
   APITypes.ListDailyPlansQuery
+>;
+export const listExportTaskByStatusAndEndDate = /* GraphQL */ `query ListExportTaskByStatusAndEndDate(
+  $endDate: ModelStringKeyConditionInput
+  $filter: ModelExportTaskFilterInput
+  $limit: Int
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $status: ExportStatus!
+) {
+  listExportTaskByStatusAndEndDate(
+    endDate: $endDate
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    status: $status
+  ) {
+    items {
+      createdAt
+      dataSource
+      endDate
+      error
+      id
+      itemId
+      itemName
+      owner
+      result
+      startDate
+      status
+      ttl
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListExportTaskByStatusAndEndDateQueryVariables,
+  APITypes.ListExportTaskByStatusAndEndDateQuery
+>;
+export const listExportTasks = /* GraphQL */ `query ListExportTasks(
+  $filter: ModelExportTaskFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listExportTasks(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      createdAt
+      dataSource
+      endDate
+      error
+      id
+      itemId
+      itemName
+      owner
+      result
+      startDate
+      status
+      ttl
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListExportTasksQueryVariables,
+  APITypes.ListExportTasksQuery
 >;
 export const listInboxes = /* GraphQL */ `query ListInboxes(
   $filter: ModelInboxFilterInput

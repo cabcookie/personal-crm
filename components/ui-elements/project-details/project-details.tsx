@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
 import { addDays } from "date-fns";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { FC, useEffect, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
@@ -18,6 +17,7 @@ import RecordDetails from "../record-details/record-details";
 import ProjectNextActions from "./next-actions";
 import ProjectAccountDetails from "./project-account-details";
 import ProjectDates from "./project-dates";
+import { ExportButton } from "@/components/exports/ExportButton";
 
 type ProjectDetailsProps = {
   projectId: string;
@@ -110,11 +110,12 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             onUpdate={(name) => saveProjectName(project.id, name)}
           />
 
-          <Button asChild size="sm">
-            <Link href={`/projects/${project.id}/history`}>
-              Show Project History
-            </Link>
-          </Button>
+          <ExportButton
+            dataSource="project"
+            itemId={project.id}
+            itemName={project.project}
+            presets={[7, 14, 28]}
+          />
         </div>
 
         {showContext && (

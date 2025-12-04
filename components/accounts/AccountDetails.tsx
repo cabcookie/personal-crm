@@ -13,6 +13,7 @@ import AccountTerritories from "./AccountTerritories";
 import AccountUpdateForm from "./AccountUpdateForm";
 import ResellerFinancials from "./ResellerFinancials";
 import Subsidiaries from "./Subsidaries";
+import { ExportButton } from "@/components/exports/ExportButton";
 
 type AccountDetailsProps = {
   account: Account;
@@ -52,6 +53,7 @@ const AccountDetails: FC<AccountDetailsProps> = ({
           onUpdate={(props) => updateAccount({ id: account.id, ...props })}
           formControl={updateFormControl}
         />
+
         {account.crmId && (
           <CrmLink
             category="Account"
@@ -59,6 +61,13 @@ const AccountDetails: FC<AccountDetailsProps> = ({
             className="font-semibold"
           />
         )}
+
+        <ExportButton
+          dataSource="account"
+          itemId={account.id}
+          itemName={account.name}
+          presets={[30, 180, 360]}
+        />
       </div>
 
       <Accordion type="single" collapsible>

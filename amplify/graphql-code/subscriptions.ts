@@ -358,24 +358,6 @@ export const onCreateActivity = /* GraphQL */ `subscription OnCreateActivity(
   APITypes.OnCreateActivitySubscriptionVariables,
   APITypes.OnCreateActivitySubscription
 >;
-export const onCreateApiKeysForAi = /* GraphQL */ `subscription OnCreateApiKeysForAi(
-  $filter: ModelSubscriptionApiKeysForAiFilterInput
-  $owner: String
-) {
-  onCreateApiKeysForAi(filter: $filter, owner: $owner) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnCreateApiKeysForAiSubscriptionVariables,
-  APITypes.OnCreateApiKeysForAiSubscription
->;
 export const onCreateAssistantResponseGeneralChat = /* GraphQL */ `subscription OnCreateAssistantResponseGeneralChat($conversationId: ID) {
   onCreateAssistantResponseGeneralChat(conversationId: $conversationId) {
     associatedUserMessageId
@@ -724,6 +706,31 @@ export const onCreateDailyPlanTodo = /* GraphQL */ `subscription OnCreateDailyPl
 ` as GeneratedSubscription<
   APITypes.OnCreateDailyPlanTodoSubscriptionVariables,
   APITypes.OnCreateDailyPlanTodoSubscription
+>;
+export const onCreateExportTask = /* GraphQL */ `subscription OnCreateExportTask(
+  $filter: ModelSubscriptionExportTaskFilterInput
+  $owner: String
+) {
+  onCreateExportTask(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateExportTaskSubscriptionVariables,
+  APITypes.OnCreateExportTaskSubscription
 >;
 export const onCreateInbox = /* GraphQL */ `subscription OnCreateInbox(
   $filter: ModelSubscriptionInboxFilterInput
@@ -2222,24 +2229,6 @@ export const onDeleteActivity = /* GraphQL */ `subscription OnDeleteActivity(
   APITypes.OnDeleteActivitySubscriptionVariables,
   APITypes.OnDeleteActivitySubscription
 >;
-export const onDeleteApiKeysForAi = /* GraphQL */ `subscription OnDeleteApiKeysForAi(
-  $filter: ModelSubscriptionApiKeysForAiFilterInput
-  $owner: String
-) {
-  onDeleteApiKeysForAi(filter: $filter, owner: $owner) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnDeleteApiKeysForAiSubscriptionVariables,
-  APITypes.OnDeleteApiKeysForAiSubscription
->;
 export const onDeleteBookOfBible = /* GraphQL */ `subscription OnDeleteBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput
   $owner: String
@@ -2522,6 +2511,31 @@ export const onDeleteDailyPlanTodo = /* GraphQL */ `subscription OnDeleteDailyPl
 ` as GeneratedSubscription<
   APITypes.OnDeleteDailyPlanTodoSubscriptionVariables,
   APITypes.OnDeleteDailyPlanTodoSubscription
+>;
+export const onDeleteExportTask = /* GraphQL */ `subscription OnDeleteExportTask(
+  $filter: ModelSubscriptionExportTaskFilterInput
+  $owner: String
+) {
+  onDeleteExportTask(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteExportTaskSubscriptionVariables,
+  APITypes.OnDeleteExportTaskSubscription
 >;
 export const onDeleteInbox = /* GraphQL */ `subscription OnDeleteInbox(
   $filter: ModelSubscriptionInboxFilterInput
@@ -4020,24 +4034,6 @@ export const onUpdateActivity = /* GraphQL */ `subscription OnUpdateActivity(
   APITypes.OnUpdateActivitySubscriptionVariables,
   APITypes.OnUpdateActivitySubscription
 >;
-export const onUpdateApiKeysForAi = /* GraphQL */ `subscription OnUpdateApiKeysForAi(
-  $filter: ModelSubscriptionApiKeysForAiFilterInput
-  $owner: String
-) {
-  onUpdateApiKeysForAi(filter: $filter, owner: $owner) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnUpdateApiKeysForAiSubscriptionVariables,
-  APITypes.OnUpdateApiKeysForAiSubscription
->;
 export const onUpdateBookOfBible = /* GraphQL */ `subscription OnUpdateBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput
   $owner: String
@@ -4320,6 +4316,31 @@ export const onUpdateDailyPlanTodo = /* GraphQL */ `subscription OnUpdateDailyPl
 ` as GeneratedSubscription<
   APITypes.OnUpdateDailyPlanTodoSubscriptionVariables,
   APITypes.OnUpdateDailyPlanTodoSubscription
+>;
+export const onUpdateExportTask = /* GraphQL */ `subscription OnUpdateExportTask(
+  $filter: ModelSubscriptionExportTaskFilterInput
+  $owner: String
+) {
+  onUpdateExportTask(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    itemId
+    itemName
+    owner
+    result
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateExportTaskSubscriptionVariables,
+  APITypes.OnUpdateExportTaskSubscription
 >;
 export const onUpdateInbox = /* GraphQL */ `subscription OnUpdateInbox(
   $filter: ModelSubscriptionInboxFilterInput

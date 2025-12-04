@@ -986,23 +986,6 @@ export type TerritoryResponsibility = {
   updatedAt: string,
 };
 
-export type ApiKeysForAi = {
-  __typename: "ApiKeysForAi",
-  apiKey: string,
-  createdAt: string,
-  dataSource: AiDataSource,
-  itemId: string,
-  owner?: string | null,
-  updatedAt: string,
-};
-
-export enum AiDataSource {
-  account = "account",
-  person = "person",
-  project = "project",
-}
-
-
 export type BookOfBible = {
   __typename: "BookOfBible",
   alias: string,
@@ -1197,11 +1180,35 @@ export type CurrentContext = {
   updatedAt: string,
 };
 
-export type GetDataForAiReturnType = {
-  __typename: "GetDataForAiReturnType",
-  data?: string | null,
+export type ExportTask = {
+  __typename: "ExportTask",
+  createdAt: string,
+  dataSource: ExportTaskDataSource,
+  endDate: string,
   error?: string | null,
+  id: string,
+  itemId: string,
+  itemName?: string | null,
+  owner?: string | null,
+  result?: string | null,
+  startDate: string,
+  status: ExportStatus,
+  ttl?: number | null,
+  updatedAt: string,
 };
+
+export enum ExportTaskDataSource {
+  account = "account",
+  project = "project",
+}
+
+
+export enum ExportStatus {
+  COMPLETED = "COMPLETED",
+  CREATED = "CREATED",
+  GENERATED = "GENERATED",
+}
+
 
 export type ModelAccountLearningFilterInput = {
   accountId?: ModelIDInput | null,
@@ -1306,30 +1313,6 @@ export type ModelActivityFilterInput = {
   or?: Array< ModelActivityFilterInput | null > | null,
   owner?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
-};
-
-export type ModelApiKeysForAiFilterInput = {
-  and?: Array< ModelApiKeysForAiFilterInput | null > | null,
-  apiKey?: ModelStringInput | null,
-  createdAt?: ModelStringInput | null,
-  dataSource?: ModelAiDataSourceInput | null,
-  id?: ModelIDInput | null,
-  itemId?: ModelStringInput | null,
-  not?: ModelApiKeysForAiFilterInput | null,
-  or?: Array< ModelApiKeysForAiFilterInput | null > | null,
-  owner?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
-export type ModelAiDataSourceInput = {
-  eq?: AiDataSource | null,
-  ne?: AiDataSource | null,
-};
-
-export type ModelApiKeysForAiConnection = {
-  __typename: "ModelApiKeysForAiConnection",
-  items:  Array<ApiKeysForAi | null >,
-  nextToken?: string | null,
 };
 
 export type ModelBookOfBibleFilterInput = {
@@ -1618,6 +1601,41 @@ export type ModelCurrentContextFilterInput = {
 export type ModelCurrentContextConnection = {
   __typename: "ModelCurrentContextConnection",
   items:  Array<CurrentContext | null >,
+  nextToken?: string | null,
+};
+
+export type ModelExportTaskFilterInput = {
+  and?: Array< ModelExportTaskFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dataSource?: ModelExportTaskDataSourceInput | null,
+  endDate?: ModelStringInput | null,
+  error?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  itemId?: ModelStringInput | null,
+  itemName?: ModelStringInput | null,
+  not?: ModelExportTaskFilterInput | null,
+  or?: Array< ModelExportTaskFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  result?: ModelStringInput | null,
+  startDate?: ModelStringInput | null,
+  status?: ModelExportStatusInput | null,
+  ttl?: ModelIntInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelExportTaskDataSourceInput = {
+  eq?: ExportTaskDataSource | null,
+  ne?: ExportTaskDataSource | null,
+};
+
+export type ModelExportStatusInput = {
+  eq?: ExportStatus | null,
+  ne?: ExportStatus | null,
+};
+
+export type ModelExportTaskConnection = {
+  __typename: "ModelExportTaskConnection",
+  items:  Array<ExportTask | null >,
   nextToken?: string | null,
 };
 
@@ -2217,24 +2235,6 @@ export type CreateActivityInput = {
   owner?: string | null,
 };
 
-export type ModelApiKeysForAiConditionInput = {
-  and?: Array< ModelApiKeysForAiConditionInput | null > | null,
-  createdAt?: ModelStringInput | null,
-  dataSource?: ModelAiDataSourceInput | null,
-  itemId?: ModelStringInput | null,
-  not?: ModelApiKeysForAiConditionInput | null,
-  or?: Array< ModelApiKeysForAiConditionInput | null > | null,
-  owner?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
-};
-
-export type CreateApiKeysForAiInput = {
-  apiKey: string,
-  dataSource: AiDataSource,
-  itemId: string,
-  owner?: string | null,
-};
-
 export type CreateConversationMessageGeneralChatAssistantInput = {
   associatedUserMessageId?: string | null,
   content?: Array< AmplifyAIContentBlockInput | null > | null,
@@ -2570,6 +2570,38 @@ export type CreateDailyPlanTodoInput = {
   postPoned?: boolean | null,
   todoId: string,
   updatedAt?: string | null,
+};
+
+export type ModelExportTaskConditionInput = {
+  and?: Array< ModelExportTaskConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dataSource?: ModelExportTaskDataSourceInput | null,
+  endDate?: ModelStringInput | null,
+  error?: ModelStringInput | null,
+  itemId?: ModelStringInput | null,
+  itemName?: ModelStringInput | null,
+  not?: ModelExportTaskConditionInput | null,
+  or?: Array< ModelExportTaskConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  result?: ModelStringInput | null,
+  startDate?: ModelStringInput | null,
+  status?: ModelExportStatusInput | null,
+  ttl?: ModelIntInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateExportTaskInput = {
+  dataSource: ExportTaskDataSource,
+  endDate: string,
+  error?: string | null,
+  id?: string | null,
+  itemId: string,
+  itemName?: string | null,
+  owner?: string | null,
+  result?: string | null,
+  startDate: string,
+  status: ExportStatus,
+  ttl?: number | null,
 };
 
 export type ModelInboxConditionInput = {
@@ -3250,10 +3282,6 @@ export type DeleteActivityInput = {
   id: string,
 };
 
-export type DeleteApiKeysForAiInput = {
-  apiKey: string,
-};
-
 export type DeleteBookOfBibleInput = {
   id: string,
 };
@@ -3291,6 +3319,10 @@ export type DeleteDailyPlanProjectInput = {
 };
 
 export type DeleteDailyPlanTodoInput = {
+  id: string,
+};
+
+export type DeleteExportTaskInput = {
   id: string,
 };
 
@@ -3471,13 +3503,6 @@ export type UpdateActivityInput = {
   owner?: string | null,
 };
 
-export type UpdateApiKeysForAiInput = {
-  apiKey: string,
-  dataSource?: AiDataSource | null,
-  itemId?: string | null,
-  owner?: string | null,
-};
-
 export type UpdateBookOfBibleInput = {
   alias?: string | null,
   book?: string | null,
@@ -3560,6 +3585,20 @@ export type UpdateDailyPlanTodoInput = {
   postPoned?: boolean | null,
   todoId?: string | null,
   updatedAt?: string | null,
+};
+
+export type UpdateExportTaskInput = {
+  dataSource?: ExportTaskDataSource | null,
+  endDate?: string | null,
+  error?: string | null,
+  id: string,
+  itemId?: string | null,
+  itemName?: string | null,
+  owner?: string | null,
+  result?: string | null,
+  startDate?: string | null,
+  status?: ExportStatus | null,
+  ttl?: number | null,
 };
 
 export type UpdateInboxInput = {
@@ -3968,18 +4007,6 @@ export type ModelSubscriptionActivityFilterInput = {
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
-export type ModelSubscriptionApiKeysForAiFilterInput = {
-  and?: Array< ModelSubscriptionApiKeysForAiFilterInput | null > | null,
-  apiKey?: ModelSubscriptionStringInput | null,
-  createdAt?: ModelSubscriptionStringInput | null,
-  dataSource?: ModelSubscriptionStringInput | null,
-  id?: ModelSubscriptionIDInput | null,
-  itemId?: ModelSubscriptionStringInput | null,
-  or?: Array< ModelSubscriptionApiKeysForAiFilterInput | null > | null,
-  owner?: ModelStringInput | null,
-  updatedAt?: ModelSubscriptionStringInput | null,
-};
-
 export type ModelSubscriptionBookOfBibleFilterInput = {
   alias?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionBookOfBibleFilterInput | null > | null,
@@ -4103,6 +4130,24 @@ export type ModelSubscriptionDailyPlanTodoFilterInput = {
   owner?: ModelStringInput | null,
   postPoned?: ModelSubscriptionBooleanInput | null,
   todoId?: ModelSubscriptionIDInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
+export type ModelSubscriptionExportTaskFilterInput = {
+  and?: Array< ModelSubscriptionExportTaskFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  dataSource?: ModelSubscriptionStringInput | null,
+  endDate?: ModelSubscriptionStringInput | null,
+  error?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  itemId?: ModelSubscriptionStringInput | null,
+  itemName?: ModelSubscriptionStringInput | null,
+  or?: Array< ModelSubscriptionExportTaskFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  result?: ModelSubscriptionStringInput | null,
+  startDate?: ModelSubscriptionStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  ttl?: ModelSubscriptionIntInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
@@ -4906,22 +4951,6 @@ export type GetActivityQuery = {
   } | null,
 };
 
-export type GetApiKeysForAiQueryVariables = {
-  apiKey: string,
-};
-
-export type GetApiKeysForAiQuery = {
-  getApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type GetBookOfBibleQueryVariables = {
   id: string,
 };
@@ -5243,15 +5272,26 @@ export type GetDailyPlanTodoQuery = {
   } | null,
 };
 
-export type GetDataForAiQueryVariables = {
-  apiKey?: string | null,
+export type GetExportTaskQueryVariables = {
+  id: string,
 };
 
-export type GetDataForAiQuery = {
-  getDataForAi?:  {
-    __typename: "GetDataForAiReturnType",
-    data?: string | null,
+export type GetExportTaskQuery = {
+  getExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
     error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
+    updatedAt: string,
   } | null,
 };
 
@@ -6638,30 +6678,6 @@ export type ListActivitiesQuery = {
   } | null,
 };
 
-export type ListApiKeysForAisQueryVariables = {
-  apiKey?: string | null,
-  filter?: ModelApiKeysForAiFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-  sortDirection?: ModelSortDirection | null,
-};
-
-export type ListApiKeysForAisQuery = {
-  listApiKeysForAis?:  {
-    __typename: "ModelApiKeysForAiConnection",
-    items:  Array< {
-      __typename: "ApiKeysForAi",
-      apiKey: string,
-      createdAt: string,
-      dataSource: AiDataSource,
-      itemId: string,
-      owner?: string | null,
-      updatedAt: string,
-    } | null >,
-    nextToken?: string | null,
-  } | null,
-};
-
 export type ListBookOfBiblesQueryVariables = {
   filter?: ModelBookOfBibleFilterInput | null,
   limit?: number | null,
@@ -7130,6 +7146,67 @@ export type ListDailyPlansQuery = {
       id: string,
       owner?: string | null,
       status: DailyPlanStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListExportTaskByStatusAndEndDateQueryVariables = {
+  endDate?: ModelStringKeyConditionInput | null,
+  filter?: ModelExportTaskFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+  status: ExportStatus,
+};
+
+export type ListExportTaskByStatusAndEndDateQuery = {
+  listExportTaskByStatusAndEndDate?:  {
+    __typename: "ModelExportTaskConnection",
+    items:  Array< {
+      __typename: "ExportTask",
+      createdAt: string,
+      dataSource: ExportTaskDataSource,
+      endDate: string,
+      error?: string | null,
+      id: string,
+      itemId: string,
+      itemName?: string | null,
+      owner?: string | null,
+      result?: string | null,
+      startDate: string,
+      status: ExportStatus,
+      ttl?: number | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListExportTasksQueryVariables = {
+  filter?: ModelExportTaskFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListExportTasksQuery = {
+  listExportTasks?:  {
+    __typename: "ModelExportTaskConnection",
+    items:  Array< {
+      __typename: "ExportTask",
+      createdAt: string,
+      dataSource: ExportTaskDataSource,
+      endDate: string,
+      error?: string | null,
+      id: string,
+      itemId: string,
+      itemName?: string | null,
+      owner?: string | null,
+      result?: string | null,
+      startDate: string,
+      status: ExportStatus,
+      ttl?: number | null,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -8476,23 +8553,6 @@ export type CreateActivityMutation = {
   } | null,
 };
 
-export type CreateApiKeysForAiMutationVariables = {
-  condition?: ModelApiKeysForAiConditionInput | null,
-  input: CreateApiKeysForAiInput,
-};
-
-export type CreateApiKeysForAiMutation = {
-  createApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type CreateAssistantResponseGeneralChatMutationVariables = {
   input: CreateConversationMessageGeneralChatAssistantInput,
 };
@@ -8885,6 +8945,30 @@ export type CreateDailyPlanTodoMutation = {
       updatedAt: string,
     } | null,
     todoId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateExportTaskMutationVariables = {
+  condition?: ModelExportTaskConditionInput | null,
+  input: CreateExportTaskInput,
+};
+
+export type CreateExportTaskMutation = {
+  createExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
+    error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
     updatedAt: string,
   } | null,
 };
@@ -10351,23 +10435,6 @@ export type DeleteActivityMutation = {
   } | null,
 };
 
-export type DeleteApiKeysForAiMutationVariables = {
-  condition?: ModelApiKeysForAiConditionInput | null,
-  input: DeleteApiKeysForAiInput,
-};
-
-export type DeleteApiKeysForAiMutation = {
-  deleteApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type DeleteBookOfBibleMutationVariables = {
   condition?: ModelBookOfBibleConditionInput | null,
   input: DeleteBookOfBibleInput,
@@ -10695,6 +10762,30 @@ export type DeleteDailyPlanTodoMutation = {
       updatedAt: string,
     } | null,
     todoId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteExportTaskMutationVariables = {
+  condition?: ModelExportTaskConditionInput | null,
+  input: DeleteExportTaskInput,
+};
+
+export type DeleteExportTaskMutation = {
+  deleteExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
+    error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
     updatedAt: string,
   } | null,
 };
@@ -12199,23 +12290,6 @@ export type UpdateActivityMutation = {
   } | null,
 };
 
-export type UpdateApiKeysForAiMutationVariables = {
-  condition?: ModelApiKeysForAiConditionInput | null,
-  input: UpdateApiKeysForAiInput,
-};
-
-export type UpdateApiKeysForAiMutation = {
-  updateApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type UpdateBookOfBibleMutationVariables = {
   condition?: ModelBookOfBibleConditionInput | null,
   input: UpdateBookOfBibleInput,
@@ -12508,6 +12582,30 @@ export type UpdateDailyPlanTodoMutation = {
       updatedAt: string,
     } | null,
     todoId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateExportTaskMutationVariables = {
+  condition?: ModelExportTaskConditionInput | null,
+  input: UpdateExportTaskInput,
+};
+
+export type UpdateExportTaskMutation = {
+  updateExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
+    error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
     updatedAt: string,
   } | null,
 };
@@ -13974,23 +14072,6 @@ export type OnCreateActivitySubscription = {
   } | null,
 };
 
-export type OnCreateApiKeysForAiSubscriptionVariables = {
-  filter?: ModelSubscriptionApiKeysForAiFilterInput | null,
-  owner?: string | null,
-};
-
-export type OnCreateApiKeysForAiSubscription = {
-  onCreateApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type OnCreateAssistantResponseGeneralChatSubscriptionVariables = {
   conversationId?: string | null,
 };
@@ -14328,6 +14409,30 @@ export type OnCreateDailyPlanTodoSubscription = {
       updatedAt: string,
     } | null,
     todoId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateExportTaskSubscriptionVariables = {
+  filter?: ModelSubscriptionExportTaskFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateExportTaskSubscription = {
+  onCreateExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
+    error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
     updatedAt: string,
   } | null,
 };
@@ -15794,23 +15899,6 @@ export type OnDeleteActivitySubscription = {
   } | null,
 };
 
-export type OnDeleteApiKeysForAiSubscriptionVariables = {
-  filter?: ModelSubscriptionApiKeysForAiFilterInput | null,
-  owner?: string | null,
-};
-
-export type OnDeleteApiKeysForAiSubscription = {
-  onDeleteApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type OnDeleteBookOfBibleSubscriptionVariables = {
   filter?: ModelSubscriptionBookOfBibleFilterInput | null,
   owner?: string | null,
@@ -16082,6 +16170,30 @@ export type OnDeleteDailyPlanTodoSubscription = {
       updatedAt: string,
     } | null,
     todoId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteExportTaskSubscriptionVariables = {
+  filter?: ModelSubscriptionExportTaskFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteExportTaskSubscription = {
+  onDeleteExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
+    error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
     updatedAt: string,
   } | null,
 };
@@ -17548,23 +17660,6 @@ export type OnUpdateActivitySubscription = {
   } | null,
 };
 
-export type OnUpdateApiKeysForAiSubscriptionVariables = {
-  filter?: ModelSubscriptionApiKeysForAiFilterInput | null,
-  owner?: string | null,
-};
-
-export type OnUpdateApiKeysForAiSubscription = {
-  onUpdateApiKeysForAi?:  {
-    __typename: "ApiKeysForAi",
-    apiKey: string,
-    createdAt: string,
-    dataSource: AiDataSource,
-    itemId: string,
-    owner?: string | null,
-    updatedAt: string,
-  } | null,
-};
-
 export type OnUpdateBookOfBibleSubscriptionVariables = {
   filter?: ModelSubscriptionBookOfBibleFilterInput | null,
   owner?: string | null,
@@ -17836,6 +17931,30 @@ export type OnUpdateDailyPlanTodoSubscription = {
       updatedAt: string,
     } | null,
     todoId: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateExportTaskSubscriptionVariables = {
+  filter?: ModelSubscriptionExportTaskFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateExportTaskSubscription = {
+  onUpdateExportTask?:  {
+    __typename: "ExportTask",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    endDate: string,
+    error?: string | null,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    owner?: string | null,
+    result?: string | null,
+    startDate: string,
+    status: ExportStatus,
+    ttl?: number | null,
     updatedAt: string,
   } | null,
 };

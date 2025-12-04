@@ -7,7 +7,6 @@ import {
   improveWeeklyNarrativePrompt,
 } from "./prompts/generate-weekly-narrative";
 import { ClaudeSonnet4Us } from "./models";
-import { getDataForAiFn } from "../functions/get-data-for-ai/resource";
 
 const aiSchema = {
   // ------- Chat Conversations
@@ -87,26 +86,16 @@ const aiSchema = {
     .authorization((allow) => [allow.authenticated()]),
 
   // ------- Enums
-  AiDataSource: a.enum(["account", "project", "person"]),
+  ExportTaskDataSource: a.enum(["account", "project"]),
   ExportStatus: a.enum(["CREATED", "GENERATED", "COMPLETED"]),
 
   // ------- Models
-  ApiKeysForAi: a
+  ExportTask: a
     .model({
       owner: a
         .string()
         .authorization((allow) => [allow.owner().to(["read", "delete"])]),
-      apiKey: a.string().required(),
-      dataSource: a.ref("AiDataSource").required(),
-      itemId: a.string().required(),
-    })
-    .identifier(["apiKey"])
-    .authorization((allow) => [allow.owner(), allow.guest().to(["get"])]),
-
-  ExportTask: a
-    .model({
-      owner: a.string().required(),
-      dataSource: a.ref("AiDataSource").required(),
+      dataSource: a.ref("ExportTaskDataSource").required(),
       itemId: a.string().required(),
       itemName: a.string(),
       status: a.ref("ExportStatus").required(),
@@ -117,20 +106,7 @@ const aiSchema = {
       ttl: a.integer(),
     })
     .authorization((allow) => [allow.owner()])
-    .secondaryIndexes((index) => [index("status")]),
-
-  // ------- Queries
-  getDataForAi: a
-    .query()
-    .arguments({ apiKey: a.string() })
-    .returns(
-      a.customType({
-        data: a.json(),
-        error: a.string(),
-      })
-    )
-    .handler(a.handler.function(getDataForAiFn))
-    .authorization((allow) => [allow.guest()]),
+    .secondaryIndexes((index) => [index("status").sortKeys(["endDate"])]),
 };
 
 export default aiSchema;

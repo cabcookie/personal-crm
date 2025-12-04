@@ -1,5 +1,6 @@
 import { AccountsContextProvider } from "@/api/ContextAccounts";
 import { ProjectsContextProvider } from "@/api/ContextProjects";
+import { ExportsProvider } from "@/api/ContextExports";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import {
   Context,
@@ -43,7 +44,9 @@ const ProjectsContext = ({ Component, pageProps }: AppProps) => {
   return (
     <ProjectsContextProvider context={context}>
       <AccountsContextProvider>
-        <Component {...pageProps} />
+        <ExportsProvider>
+          <Component {...pageProps} />
+        </ExportsProvider>
       </AccountsContextProvider>
     </ProjectsContextProvider>
   );
