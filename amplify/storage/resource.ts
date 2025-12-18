@@ -10,5 +10,10 @@ export const storage = defineStorage({
     "user-files/{entity_id}/*": [
       allow.entity("identity").to(["read", "write", "delete"]),
     ],
+    "exports/{entity_id}/*": [
+      // User access to their own exports
+      allow.entity("identity").to(["read", "write", "delete"]),
+      // Lambda S3 access is granted via CDK in export-tasks.ts to avoid circular dependency
+    ],
   }),
 });

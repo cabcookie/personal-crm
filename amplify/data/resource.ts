@@ -32,7 +32,11 @@ import projectSchema, {
 import weeklyReviewSchema, {
   tablesWithDeleteProtection as weeklyReviewTdp,
 } from "./weekly-review-schema";
-import { processExportTasks } from "../functions/process-export-tasks/resource";
+import {
+  processExportTasks,
+  scheduleRecurringExports,
+  manageExportPermissions,
+} from "../functions/process-export-tasks/resource";
 
 export const tablesWithDeleteProtection = [
   ...accountTdp,
@@ -101,6 +105,8 @@ const schema = a
   .authorization((allow) => [
     allow.resource(postConfirmation),
     allow.resource(processExportTasks),
+    allow.resource(scheduleRecurringExports),
+    allow.resource(manageExportPermissions),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;

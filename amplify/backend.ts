@@ -3,7 +3,11 @@ import { auth } from "./auth/resource";
 import { data, tablesWithDeleteProtection } from "./data/resource";
 import { storage } from "./storage/resource";
 import { dataSchemaMigrationsFn } from "./functions/data-schema-migrations/resource";
-import { processExportTasks } from "./functions/process-export-tasks/resource";
+import {
+  processExportTasks,
+  scheduleRecurringExports,
+  manageExportPermissions,
+} from "./functions/process-export-tasks/resource";
 import { setupDataSeeding } from "./custom/backend/seeding";
 import { setupInferenceProfiles } from "./custom/backend/inference-schema";
 import { setupDeleteProtection } from "./custom/backend/delete-protection";
@@ -15,6 +19,8 @@ const backend = defineBackend({
   storage,
   dataSchemaMigrationsFn,
   processExportTasks,
+  scheduleRecurringExports,
+  manageExportPermissions,
 });
 
 export type BackendType = typeof backend;

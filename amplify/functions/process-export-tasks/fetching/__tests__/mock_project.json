@@ -1,0 +1,285 @@
+{
+  "id": "de9709d8-ce75-45eb-90c4-76885e812f0e",
+  "project": "Smart Factory Infrastructure Transformation",
+  "onHoldTill": null,
+  "done": false,
+  "doneOn": null,
+  "pinned": "NOTPINNED",
+  "partner": null,
+  "activities": {
+    "nextToken": null,
+    "items": [
+      {
+        "activity": {
+          "id": "3234d95a-e853-484d-8951-b6ba5445111e",
+          "forMeeting": {
+            "topic": "Current State Analysis",
+            "meetingOn": "2025-07-25T20:57:00.000+02:00",
+            "createdAt": "2025-12-05T19:57:52.019Z",
+            "participants": {
+              "nextToken": null,
+              "items": [
+                {
+                  "personId": "56cabd7e-584c-4669-a0ad-619d18c8c7ab"
+                },
+                {
+                  "personId": "920a3de4-a265-4c72-8201-1466dc21d879"
+                },
+                {
+                  "personId": "e4c62387-b6e9-4e1e-94fa-4c3ccbf12312"
+                },
+                {
+                  "personId": "72e3f25f-934c-4d57-a105-6a8e01558aac"
+                }
+              ]
+            }
+          },
+          "finishedOn": "2025-12-05T20:58:05.858+01:00",
+          "createdAt": "2025-12-05T19:58:06.313Z",
+          "noteBlockIds": [
+            "16f3770f-267d-4c96-9796-d3ffce712a33",
+            "d1136206-c681-4650-ba39-3ef68d69c543",
+            "0f88ca56-0dd9-48d1-ba3a-0680c195deed",
+            "0a740b02-a5cf-4173-bb4b-15a6b5f14468",
+            "71a008bd-ba7e-4fda-bc1d-51e4aad09133"
+          ],
+          "noteBlocks": {
+            "nextToken": null,
+            "items": [
+              {
+                "id": "0a740b02-a5cf-4173-bb4b-15a6b5f14468",
+                "content": null,
+                "type": "taskItem",
+                "todo": {
+                  "todo": "{\"type\":\"taskItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Collect infrastructure inventory\",\"type\":\"text\"}]}],\"attrs\":{\"checked\":false}}",
+                  "status": "OPEN",
+                  "doneOn": null
+                },
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "71a008bd-ba7e-4fda-bc1d-51e4aad09133",
+                "content": null,
+                "type": "taskItem",
+                "todo": {
+                  "todo": "{\"type\":\"taskItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Draft migration roadmap\",\"type\":\"text\"}]}],\"attrs\":{\"checked\":false}}",
+                  "status": "OPEN",
+                  "doneOn": null
+                },
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "0f88ca56-0dd9-48d1-ba3a-0680c195deed",
+                "content": "{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Agreed to prioritize real-time monitoring capability.\",\"type\":\"text\"}]}]}",
+                "type": "listItem",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "d1136206-c681-4650-ba39-3ef68d69c543",
+                "content": "{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Identified reliability gaps in on-prem servers.\",\"type\":\"text\"}]}]}",
+                "type": "listItem",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "16f3770f-267d-4c96-9796-d3ffce712a33",
+                "content": "{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Assessed legacy factory IT systems.\",\"type\":\"text\"}]}]}",
+                "type": "listItem",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "activity": {
+          "id": "950d22f5-da8e-4a28-b676-9729059a5d32",
+          "forMeeting": {
+            "topic": "Edge & Connectivity Design",
+            "meetingOn": "2025-09-03T19:01:00.000+02:00",
+            "createdAt": "2025-12-05T20:01:17.304Z",
+            "participants": {
+              "nextToken": null,
+              "items": [
+                {
+                  "personId": "56cabd7e-584c-4669-a0ad-619d18c8c7ab"
+                },
+                {
+                  "personId": "64aa99bf-e3f3-4778-9313-498e4d5673e0"
+                },
+                {
+                  "personId": "e4c62387-b6e9-4e1e-94fa-4c3ccbf12312"
+                },
+                {
+                  "personId": "920a3de4-a265-4c72-8201-1466dc21d879"
+                }
+              ]
+            }
+          },
+          "finishedOn": "2025-12-05T21:01:37.678+01:00",
+          "createdAt": "2025-12-05T20:01:38.232Z",
+          "noteBlockIds": [
+            "94a0a8db-58fd-4ef6-b162-9e46ab15e3de",
+            "66f322e7-173a-4fe1-b43e-235a0492fb4f",
+            "f9b9a798-fa7c-4ea5-8468-adb552ce2d2b",
+            "c95219e7-f14b-4938-993b-4f26e2c6bef0",
+            "c699d172-fb84-47d7-9a60-e1a70f3ec31d",
+            "15dba756-e13e-4a84-a288-dc2c126e7da2",
+            "af5cf2f0-2336-4934-aead-083ccfb3a3c6",
+            "6ca46d45-404b-46f8-94ef-438dc5a37600"
+          ],
+          "noteBlocks": {
+            "nextToken": null,
+            "items": [
+              {
+                "id": "f9b9a798-fa7c-4ea5-8468-adb552ce2d2b",
+                "content": "{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Defined factory-to-cloud data routing model.\",\"type\":\"text\"}]}]}",
+                "type": "listItem",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "c699d172-fb84-47d7-9a60-e1a70f3ec31d",
+                "content": "{\"type\":\"heading\",\"content\":[{\"text\":\"Next actions\",\"type\":\"text\"}],\"attrs\":{\"level\":3}}",
+                "type": "heading",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "15dba756-e13e-4a84-a288-dc2c126e7da2",
+                "content": null,
+                "type": "taskItem",
+                "todo": {
+                  "todo": "{\"type\":\"taskItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Review network segmentation options\",\"type\":\"text\"}]}],\"attrs\":{\"checked\":false}}",
+                  "status": "OPEN",
+                  "doneOn": null
+                },
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "6ca46d45-404b-46f8-94ef-438dc5a37600",
+                "content": "{\"type\":\"paragraph\"}",
+                "type": "paragraph",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "c17dae4f-1be3-4ddd-b621-7f60cd158757",
+                "content": "{\"type\":\"paragraph\",\"content\":[{\"text\":\"* > “Downtime must remain close to zero during the transition.”\",\"type\":\"text\"}]}",
+                "type": "paragraph",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "66f322e7-173a-4fe1-b43e-235a0492fb4f",
+                "content": "{\"type\":\"listItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Evaluated secure edge gateway designs.\",\"type\":\"text\"}]}]}",
+                "type": "listItem",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "94a0a8db-58fd-4ef6-b162-9e46ab15e3de",
+                "content": "{\"type\":\"heading\",\"content\":[{\"text\":\"Current situation\",\"type\":\"text\"}],\"attrs\":{\"level\":3}}",
+                "type": "heading",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "af5cf2f0-2336-4934-aead-083ccfb3a3c6",
+                "content": null,
+                "type": "taskItem",
+                "todo": {
+                  "todo": "{\"type\":\"taskItem\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"Provide edge device shortlist\",\"type\":\"text\"}]}],\"attrs\":{\"checked\":false}}",
+                  "status": "OPEN",
+                  "doneOn": null
+                },
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "0fa5a635-9b00-436e-a5e5-65e6055b8793",
+                "content": "{\"type\":\"paragraph\",\"content\":[{\"text\":\"* [ ] Provide edge device shortlist\",\"type\":\"text\"}]}",
+                "type": "paragraph",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "c95219e7-f14b-4938-993b-4f26e2c6bef0",
+                "content": "{\"type\":\"blockquote\",\"content\":[{\"type\":\"paragraph\",\"content\":[{\"text\":\"“Downtime must remain close to zero during the transition.”\",\"type\":\"text\"}]}]}",
+                "type": "blockquote",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "65408449-458a-4fc5-974d-75e4d00d82a6",
+                "content": "{\"type\":\"paragraph\",\"content\":[{\"text\":\"* Defined factory-to-cloud data routing model.\",\"type\":\"text\"}]}",
+                "type": "paragraph",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              },
+              {
+                "id": "5e3f06f7-8ea1-4ae7-b63c-7da2b4946152",
+                "content": "{\"type\":\"paragraph\",\"content\":[{\"text\":\"* [ ] Review network segmentation options\",\"type\":\"text\"}]}",
+                "type": "paragraph",
+                "todo": null,
+                "people": {
+                  "nextToken": null,
+                  "items": []
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

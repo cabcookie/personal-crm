@@ -1,0 +1,16 @@
+{
+  "id": "56cabd7e-584c-4669-a0ad-619d18c8c7ab",
+  "name": "Elena Rossi",
+  "accounts": {
+    "items": [
+      {
+        "account": {
+          "name": "ACME Corporation"
+        },
+        "endDate": null,
+        "position": "Operations Lead",
+        "startDate": null
+      }
+    ]
+  }
+}

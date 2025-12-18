@@ -19,7 +19,7 @@ import { mapQuery, NextToken } from "./queries";
 export const getProjectMd = async (task: ExportTask): Promise<string> => {
   const projectData = await fetchingProject(task.itemId);
   const mapped = await mapProject(projectData, task.startDate, task.endDate);
-  return mapped?.text ?? "";
+  return !mapped?.text ? "" : `${mapped?.text.trim()}\n`;
 };
 
 export const getProjectIds = (
@@ -98,7 +98,7 @@ export const mapProject = async (
         const meeting = await getMeetingText(a);
 
         return [
-          ["###", meeting, format(a.activityOn, "PPPp")]
+          ["##", meeting, format(a.activityOn, "PPPp")]
             .filter(notNull)
             .join(" "),
           notes,
@@ -117,14 +117,16 @@ export const mapProject = async (
     const remainingPeople = await Promise.all(
       peopleFromCache.remainingIds.map(getPerson)
     );
-    const peopleText = [...peopleFromCache.people, remainingPeople].join(", ");
+    const peopleText = [...peopleFromCache.people, ...remainingPeople].join(
+      ", "
+    );
     const peopleInvolvedText =
       peopleText.length === 0
         ? null
         : ["**People involved:**", peopleText].join(" ");
 
     // Name the project notes header and return the ProjectResult
-    const projectNotes = [["##", "Project:", `'${project.project}'`].join(" ")];
+    const projectNotes = [["#", "Project:", `'${project.project}'`].join(" ")];
     return {
       id: project.id,
       text: [projectNotes, peopleInvolvedText, activityNotes.join("")]

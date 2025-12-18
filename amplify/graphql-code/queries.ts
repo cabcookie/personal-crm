@@ -43,6 +43,52 @@ export const byStatus = /* GraphQL */ `query ByStatus(
   }
 }
 ` as GeneratedQuery<APITypes.ByStatusQueryVariables, APITypes.ByStatusQuery>;
+export const byStatusAndNextRun = /* GraphQL */ `query ByStatusAndNextRun(
+  $filter: ModelRecurringExportFilterInput
+  $limit: Int
+  $nextRunAt: ModelStringKeyConditionInput
+  $nextToken: String
+  $sortDirection: ModelSortDirection
+  $status: RecurringExportStatus!
+) {
+  byStatusAndNextRun(
+    filter: $filter
+    limit: $limit
+    nextRunAt: $nextRunAt
+    nextToken: $nextToken
+    sortDirection: $sortDirection
+    status: $status
+  ) {
+    items {
+      createdAt
+      dataSource
+      dayOfMonth
+      dayOfWeek
+      daysToInclude
+      errorCount
+      frequency
+      id
+      itemId
+      itemName
+      lastError
+      lastRunAt
+      name
+      nextRunAt
+      owner
+      s3Key
+      status
+      timeOfDay
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ByStatusAndNextRunQueryVariables,
+  APITypes.ByStatusAndNextRunQuery
+>;
 export const categorizeProject = /* GraphQL */ `query CategorizeProject($notes: String, $projectName: String) {
   categorizeProject(notes: $notes, projectName: $projectName)
 }
@@ -724,6 +770,23 @@ export const getDailyPlanTodo = /* GraphQL */ `query GetDailyPlanTodo($id: ID!) 
   APITypes.GetDailyPlanTodoQueryVariables,
   APITypes.GetDailyPlanTodoQuery
 >;
+export const getExportPermission = /* GraphQL */ `query GetExportPermission($id: ID!) {
+  getExportPermission(id: $id) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetExportPermissionQueryVariables,
+  APITypes.GetExportPermissionQuery
+>;
 export const getExportTask = /* GraphQL */ `query GetExportTask($id: ID!) {
   getExportTask(id: $id) {
     createdAt
@@ -734,7 +797,9 @@ export const getExportTask = /* GraphQL */ `query GetExportTask($id: ID!) {
     itemId
     itemName
     owner
+    recurringExportId
     result
+    s3Key
     startDate
     status
     ttl
@@ -1432,6 +1497,34 @@ export const getProjects = /* GraphQL */ `query GetProjects($id: ID!) {
 ` as GeneratedQuery<
   APITypes.GetProjectsQueryVariables,
   APITypes.GetProjectsQuery
+>;
+export const getRecurringExport = /* GraphQL */ `query GetRecurringExport($id: ID!) {
+  getRecurringExport(id: $id) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetRecurringExportQueryVariables,
+  APITypes.GetRecurringExportQuery
 >;
 export const getSixWeekBatch = /* GraphQL */ `query GetSixWeekBatch($id: ID!) {
   getSixWeekBatch(id: $id) {
@@ -2698,6 +2791,64 @@ export const listDailyPlans = /* GraphQL */ `query ListDailyPlans(
   APITypes.ListDailyPlansQueryVariables,
   APITypes.ListDailyPlansQuery
 >;
+export const listExportPermissionByRecurringExportId = /* GraphQL */ `query ListExportPermissionByRecurringExportId(
+  $filter: ModelExportPermissionFilterInput
+  $limit: Int
+  $nextToken: String
+  $recurringExportId: String!
+  $sortDirection: ModelSortDirection
+) {
+  listExportPermissionByRecurringExportId(
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+    recurringExportId: $recurringExportId
+    sortDirection: $sortDirection
+  ) {
+    items {
+      createdAt
+      grantedAt
+      grantedBy
+      grantedTo
+      id
+      owner
+      recurringExportId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListExportPermissionByRecurringExportIdQueryVariables,
+  APITypes.ListExportPermissionByRecurringExportIdQuery
+>;
+export const listExportPermissions = /* GraphQL */ `query ListExportPermissions(
+  $filter: ModelExportPermissionFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listExportPermissions(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      createdAt
+      grantedAt
+      grantedBy
+      grantedTo
+      id
+      owner
+      recurringExportId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListExportPermissionsQueryVariables,
+  APITypes.ListExportPermissionsQuery
+>;
 export const listExportTaskByStatusAndEndDate = /* GraphQL */ `query ListExportTaskByStatusAndEndDate(
   $endDate: ModelStringKeyConditionInput
   $filter: ModelExportTaskFilterInput
@@ -2723,7 +2874,9 @@ export const listExportTaskByStatusAndEndDate = /* GraphQL */ `query ListExportT
       itemId
       itemName
       owner
+      recurringExportId
       result
+      s3Key
       startDate
       status
       ttl
@@ -2753,7 +2906,9 @@ export const listExportTasks = /* GraphQL */ `query ListExportTasks(
       itemId
       itemName
       owner
+      recurringExportId
       result
+      s3Key
       startDate
       status
       ttl
@@ -3496,6 +3651,42 @@ export const listProjects = /* GraphQL */ `query ListProjects(
 ` as GeneratedQuery<
   APITypes.ListProjectsQueryVariables,
   APITypes.ListProjectsQuery
+>;
+export const listRecurringExports = /* GraphQL */ `query ListRecurringExports(
+  $filter: ModelRecurringExportFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listRecurringExports(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      createdAt
+      dataSource
+      dayOfMonth
+      dayOfWeek
+      daysToInclude
+      errorCount
+      frequency
+      id
+      itemId
+      itemName
+      lastError
+      lastRunAt
+      name
+      nextRunAt
+      owner
+      s3Key
+      status
+      timeOfDay
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListRecurringExportsQueryVariables,
+  APITypes.ListRecurringExportsQuery
 >;
 export const listSixWeekBatchProjects = /* GraphQL */ `query ListSixWeekBatchProjects(
   $filter: ModelSixWeekBatchProjectsFilterInput

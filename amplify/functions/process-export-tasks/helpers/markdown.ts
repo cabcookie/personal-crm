@@ -8,31 +8,36 @@ export const getMarkdown = (json: JSONContent | string): string => {
 
   if (!content.type) return "";
 
-  if (content.type === "text")
-    return `${content.text || ""}${getContent(content)}`;
-
-  if (content.type === "paragraph") return `${getContent(content)}\n\n`;
-
-  if (content.type === "taskItem")
-    return `- [${content.attrs?.checked ? "x" : " "}] ${getContent(content)}`;
-
-  if (["listItem", "listItemOrdered"].includes(content.type))
-    return `- ${getContent(content)}`;
-
   if (content.type === "s3image") return "";
 
   if (content.type === "mention") return content.attrs?.label || "";
 
   if (content.type === "hardBreak") return "\n";
 
+  const subContent = getContent(content);
+
+  if (content.type === "doc") return subContent;
+
+  if (content.type === "text") return `${content.text || ""}${subContent}`;
+
+  if (content.type === "paragraph")
+    return !subContent ? "" : `${subContent}\n\n`;
+
+  if (content.type === "taskItem")
+    return `- [${content.attrs?.checked ? "x" : " "}] ${subContent}`;
+
+  if (["listItem", "listItemOrdered"].includes(content.type))
+    return `- ${subContent}`;
+
   if (content.type === "blockquote")
-    return `> ${getContent(content).split("\n\n").join("\n> ")}\n`;
+    return `> ${subContent.split("\n\n").join("")}\n\n`;
 
   if (content.type === "heading")
-    return `${"#".repeat((content.attrs?.level || 0) + 3)} ${getContent(content)}\n\n`;
+    return `${"#".repeat((content.attrs?.level || 0) + 2)} ${subContent}\n\n`;
 
   if (content.type) contentTypes.add(content.type);
-  return `${getContent(content)}\n`;
+
+  return `${subContent}\n`;
 };
 
 const getContent = (content: JSONContent): string =>

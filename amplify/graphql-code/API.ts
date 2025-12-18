@@ -135,6 +135,94 @@ export type Inbox = {
   updatedAt: string,
 };
 
+export type ModelRecurringExportFilterInput = {
+  and?: Array< ModelRecurringExportFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dataSource?: ModelExportTaskDataSourceInput | null,
+  dayOfMonth?: ModelIntInput | null,
+  dayOfWeek?: ModelIntInput | null,
+  daysToInclude?: ModelIntInput | null,
+  errorCount?: ModelIntInput | null,
+  frequency?: ModelRecurrenceFrequencyInput | null,
+  id?: ModelIDInput | null,
+  itemId?: ModelStringInput | null,
+  itemName?: ModelStringInput | null,
+  lastError?: ModelStringInput | null,
+  lastRunAt?: ModelStringInput | null,
+  name?: ModelStringInput | null,
+  nextRunAt?: ModelStringInput | null,
+  not?: ModelRecurringExportFilterInput | null,
+  or?: Array< ModelRecurringExportFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  s3Key?: ModelStringInput | null,
+  status?: ModelRecurringExportStatusInput | null,
+  timeOfDay?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelExportTaskDataSourceInput = {
+  eq?: ExportTaskDataSource | null,
+  ne?: ExportTaskDataSource | null,
+};
+
+export enum ExportTaskDataSource {
+  account = "account",
+  project = "project",
+}
+
+
+export type ModelRecurrenceFrequencyInput = {
+  eq?: RecurrenceFrequency | null,
+  ne?: RecurrenceFrequency | null,
+};
+
+export enum RecurrenceFrequency {
+  daily = "daily",
+  monthly = "monthly",
+  weekly = "weekly",
+}
+
+
+export type ModelRecurringExportStatusInput = {
+  eq?: RecurringExportStatus | null,
+  ne?: RecurringExportStatus | null,
+};
+
+export enum RecurringExportStatus {
+  active = "active",
+  inactive = "inactive",
+}
+
+
+export type ModelRecurringExportConnection = {
+  __typename: "ModelRecurringExportConnection",
+  items:  Array<RecurringExport | null >,
+  nextToken?: string | null,
+};
+
+export type RecurringExport = {
+  __typename: "RecurringExport",
+  createdAt: string,
+  dataSource: ExportTaskDataSource,
+  dayOfMonth?: number | null,
+  dayOfWeek?: number | null,
+  daysToInclude: number,
+  errorCount?: number | null,
+  frequency: RecurrenceFrequency,
+  id: string,
+  itemId: string,
+  itemName?: string | null,
+  lastError?: string | null,
+  lastRunAt?: string | null,
+  name: string,
+  nextRunAt: string,
+  owner?: string | null,
+  s3Key?: string | null,
+  status: RecurringExportStatus,
+  timeOfDay: string,
+  updatedAt: string,
+};
+
 export type ChatNamerReturnType = {
   __typename: "ChatNamerReturnType",
   name?: string | null,
@@ -1180,6 +1268,18 @@ export type CurrentContext = {
   updatedAt: string,
 };
 
+export type ExportPermission = {
+  __typename: "ExportPermission",
+  createdAt: string,
+  grantedAt: string,
+  grantedBy: string,
+  grantedTo: string,
+  id: string,
+  owner?: string | null,
+  recurringExportId: string,
+  updatedAt: string,
+};
+
 export type ExportTask = {
   __typename: "ExportTask",
   createdAt: string,
@@ -1190,18 +1290,14 @@ export type ExportTask = {
   itemId: string,
   itemName?: string | null,
   owner?: string | null,
+  recurringExportId?: string | null,
   result?: string | null,
+  s3Key?: string | null,
   startDate: string,
   status: ExportStatus,
   ttl?: number | null,
   updatedAt: string,
 };
-
-export enum ExportTaskDataSource {
-  account = "account",
-  project = "project",
-}
-
 
 export enum ExportStatus {
   COMPLETED = "COMPLETED",
@@ -1604,6 +1700,26 @@ export type ModelCurrentContextConnection = {
   nextToken?: string | null,
 };
 
+export type ModelExportPermissionFilterInput = {
+  and?: Array< ModelExportPermissionFilterInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  grantedAt?: ModelStringInput | null,
+  grantedBy?: ModelStringInput | null,
+  grantedTo?: ModelStringInput | null,
+  id?: ModelIDInput | null,
+  not?: ModelExportPermissionFilterInput | null,
+  or?: Array< ModelExportPermissionFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  recurringExportId?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelExportPermissionConnection = {
+  __typename: "ModelExportPermissionConnection",
+  items:  Array<ExportPermission | null >,
+  nextToken?: string | null,
+};
+
 export type ModelExportTaskFilterInput = {
   and?: Array< ModelExportTaskFilterInput | null > | null,
   createdAt?: ModelStringInput | null,
@@ -1616,16 +1732,13 @@ export type ModelExportTaskFilterInput = {
   not?: ModelExportTaskFilterInput | null,
   or?: Array< ModelExportTaskFilterInput | null > | null,
   owner?: ModelStringInput | null,
+  recurringExportId?: ModelStringInput | null,
   result?: ModelStringInput | null,
+  s3Key?: ModelStringInput | null,
   startDate?: ModelStringInput | null,
   status?: ModelExportStatusInput | null,
   ttl?: ModelIntInput | null,
   updatedAt?: ModelStringInput | null,
-};
-
-export type ModelExportTaskDataSourceInput = {
-  eq?: ExportTaskDataSource | null,
-  ne?: ExportTaskDataSource | null,
 };
 
 export type ModelExportStatusInput = {
@@ -2572,6 +2685,28 @@ export type CreateDailyPlanTodoInput = {
   updatedAt?: string | null,
 };
 
+export type ModelExportPermissionConditionInput = {
+  and?: Array< ModelExportPermissionConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  grantedAt?: ModelStringInput | null,
+  grantedBy?: ModelStringInput | null,
+  grantedTo?: ModelStringInput | null,
+  not?: ModelExportPermissionConditionInput | null,
+  or?: Array< ModelExportPermissionConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  recurringExportId?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateExportPermissionInput = {
+  grantedAt: string,
+  grantedBy: string,
+  grantedTo: string,
+  id?: string | null,
+  owner?: string | null,
+  recurringExportId: string,
+};
+
 export type ModelExportTaskConditionInput = {
   and?: Array< ModelExportTaskConditionInput | null > | null,
   createdAt?: ModelStringInput | null,
@@ -2583,7 +2718,9 @@ export type ModelExportTaskConditionInput = {
   not?: ModelExportTaskConditionInput | null,
   or?: Array< ModelExportTaskConditionInput | null > | null,
   owner?: ModelStringInput | null,
+  recurringExportId?: ModelStringInput | null,
   result?: ModelStringInput | null,
+  s3Key?: ModelStringInput | null,
   startDate?: ModelStringInput | null,
   status?: ModelExportStatusInput | null,
   ttl?: ModelIntInput | null,
@@ -2598,7 +2735,9 @@ export type CreateExportTaskInput = {
   itemId: string,
   itemName?: string | null,
   owner?: string | null,
+  recurringExportId?: string | null,
   result?: string | null,
+  s3Key?: string | null,
   startDate: string,
   status: ExportStatus,
   ttl?: number | null,
@@ -3014,6 +3153,50 @@ export type CreateProjectsInput = {
   tasksSummaryUpdatedAt?: string | null,
 };
 
+export type ModelRecurringExportConditionInput = {
+  and?: Array< ModelRecurringExportConditionInput | null > | null,
+  createdAt?: ModelStringInput | null,
+  dataSource?: ModelExportTaskDataSourceInput | null,
+  dayOfMonth?: ModelIntInput | null,
+  dayOfWeek?: ModelIntInput | null,
+  daysToInclude?: ModelIntInput | null,
+  errorCount?: ModelIntInput | null,
+  frequency?: ModelRecurrenceFrequencyInput | null,
+  itemId?: ModelStringInput | null,
+  itemName?: ModelStringInput | null,
+  lastError?: ModelStringInput | null,
+  lastRunAt?: ModelStringInput | null,
+  name?: ModelStringInput | null,
+  nextRunAt?: ModelStringInput | null,
+  not?: ModelRecurringExportConditionInput | null,
+  or?: Array< ModelRecurringExportConditionInput | null > | null,
+  owner?: ModelStringInput | null,
+  s3Key?: ModelStringInput | null,
+  status?: ModelRecurringExportStatusInput | null,
+  timeOfDay?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type CreateRecurringExportInput = {
+  dataSource: ExportTaskDataSource,
+  dayOfMonth?: number | null,
+  dayOfWeek?: number | null,
+  daysToInclude: number,
+  errorCount?: number | null,
+  frequency: RecurrenceFrequency,
+  id?: string | null,
+  itemId: string,
+  itemName?: string | null,
+  lastError?: string | null,
+  lastRunAt?: string | null,
+  name: string,
+  nextRunAt: string,
+  owner?: string | null,
+  s3Key?: string | null,
+  status: RecurringExportStatus,
+  timeOfDay: string,
+};
+
 export type ModelSixWeekBatchConditionInput = {
   and?: Array< ModelSixWeekBatchConditionInput | null > | null,
   appetite?: ModelSixWeekBatchAppetiteInput | null,
@@ -3322,6 +3505,10 @@ export type DeleteDailyPlanTodoInput = {
   id: string,
 };
 
+export type DeleteExportPermissionInput = {
+  id: string,
+};
+
 export type DeleteExportTaskInput = {
   id: string,
 };
@@ -3391,6 +3578,10 @@ export type DeleteProjectActivityInput = {
 };
 
 export type DeleteProjectsInput = {
+  id: string,
+};
+
+export type DeleteRecurringExportInput = {
   id: string,
 };
 
@@ -3587,6 +3778,15 @@ export type UpdateDailyPlanTodoInput = {
   updatedAt?: string | null,
 };
 
+export type UpdateExportPermissionInput = {
+  grantedAt?: string | null,
+  grantedBy?: string | null,
+  grantedTo?: string | null,
+  id: string,
+  owner?: string | null,
+  recurringExportId?: string | null,
+};
+
 export type UpdateExportTaskInput = {
   dataSource?: ExportTaskDataSource | null,
   endDate?: string | null,
@@ -3595,7 +3795,9 @@ export type UpdateExportTaskInput = {
   itemId?: string | null,
   itemName?: string | null,
   owner?: string | null,
+  recurringExportId?: string | null,
   result?: string | null,
+  s3Key?: string | null,
   startDate?: string | null,
   status?: ExportStatus | null,
   ttl?: number | null,
@@ -3772,6 +3974,26 @@ export type UpdateProjectsInput = {
   project?: string | null,
   tasksSummary?: string | null,
   tasksSummaryUpdatedAt?: string | null,
+};
+
+export type UpdateRecurringExportInput = {
+  dataSource?: ExportTaskDataSource | null,
+  dayOfMonth?: number | null,
+  dayOfWeek?: number | null,
+  daysToInclude?: number | null,
+  errorCount?: number | null,
+  frequency?: RecurrenceFrequency | null,
+  id: string,
+  itemId?: string | null,
+  itemName?: string | null,
+  lastError?: string | null,
+  lastRunAt?: string | null,
+  name?: string | null,
+  nextRunAt?: string | null,
+  owner?: string | null,
+  s3Key?: string | null,
+  status?: RecurringExportStatus | null,
+  timeOfDay?: string | null,
 };
 
 export type UpdateSixWeekBatchInput = {
@@ -4133,6 +4355,19 @@ export type ModelSubscriptionDailyPlanTodoFilterInput = {
   updatedAt?: ModelSubscriptionStringInput | null,
 };
 
+export type ModelSubscriptionExportPermissionFilterInput = {
+  and?: Array< ModelSubscriptionExportPermissionFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  grantedAt?: ModelSubscriptionStringInput | null,
+  grantedBy?: ModelSubscriptionStringInput | null,
+  grantedTo?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  or?: Array< ModelSubscriptionExportPermissionFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  recurringExportId?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
 export type ModelSubscriptionExportTaskFilterInput = {
   and?: Array< ModelSubscriptionExportTaskFilterInput | null > | null,
   createdAt?: ModelSubscriptionStringInput | null,
@@ -4144,7 +4379,9 @@ export type ModelSubscriptionExportTaskFilterInput = {
   itemName?: ModelSubscriptionStringInput | null,
   or?: Array< ModelSubscriptionExportTaskFilterInput | null > | null,
   owner?: ModelStringInput | null,
+  recurringExportId?: ModelSubscriptionStringInput | null,
   result?: ModelSubscriptionStringInput | null,
+  s3Key?: ModelSubscriptionStringInput | null,
   startDate?: ModelSubscriptionStringInput | null,
   status?: ModelSubscriptionStringInput | null,
   ttl?: ModelSubscriptionIntInput | null,
@@ -4401,6 +4638,30 @@ export type ModelSubscriptionFloatInput = {
   notIn?: Array< number | null > | null,
 };
 
+export type ModelSubscriptionRecurringExportFilterInput = {
+  and?: Array< ModelSubscriptionRecurringExportFilterInput | null > | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  dataSource?: ModelSubscriptionStringInput | null,
+  dayOfMonth?: ModelSubscriptionIntInput | null,
+  dayOfWeek?: ModelSubscriptionIntInput | null,
+  daysToInclude?: ModelSubscriptionIntInput | null,
+  errorCount?: ModelSubscriptionIntInput | null,
+  frequency?: ModelSubscriptionStringInput | null,
+  id?: ModelSubscriptionIDInput | null,
+  itemId?: ModelSubscriptionStringInput | null,
+  itemName?: ModelSubscriptionStringInput | null,
+  lastError?: ModelSubscriptionStringInput | null,
+  lastRunAt?: ModelSubscriptionStringInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  nextRunAt?: ModelSubscriptionStringInput | null,
+  or?: Array< ModelSubscriptionRecurringExportFilterInput | null > | null,
+  owner?: ModelStringInput | null,
+  s3Key?: ModelSubscriptionStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  timeOfDay?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+};
+
 export type ModelSubscriptionSixWeekBatchFilterInput = {
   and?: Array< ModelSubscriptionSixWeekBatchFilterInput | null > | null,
   appetite?: ModelSubscriptionStringInput | null,
@@ -4567,6 +4828,44 @@ export type ByStatusQuery = {
       noteJson?: string | null,
       owner?: string | null,
       status: InboxStatus,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ByStatusAndNextRunQueryVariables = {
+  filter?: ModelRecurringExportFilterInput | null,
+  limit?: number | null,
+  nextRunAt?: ModelStringKeyConditionInput | null,
+  nextToken?: string | null,
+  sortDirection?: ModelSortDirection | null,
+  status: RecurringExportStatus,
+};
+
+export type ByStatusAndNextRunQuery = {
+  byStatusAndNextRun?:  {
+    __typename: "ModelRecurringExportConnection",
+    items:  Array< {
+      __typename: "RecurringExport",
+      createdAt: string,
+      dataSource: ExportTaskDataSource,
+      dayOfMonth?: number | null,
+      dayOfWeek?: number | null,
+      daysToInclude: number,
+      errorCount?: number | null,
+      frequency: RecurrenceFrequency,
+      id: string,
+      itemId: string,
+      itemName?: string | null,
+      lastError?: string | null,
+      lastRunAt?: string | null,
+      name: string,
+      nextRunAt: string,
+      owner?: string | null,
+      s3Key?: string | null,
+      status: RecurringExportStatus,
+      timeOfDay: string,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -5272,6 +5571,24 @@ export type GetDailyPlanTodoQuery = {
   } | null,
 };
 
+export type GetExportPermissionQueryVariables = {
+  id: string,
+};
+
+export type GetExportPermissionQuery = {
+  getExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type GetExportTaskQueryVariables = {
   id: string,
 };
@@ -5287,7 +5604,9 @@ export type GetExportTaskQuery = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -6005,6 +6324,35 @@ export type GetProjectsQuery = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type GetRecurringExportQueryVariables = {
+  id: string,
+};
+
+export type GetRecurringExportQuery = {
+  getRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -7152,6 +7500,56 @@ export type ListDailyPlansQuery = {
   } | null,
 };
 
+export type ListExportPermissionByRecurringExportIdQueryVariables = {
+  filter?: ModelExportPermissionFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  recurringExportId: string,
+  sortDirection?: ModelSortDirection | null,
+};
+
+export type ListExportPermissionByRecurringExportIdQuery = {
+  listExportPermissionByRecurringExportId?:  {
+    __typename: "ModelExportPermissionConnection",
+    items:  Array< {
+      __typename: "ExportPermission",
+      createdAt: string,
+      grantedAt: string,
+      grantedBy: string,
+      grantedTo: string,
+      id: string,
+      owner?: string | null,
+      recurringExportId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListExportPermissionsQueryVariables = {
+  filter?: ModelExportPermissionFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListExportPermissionsQuery = {
+  listExportPermissions?:  {
+    __typename: "ModelExportPermissionConnection",
+    items:  Array< {
+      __typename: "ExportPermission",
+      createdAt: string,
+      grantedAt: string,
+      grantedBy: string,
+      grantedTo: string,
+      id: string,
+      owner?: string | null,
+      recurringExportId: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type ListExportTaskByStatusAndEndDateQueryVariables = {
   endDate?: ModelStringKeyConditionInput | null,
   filter?: ModelExportTaskFilterInput | null,
@@ -7174,7 +7572,9 @@ export type ListExportTaskByStatusAndEndDateQuery = {
       itemId: string,
       itemName?: string | null,
       owner?: string | null,
+      recurringExportId?: string | null,
       result?: string | null,
+      s3Key?: string | null,
       startDate: string,
       status: ExportStatus,
       ttl?: number | null,
@@ -7203,7 +7603,9 @@ export type ListExportTasksQuery = {
       itemId: string,
       itemName?: string | null,
       owner?: string | null,
+      recurringExportId?: string | null,
       result?: string | null,
+      s3Key?: string | null,
       startDate: string,
       status: ExportStatus,
       ttl?: number | null,
@@ -7842,6 +8244,41 @@ export type ListProjectsQuery = {
       project: string,
       tasksSummary?: string | null,
       tasksSummaryUpdatedAt?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ListRecurringExportsQueryVariables = {
+  filter?: ModelRecurringExportFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListRecurringExportsQuery = {
+  listRecurringExports?:  {
+    __typename: "ModelRecurringExportConnection",
+    items:  Array< {
+      __typename: "RecurringExport",
+      createdAt: string,
+      dataSource: ExportTaskDataSource,
+      dayOfMonth?: number | null,
+      dayOfWeek?: number | null,
+      daysToInclude: number,
+      errorCount?: number | null,
+      frequency: RecurrenceFrequency,
+      id: string,
+      itemId: string,
+      itemName?: string | null,
+      lastError?: string | null,
+      lastRunAt?: string | null,
+      name: string,
+      nextRunAt: string,
+      owner?: string | null,
+      s3Key?: string | null,
+      status: RecurringExportStatus,
+      timeOfDay: string,
       updatedAt: string,
     } | null >,
     nextToken?: string | null,
@@ -8949,6 +9386,25 @@ export type CreateDailyPlanTodoMutation = {
   } | null,
 };
 
+export type CreateExportPermissionMutationVariables = {
+  condition?: ModelExportPermissionConditionInput | null,
+  input: CreateExportPermissionInput,
+};
+
+export type CreateExportPermissionMutation = {
+  createExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type CreateExportTaskMutationVariables = {
   condition?: ModelExportTaskConditionInput | null,
   input: CreateExportTaskInput,
@@ -8965,7 +9421,9 @@ export type CreateExportTaskMutation = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -9700,6 +10158,36 @@ export type CreateProjectsMutation = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type CreateRecurringExportMutationVariables = {
+  condition?: ModelRecurringExportConditionInput | null,
+  input: CreateRecurringExportInput,
+};
+
+export type CreateRecurringExportMutation = {
+  createRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -10766,6 +11254,25 @@ export type DeleteDailyPlanTodoMutation = {
   } | null,
 };
 
+export type DeleteExportPermissionMutationVariables = {
+  condition?: ModelExportPermissionConditionInput | null,
+  input: DeleteExportPermissionInput,
+};
+
+export type DeleteExportPermissionMutation = {
+  deleteExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type DeleteExportTaskMutationVariables = {
   condition?: ModelExportTaskConditionInput | null,
   input: DeleteExportTaskInput,
@@ -10782,7 +11289,9 @@ export type DeleteExportTaskMutation = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -11517,6 +12026,36 @@ export type DeleteProjectsMutation = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type DeleteRecurringExportMutationVariables = {
+  condition?: ModelRecurringExportConditionInput | null,
+  input: DeleteRecurringExportInput,
+};
+
+export type DeleteRecurringExportMutation = {
+  deleteRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -12586,6 +13125,25 @@ export type UpdateDailyPlanTodoMutation = {
   } | null,
 };
 
+export type UpdateExportPermissionMutationVariables = {
+  condition?: ModelExportPermissionConditionInput | null,
+  input: UpdateExportPermissionInput,
+};
+
+export type UpdateExportPermissionMutation = {
+  updateExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type UpdateExportTaskMutationVariables = {
   condition?: ModelExportTaskConditionInput | null,
   input: UpdateExportTaskInput,
@@ -12602,7 +13160,9 @@ export type UpdateExportTaskMutation = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -13337,6 +13897,36 @@ export type UpdateProjectsMutation = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type UpdateRecurringExportMutationVariables = {
+  condition?: ModelRecurringExportConditionInput | null,
+  input: UpdateRecurringExportInput,
+};
+
+export type UpdateRecurringExportMutation = {
+  updateRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -14413,6 +15003,25 @@ export type OnCreateDailyPlanTodoSubscription = {
   } | null,
 };
 
+export type OnCreateExportPermissionSubscriptionVariables = {
+  filter?: ModelSubscriptionExportPermissionFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateExportPermissionSubscription = {
+  onCreateExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type OnCreateExportTaskSubscriptionVariables = {
   filter?: ModelSubscriptionExportTaskFilterInput | null,
   owner?: string | null,
@@ -14429,7 +15038,9 @@ export type OnCreateExportTaskSubscription = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -15164,6 +15775,36 @@ export type OnCreateProjectsSubscription = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type OnCreateRecurringExportSubscriptionVariables = {
+  filter?: ModelSubscriptionRecurringExportFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnCreateRecurringExportSubscription = {
+  onCreateRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -16174,6 +16815,25 @@ export type OnDeleteDailyPlanTodoSubscription = {
   } | null,
 };
 
+export type OnDeleteExportPermissionSubscriptionVariables = {
+  filter?: ModelSubscriptionExportPermissionFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteExportPermissionSubscription = {
+  onDeleteExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type OnDeleteExportTaskSubscriptionVariables = {
   filter?: ModelSubscriptionExportTaskFilterInput | null,
   owner?: string | null,
@@ -16190,7 +16850,9 @@ export type OnDeleteExportTaskSubscription = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -16925,6 +17587,36 @@ export type OnDeleteProjectsSubscription = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type OnDeleteRecurringExportSubscriptionVariables = {
+  filter?: ModelSubscriptionRecurringExportFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnDeleteRecurringExportSubscription = {
+  onDeleteRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -17935,6 +18627,25 @@ export type OnUpdateDailyPlanTodoSubscription = {
   } | null,
 };
 
+export type OnUpdateExportPermissionSubscriptionVariables = {
+  filter?: ModelSubscriptionExportPermissionFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateExportPermissionSubscription = {
+  onUpdateExportPermission?:  {
+    __typename: "ExportPermission",
+    createdAt: string,
+    grantedAt: string,
+    grantedBy: string,
+    grantedTo: string,
+    id: string,
+    owner?: string | null,
+    recurringExportId: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type OnUpdateExportTaskSubscriptionVariables = {
   filter?: ModelSubscriptionExportTaskFilterInput | null,
   owner?: string | null,
@@ -17951,7 +18662,9 @@ export type OnUpdateExportTaskSubscription = {
     itemId: string,
     itemName?: string | null,
     owner?: string | null,
+    recurringExportId?: string | null,
     result?: string | null,
+    s3Key?: string | null,
     startDate: string,
     status: ExportStatus,
     ttl?: number | null,
@@ -18686,6 +19399,36 @@ export type OnUpdateProjectsSubscription = {
       __typename: "ModelWeeklyReviewEntryConnection",
       nextToken?: string | null,
     } | null,
+  } | null,
+};
+
+export type OnUpdateRecurringExportSubscriptionVariables = {
+  filter?: ModelSubscriptionRecurringExportFilterInput | null,
+  owner?: string | null,
+};
+
+export type OnUpdateRecurringExportSubscription = {
+  onUpdateRecurringExport?:  {
+    __typename: "RecurringExport",
+    createdAt: string,
+    dataSource: ExportTaskDataSource,
+    dayOfMonth?: number | null,
+    dayOfWeek?: number | null,
+    daysToInclude: number,
+    errorCount?: number | null,
+    frequency: RecurrenceFrequency,
+    id: string,
+    itemId: string,
+    itemName?: string | null,
+    lastError?: string | null,
+    lastRunAt?: string | null,
+    name: string,
+    nextRunAt: string,
+    owner?: string | null,
+    s3Key?: string | null,
+    status: RecurringExportStatus,
+    timeOfDay: string,
+    updatedAt: string,
   } | null,
 };
 

@@ -41,13 +41,17 @@ export const getAccountMd = async (task: ExportTask): Promise<string> => {
     task.endDate
   );
 
-  return flatMapAccounts(task.startDate, task.endDate)(accountData)
+  const result = flatMapAccounts(task.startDate, task.endDate)(accountData)
     .map(createAccountTextsFn)
     .filter(notNull)
-    .join("");
+    .join("")
+    .trim();
+  return result ? `${result}\n` : "";
 };
 
-export const flatMapAccounts =
+/* ========= PRIVATE FUNCTIONS ========= */
+
+const flatMapAccounts =
   (startDate: Date, endDate: Date) =>
   (
     accountData: AccountData & { subsidiaries?: SubsidaryData }
@@ -67,7 +71,8 @@ export const flatMapAccounts =
           learnings,
         ]
           .filter(notNull)
-          .join(""),
+          .join("")
+          .trim(),
         projectIds:
           accountData.projects?.items
             .map((p) => p.projects.id)
@@ -79,14 +84,19 @@ export const flatMapAccounts =
     ];
   };
 
-export const createAccountTexts = async (
+const createAccountTexts = async (
   projects: ProjectData[],
   startDate: Date,
   endDate: Date
 ) => {
   const mappedProjects = (
     await Promise.all(projects.map((p) => mapProject(p, startDate, endDate)))
-  ).filter((p) => !!p);
+  )
+    .filter((p) => !!p)
+    .map(
+      (p) =>
+        ({ ...p, text: p.text.replace(/^(#+)\s/gm, "#$1 ") }) as ProjectResult
+    );
 
   return (data: AccountResult) => {
     const pinnedProjects = getProjectsForAccount(data, mappedProjects, true);
@@ -99,8 +109,6 @@ export const createAccountTexts = async (
     return `${data.information}${projectTexts}`;
   };
 };
-
-/* ========= PRIVATE FUNCTIONS ========= */
 
 const getAccountLearnings = (
   accountData: AccountData,

@@ -52,6 +52,8 @@ export const getPerson = async (id: string) => {
 
   const result = mapPerson(data.getPerson);
 
+  console.log("RESULT getPerson", data.getPerson);
+
   // Store in cache
   personCache.set(id, result);
 

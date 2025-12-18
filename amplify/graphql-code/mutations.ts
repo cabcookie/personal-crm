@@ -766,6 +766,26 @@ export const createDailyPlanTodo = /* GraphQL */ `mutation CreateDailyPlanTodo(
   APITypes.CreateDailyPlanTodoMutationVariables,
   APITypes.CreateDailyPlanTodoMutation
 >;
+export const createExportPermission = /* GraphQL */ `mutation CreateExportPermission(
+  $condition: ModelExportPermissionConditionInput
+  $input: CreateExportPermissionInput!
+) {
+  createExportPermission(condition: $condition, input: $input) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateExportPermissionMutationVariables,
+  APITypes.CreateExportPermissionMutation
+>;
 export const createExportTask = /* GraphQL */ `mutation CreateExportTask(
   $condition: ModelExportTaskConditionInput
   $input: CreateExportTaskInput!
@@ -779,7 +799,9 @@ export const createExportTask = /* GraphQL */ `mutation CreateExportTask(
     itemId
     itemName
     owner
+    recurringExportId
     result
+    s3Key
     startDate
     status
     ttl
@@ -1537,6 +1559,37 @@ export const createProjects = /* GraphQL */ `mutation CreateProjects(
 ` as GeneratedMutation<
   APITypes.CreateProjectsMutationVariables,
   APITypes.CreateProjectsMutation
+>;
+export const createRecurringExport = /* GraphQL */ `mutation CreateRecurringExport(
+  $condition: ModelRecurringExportConditionInput
+  $input: CreateRecurringExportInput!
+) {
+  createRecurringExport(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateRecurringExportMutationVariables,
+  APITypes.CreateRecurringExportMutation
 >;
 export const createSixWeekBatch = /* GraphQL */ `mutation CreateSixWeekBatch(
   $condition: ModelSixWeekBatchConditionInput
@@ -2629,6 +2682,26 @@ export const deleteDailyPlanTodo = /* GraphQL */ `mutation DeleteDailyPlanTodo(
   APITypes.DeleteDailyPlanTodoMutationVariables,
   APITypes.DeleteDailyPlanTodoMutation
 >;
+export const deleteExportPermission = /* GraphQL */ `mutation DeleteExportPermission(
+  $condition: ModelExportPermissionConditionInput
+  $input: DeleteExportPermissionInput!
+) {
+  deleteExportPermission(condition: $condition, input: $input) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteExportPermissionMutationVariables,
+  APITypes.DeleteExportPermissionMutation
+>;
 export const deleteExportTask = /* GraphQL */ `mutation DeleteExportTask(
   $condition: ModelExportTaskConditionInput
   $input: DeleteExportTaskInput!
@@ -2642,7 +2715,9 @@ export const deleteExportTask = /* GraphQL */ `mutation DeleteExportTask(
     itemId
     itemName
     owner
+    recurringExportId
     result
+    s3Key
     startDate
     status
     ttl
@@ -3400,6 +3475,37 @@ export const deleteProjects = /* GraphQL */ `mutation DeleteProjects(
 ` as GeneratedMutation<
   APITypes.DeleteProjectsMutationVariables,
   APITypes.DeleteProjectsMutation
+>;
+export const deleteRecurringExport = /* GraphQL */ `mutation DeleteRecurringExport(
+  $condition: ModelRecurringExportConditionInput
+  $input: DeleteRecurringExportInput!
+) {
+  deleteRecurringExport(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteRecurringExportMutationVariables,
+  APITypes.DeleteRecurringExportMutation
 >;
 export const deleteSixWeekBatch = /* GraphQL */ `mutation DeleteSixWeekBatch(
   $condition: ModelSixWeekBatchConditionInput
@@ -4501,6 +4607,26 @@ export const updateDailyPlanTodo = /* GraphQL */ `mutation UpdateDailyPlanTodo(
   APITypes.UpdateDailyPlanTodoMutationVariables,
   APITypes.UpdateDailyPlanTodoMutation
 >;
+export const updateExportPermission = /* GraphQL */ `mutation UpdateExportPermission(
+  $condition: ModelExportPermissionConditionInput
+  $input: UpdateExportPermissionInput!
+) {
+  updateExportPermission(condition: $condition, input: $input) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateExportPermissionMutationVariables,
+  APITypes.UpdateExportPermissionMutation
+>;
 export const updateExportTask = /* GraphQL */ `mutation UpdateExportTask(
   $condition: ModelExportTaskConditionInput
   $input: UpdateExportTaskInput!
@@ -4514,7 +4640,9 @@ export const updateExportTask = /* GraphQL */ `mutation UpdateExportTask(
     itemId
     itemName
     owner
+    recurringExportId
     result
+    s3Key
     startDate
     status
     ttl
@@ -5272,6 +5400,37 @@ export const updateProjects = /* GraphQL */ `mutation UpdateProjects(
 ` as GeneratedMutation<
   APITypes.UpdateProjectsMutationVariables,
   APITypes.UpdateProjectsMutation
+>;
+export const updateRecurringExport = /* GraphQL */ `mutation UpdateRecurringExport(
+  $condition: ModelRecurringExportConditionInput
+  $input: UpdateRecurringExportInput!
+) {
+  updateRecurringExport(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateRecurringExportMutationVariables,
+  APITypes.UpdateRecurringExportMutation
 >;
 export const updateSixWeekBatch = /* GraphQL */ `mutation UpdateSixWeekBatch(
   $condition: ModelSixWeekBatchConditionInput

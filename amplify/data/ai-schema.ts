@@ -88,6 +88,8 @@ const aiSchema = {
   // ------- Enums
   ExportTaskDataSource: a.enum(["account", "project"]),
   ExportStatus: a.enum(["CREATED", "GENERATED", "COMPLETED"]),
+  RecurrenceFrequency: a.enum(["daily", "weekly", "monthly"]),
+  RecurringExportStatus: a.enum(["active", "inactive"]),
 
   // ------- Models
   ExportTask: a
@@ -104,9 +106,50 @@ const aiSchema = {
       result: a.string(),
       error: a.string(),
       ttl: a.integer(),
+      recurringExportId: a.string(),
+      s3Key: a.string(),
     })
     .authorization((allow) => [allow.owner()])
     .secondaryIndexes((index) => [index("status").sortKeys(["endDate"])]),
+
+  RecurringExport: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      name: a.string().required(),
+      dataSource: a.ref("ExportTaskDataSource").required(),
+      itemId: a.string().required(),
+      itemName: a.string(),
+      frequency: a.ref("RecurrenceFrequency").required(),
+      dayOfWeek: a.integer(),
+      dayOfMonth: a.integer(),
+      timeOfDay: a.string().required(),
+      daysToInclude: a.integer().required(),
+      status: a.ref("RecurringExportStatus").required(),
+      s3Key: a.string(),
+      lastRunAt: a.datetime(),
+      nextRunAt: a.datetime().required(),
+      errorCount: a.integer(),
+      lastError: a.string(),
+    })
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes((index) => [
+      index("status").sortKeys(["nextRunAt"]).queryField("byStatusAndNextRun"),
+    ]),
+
+  ExportPermission: a
+    .model({
+      owner: a
+        .string()
+        .authorization((allow) => [allow.owner().to(["read", "delete"])]),
+      recurringExportId: a.string().required(),
+      grantedTo: a.string().required(),
+      grantedBy: a.string().required(),
+      grantedAt: a.datetime().required(),
+    })
+    .authorization((allow) => [allow.owner()])
+    .secondaryIndexes((index) => [index("recurringExportId")]),
 };
 
 export default aiSchema;
