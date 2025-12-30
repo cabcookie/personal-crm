@@ -30,10 +30,8 @@ const loadProjectNotes = async (
     identity<NotesData[] | undefined>,
     map("activity"),
     compact,
+    filter(justLastWeeks(weeks)),
     map(mapNotes),
-    filter((note: { date: Date; content: string }) =>
-      justLastWeeks(note, weeks)
-    ),
     sortBy<{ date: Date; content: string }>((note) => -note.date),
     map("content"),
     join("\n")
@@ -42,10 +40,12 @@ const loadProjectNotes = async (
 
 const weeksAgo = (weeks: number) => subWeeks(new Date(), weeks);
 
-const justLastWeeks = (
-  { date }: { date: Date; content: string },
-  weeks: number
-): boolean => date >= weeksAgo(weeks);
+const justLastWeeks =
+  (weeks: number) =>
+  ({ forMeeting, finishedOn, createdAt }: NotesData["activity"]): boolean => {
+    const noteDate = new Date(forMeeting?.meetingOn || finishedOn || createdAt);
+    return noteDate >= weeksAgo(weeks);
+  };
 
 const mapNotes = ({
   createdAt,

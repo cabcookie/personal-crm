@@ -15,7 +15,7 @@ const mapPeople =
         : {
             attrs: {
               ...content.attrs,
-              recordId: block.people.find(
+              recordId: block.people?.find(
                 (p) => p.personId === content.attrs?.id
               )?.id,
             },
