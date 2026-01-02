@@ -134,6 +134,7 @@ const useCrmProjectsImport = (status: TImportStatus) => {
       Stage: "stage",
       "Opportunity Owner": "opportunityOwner",
       "Next Step": "nextStep",
+      "Net Product Amount (Total Oppty Amount)": "arr",
       "Primary Partner Name": "partnerName",
       "Opportunity Record Type": "type",
       "Stage Duration": "stageChangedDate",
