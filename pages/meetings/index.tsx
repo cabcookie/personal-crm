@@ -12,6 +12,7 @@ import { useSearch } from "@/components/search/useSearch";
 import { useContextContext } from "@/contexts/ContextContext";
 import { CreateMeetingProps } from "@/helpers/meetings";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/router";
 
 const MeetingsPage = () => {
@@ -20,6 +21,7 @@ const MeetingsPage = () => {
   const {
     createMeeting,
     meetingDates,
+    loadingMeetings,
     meetings,
     fromDate,
     toDate,
@@ -66,6 +68,19 @@ const MeetingsPage = () => {
         />
 
         <CreateOneOnOneMeeting createMeeting={createAndOpenNewMeeting} />
+
+        {loadingMeetings && (
+          <div className="flex gap-2 w-full items-center justify-center text-gray-400">
+            <Loader2 className="animate-spin size-6" />
+            <div className="text-lg animate-pulse">Loading…</div>
+          </div>
+        )}
+
+        {!loadingMeetings && meetingDates.length === 0 && (
+          <div className="flex w-full items-center justify-center text-gray-400">
+            <div className="text-lg">No meetings found</div>
+          </div>
+        )}
 
         {meetingDates.map((date) => (
           <MeetingDateList
