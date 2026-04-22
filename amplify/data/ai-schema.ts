@@ -108,6 +108,7 @@ const aiSchema = {
       ttl: a.integer(),
       recurringExportId: a.string(),
       s3Key: a.string(),
+      identityId: a.string(),
     })
     .authorization((allow) => [allow.owner()])
     .secondaryIndexes((index) => [index("status").sortKeys(["endDate"])]),
@@ -128,6 +129,7 @@ const aiSchema = {
       daysToInclude: a.integer().required(),
       status: a.ref("RecurringExportStatus").required(),
       s3Key: a.string(),
+      identityId: a.string(),
       lastRunAt: a.datetime(),
       nextRunAt: a.datetime().required(),
       errorCount: a.integer(),

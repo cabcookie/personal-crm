@@ -737,6 +737,7 @@ export const onCreateExportTask = /* GraphQL */ `subscription OnCreateExportTask
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -1514,6 +1515,7 @@ export const onCreateRecurringExport = /* GraphQL */ `subscription OnCreateRecur
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError
@@ -2595,6 +2597,7 @@ export const onDeleteExportTask = /* GraphQL */ `subscription OnDeleteExportTask
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -3372,6 +3375,7 @@ export const onDeleteRecurringExport = /* GraphQL */ `subscription OnDeleteRecur
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError
@@ -4453,6 +4457,7 @@ export const onUpdateExportTask = /* GraphQL */ `subscription OnUpdateExportTask
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -5230,6 +5235,7 @@ export const onUpdateRecurringExport = /* GraphQL */ `subscription OnUpdateRecur
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError

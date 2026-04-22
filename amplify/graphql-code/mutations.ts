@@ -796,6 +796,7 @@ export const createExportTask = /* GraphQL */ `mutation CreateExportTask(
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -1573,6 +1574,7 @@ export const createRecurringExport = /* GraphQL */ `mutation CreateRecurringExpo
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError
@@ -2712,6 +2714,7 @@ export const deleteExportTask = /* GraphQL */ `mutation DeleteExportTask(
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -3489,6 +3492,7 @@ export const deleteRecurringExport = /* GraphQL */ `mutation DeleteRecurringExpo
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError
@@ -4637,6 +4641,7 @@ export const updateExportTask = /* GraphQL */ `mutation UpdateExportTask(
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -5414,6 +5419,7 @@ export const updateRecurringExport = /* GraphQL */ `mutation UpdateRecurringExpo
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError

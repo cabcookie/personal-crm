@@ -1,3 +1,4 @@
+import { env } from "$amplify/env/process-export-tasks";
 import { uploadToS3 } from "./s3-upload";
 import { updateTaskStatus } from "./update-task";
 import { ExportStatus } from "../../../graphql-code/API";
@@ -6,7 +7,14 @@ import type { ExportTask } from "./load-task-record";
 import { updateRecurringExport } from "../../../graphql-code/mutations";
 
 /**
- * Handle recurring export: upload to S3 and update records
+ * Handle recurring export: upload to the dedicated recurring-exports bucket
+ * and update records. The dedicated bucket lets us safely grant external
+ * grantees (Quick Suite, etc.) bucket-wide read access without exposing any
+ * other user data.
+ *
+ * Key shape: `exports/<identityId>/<recurringExportId>/latest.md`
+ * (the `exports/` prefix is required — Amplify's storage access rules
+ * reject `{entity_id}` as the first path segment).
  */
 export async function handleRecurringExport(
   task: ExportTask,
@@ -16,18 +24,26 @@ export async function handleRecurringExport(
     throw new Error("Task does not have a recurringExportId");
   }
 
+  if (!task.identityId) {
+    throw new Error(
+      `ExportTask ${task.id} (recurring) is missing identityId; cannot produce a path the caller can read`
+    );
+  }
+
   console.log("Processing recurring export", {
     taskId: task.id,
     recurringExportId: task.recurringExportId,
   });
 
-  // Upload to S3
-  const s3Key = await uploadToS3(result, task.owner, task.recurringExportId);
+  const key = `exports/${task.identityId}/${task.recurringExportId}/latest.md`;
+  const s3Key = await uploadToS3({
+    markdown: result,
+    bucket: env.RECURRING_EXPORTS_BUCKET_NAME,
+    key,
+  });
 
-  // Update ExportTask with S3 key and COMPLETED status
   await updateTaskStatus(task.id, undefined, ExportStatus.COMPLETED, s3Key);
 
-  // Update RecurringExport with the new S3 key
   await client.graphql({
     query: updateRecurringExport,
     variables: {

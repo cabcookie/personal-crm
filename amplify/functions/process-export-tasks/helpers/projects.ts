@@ -1,302 +1,183 @@
+import { differenceInCalendarDays } from "date-fns";
 import {
-  differenceInBusinessDays,
-  differenceInCalendarDays,
-  format,
-} from "date-fns";
-import { notNull } from ".";
-import { compact, uniq } from "lodash/fp";
-import { Schema } from "../../../data/resource";
-import { GetProjectsQueryVariables } from "../../../graphql-code/API";
-import { fetchingProject } from "../fetching";
-import { ExportTask } from "./load-task-record";
-import { AccountData, SubsidaryData } from "./accounts";
-import { getMarkdown } from "./markdown";
-import { getPeopleFromCache, getPerson } from "./people";
-import { mapQuery, NextToken } from "./queries";
+  fetchActivitiesForProject,
+  renderActivitiesSection,
+  withinDateWindow,
+  type ActivityRecord,
+  type DateWindow,
+} from "./activities";
+import { getItem, queryByIndex, batchGetItems } from "./dynamodb";
+import type { ExportTask } from "./load-task-record";
 
-/* ====== PUBLIC FUNCTIONS ===== */
+/* ============================ constants ============================ */
 
+const DAYS_CUTOFF = 90;
+
+/* ============================= types =============================== */
+
+type OwnerOpts = { owner: string };
+
+export type ProjectRecord = {
+  id: string;
+  project: string;
+  done?: boolean | null;
+  doneOn?: string | null;
+  dueOn?: string | null;
+  onHoldTill?: string | null;
+  partnerId?: string | null;
+  partnerName?: string | null;
+  activities?: ActivityRecord[];
+  [k: string]: unknown;
+};
+
+/* ============================ fetching ============================= */
+
+const daysSince = (isoDate: string): number => {
+  const then = new Date(`${isoDate}T00:00:00Z`).getTime();
+  return Math.floor((Date.now() - then) / (1000 * 60 * 60 * 24));
+};
+
+const fetchPartnerName = async (
+  partnerId: string | null | undefined,
+  opts: OwnerOpts
+): Promise<string | null> => {
+  if (!partnerId) return null;
+  const partner = await getItem<{ name?: string | null }>(
+    "Account",
+    partnerId,
+    opts
+  );
+  return partner?.name ?? null;
+};
+
+const enrichProject = async (
+  project: ProjectRecord,
+  opts: OwnerOpts & { withActivities?: boolean; dateWindow?: DateWindow }
+): Promise<ProjectRecord> => {
+  const [partnerName, activities] = await Promise.all([
+    fetchPartnerName(project.partnerId, opts),
+    opts.withActivities
+      ? fetchActivitiesForProject(project.id, opts)
+      : Promise.resolve(undefined),
+  ]);
+  const filtered =
+    activities && opts.dateWindow
+      ? activities.filter((a) => withinDateWindow(a, opts.dateWindow!))
+      : activities;
+  return {
+    ...project,
+    partnerName,
+    ...(filtered ? { activities: filtered } : {}),
+  };
+};
+
+export const fetchProject = async (
+  projectId: string,
+  opts: OwnerOpts & { withActivities?: boolean; dateWindow?: DateWindow }
+): Promise<ProjectRecord | null> => {
+  const project = await getItem<ProjectRecord>("Projects", projectId, opts);
+  if (!project) return null;
+  return enrichProject(project, opts);
+};
+
+export const fetchProjectsForAccount = async (
+  accountId: string,
+  opts: OwnerOpts & { withActivities?: boolean; dateWindow?: DateWindow }
+): Promise<ProjectRecord[]> => {
+  const junctions = await queryByIndex(
+    "AccountProjects",
+    "accountProjectsByAccountId",
+    "accountId",
+    accountId,
+    opts
+  );
+  const projectIds = junctions
+    .map((j) => (j as { projectsId?: string }).projectsId)
+    .filter((id): id is string => !!id);
+  const projectMap = await batchGetItems<ProjectRecord>(
+    "Projects",
+    projectIds,
+    opts
+  );
+  const projects = projectIds
+    .map((id) => projectMap.get(id))
+    .filter((p): p is ProjectRecord => !!p);
+  return Promise.all(projects.map((p) => enrichProject(p, opts)));
+};
+
+/* ============================ filtering ============================ */
+
+export const isActiveOrRecentlyDone = (
+  project: ProjectRecord,
+  cutoffDays = DAYS_CUTOFF
+): boolean => {
+  if (!project.done) return true;
+  if (!project.doneOn) return false;
+  return daysSince(project.doneOn) <= cutoffDays;
+};
+
+/* ============================ rendering ============================ */
+
+export const renderProject = (
+  project: ProjectRecord,
+  headingLevel = 3
+): string => {
+  const body: string[] = [];
+  const meta: string[] = [];
+  if (project.dueOn) meta.push(`**Due:** ${project.dueOn}`);
+  if (project.done && project.doneOn) meta.push(`**Done:** ${project.doneOn}`);
+  if (project.partnerName) meta.push(`**Partner:** ${project.partnerName}`);
+  if (meta.length) body.push(meta.join("\n"));
+  if (project.activities?.length) {
+    const notes = renderActivitiesSection(project.activities, headingLevel + 1);
+    if (notes) body.push(notes);
+  }
+  if (!body.length) return "";
+  const hashes = "#".repeat(headingLevel);
+  return [`${hashes} Project: ${project.project}`, ...body].join("\n\n");
+};
+
+export const renderProjectsSection = (
+  accountName: string,
+  projects: ProjectRecord[],
+  sectionLevel = 2
+): string => {
+  const projectLevel = sectionLevel + 1;
+  const rendered = projects
+    .map((p) => renderProject(p, projectLevel))
+    .filter(Boolean);
+  if (!rendered.length) return "";
+  const header = `${"#".repeat(sectionLevel)} Projects with ${accountName}`;
+  return [header, rendered.join("\n\n")].join("\n\n");
+};
+
+/* =========================== entry point =========================== */
+
+/**
+ * Entry point used by the export handler for `dataSource === "project"`.
+ * Renders a single project (with heading level 1, so `# Project: …`) including
+ * all activities whose effective date falls inside [task.startDate,
+ * task.endDate].
+ */
 export const getProjectMd = async (task: ExportTask): Promise<string> => {
-  const projectData = await fetchingProject(task.itemId);
-  const mapped = await mapProject(projectData, task.startDate, task.endDate);
-  return !mapped?.text ? "" : `${mapped?.text.trim()}\n`;
-};
-
-export const getProjectIds = (
-  data: AccountData & {
-    subsidiaries?: SubsidaryData;
+  const dateWindow: DateWindow = {
+    startDate: task.startDate,
+    endDate: task.endDate,
+  };
+  const project = await fetchProject(task.itemId, {
+    owner: task.owner,
+    withActivities: true,
+    dateWindow,
+  });
+  if (!project) {
+    console.warn(
+      `[export] project ${task.itemId} not found or not owned by ${task.owner}`
+    );
+    return "";
   }
-): string[] => [
-  ...(data.projects?.items
-    .filter(
-      (p) =>
-        (!!p.projects.onHoldTill &&
-          differenceInBusinessDays(new Date(), p.projects.onHoldTill) >= 0) ||
-        !p.projects.done ||
-        !p.projects.doneOn ||
-        differenceInBusinessDays(new Date(), p.projects.doneOn) <= 10
-    )
-    .map((p) => p.projects.id) || []),
-  ...(data.subsidiaries?.items.reduce<string[]>(mapProjectIds, []) || []),
-];
-
-export const mapProject = async (
-  project: ProjectData,
-  startDate: Date,
-  endDate: Date
-): Promise<ProjectResult | null> => {
-  try {
-    if (!project.activities) return null;
-
-    // Get all valid activities
-    const cleanActivities = project.activities.items
-      .map((a) => a?.activity)
-      .filter((a) => !!a);
-    if (cleanActivities.length === 0) return null;
-
-    // Map with activity dates, sort them (descending), and filter for startDate and endDate
-    const activitiesSorted = cleanActivities
-      .map((a) => ({
-        ...a,
-        activityOn: new Date(
-          a.forMeeting?.meetingOn ||
-            a.forMeeting?.createdAt ||
-            a.finishedOn ||
-            a.createdAt
-        ),
-      }))
-      .filter(
-        (a) =>
-          differenceInCalendarDays(a.activityOn, startDate) >= 0 &&
-          differenceInCalendarDays(endDate, a.activityOn) >= 0
-      )
-      .sort((a, b) => b.activityOn.getTime() - a.activityOn.getTime());
-
-    // Get markdown text with a header from each activity
-    const activityNotes = await Promise.all(
-      activitiesSorted.map(async (a) => {
-        // Map the blocks of the activity
-        const blocks = a.noteBlockIds
-          ?.map((id) => a.noteBlocks?.items.find((b) => b?.id === id))
-          .filter((b) => !!b);
-        if (!blocks) return "";
-
-        // Turn blocks into texts
-        const notes = blocks
-          .map((b) =>
-            b.type === "taskItem"
-              ? !b.todo?.todo
-                ? ""
-                : getMarkdown(b.todo.todo)
-              : !b.content
-                ? ""
-                : getMarkdown(b.content)
-          )
-          .join("");
-        if (!notes || notes.length < 10) return "";
-
-        const meeting = await getMeetingText(a);
-
-        return [
-          ["##", meeting, format(a.activityOn, "PPPp")]
-            .filter(notNull)
-            .join(" "),
-          notes,
-        ].join("\n\n");
-      })
-    );
-    if (!activityNotes.join(""))
-      return { id: project.id, text: "", pinned: false };
-
-    // Retrieve the people involved or mentioned in project to list them in the project header
-    const peopleInvolvedIds = uniq([
-      ...getMeetingParticipantsFromProject(project),
-      ...getMentionedPeopleInProject(project),
-    ]).filter((p) => !!p) as string[];
-    const peopleFromCache = getPeopleFromCache(peopleInvolvedIds);
-    const remainingPeople = await Promise.all(
-      peopleFromCache.remainingIds.map(getPerson)
-    );
-    const peopleText = [...peopleFromCache.people, ...remainingPeople].join(
-      ", "
-    );
-    const peopleInvolvedText =
-      peopleText.length === 0
-        ? null
-        : ["**People involved:**", peopleText].join(" ");
-
-    // Name the project notes header and return the ProjectResult
-    const projectNotes = [["#", "Project:", `'${project.project}'`].join(" ")];
-    return {
-      id: project.id,
-      text: [projectNotes, peopleInvolvedText, activityNotes.join("")]
-        .filter(notNull)
-        .join("\n\n"),
-      pinned: project.pinned === "PINNED",
-    };
-  } catch (error) {
-    console.error("ERROR in mapProject:", error);
-    return { id: project.id, text: "", pinned: false };
-  }
+  const body = renderProject(project, 1);
+  return body ? `${body}\n` : "";
 };
 
-/* ===== PRIVATE FUNCTIONS ===== */
-
-const getMeetingText = async (a: TActivity) => {
-  if (!a.forMeeting) return null;
-  const peopleIds = compact(
-    a.forMeeting.participants?.items.map((p) => p?.personId)
-  );
-  const people = await Promise.all(peopleIds.map(getPerson));
-  return ["Meeting:", `'${a.forMeeting.topic}'`, `(${people.join(", ")})`].join(
-    " "
-  );
-};
-
-const getMentionedPeopleInProject = (project: ProjectData) =>
-  project.activities?.items.flatMap((a) =>
-    a?.activity?.noteBlockIds?.flatMap((id) =>
-      a.activity?.noteBlocks?.items
-        .find((b) => b?.id === id)
-        ?.people?.items.map((p) => p?.personId)
-    )
-  ) || [];
-
-const getMeetingParticipantsFromProject = (project: ProjectData) =>
-  project.activities?.items.flatMap((a) =>
-    a?.activity?.forMeeting?.participants?.items.map((p) => p?.personId)
-  ) || [];
-
-const mapProjectIds = (
-  prev: string[],
-  curr: NonNullable<SubsidaryData>["items"][number]
-): string[] => [...prev, ...getProjectIds(curr)];
-
-/* ========== QUERIES ========== */
-
-export const queryProject = [
-  "query GetProject($id: ID!)",
-  [
-    "getProjects(id: $id)",
-    [
-      "id",
-      "project",
-      "onHoldTill",
-      "done",
-      "doneOn",
-      "pinned",
-      "partner",
-      ["name"],
-      "activities(limit: 1000)",
-      [
-        "nextToken",
-        "items",
-        [
-          "activity",
-          [
-            "id",
-            "forMeeting",
-            [
-              "topic",
-              "meetingOn",
-              "createdAt",
-              "participants(limit: 20) ",
-              ["nextToken", "items", ["personId"]],
-            ],
-            "finishedOn",
-            "createdAt",
-            "noteBlockIds",
-            "noteBlocks(limit: 500) ",
-            [
-              "nextToken",
-              "items",
-              [
-                "id",
-                "content",
-                "type",
-                "todo",
-                ["todo", "status", "doneOn"],
-                "people(limit: 50) ",
-                ["nextToken", "items", ["personId"]],
-              ],
-            ],
-          ],
-        ],
-      ],
-    ],
-  ],
-].reduce<string>(mapQuery(0), "") as GeneratedProjectQuery;
-
-/* =========== TYPES =========== */
-
-export type ProjectResult = { id: string; text: string; pinned: boolean };
-
-type TActivity = NonNullable<
-  NonNullable<
-    NonNullable<ProjectData["activities"]>["items"][number]
-  >["activity"]
->;
-
-type GeneratedProjectQuery = string & {
-  __generatedQueryInput: GetProjectsQueryVariables;
-  __generatedQueryOutput: GetProjectData;
-};
-
-export type GetProjectData = {
-  getProjects?: {
-    id: string;
-    project: string;
-    onHoldTill?: string | null;
-    done?: boolean | null;
-    doneOn?: string | null;
-    pinned: Schema["ProjectPinned"]["type"];
-    partner?: {
-      name: string;
-    } | null;
-    activities?:
-      | (NextToken & {
-          items: Array<{
-            activity?: {
-              id: string;
-              forMeeting?: {
-                topic: string;
-                meetingOn?: string | null;
-                createdAt: string;
-                participants?:
-                  | (NextToken & {
-                      items: Array<{
-                        personId: string;
-                      } | null>;
-                    })
-                  | null;
-              } | null;
-              finishedOn?: string | null;
-              createdAt: string;
-              noteBlockIds?: Array<string> | null;
-              noteBlocks?:
-                | (NextToken & {
-                    items: Array<{
-                      id: string;
-                      content?: string | null;
-                      type: string;
-                      todo?: {
-                        todo: string;
-                        status: Schema["TodoStatus"]["type"];
-                        doneOn?: string | null;
-                      } | null;
-                      people?:
-                        | (NextToken & {
-                            items: Array<{ personId: string } | null>;
-                          })
-                        | null;
-                    } | null>;
-                  })
-                | null;
-            } | null;
-          } | null>;
-        })
-      | null;
-  } | null;
-};
-
-export type ProjectData = NonNullable<GetProjectData["getProjects"]>;
+// Re-export for convenience where consumers want the types.
+export type { DateWindow };

@@ -4,6 +4,8 @@ import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { calculateNextRun } from "@/amplify/functions/process-export-tasks/helpers/calculate-next-run";
 import { v4 } from "uuid";
+import { fetchAuthSession } from "aws-amplify/auth";
+import { toast } from "@/components/ui/use-toast";
 
 export type RecurringExport = Schema["RecurringExport"]["type"];
 export type RecurringExportStatus = Schema["RecurringExportStatus"]["type"];
@@ -69,10 +71,21 @@ export const useRecurringExports = (status: RecurringExportStatus) => {
       new Date()
     );
 
+    const { identityId } = await fetchAuthSession();
+    if (!identityId) {
+      toast({
+        title: "Export failed",
+        description: "Could not resolve your identity. Please sign in again.",
+        variant: "destructive",
+      });
+      return null;
+    }
+
     const toBeCreated: RecurringExport = {
       ...input,
       status: "active",
       nextRunAt: nextRunAt.toISOString(),
+      identityId,
       id: v4(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -88,6 +101,7 @@ export const useRecurringExports = (status: RecurringExportStatus) => {
       ...input,
       status: "active",
       nextRunAt: nextRunAt.toISOString(),
+      identityId,
     });
 
     if (errors) {

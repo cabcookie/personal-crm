@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { format, formatDistanceToNow } from "date-fns";
-import { Trash2, Clock, XCircle } from "lucide-react";
+import { Trash2, Clock, XCircle, Download, Copy } from "lucide-react";
 import { ExportTask, useExports } from "@/api/useExports";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,11 @@ import {
 } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { getStatusConfig } from "./status-config";
-import { ExportActions } from "./ExportActions";
+import { downloadData } from "aws-amplify/storage";
+import {
+  copyToClipboard,
+  downloadMarkdown,
+} from "@/helpers/exports/markdown-actions";
 
 interface ExportHistoryItemProps {
   task: ExportTask;
@@ -24,8 +28,22 @@ export const ExportHistoryItem: FC<ExportHistoryItemProps> = ({
   task,
   onDelete,
 }) => {
-  const { deleteExportTask } = useExports();
+  const { deleteExportTask, markExportCompleted } = useExports();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDownloadingFromS3, setIsDownloadingFromS3] = useState(false);
+
+  // Debug: Check why buttons aren't showing
+  console.log("Export task data:", {
+    id: task.id,
+    itemName: task.itemName,
+    status: task.status,
+    hasResult: !!task.result,
+    resultLength: task.result?.length,
+    hasError: !!task.error,
+    error: task.error,
+    hasS3Key: !!task.s3Key,
+    s3Key: task.s3Key,
+  });
 
   const statusConfig = getStatusConfig(task);
 
@@ -49,6 +67,73 @@ export const ExportHistoryItem: FC<ExportHistoryItemProps> = ({
       });
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  /**
+   * Download export from S3 (for large exports)
+   */
+  const downloadFromS3 = async (): Promise<string | null> => {
+    if (!task.s3Key) return null;
+
+    try {
+      const { body } = await downloadData({ path: task.s3Key }).result;
+      const text = await body.text();
+      return text;
+    } catch (error) {
+      console.error("Failed to download export from S3:", error);
+      toast({
+        title: "Download failed",
+        description: "Could not fetch export from S3",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleCopyFromS3 = async () => {
+    setIsDownloadingFromS3(true);
+    try {
+      const content = await downloadFromS3();
+      if (!content) return;
+
+      const success = await copyToClipboard(content, task.itemName || "");
+      if (success) {
+        toast({
+          title: "Copied to clipboard",
+          description: "Export data copied successfully",
+        });
+        await markExportCompleted(task.id);
+      }
+    } finally {
+      setIsDownloadingFromS3(false);
+    }
+  };
+
+  const handleDownloadFromS3 = async () => {
+    setIsDownloadingFromS3(true);
+    try {
+      const content = await downloadFromS3();
+      if (!content) return;
+
+      downloadMarkdown(
+        content,
+        task.itemName || "",
+        task.dataSource || "export"
+      );
+      toast({
+        title: "Download started",
+        description: "Export file is downloading",
+      });
+      await markExportCompleted(task.id);
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloadingFromS3(false);
     }
   };
 
@@ -116,17 +201,30 @@ export const ExportHistoryItem: FC<ExportHistoryItemProps> = ({
 
           {/* Actions */}
           <div className="flex gap-2">
-            {task.status === "GENERATED" && !task.error && task.result && (
-              <ExportActions
-                taskId={task.id}
-                result={task.result}
-                itemName={task.itemName || ""}
-                dataSource={task.dataSource || ""}
-                variant="default"
-                size="sm"
-                showLabels={true}
-              />
+            {/* All exports are now stored in S3 */}
+            {task.status === "GENERATED" && !task.error && task.s3Key && (
+              <>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleDownloadFromS3}
+                  disabled={isDownloadingFromS3}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyFromS3}
+                  disabled={isDownloadingFromS3}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy
+                </Button>
+              </>
             )}
+
             <Button
               variant="ghost"
               size="sm"

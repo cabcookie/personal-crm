@@ -55,11 +55,20 @@ export const handler: Handler = async () => {
     const results = await Promise.allSettled(
       dueExports.map(async (recurringExport) => {
         try {
+          if (!recurringExport.identityId) {
+            console.warn(
+              `Skipping recurring export ${recurringExport.id}: missing identityId (created before the identity-path fix — migrate it before it can run)`
+            );
+            return {
+              recurringExportId: recurringExport.id,
+              skipped: "missing identityId",
+            };
+          }
+
           // Calculate date range for the export
           const endDate = now;
           const startDate = subDays(endDate, recurringExport.daysToInclude);
 
-          // Create ExportTask record - this will trigger the processExportTasks Lambda via DynamoDB Stream
           const { data: createData, errors: createErrors } =
             await client.graphql({
               query: createExportTask,
@@ -73,6 +82,7 @@ export const handler: Handler = async () => {
                   endDate: endDate.toISOString(),
                   status: ExportStatus.CREATED,
                   recurringExportId: recurringExport.id,
+                  identityId: recurringExport.identityId,
                   ttl: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60, // 7 days from now
                 },
               },

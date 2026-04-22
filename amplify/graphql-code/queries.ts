@@ -68,6 +68,7 @@ export const byStatusAndNextRun = /* GraphQL */ `query ByStatusAndNextRun(
       errorCount
       frequency
       id
+      identityId
       itemId
       itemName
       lastError
@@ -794,6 +795,7 @@ export const getExportTask = /* GraphQL */ `query GetExportTask($id: ID!) {
     endDate
     error
     id
+    identityId
     itemId
     itemName
     owner
@@ -1508,6 +1510,7 @@ export const getRecurringExport = /* GraphQL */ `query GetRecurringExport($id: I
     errorCount
     frequency
     id
+    identityId
     itemId
     itemName
     lastError
@@ -2871,6 +2874,7 @@ export const listExportTaskByStatusAndEndDate = /* GraphQL */ `query ListExportT
       endDate
       error
       id
+      identityId
       itemId
       itemName
       owner
@@ -2903,6 +2907,7 @@ export const listExportTasks = /* GraphQL */ `query ListExportTasks(
       endDate
       error
       id
+      identityId
       itemId
       itemName
       owner
@@ -3667,6 +3672,7 @@ export const listRecurringExports = /* GraphQL */ `query ListRecurringExports(
       errorCount
       frequency
       id
+      identityId
       itemId
       itemName
       lastError

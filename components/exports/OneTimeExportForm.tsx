@@ -1,6 +1,7 @@
 import { FC, useState, ReactNode } from "react";
 import { subDays } from "date-fns";
 import { generateClient } from "aws-amplify/data";
+import { fetchAuthSession } from "aws-amplify/auth";
 import type { Schema } from "@/amplify/data/resource";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,10 @@ export const OneTimeExportForm: FC<OneTimeExportFormProps> = ({
   toggleComponent,
   presets = [7, 14, 28],
 }) => {
-  const [startDate, setStartDate] = useState<Date | undefined>();
+  // Default to 30 days ago for better UX - covers most recent activity
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    subDays(new Date(), 30)
+  );
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
   const [isCreating, setIsCreating] = useState(false);
 
@@ -71,6 +75,17 @@ export const OneTimeExportForm: FC<OneTimeExportFormProps> = ({
     // Calculate TTL: current time + 7 days (in seconds)
     const ttl = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60;
 
+    const { identityId } = await fetchAuthSession();
+    if (!identityId) {
+      toast({
+        title: "Export failed",
+        description: "Could not resolve your identity. Please sign in again.",
+        variant: "destructive",
+      });
+      setIsCreating(false);
+      return;
+    }
+
     const { errors } = await client.models.ExportTask.create({
       dataSource,
       itemId,
@@ -79,6 +94,7 @@ export const OneTimeExportForm: FC<OneTimeExportFormProps> = ({
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
       ttl,
+      identityId,
     });
 
     if (errors) {

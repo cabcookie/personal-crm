@@ -9,6 +9,8 @@ import {
   CheckCircle2,
   RefreshCw,
   Shield,
+  Download,
+  Copy,
 } from "lucide-react";
 import {
   useRecurringExports,
@@ -27,6 +29,11 @@ import { toast } from "@/components/ui/use-toast";
 import { ExportPermissionDialog } from "./ExportPermissionDialog";
 import { Schema } from "@/amplify/data/resource";
 import { DeleteAlert } from "./DeleteAlert";
+import { downloadData } from "aws-amplify/storage";
+import {
+  copyToClipboard,
+  downloadMarkdown,
+} from "@/helpers/exports/markdown-actions";
 
 const DAYS_OF_WEEK = [
   "Sunday",
@@ -57,6 +64,7 @@ export const RecurringExportItem: FC<RecurringExportItemProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [showPermissions, setShowPermissions] = useState(false);
+  const [isDownloadingExport, setIsDownloadingExport] = useState(false);
 
   const isActive = recurringExport.status === "active";
   const hasError = (recurringExport.errorCount ?? 0) > 0;
@@ -107,6 +115,74 @@ export const RecurringExportItem: FC<RecurringExportItemProps> = ({
       });
     } finally {
       setIsToggling(false);
+    }
+  };
+
+  /**
+   * Download recurring export from S3
+   */
+  const downloadFromS3 = async (): Promise<string | null> => {
+    if (!recurringExport.s3Key) return null;
+
+    try {
+      const { body } = await downloadData({
+        path: recurringExport.s3Key,
+        options: { bucket: "recurringExports" },
+      }).result;
+      const text = await body.text();
+      return text;
+    } catch (error) {
+      console.error("Failed to download recurring export from S3:", error);
+      toast({
+        title: "Download failed",
+        description: "Could not fetch export from S3",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
+  const handleCopyExport = async () => {
+    setIsDownloadingExport(true);
+    try {
+      const content = await downloadFromS3();
+      if (!content) return;
+
+      const success = await copyToClipboard(content, recurringExport.name);
+      if (success) {
+        toast({
+          title: "Copied to clipboard",
+          description: "Export data copied successfully",
+        });
+      }
+    } finally {
+      setIsDownloadingExport(false);
+    }
+  };
+
+  const handleDownloadExport = async () => {
+    setIsDownloadingExport(true);
+    try {
+      const content = await downloadFromS3();
+      if (!content) return;
+
+      downloadMarkdown(
+        content,
+        recurringExport.name,
+        recurringExport.dataSource || "export"
+      );
+      toast({
+        title: "Download started",
+        description: "Export file is downloading",
+      });
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloadingExport(false);
     }
   };
 
@@ -207,6 +283,30 @@ export const RecurringExportItem: FC<RecurringExportItemProps> = ({
 
           {/* Actions */}
           <div className="flex gap-2">
+            {/* Copy/Download buttons - show when export is available */}
+            {recurringExport.s3Key && (
+              <>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleDownloadExport}
+                  disabled={isDownloadingExport}
+                >
+                  <Download className="mr-2 size-4" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyExport}
+                  disabled={isDownloadingExport}
+                >
+                  <Copy className="mr-2 size-4" />
+                  Copy
+                </Button>
+              </>
+            )}
+
             <Button
               variant={isActive ? "outline" : "default"}
               size="sm"

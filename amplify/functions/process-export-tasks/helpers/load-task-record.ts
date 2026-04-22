@@ -33,6 +33,7 @@ export const loadTaskRecord = (record: DynamoDBRecord): ExportTask => {
   const startDateStr = newImage.startDate?.S;
   const endDateStr = newImage.endDate?.S;
   const recurringExportId = newImage.recurringExportId?.S;
+  const identityId = newImage.identityId?.S;
 
   if (
     !taskId ||
@@ -65,6 +66,7 @@ export const loadTaskRecord = (record: DynamoDBRecord): ExportTask => {
     startDate,
     endDate,
     recurringExportId,
+    identityId,
   };
 };
 
@@ -77,4 +79,5 @@ export type ExportTask = {
   startDate: Date;
   endDate: Date;
   recurringExportId?: string;
+  identityId?: string;
 };

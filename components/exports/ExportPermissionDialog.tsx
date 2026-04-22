@@ -1,6 +1,9 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
-import { Plus, Trash2, Shield, UserPlus } from "lucide-react";
+import { Copy, Plus, Trash2, Shield, UserPlus } from "lucide-react";
+import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
+import { fetchAuthSession } from "aws-amplify/auth";
+import outputs from "@/amplify_outputs.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,9 +33,66 @@ export const ExportPermissionDialog: FC<ExportPermissionDialogProps> = ({
   const [newPrincipal, setNewPrincipal] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [awsAccountId, setAwsAccountId] = useState<string | null>(null);
 
   const { permissions, loading, grantPermission, revokePermission } =
     useExportPermissions(recurringExport.id);
+
+  // Recurring exports live in a dedicated bucket — resolve its physical name
+  // from amplify_outputs.json by logical name.
+  const recurringExportsBucket = (outputs.storage?.buckets ?? []).find(
+    (b) => b.name === "recurringExports"
+  );
+  const bucketName = recurringExportsBucket?.bucket_name ?? null;
+  const bucketRegion =
+    recurringExportsBucket?.aws_region ?? outputs.storage?.aws_region ?? null;
+  // The dedicated bucket contains only recurring exports, so the grantee can
+  // be given the bucket URL directly (Quick Suite only accepts bucket URLs,
+  // not folder URLs).
+  const bucketUri = bucketName ? `s3://${bucketName}` : null;
+  const s3Uri =
+    bucketName && recurringExport.s3Key
+      ? `s3://${bucketName}/${recurringExport.s3Key}`
+      : null;
+  const bucketArn =
+    awsAccountId && bucketName && recurringExport.s3Key
+      ? `arn:aws:s3:::${bucketName}/${recurringExport.s3Key}`
+      : null;
+
+  useEffect(() => {
+    if (!isOpen || awsAccountId || !bucketRegion) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const session = await fetchAuthSession();
+        if (!session.credentials) return;
+        const sts = new STSClient({
+          region: bucketRegion,
+          credentials: session.credentials,
+        });
+        const { Account } = await sts.send(new GetCallerIdentityCommand({}));
+        if (!cancelled && Account) setAwsAccountId(Account);
+      } catch (error) {
+        console.error("Failed to resolve AWS account ID:", error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, awsAccountId, bucketRegion]);
+
+  const copyToClipboard = async (value: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: `${label} copied to clipboard` });
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Clipboard is unavailable — select and copy manually.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAddPermission = async () => {
     if (!newPrincipal.trim()) {
@@ -172,12 +232,12 @@ export const ExportPermissionDialog: FC<ExportPermissionDialogProps> = ({
                 {permissions.map((permission) => (
                   <div
                     key={permission.id}
-                    className="flex items-center justify-between rounded-md border p-3"
+                    className="flex items-start justify-between gap-2 rounded-md border p-3"
                   >
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate text-sm font-medium">
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <code className="block break-all text-xs font-medium">
                         {permission.grantedTo}
-                      </p>
+                      </code>
                       <p className="text-xs text-muted-foreground">
                         Granted{" "}
                         {permission.grantedAt
@@ -195,7 +255,7 @@ export const ExportPermissionDialog: FC<ExportPermissionDialogProps> = ({
                       size="sm"
                       onClick={() => handleRevokePermission(permission.id)}
                       disabled={deletingId === permission.id}
-                      className="text-destructive hover:text-destructive"
+                      className="shrink-0 text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -205,11 +265,90 @@ export const ExportPermissionDialog: FC<ExportPermissionDialogProps> = ({
             )}
           </div>
 
-          {/* S3 Path Info */}
-          {recurringExport.s3Key && (
-            <div className="rounded-md bg-muted p-3 text-sm">
-              <p className="font-medium">S3 Path:</p>
-              <code className="text-xs break-all">{recurringExport.s3Key}</code>
+          {/* Bucket & Account Info — what the grantee needs on their side */}
+          {(s3Uri || awsAccountId || bucketArn) && (
+            <div className="rounded-md bg-muted p-3 text-sm space-y-3">
+              <p className="font-medium">Share these with the grantee:</p>
+
+              {awsAccountId && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    AWS Account ID (bucket owner)
+                  </p>
+                  <div className="flex items-start gap-2">
+                    <code className="flex-1 text-xs break-all">
+                      {awsAccountId}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        copyToClipboard(awsAccountId, "Account ID")
+                      }
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {bucketUri && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Bucket URL (use this in Quick Suite / S3 data sources)
+                  </p>
+                  <div className="flex items-start gap-2">
+                    <code className="flex-1 text-xs break-all">
+                      {bucketUri}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(bucketUri, "Bucket URL")}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {s3Uri && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Exact file S3 URI
+                  </p>
+                  <div className="flex items-start gap-2">
+                    <code className="flex-1 text-xs break-all">{s3Uri}</code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(s3Uri, "S3 URI")}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {bucketArn && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Bucket object ARN (for their IAM policy)
+                  </p>
+                  <div className="flex items-start gap-2">
+                    <code className="flex-1 text-xs break-all">
+                      {bucketArn}
+                    </code>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(bucketArn, "Bucket ARN")}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

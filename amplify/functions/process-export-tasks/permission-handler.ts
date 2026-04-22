@@ -9,11 +9,16 @@ import {
   GetBucketPolicyCommand,
   PutBucketPolicyCommand,
 } from "@aws-sdk/client-s3";
+import { env } from "$amplify/env/manage-export-permissions";
 import { client } from "./helpers/get-client";
 import { getRecurringExport } from "../../graphql-code/queries";
 
-const s3Client = new S3Client({ region: process.env.AWS_REGION });
-const BUCKET_NAME = process.env.STORAGE_BUCKET_NAME!;
+const s3Client = new S3Client({ region: env.AWS_REGION });
+// Recurring exports now live in their own dedicated bucket so grantees can be
+// given bucket-wide access without exposing other user data. The bucket name
+// is injected explicitly in custom/backend/export-tasks.ts — this Lambda
+// never reads objects from the bucket, only manages its bucket policy.
+const BUCKET_NAME = env.RECURRING_EXPORTS_BUCKET_NAME;
 
 interface BucketPolicy {
   Version: string;
@@ -26,6 +31,7 @@ interface PolicyStatement {
   Principal: { AWS?: string | string[] };
   Action: string | string[];
   Resource: string | string[];
+  Condition?: Record<string, Record<string, string | string[]>>;
 }
 
 export const handler: DynamoDBStreamHandler = async (event) => {
@@ -88,6 +94,31 @@ async function processPermissionRecord(record: DynamoDBRecord): Promise<void> {
   }
 }
 
+const sidPrefixFor = (permissionId: string) =>
+  `ExportPermission-${permissionId}`;
+
+const matchesPermissionSid = (
+  sid: string | undefined,
+  permissionId: string
+) => {
+  const prefix = sidPrefixFor(permissionId);
+  // Old format was exactly `ExportPermission-<permissionId>`; new format adds
+  // a `-Get` / `-List` / `-Loc` suffix. Matching both keeps revoke correct for
+  // policies written before this change.
+  return sid === prefix || !!sid?.startsWith(`${prefix}-`);
+};
+
+// Extract the identityId and recurringExportId from an S3 key shaped as
+// `exports/<identityId>/<recurringExportId>/<fileName>` (the dedicated
+// recurring-exports bucket layout).
+const parseExportKey = (s3Key: string) => {
+  const parts = s3Key.split("/");
+  if (parts.length < 4 || parts[0] !== "exports") {
+    throw new Error(`Unexpected s3Key shape for recurring export: ${s3Key}`);
+  }
+  return { identityId: parts[1], recurringExportId: parts[2] };
+};
+
 async function grantS3Access(
   permissionId: string,
   recurringExportId: string,
@@ -99,7 +130,6 @@ async function grantS3Access(
     grantedTo,
   });
 
-  // Get the s3Key from RecurringExport
   const { data, errors } = await client.graphql({
     query: getRecurringExport,
     variables: { id: recurringExportId },
@@ -116,59 +146,97 @@ async function grantS3Access(
   const s3Key = data.getRecurringExport.s3Key;
   if (!s3Key) {
     console.warn("RecurringExport has no s3Key yet", { recurringExportId });
-    // This is OK - permission will be applied when the first export runs
+    // Permission will be applied when the first export runs and fills s3Key.
     return;
   }
 
-  // Get current bucket policy
+  const { identityId, recurringExportId: rid } = parseExportKey(s3Key);
+  const sidPrefix = sidPrefixFor(permissionId);
+  const bucketArn = `arn:aws:s3:::${BUCKET_NAME}`;
+
+  const newStatements: PolicyStatement[] = [
+    {
+      // Read the exact export object. GetObjectVersion added alongside so
+      // versioned reads (QuickSight/Quick Suite uses them during refresh,
+      // even though our bucket isn't versioned) don't 403 later.
+      Sid: `${sidPrefix}-Get`,
+      Effect: "Allow",
+      Principal: { AWS: grantedTo },
+      Action: ["s3:GetObject", "s3:GetObjectVersion"],
+      Resource: `${bucketArn}/${s3Key}`,
+    },
+    {
+      // List ONLY the contents of this one recurring export's folder.
+      //
+      // We used to allow each step of the path (root, `exports/`, etc.) so a
+      // grantee pointed at the bucket root could traverse down — but in
+      // practice Quick Suite issues `ListObjects` with no prefix at all,
+      // which returned every key in the bucket (cross-tenant metadata leak)
+      // and caused it to HeadObject siblings it shouldn't have seen.
+      //
+      // StringLikeIfExists keeps HeadBucket working: HeadBucket reuses the
+      // `s3:ListBucket` IAM action but sends no `s3:prefix` request context,
+      // so the condition short-circuits to allow. When a prefix IS sent
+      // (i.e. real listing calls) it must match this folder's pattern.
+      //
+      // Consequence: grantees must point their tool at the folder URL
+      // `s3://<bucket>/exports/<identityId>/recurring/<rid>/`, not the
+      // bucket root.
+      Sid: `${sidPrefix}-List`,
+      Effect: "Allow",
+      Principal: { AWS: grantedTo },
+      Action: ["s3:ListBucket", "s3:ListBucketVersions"],
+      Resource: bucketArn,
+      Condition: {
+        StringLikeIfExists: {
+          "s3:prefix": [`exports/${identityId}/${rid}/*`],
+        },
+      },
+    },
+    {
+      // Region lookup — QuickSight calls this on data-source creation.
+      Sid: `${sidPrefix}-Loc`,
+      Effect: "Allow",
+      Principal: { AWS: grantedTo },
+      Action: "s3:GetBucketLocation",
+      Resource: bucketArn,
+    },
+  ];
+
   const policy = await getBucketPolicy();
-
-  // Create new policy statement
-  const statementId = `ExportPermission-${permissionId}`;
-  const newStatement: PolicyStatement = {
-    Sid: statementId,
-    Effect: "Allow",
-    Principal: { AWS: grantedTo },
-    Action: "s3:GetObject",
-    Resource: `arn:aws:s3:::${BUCKET_NAME}/${s3Key}`,
-  };
-
-  // Remove existing statement with same Sid (in case of update)
   policy.Statement = policy.Statement.filter(
-    (stmt) => stmt.Sid !== statementId
+    (stmt) => !matchesPermissionSid(stmt.Sid, permissionId)
   );
+  policy.Statement.push(...newStatements);
 
-  // Add new statement
-  policy.Statement.push(newStatement);
-
-  // Update bucket policy
   await putBucketPolicy(policy);
 
-  console.log("S3 access granted successfully", { permissionId, s3Key });
+  console.log("S3 access granted successfully", {
+    permissionId,
+    s3Key,
+    statementCount: newStatements.length,
+  });
 }
 
 async function revokeS3Access(permissionId: string): Promise<void> {
   console.log("Revoking S3 access", { permissionId });
 
-  // Get current bucket policy
   const policy = await getBucketPolicy();
 
-  // Remove statement with matching Sid
-  const statementId = `ExportPermission-${permissionId}`;
   const originalCount = policy.Statement.length;
   policy.Statement = policy.Statement.filter(
-    (stmt) => stmt.Sid !== statementId
+    (stmt) => !matchesPermissionSid(stmt.Sid, permissionId)
   );
+  const removed = originalCount - policy.Statement.length;
 
-  if (policy.Statement.length === originalCount) {
-    console.warn("No statement found to revoke", { permissionId, statementId });
+  if (removed === 0) {
+    console.warn("No statements found to revoke", { permissionId });
     return;
   }
 
-  // Update bucket policy
   await putBucketPolicy(policy);
 
-  console.log("S3 access revoked successfully", { permissionId });
+  console.log("S3 access revoked successfully", { permissionId, removed });
 }
 
 async function getBucketPolicy(): Promise<BucketPolicy> {

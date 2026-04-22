@@ -1,7 +1,7 @@
-import { DynamoDBStreamHandler } from "aws-lambda";
-import { loadTaskRecord, SkipRecordError, updateTaskStatus } from "./helpers";
+import type { DynamoDBStreamHandler } from "aws-lambda";
 import { processExport } from "./fetching";
-import { ExportStatus } from "../../graphql-code/API";
+import { getItemRaw, loadTaskRecord, SkipRecordError } from "./helpers";
+import { handleOneTimeExport } from "./helpers/handle-one-time-export";
 import { handleRecurringExport } from "./helpers/handle-recurring-export";
 
 export const handler: DynamoDBStreamHandler = async (event) => {
@@ -12,17 +12,43 @@ export const handler: DynamoDBStreamHandler = async (event) => {
   for (const record of event.Records) {
     try {
       const task = loadTaskRecord(record);
+
+      // For recurring tasks, AppSync strips `::username` off the owner field
+      // on IAM writes, so `task.owner` is the single sub. The data tables
+      // (Account, Projects, ...) store owners as `sub::username`, so tenant
+      // checks in the reader would drop every record. Recover the raw owner
+      // by reading the RecurringExport directly from DynamoDB.
+      if (task.recurringExportId) {
+        const recurring = await getItemRaw<{ owner?: string }>(
+          "RecurringExport",
+          task.recurringExportId
+        );
+        if (recurring?.owner) {
+          task.owner = recurring.owner;
+        } else {
+          console.warn(
+            `Could not resolve raw owner for recurring export ${task.recurringExportId}; tenant filter will likely drop every record`
+          );
+        }
+      }
+
       const result = await processExport(task);
+
+      console.log("Exported markdown:", result);
+
+      const resultSizeBytes = Buffer.byteLength(result, "utf8");
+      console.log("Export generated:", {
+        taskId: task.id,
+        sizeBytes: resultSizeBytes,
+        sizeKB: Math.round(resultSizeBytes / 1024),
+        isRecurring: !!task.recurringExportId,
+      });
 
       // Handle recurring exports: upload to S3 and update RecurringExport record
       if (task.recurringExportId) {
         await handleRecurringExport(task, result);
       } else {
-        // One-time export: store result in DynamoDB
-        await updateTaskStatus(task.id, result, ExportStatus.GENERATED);
-        console.log("One-time export completed successfully", {
-          taskId: task.id,
-        });
+        await handleOneTimeExport(task, result);
       }
     } catch (error) {
       if (error instanceof SkipRecordError) {

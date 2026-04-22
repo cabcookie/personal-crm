@@ -1,7 +1,7 @@
 import { defineBackend } from "@aws-amplify/backend";
 import { auth } from "./auth/resource";
 import { data, tablesWithDeleteProtection } from "./data/resource";
-import { storage } from "./storage/resource";
+import { storage, recurringExports } from "./storage/resource";
 import { dataSchemaMigrationsFn } from "./functions/data-schema-migrations/resource";
 import {
   processExportTasks,
@@ -17,6 +17,7 @@ const backend = defineBackend({
   auth,
   data,
   storage,
+  recurringExports,
   dataSchemaMigrationsFn,
   processExportTasks,
   scheduleRecurringExports,
