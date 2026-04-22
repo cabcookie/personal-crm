@@ -358,24 +358,6 @@ export const onCreateActivity = /* GraphQL */ `subscription OnCreateActivity(
   APITypes.OnCreateActivitySubscriptionVariables,
   APITypes.OnCreateActivitySubscription
 >;
-export const onCreateApiKeysForAi = /* GraphQL */ `subscription OnCreateApiKeysForAi(
-  $filter: ModelSubscriptionApiKeysForAiFilterInput
-  $owner: String
-) {
-  onCreateApiKeysForAi(filter: $filter, owner: $owner) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnCreateApiKeysForAiSubscriptionVariables,
-  APITypes.OnCreateApiKeysForAiSubscription
->;
 export const onCreateAssistantResponseGeneralChat = /* GraphQL */ `subscription OnCreateAssistantResponseGeneralChat($conversationId: ID) {
   onCreateAssistantResponseGeneralChat(conversationId: $conversationId) {
     associatedUserMessageId
@@ -724,6 +706,54 @@ export const onCreateDailyPlanTodo = /* GraphQL */ `subscription OnCreateDailyPl
 ` as GeneratedSubscription<
   APITypes.OnCreateDailyPlanTodoSubscriptionVariables,
   APITypes.OnCreateDailyPlanTodoSubscription
+>;
+export const onCreateExportPermission = /* GraphQL */ `subscription OnCreateExportPermission(
+  $filter: ModelSubscriptionExportPermissionFilterInput
+  $owner: String
+) {
+  onCreateExportPermission(filter: $filter, owner: $owner) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateExportPermissionSubscriptionVariables,
+  APITypes.OnCreateExportPermissionSubscription
+>;
+export const onCreateExportTask = /* GraphQL */ `subscription OnCreateExportTask(
+  $filter: ModelSubscriptionExportTaskFilterInput
+  $owner: String
+) {
+  onCreateExportTask(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    identityId
+    itemId
+    itemName
+    owner
+    recurringExportId
+    result
+    s3Key
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateExportTaskSubscriptionVariables,
+  APITypes.OnCreateExportTaskSubscription
 >;
 export const onCreateInbox = /* GraphQL */ `subscription OnCreateInbox(
   $filter: ModelSubscriptionInboxFilterInput
@@ -1471,6 +1501,38 @@ export const onCreateProjects = /* GraphQL */ `subscription OnCreateProjects(
 ` as GeneratedSubscription<
   APITypes.OnCreateProjectsSubscriptionVariables,
   APITypes.OnCreateProjectsSubscription
+>;
+export const onCreateRecurringExport = /* GraphQL */ `subscription OnCreateRecurringExport(
+  $filter: ModelSubscriptionRecurringExportFilterInput
+  $owner: String
+) {
+  onCreateRecurringExport(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    identityId
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateRecurringExportSubscriptionVariables,
+  APITypes.OnCreateRecurringExportSubscription
 >;
 export const onCreateSixWeekBatch = /* GraphQL */ `subscription OnCreateSixWeekBatch(
   $filter: ModelSubscriptionSixWeekBatchFilterInput
@@ -2222,24 +2284,6 @@ export const onDeleteActivity = /* GraphQL */ `subscription OnDeleteActivity(
   APITypes.OnDeleteActivitySubscriptionVariables,
   APITypes.OnDeleteActivitySubscription
 >;
-export const onDeleteApiKeysForAi = /* GraphQL */ `subscription OnDeleteApiKeysForAi(
-  $filter: ModelSubscriptionApiKeysForAiFilterInput
-  $owner: String
-) {
-  onDeleteApiKeysForAi(filter: $filter, owner: $owner) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnDeleteApiKeysForAiSubscriptionVariables,
-  APITypes.OnDeleteApiKeysForAiSubscription
->;
 export const onDeleteBookOfBible = /* GraphQL */ `subscription OnDeleteBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput
   $owner: String
@@ -2522,6 +2566,54 @@ export const onDeleteDailyPlanTodo = /* GraphQL */ `subscription OnDeleteDailyPl
 ` as GeneratedSubscription<
   APITypes.OnDeleteDailyPlanTodoSubscriptionVariables,
   APITypes.OnDeleteDailyPlanTodoSubscription
+>;
+export const onDeleteExportPermission = /* GraphQL */ `subscription OnDeleteExportPermission(
+  $filter: ModelSubscriptionExportPermissionFilterInput
+  $owner: String
+) {
+  onDeleteExportPermission(filter: $filter, owner: $owner) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteExportPermissionSubscriptionVariables,
+  APITypes.OnDeleteExportPermissionSubscription
+>;
+export const onDeleteExportTask = /* GraphQL */ `subscription OnDeleteExportTask(
+  $filter: ModelSubscriptionExportTaskFilterInput
+  $owner: String
+) {
+  onDeleteExportTask(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    identityId
+    itemId
+    itemName
+    owner
+    recurringExportId
+    result
+    s3Key
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteExportTaskSubscriptionVariables,
+  APITypes.OnDeleteExportTaskSubscription
 >;
 export const onDeleteInbox = /* GraphQL */ `subscription OnDeleteInbox(
   $filter: ModelSubscriptionInboxFilterInput
@@ -3269,6 +3361,38 @@ export const onDeleteProjects = /* GraphQL */ `subscription OnDeleteProjects(
 ` as GeneratedSubscription<
   APITypes.OnDeleteProjectsSubscriptionVariables,
   APITypes.OnDeleteProjectsSubscription
+>;
+export const onDeleteRecurringExport = /* GraphQL */ `subscription OnDeleteRecurringExport(
+  $filter: ModelSubscriptionRecurringExportFilterInput
+  $owner: String
+) {
+  onDeleteRecurringExport(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    identityId
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteRecurringExportSubscriptionVariables,
+  APITypes.OnDeleteRecurringExportSubscription
 >;
 export const onDeleteSixWeekBatch = /* GraphQL */ `subscription OnDeleteSixWeekBatch(
   $filter: ModelSubscriptionSixWeekBatchFilterInput
@@ -4020,24 +4144,6 @@ export const onUpdateActivity = /* GraphQL */ `subscription OnUpdateActivity(
   APITypes.OnUpdateActivitySubscriptionVariables,
   APITypes.OnUpdateActivitySubscription
 >;
-export const onUpdateApiKeysForAi = /* GraphQL */ `subscription OnUpdateApiKeysForAi(
-  $filter: ModelSubscriptionApiKeysForAiFilterInput
-  $owner: String
-) {
-  onUpdateApiKeysForAi(filter: $filter, owner: $owner) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedSubscription<
-  APITypes.OnUpdateApiKeysForAiSubscriptionVariables,
-  APITypes.OnUpdateApiKeysForAiSubscription
->;
 export const onUpdateBookOfBible = /* GraphQL */ `subscription OnUpdateBookOfBible(
   $filter: ModelSubscriptionBookOfBibleFilterInput
   $owner: String
@@ -4320,6 +4426,54 @@ export const onUpdateDailyPlanTodo = /* GraphQL */ `subscription OnUpdateDailyPl
 ` as GeneratedSubscription<
   APITypes.OnUpdateDailyPlanTodoSubscriptionVariables,
   APITypes.OnUpdateDailyPlanTodoSubscription
+>;
+export const onUpdateExportPermission = /* GraphQL */ `subscription OnUpdateExportPermission(
+  $filter: ModelSubscriptionExportPermissionFilterInput
+  $owner: String
+) {
+  onUpdateExportPermission(filter: $filter, owner: $owner) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateExportPermissionSubscriptionVariables,
+  APITypes.OnUpdateExportPermissionSubscription
+>;
+export const onUpdateExportTask = /* GraphQL */ `subscription OnUpdateExportTask(
+  $filter: ModelSubscriptionExportTaskFilterInput
+  $owner: String
+) {
+  onUpdateExportTask(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    identityId
+    itemId
+    itemName
+    owner
+    recurringExportId
+    result
+    s3Key
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateExportTaskSubscriptionVariables,
+  APITypes.OnUpdateExportTaskSubscription
 >;
 export const onUpdateInbox = /* GraphQL */ `subscription OnUpdateInbox(
   $filter: ModelSubscriptionInboxFilterInput
@@ -5067,6 +5221,38 @@ export const onUpdateProjects = /* GraphQL */ `subscription OnUpdateProjects(
 ` as GeneratedSubscription<
   APITypes.OnUpdateProjectsSubscriptionVariables,
   APITypes.OnUpdateProjectsSubscription
+>;
+export const onUpdateRecurringExport = /* GraphQL */ `subscription OnUpdateRecurringExport(
+  $filter: ModelSubscriptionRecurringExportFilterInput
+  $owner: String
+) {
+  onUpdateRecurringExport(filter: $filter, owner: $owner) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    identityId
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateRecurringExportSubscriptionVariables,
+  APITypes.OnUpdateRecurringExportSubscription
 >;
 export const onUpdateSixWeekBatch = /* GraphQL */ `subscription OnUpdateSixWeekBatch(
   $filter: ModelSubscriptionSixWeekBatchFilterInput

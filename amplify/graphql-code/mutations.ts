@@ -358,24 +358,6 @@ export const createActivity = /* GraphQL */ `mutation CreateActivity(
   APITypes.CreateActivityMutationVariables,
   APITypes.CreateActivityMutation
 >;
-export const createApiKeysForAi = /* GraphQL */ `mutation CreateApiKeysForAi(
-  $condition: ModelApiKeysForAiConditionInput
-  $input: CreateApiKeysForAiInput!
-) {
-  createApiKeysForAi(condition: $condition, input: $input) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.CreateApiKeysForAiMutationVariables,
-  APITypes.CreateApiKeysForAiMutation
->;
 export const createAssistantResponseGeneralChat = /* GraphQL */ `mutation CreateAssistantResponseGeneralChat(
   $input: CreateConversationMessageGeneralChatAssistantInput!
 ) {
@@ -783,6 +765,54 @@ export const createDailyPlanTodo = /* GraphQL */ `mutation CreateDailyPlanTodo(
 ` as GeneratedMutation<
   APITypes.CreateDailyPlanTodoMutationVariables,
   APITypes.CreateDailyPlanTodoMutation
+>;
+export const createExportPermission = /* GraphQL */ `mutation CreateExportPermission(
+  $condition: ModelExportPermissionConditionInput
+  $input: CreateExportPermissionInput!
+) {
+  createExportPermission(condition: $condition, input: $input) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateExportPermissionMutationVariables,
+  APITypes.CreateExportPermissionMutation
+>;
+export const createExportTask = /* GraphQL */ `mutation CreateExportTask(
+  $condition: ModelExportTaskConditionInput
+  $input: CreateExportTaskInput!
+) {
+  createExportTask(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    identityId
+    itemId
+    itemName
+    owner
+    recurringExportId
+    result
+    s3Key
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateExportTaskMutationVariables,
+  APITypes.CreateExportTaskMutation
 >;
 export const createInbox = /* GraphQL */ `mutation CreateInbox(
   $condition: ModelInboxConditionInput
@@ -1530,6 +1560,38 @@ export const createProjects = /* GraphQL */ `mutation CreateProjects(
 ` as GeneratedMutation<
   APITypes.CreateProjectsMutationVariables,
   APITypes.CreateProjectsMutation
+>;
+export const createRecurringExport = /* GraphQL */ `mutation CreateRecurringExport(
+  $condition: ModelRecurringExportConditionInput
+  $input: CreateRecurringExportInput!
+) {
+  createRecurringExport(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    identityId
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateRecurringExportMutationVariables,
+  APITypes.CreateRecurringExportMutation
 >;
 export const createSixWeekBatch = /* GraphQL */ `mutation CreateSixWeekBatch(
   $condition: ModelSixWeekBatchConditionInput
@@ -2281,24 +2343,6 @@ export const deleteActivity = /* GraphQL */ `mutation DeleteActivity(
   APITypes.DeleteActivityMutationVariables,
   APITypes.DeleteActivityMutation
 >;
-export const deleteApiKeysForAi = /* GraphQL */ `mutation DeleteApiKeysForAi(
-  $condition: ModelApiKeysForAiConditionInput
-  $input: DeleteApiKeysForAiInput!
-) {
-  deleteApiKeysForAi(condition: $condition, input: $input) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.DeleteApiKeysForAiMutationVariables,
-  APITypes.DeleteApiKeysForAiMutation
->;
 export const deleteBookOfBible = /* GraphQL */ `mutation DeleteBookOfBible(
   $condition: ModelBookOfBibleConditionInput
   $input: DeleteBookOfBibleInput!
@@ -2639,6 +2683,54 @@ export const deleteDailyPlanTodo = /* GraphQL */ `mutation DeleteDailyPlanTodo(
 ` as GeneratedMutation<
   APITypes.DeleteDailyPlanTodoMutationVariables,
   APITypes.DeleteDailyPlanTodoMutation
+>;
+export const deleteExportPermission = /* GraphQL */ `mutation DeleteExportPermission(
+  $condition: ModelExportPermissionConditionInput
+  $input: DeleteExportPermissionInput!
+) {
+  deleteExportPermission(condition: $condition, input: $input) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteExportPermissionMutationVariables,
+  APITypes.DeleteExportPermissionMutation
+>;
+export const deleteExportTask = /* GraphQL */ `mutation DeleteExportTask(
+  $condition: ModelExportTaskConditionInput
+  $input: DeleteExportTaskInput!
+) {
+  deleteExportTask(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    identityId
+    itemId
+    itemName
+    owner
+    recurringExportId
+    result
+    s3Key
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteExportTaskMutationVariables,
+  APITypes.DeleteExportTaskMutation
 >;
 export const deleteInbox = /* GraphQL */ `mutation DeleteInbox(
   $condition: ModelInboxConditionInput
@@ -3386,6 +3478,38 @@ export const deleteProjects = /* GraphQL */ `mutation DeleteProjects(
 ` as GeneratedMutation<
   APITypes.DeleteProjectsMutationVariables,
   APITypes.DeleteProjectsMutation
+>;
+export const deleteRecurringExport = /* GraphQL */ `mutation DeleteRecurringExport(
+  $condition: ModelRecurringExportConditionInput
+  $input: DeleteRecurringExportInput!
+) {
+  deleteRecurringExport(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    identityId
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteRecurringExportMutationVariables,
+  APITypes.DeleteRecurringExportMutation
 >;
 export const deleteSixWeekBatch = /* GraphQL */ `mutation DeleteSixWeekBatch(
   $condition: ModelSixWeekBatchConditionInput
@@ -4182,24 +4306,6 @@ export const updateActivity = /* GraphQL */ `mutation UpdateActivity(
   APITypes.UpdateActivityMutationVariables,
   APITypes.UpdateActivityMutation
 >;
-export const updateApiKeysForAi = /* GraphQL */ `mutation UpdateApiKeysForAi(
-  $condition: ModelApiKeysForAiConditionInput
-  $input: UpdateApiKeysForAiInput!
-) {
-  updateApiKeysForAi(condition: $condition, input: $input) {
-    apiKey
-    createdAt
-    dataSource
-    itemId
-    owner
-    updatedAt
-    __typename
-  }
-}
-` as GeneratedMutation<
-  APITypes.UpdateApiKeysForAiMutationVariables,
-  APITypes.UpdateApiKeysForAiMutation
->;
 export const updateBookOfBible = /* GraphQL */ `mutation UpdateBookOfBible(
   $condition: ModelBookOfBibleConditionInput
   $input: UpdateBookOfBibleInput!
@@ -4504,6 +4610,54 @@ export const updateDailyPlanTodo = /* GraphQL */ `mutation UpdateDailyPlanTodo(
 ` as GeneratedMutation<
   APITypes.UpdateDailyPlanTodoMutationVariables,
   APITypes.UpdateDailyPlanTodoMutation
+>;
+export const updateExportPermission = /* GraphQL */ `mutation UpdateExportPermission(
+  $condition: ModelExportPermissionConditionInput
+  $input: UpdateExportPermissionInput!
+) {
+  updateExportPermission(condition: $condition, input: $input) {
+    createdAt
+    grantedAt
+    grantedBy
+    grantedTo
+    id
+    owner
+    recurringExportId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateExportPermissionMutationVariables,
+  APITypes.UpdateExportPermissionMutation
+>;
+export const updateExportTask = /* GraphQL */ `mutation UpdateExportTask(
+  $condition: ModelExportTaskConditionInput
+  $input: UpdateExportTaskInput!
+) {
+  updateExportTask(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    endDate
+    error
+    id
+    identityId
+    itemId
+    itemName
+    owner
+    recurringExportId
+    result
+    s3Key
+    startDate
+    status
+    ttl
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateExportTaskMutationVariables,
+  APITypes.UpdateExportTaskMutation
 >;
 export const updateInbox = /* GraphQL */ `mutation UpdateInbox(
   $condition: ModelInboxConditionInput
@@ -5251,6 +5405,38 @@ export const updateProjects = /* GraphQL */ `mutation UpdateProjects(
 ` as GeneratedMutation<
   APITypes.UpdateProjectsMutationVariables,
   APITypes.UpdateProjectsMutation
+>;
+export const updateRecurringExport = /* GraphQL */ `mutation UpdateRecurringExport(
+  $condition: ModelRecurringExportConditionInput
+  $input: UpdateRecurringExportInput!
+) {
+  updateRecurringExport(condition: $condition, input: $input) {
+    createdAt
+    dataSource
+    dayOfMonth
+    dayOfWeek
+    daysToInclude
+    errorCount
+    frequency
+    id
+    identityId
+    itemId
+    itemName
+    lastError
+    lastRunAt
+    name
+    nextRunAt
+    owner
+    s3Key
+    status
+    timeOfDay
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateRecurringExportMutationVariables,
+  APITypes.UpdateRecurringExportMutation
 >;
 export const updateSixWeekBatch = /* GraphQL */ `mutation UpdateSixWeekBatch(
   $condition: ModelSixWeekBatchConditionInput

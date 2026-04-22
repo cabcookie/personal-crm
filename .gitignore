@@ -44,3 +44,4 @@ scripts/env.json
 
 /logs
 api/temp/
+.playwright-session/

@@ -62,6 +62,7 @@ const PersonDetails: FC<PersonDetailsProps> = ({
             onUpdate={updatePerson}
             formControl={updateFormControl}
           />
+
           <Button
             onClick={() => setDeleteWarningOpen(true)}
             disabled={deleteWarningOpen}

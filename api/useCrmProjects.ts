@@ -11,7 +11,7 @@ import {
   mapPipelineFields,
 } from "@/helpers/projects";
 import { SelectionSet } from "aws-amplify/data";
-import { flatMap, flow, map, sortBy } from "lodash/fp";
+import { compact, flatMap, flow, map, sortBy } from "lodash/fp";
 import useSWR from "swr";
 import { Project, useProjectsContext } from "./ContextProjects";
 import { handleApiErrors } from "./globals";
@@ -72,7 +72,6 @@ type CrmProjectData = SelectionSet<
   Schema["CrmProject"]["type"],
   typeof selectionSetCrmProject
 >;
-type CrmProjectProjectData = CrmProjectData["projects"][number];
 
 export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   id,
@@ -104,7 +103,7 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   closeDate: new Date(closeDate),
   createdDate: new Date(createdDate || createdAt),
   projectLinkIds: projects.map(({ id }) => id),
-  projectIds: projects.map(({ project: { id } }) => id),
+  projectIds: flow(map("project"), map("id"), compact)(projects),
   stage: CRM_STAGES.find((s) => s === stage) || "Prospect",
   stageChangedDate: getDateOrUndefined(stageChangedDate),
   hygieneIssuesResolved:
@@ -114,14 +113,19 @@ export const mapCrmProject: (data: CrmProjectData) => CrmProject = ({
   nextStep: nextStep ?? undefined,
   partnerName: partnerName ?? undefined,
   linkedPartnerNames: flow(
-    flatMap((p: CrmProjectProjectData) => p.project.partner),
-    map((a) => a?.name)
+    flatMap("project"),
+    map("partner"),
+    map("name"),
+    compact
   )(projects),
   type: type ?? undefined,
   accountName: accountName ?? undefined,
   projectAccountNames: flow(
-    flatMap((p: CrmProjectProjectData) => p.project.accounts),
-    map((a) => a.account.name)
+    flatMap("project"),
+    map("accounts"),
+    map("account"),
+    map("name"),
+    compact
   )(projects),
   territoryName: territoryName ?? undefined,
   pipeline: flow(

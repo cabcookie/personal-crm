@@ -26,6 +26,7 @@ import useMeetingPagination from "./useMeetingPagination";
 interface MeetingFilterType {
   meetings: ReturnType<typeof useMeetings>["meetings"] | undefined;
   meetingDates: string[];
+  loadingMeetings: boolean;
   createMeeting: (props: CreateMeetingProps) => Promise<string | undefined>;
   selectedFilter: TMeetingFilters;
   availableFilters: TMeetingFilters[];
@@ -58,10 +59,11 @@ const MeetingFilterProvider: FC<MeetingFilterProviderProps> = ({
   const { context } = useContextContext();
   const { fromDate, toDate, handleNextClick, handlePrevClick } =
     useMeetingPagination();
-  const { meetings, createMeeting, createMeetingParticipant } = useMeetings({
-    context,
-    startDate: fromDate,
-  });
+  const { meetings, createMeeting, createMeetingParticipant, loadingMeetings } =
+    useMeetings({
+      context,
+      startDate: fromDate,
+    });
   const [meetingDates, setMeetingDates] = useState<string[]>([]);
   const [meetingFilter, setMeetingFilter] = useState<TMeetingFilters>("All");
   const [filtered, setFiltered] = useState<Meeting[] | undefined>(undefined);
@@ -112,6 +114,7 @@ const MeetingFilterProvider: FC<MeetingFilterProviderProps> = ({
       value={{
         meetings: filtered,
         meetingDates,
+        loadingMeetings,
         createMeeting: createMeetingAndParticipant,
         selectedFilter: meetingFilter,
         availableFilters: [...MEETING_FILTERS],

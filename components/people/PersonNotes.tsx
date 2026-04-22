@@ -5,7 +5,6 @@ import { FC } from "react";
 import LeanActivitiy from "../activities/activity-lean";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
-import CopyPersonNotesButtons from "./CopyPersonNotesButtons";
 
 type PersonNotesProps = {
   personId?: string;
@@ -35,8 +34,6 @@ const PersonNotes: FC<PersonNotesProps> = ({ showNotes, personId }) => {
       isVisible={!!showNotes}
     >
       <div className="space-y-10">
-        <CopyPersonNotesButtons personId={personId} />
-
         {activities?.map((a) => (
           <LeanActivitiy key={a.id} activity={a} readonly />
         ))}

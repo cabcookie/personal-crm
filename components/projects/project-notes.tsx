@@ -7,7 +7,6 @@ import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem"
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
 import { Button } from "../ui/button";
 import useProjectNotes from "./useProjectNotes";
-import CopyProjectNotesButtons from "./CopyProjectNotesButtons";
 
 interface ProjectNotesProps {
   isVisible?: boolean;
@@ -54,8 +53,6 @@ const ProjectNotes: FC<ProjectNotesProps> = ({ isVisible, projectId }) => {
         </Button>
 
         <div className="space-y-10 pt-4">
-          <CopyProjectNotesButtons {...{ projectId }} />
-
           {notes.map((a) => (
             <NoteLean key={a.id} activity={a} readonly />
           ))}
