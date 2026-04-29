@@ -1,7 +1,7 @@
 version: 1
 backend:
   phases:
-    prebuild:
+    preBuild:
       commands:
         - nvm use 22
         - npm ci
