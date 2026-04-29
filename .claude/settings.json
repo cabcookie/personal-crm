@@ -1,10 +1,12 @@
 {
   "permissions": {
     "allow": [
+      "Bash(aws appsync list-graphql-apis *)",
       "Bash(aws cloudtrail get-event-selectors *)",
       "Bash(aws cloudtrail get-trail *)",
       "Bash(aws cloudtrail list-trails *)",
       "Bash(aws cloudtrail lookup-events *)",
+      "Bash(aws cognito-idp list-users *)",
       "Bash(aws dynamodb describe-table *)",
       "Bash(aws dynamodb list-tables *)",
       "Bash(aws dynamodb get-item *)",

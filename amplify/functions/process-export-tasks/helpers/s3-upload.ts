@@ -19,8 +19,11 @@ export async function uploadToS3({
       new PutObjectCommand({
         Bucket: bucket,
         Key: key,
-        Body: markdown,
-        ContentType: "text/markdown",
+        // BOM + charset both signal UTF-8: Quick Suite (and other Microsoft
+        // tools) ignore the Content-Type header and fall back to Windows-1252
+        // when the file lacks a BOM, which mojibakes umlauts and smart quotes.
+        Body: `\uFEFF${markdown}`,
+        ContentType: "text/markdown; charset=utf-8",
       })
     );
 
