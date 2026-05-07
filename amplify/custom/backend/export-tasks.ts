@@ -6,6 +6,7 @@ import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Duration } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Bucket, type CfnBucket } from "aws-cdk-lib/aws-s3";
+import type { CfnFunction } from "aws-cdk-lib/aws-lambda";
 
 /**
  * Configure export tasks functionality:
@@ -146,6 +147,14 @@ export function setupExportTasks(backend: BackendType) {
       resources: [recurringExportsBucket.bucketArn],
     })
   );
+
+  // Prevent concurrent executions so that simultaneous permission-grant events
+  // (e.g. two ExportPermission records inserted at the same time) never race
+  // on a read-modify-write of the bucket policy and overwrite each other.
+  (
+    backend.manageExportPermissions.resources.lambda.node
+      .defaultChild as CfnFunction
+  ).reservedConcurrentExecutions = 1;
 
   /**
    * 8. Grant direct DynamoDB read access to processExportTasks Lambda
