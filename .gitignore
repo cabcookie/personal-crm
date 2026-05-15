@@ -46,3 +46,6 @@ scripts/env.json
 api/temp/
 .playwright-session/
 .claude/*.lock
+
+# Exports
+scripts/export*/

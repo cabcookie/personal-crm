@@ -20,6 +20,9 @@
     "import-data-dev": "cd scripts && node start-import -env dev",
     "import-data-staging": "cd scripts && node start-import -env staging",
     "import-data-prod": "cd scripts && node start-import -env prod",
+    "export-data-dev": "cd scripts && node export-data -env dev",
+    "export-data-staging": "cd scripts && node export-data -env staging",
+    "export-data-prod": "cd scripts && node export-data -env prod",
     "create-code": "npx ampx generate graphql-client-code --out amplify/graphql-code --profile impulso"
   },
   "release": {
