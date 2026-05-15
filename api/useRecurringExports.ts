@@ -6,6 +6,7 @@ import { calculateNextRun } from "@/amplify/functions/process-export-tasks/helpe
 import { v4 } from "uuid";
 import { fetchAuthSession } from "aws-amplify/auth";
 import { toast } from "@/components/ui/use-toast";
+import { subDays } from "date-fns";
 
 export type RecurringExport = Schema["RecurringExport"]["type"];
 export type RecurringExportStatus = Schema["RecurringExportStatus"]["type"];
@@ -110,6 +111,26 @@ export const useRecurringExports = (status: RecurringExportStatus) => {
     }
 
     mutate(updated);
+
+    if (data) {
+      // Immediately create an initial ExportTask so the export runs right away
+      const now = new Date();
+      const { errors: taskErrors } = await client.models.ExportTask.create({
+        dataSource: input.dataSource,
+        itemId: input.itemId,
+        itemName: input.itemName,
+        startDate: subDays(now, input.daysToInclude).toISOString(),
+        endDate: now.toISOString(),
+        status: "CREATED",
+        recurringExportId: data.id,
+        identityId,
+        ttl: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+      });
+
+      if (taskErrors) {
+        handleApiErrors(taskErrors, "Failed creating initial export task");
+      }
+    }
 
     return data;
   };
