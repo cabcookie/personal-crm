@@ -30,15 +30,16 @@ export const ExportsProvider: FC<ExportsProviderProps> = ({ children }) => {
               description: `Export for ${data.itemName} failed: ${data.error}`,
               variant: "destructive",
             });
-          } else if (data.result) {
+          } else if (data.s3Key) {
             // Export succeeded - show action buttons
             toast({
               title: "Export ready",
               description: `Export for ${data.itemName} is ready`,
+              duration: 30000,
               action: (
                 <ExportActions
                   taskId={data.id}
-                  result={data.result}
+                  s3Key={data.s3Key}
                   itemName={data.itemName || ""}
                   dataSource={data.dataSource || ""}
                   variant="outline"
