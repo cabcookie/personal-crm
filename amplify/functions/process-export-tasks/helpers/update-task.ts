@@ -34,3 +34,30 @@ export const updateTaskStatus = async (
   if (!data)
     throw new Error(`Failed updating task with ID ${taskId} to ${status}`);
 };
+
+/**
+ * Mark a task as failed so the frontend subscription fires the destructive
+ * "Export failed" toast. Sets status to GENERATED (the terminal-for-one-time
+ * state the listener watches) with a non-empty `error`. Swallows mutation
+ * errors — this is the error path, we don't want to mask the original failure.
+ */
+export const markTaskAsFailed = async (
+  taskId: string,
+  error: string
+): Promise<void> => {
+  console.log("Marking task as failed", { taskId, error });
+  try {
+    await client.graphql({
+      query: updateExportTask,
+      variables: {
+        input: {
+          id: taskId,
+          status: ExportStatus.GENERATED,
+          error,
+        },
+      },
+    });
+  } catch (mutationError) {
+    console.error("Failed to mark task as failed", { taskId, mutationError });
+  }
+};

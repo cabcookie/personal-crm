@@ -16,6 +16,7 @@ import PeopleSelector from "../ui-elements/selectors/people-selector";
 import ProjectSelector from "../ui-elements/selectors/project-selector";
 import { Accordion } from "../ui/accordion";
 import { Button } from "../ui/button";
+import { MeetingExportButton } from "../exports/MeetingExportButton";
 import MeetingActivityList from "./meeting-activity-list";
 import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
@@ -100,30 +101,39 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
 
   return (
     <div className="space-y-2">
-      <Button
-        onClick={handleUpdateImmediateTasksDone}
-        variant="outline"
-        size="sm"
-        className="gap-1"
-        disabled={savingStatus}
-      >
-        {savingStatus ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Saving…
-          </>
-        ) : immediateTasksDone ? (
-          <>
-            <Circle className="w-4 h-4" />
-            Set meeting open
-          </>
-        ) : (
-          <>
-            <CheckCircle2 className="w-4 h-4" />
-            Confirm meeting done
-          </>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          onClick={handleUpdateImmediateTasksDone}
+          variant="outline"
+          size="sm"
+          className="gap-1"
+          disabled={savingStatus}
+        >
+          {savingStatus ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Saving…
+            </>
+          ) : immediateTasksDone ? (
+            <>
+              <Circle className="w-4 h-4" />
+              Set meeting open
+            </>
+          ) : (
+            <>
+              <CheckCircle2 className="w-4 h-4" />
+              Confirm meeting done
+            </>
+          )}
+        </Button>
+        {meeting?.id && (
+          <MeetingExportButton
+            meetingId={meeting.id}
+            meetingTopic={meeting.topic}
+            meetingOn={meeting.meetingOn}
+          />
         )}
-      </Button>
+      </div>
 
       {showContext && (
         <div className="space-y-2">
