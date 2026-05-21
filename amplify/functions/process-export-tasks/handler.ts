@@ -3,6 +3,14 @@ import { processExport } from "./fetching";
 import { getItemRaw, loadTaskRecord, SkipRecordError } from "./helpers";
 import { handleOneTimeExport } from "./helpers/handle-one-time-export";
 import { handleRecurringExport } from "./helpers/handle-recurring-export";
+import { markTaskAsFailed } from "./helpers/update-task";
+
+const errorMessage = (error: unknown): string =>
+  error instanceof Error
+    ? error.message
+    : typeof error === "string"
+      ? error
+      : JSON.stringify(error);
 
 export const handler: DynamoDBStreamHandler = async (event) => {
   console.log("Processing DynamoDB Stream event", {
@@ -10,8 +18,10 @@ export const handler: DynamoDBStreamHandler = async (event) => {
   });
 
   for (const record of event.Records) {
+    let taskId: string | undefined;
     try {
       const task = loadTaskRecord(record);
+      taskId = task.id;
 
       // For recurring tasks, AppSync strips `::username` off the owner field
       // on IAM writes, so `task.owner` is the single sub. The data tables
@@ -56,6 +66,9 @@ export const handler: DynamoDBStreamHandler = async (event) => {
         continue;
       }
       console.error("Error processing export", error);
+      if (taskId) {
+        await markTaskAsFailed(taskId, errorMessage(error));
+      }
     }
   }
 };

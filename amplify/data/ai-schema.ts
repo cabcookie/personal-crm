@@ -86,7 +86,7 @@ const aiSchema = {
     .authorization((allow) => [allow.authenticated()]),
 
   // ------- Enums
-  ExportTaskDataSource: a.enum(["account", "project"]),
+  ExportTaskDataSource: a.enum(["account", "project", "meeting"]),
   ExportStatus: a.enum(["CREATED", "GENERATED", "COMPLETED"]),
   RecurrenceFrequency: a.enum(["daily", "weekly", "monthly"]),
   RecurringExportStatus: a.enum(["active", "inactive"]),

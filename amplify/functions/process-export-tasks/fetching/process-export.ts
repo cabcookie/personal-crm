@@ -1,4 +1,9 @@
-import { ExportTask, getAccountMd, getProjectMd } from "../helpers";
+import {
+  ExportTask,
+  getAccountMd,
+  getMeetingMd,
+  getProjectMd,
+} from "../helpers";
 
 export const processExport = async (task: ExportTask): Promise<string> => {
   console.log("Processing export", task);
@@ -10,6 +15,8 @@ export const processExport = async (task: ExportTask): Promise<string> => {
       return await getAccountMd(task);
     case "project":
       return await getProjectMd(task);
+    case "meeting":
+      return await getMeetingMd(task);
     default:
       throw new Error(`Unknown data source: ${task.dataSource}`);
   }

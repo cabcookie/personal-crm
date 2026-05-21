@@ -40,7 +40,7 @@ type MeetingInfo = {
   participantIds: string[];
 };
 
-type BlockRecord = {
+export type BlockRecord = {
   id: string;
   type?: string;
   content?: JSONContent | string | null;
@@ -82,7 +82,7 @@ const isCurrentEmployment = (
   return true;
 };
 
-const fetchCurrentEmployment = async (
+export const fetchCurrentEmployment = async (
   personId: string,
   opts: OwnerOpts
 ): Promise<Employment | null> => {
@@ -111,7 +111,7 @@ const fetchCurrentEmployment = async (
   };
 };
 
-const renderParticipant = (
+export const renderParticipant = (
   name: string,
   employment: Employment | null
 ): string => {
@@ -232,7 +232,7 @@ const resolveMentions = async (
 
 /* =========================== blocks fetch ========================== */
 
-const fetchBlocks = async (
+export const fetchBlocks = async (
   activity: ActivityRecord,
   opts: OwnerOpts
 ): Promise<BlockRecord[]> => {
@@ -332,7 +332,7 @@ const renderBlock = (block: BlockRecord): string => {
   return getMarkdown(parseContent(block.content) as JSONContent);
 };
 
-const renderBlocks = (blocks: BlockRecord[] | undefined): string => {
+export const renderBlocks = (blocks: BlockRecord[] | undefined): string => {
   const parts: string[] = [];
   let orderedCount = 0;
   let prevType: string | undefined;
