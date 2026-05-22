@@ -13,6 +13,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { useMemo } from "react";
 import HeadingCustom from "../extensions/heading/heading";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
+import { PasteTasks } from "../extensions/tasks/paste-tasks";
 
 const useExtensions = (placeholder: string): EditorOptions["extensions"] => {
   const extensions = useMemo(() => {
@@ -30,6 +31,7 @@ const useExtensions = (placeholder: string): EditorOptions["extensions"] => {
           class: "flex items-start gap-2 font-semibold list-none",
         },
       }),
+      PasteTasks,
       Highlight,
       Link.extend({ inclusive: false }).configure({
         openOnClick: false,

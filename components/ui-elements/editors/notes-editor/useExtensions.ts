@@ -17,6 +17,7 @@ import { useMemo } from "react";
 import HeadingCustom from "../extensions/heading/heading";
 import LinkBubbleMenuHandler from "../extensions/link-bubble-menu/LinkBubbleMenuHandler";
 import S3ImageExtension from "../extensions/s3-images/S3ImageExtension";
+import { PasteTasks } from "../extensions/tasks/paste-tasks";
 import { TaskItem } from "../extensions/tasks/task-item";
 
 const extendedConfig: Partial<NodeConfig<any, any>> = {
@@ -68,6 +69,7 @@ const useExtensions = (): EditorOptions["extensions"] => {
           class: "flex items-start gap-2 font-semibold list-none",
         },
       }),
+      PasteTasks,
       Highlight,
       Link.extend({ inclusive: false }).configure({
         openOnClick: false,
