@@ -1,21 +1,70 @@
 import { toISODateTimeString } from "@/helpers/functional";
 import { uploadFileToS3 } from "@/helpers/s3/upload-files";
 import { Editor } from "@tiptap/core";
+import { TextSelection } from "@tiptap/pm/state";
 import { EditorView } from "@tiptap/pm/view";
 
+const freshlyPastedBlockIds = new Set<string>();
+
+export const consumeFreshlyPastedBlockId = (blockId: string | null) => {
+  if (!blockId) return false;
+  return freshlyPastedBlockIds.delete(blockId);
+};
+
+export const clearFreshlyPastedBlockIds = () => {
+  freshlyPastedBlockIds.clear();
+};
+
+let userScrollListenersAttached = false;
+const attachUserScrollListeners = () => {
+  if (userScrollListenersAttached) return;
+  if (typeof window === "undefined") return;
+  userScrollListenersAttached = true;
+  const cancel = () => clearFreshlyPastedBlockIds();
+  window.addEventListener("wheel", cancel, { passive: true, capture: true });
+  window.addEventListener("touchmove", cancel, {
+    passive: true,
+    capture: true,
+  });
+};
+
 const dispatchImage = (view: EditorView, url: string, fileName: string) => {
-  const { schema } = view.state;
-  const { tr } = view.state;
-  const pos = view.state.selection.from;
-  tr.insert(
-    pos,
-    schema.nodes.s3image.create({
-      src: url,
-      fileKey: fileName,
-      blockId: crypto.randomUUID(),
-    })
-  );
-  view.dispatch(tr);
+  attachUserScrollListeners();
+  const { schema, selection, tr } = view.state;
+  const blockId = crypto.randomUUID();
+  freshlyPastedBlockIds.add(blockId);
+  const imageNode = schema.nodes.s3image.create({
+    src: url,
+    fileKey: fileName,
+    blockId,
+  });
+
+  const $from = selection.$from;
+  const parent = $from.parent;
+  const isInTextBlock = parent.isTextblock && $from.depth >= 1;
+
+  if (!isInTextBlock) {
+    tr.insert(selection.from, imageNode);
+    view.dispatch(tr.scrollIntoView());
+    return;
+  }
+
+  const emptyParagraph = schema.nodes.paragraph.create();
+  let cursorPos: number;
+
+  if (parent.content.size === 0) {
+    const start = $from.before();
+    const end = $from.after();
+    tr.replaceWith(start, end, [imageNode, emptyParagraph]);
+    cursorPos = start + imageNode.nodeSize + 1;
+  } else {
+    const insertPos = $from.after();
+    tr.insert(insertPos, [imageNode, emptyParagraph]);
+    cursorPos = insertPos + imageNode.nodeSize + 1;
+  }
+
+  tr.setSelection(TextSelection.create(tr.doc, cursorPos));
+  view.dispatch(tr.scrollIntoView());
 };
 
 const updateImageSrc = (
