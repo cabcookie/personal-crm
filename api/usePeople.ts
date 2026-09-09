@@ -65,7 +65,7 @@ const mapPerson =
 const fetchPeople = async () => {
   const user = await fetchUser();
   const { data, errors } = await client.models.Person.list({
-    limit: 2000,
+    limit: 4000,
     selectionSet,
   });
   if (errors) {
