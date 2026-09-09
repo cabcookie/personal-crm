@@ -15,12 +15,18 @@ frontend:
         - nvm use 22
         - npm ci
         - npm run build
+    postBuild:
+      commands:
+        # Turbopack (Next 16 default) leaves a ~220 MB .next/cache, and the
+        # artifact glob below packages everything under .next. That pushed the
+        # deploy bundle to 280 MB, over Amplify's 230 MB limit. The cache is
+        # build-time only and not needed at runtime.
+        - rm -rf .next/cache
   artifacts:
     baseDirectory: .next
     files:
       - "**/*"
   cache:
     paths:
-      - .next/cache/**/*
       - .npm/**/*
       - node_modules/**/*
