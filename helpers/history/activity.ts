@@ -15,19 +15,17 @@ export const mapNotes = flow(
   identity<Project>,
   get("activities"),
   map("activity"),
-  map(
-    (a): Note => ({
-      id: a.id,
-      date: makeDate(a.createdAt, a.finishedOn),
-      label: `${!a.forMeeting ? `On ${getLocaleDateString(a.createdAt, a.finishedOn)}` : `Meeting: ${a.forMeeting.topic} (${getLocaleDateString(a.createdAt, a.finishedOn)})`}`,
-      notes: flow(
-        identity<typeof a>,
-        createDocument,
-        getTextFromJsonContent,
-        replace(/\[\]\n\n/g, "[] "),
-        replace(/\[x\]\n\n/g, "[x] ")
-      )(a),
-    })
-  ),
+  map((a): Note => ({
+    id: a.id,
+    date: makeDate(a.createdAt, a.finishedOn),
+    label: `${!a.forMeeting ? `On ${getLocaleDateString(a.createdAt, a.finishedOn)}` : `Meeting: ${a.forMeeting.topic} (${getLocaleDateString(a.createdAt, a.finishedOn)})`}`,
+    notes: flow(
+      identity<typeof a>,
+      createDocument,
+      getTextFromJsonContent,
+      replace(/\[\]\n\n/g, "[] "),
+      replace(/\[x\]\n\n/g, "[x] ")
+    )(a),
+  })),
   sortBy((a) => a.date.getTime())
 );

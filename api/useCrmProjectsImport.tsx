@@ -198,31 +198,29 @@ const useCrmProjectsImport = (status: TImportStatus) => {
       });
 
     const result: Omit<CrmProject, "id">[] = jsonResult
-      .map(
-        (obj): Omit<CrmProject, "id"> => ({
-          name: obj.name,
-          crmId: obj.crmId,
-          arr: obj.arr,
-          tcv: 0,
-          isMarketplace: false,
-          closeDate: !obj.systemCloseDate
-            ? obj.closeDate
-            : min([obj.systemCloseDate, obj.closeDate]),
-          createdDate: obj.createdDate,
-          projectIds: [],
-          projectLinkIds: [],
-          stage: obj.stage,
-          opportunityOwner: obj.opportunityOwner,
-          nextStep: obj.nextStep,
-          partnerName: obj.partnerName ?? undefined,
-          type: obj.type,
-          stageChangedDate: obj.stageChangedDate,
-          accountName: obj.accountName,
-          territoryName: obj.territoryName,
-          hygieneIssuesResolved: false,
-          pipeline: 0,
-        })
-      )
+      .map((obj): Omit<CrmProject, "id"> => ({
+        name: obj.name,
+        crmId: obj.crmId,
+        arr: obj.arr,
+        tcv: 0,
+        isMarketplace: false,
+        closeDate: !obj.systemCloseDate
+          ? obj.closeDate
+          : min([obj.systemCloseDate, obj.closeDate]),
+        createdDate: obj.createdDate,
+        projectIds: [],
+        projectLinkIds: [],
+        stage: obj.stage,
+        opportunityOwner: obj.opportunityOwner,
+        nextStep: obj.nextStep,
+        partnerName: obj.partnerName ?? undefined,
+        type: obj.type,
+        stageChangedDate: obj.stageChangedDate,
+        accountName: obj.accountName,
+        territoryName: obj.territoryName,
+        hygieneIssuesResolved: false,
+        pipeline: 0,
+      }))
       .sort((a, b) => b.arr - a.arr);
 
     callback(result);

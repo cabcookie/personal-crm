@@ -6,8 +6,8 @@ const mapObjectToDdb = (object) =>
         typeof object[key] === "number"
           ? { N: object[key].toString() }
           : typeof object[key] === "boolean"
-          ? { BOOL: object[key] }
-          : { S: object[key] },
+            ? { BOOL: object[key] }
+            : { S: object[key] },
     }),
     {}
   );

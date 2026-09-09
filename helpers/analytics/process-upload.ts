@@ -112,16 +112,14 @@ type MapMrrValuesProps = {
 const mapMrrValues =
   ({ account, payerId, isReseller, isEstimated, months }: MapMrrValuesProps) =>
   (line: string[]) =>
-    line.map(
-      (val, idx): MonthMrr => ({
-        monthId: months[idx]?.id ?? "",
-        value: parseNumber(val),
-        isReseller,
-        isEstimated,
-        account,
-        payerId,
-      })
-    );
+    line.map((val, idx): MonthMrr => ({
+      monthId: months[idx]?.id ?? "",
+      value: parseNumber(val),
+      isReseller,
+      isEstimated,
+      account,
+      payerId,
+    }));
 
 const nonZeroMrr = (mrr: MonthMrr) => mrr.value !== 0;
 const validMonth = (mrrData: MonthMrr) => mrrData.monthId !== "";

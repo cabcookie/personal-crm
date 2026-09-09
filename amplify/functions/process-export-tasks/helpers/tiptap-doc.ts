@@ -2,11 +2,7 @@ import type { JSONContent } from "@tiptap/core";
 import { getMarkdown } from "./markdown";
 
 const INDENT = "  ";
-const LIST_CONTAINER_TYPES = new Set([
-  "bulletList",
-  "orderedList",
-  "taskList",
-]);
+const LIST_CONTAINER_TYPES = new Set(["bulletList", "orderedList", "taskList"]);
 
 const renderParagraphInline = (paragraph: JSONContent | undefined): string => {
   if (!paragraph?.content) return "";
@@ -103,7 +99,10 @@ export const renderDoc = (
       if (rendered.trim()) parts.push(rendered);
     }
   }
-  return parts.join("").replace(/\n{3,}/g, "\n\n").trim();
+  return parts
+    .join("")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 };
 
 /**

@@ -56,7 +56,7 @@ const mapIntroduction = (a: AccountData): Learning[] =>
   a &&
   Boolean(
     a.introduction ||
-      getTextFromJsonContent(JSON.parse(a.introductionJson as any))
+    getTextFromJsonContent(JSON.parse(a.introductionJson as any))
   )
     ? union<Learning>(
         [

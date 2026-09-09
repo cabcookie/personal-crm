@@ -52,19 +52,17 @@ const mapMeetingTodo = (meeting: MeetingTodoData): MeetingTodo[] =>
                 b.todo.id === block.todo.id
             )
         ),
-        map(
-          ({ id: blockId, todo }): MeetingTodo => ({
-            meetingId: meeting.id,
-            todoId: getTodoId(todo),
-            todo: getTodoJson(todo),
-            done: getTodoStatus(todo),
-            doneOn: getTodoDoneOn(todo),
-            activityId,
-            blockId,
-            projectIds: map("projectsId")(forProjects),
-            updatedAt: new Date(todo.updatedAt),
-          })
-        )
+        map(({ id: blockId, todo }): MeetingTodo => ({
+          meetingId: meeting.id,
+          todoId: getTodoId(todo),
+          todo: getTodoJson(todo),
+          done: getTodoStatus(todo),
+          doneOn: getTodoDoneOn(todo),
+          activityId,
+          blockId,
+          projectIds: map("projectsId")(forProjects),
+          updatedAt: new Date(todo.updatedAt),
+        }))
       )(noteBlocks)
     )
   )(meeting);

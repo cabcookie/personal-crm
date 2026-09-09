@@ -55,8 +55,7 @@ type UpdatePersonAccountProps = {
 };
 
 type PersonAccountFormProps = (
-  | CreatePersonAccountProps
-  | UpdatePersonAccountProps
+  CreatePersonAccountProps | UpdatePersonAccountProps
 ) & {
   personName: string;
 };

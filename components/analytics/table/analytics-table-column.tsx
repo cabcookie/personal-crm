@@ -111,22 +111,20 @@ const getMonthlyMrrColumnDef = (
   flow(
     identity<number>,
     times(identity),
-    map(
-      (id: number): ColumnDef<AccountMrr> => ({
-        accessorKey: `month${id}Mrr`,
-        header: getMonthName(noOfMonths, id),
-        footer: () => (
-          <RenderMonthMrr
-            monthMrr={getMonthlyTotals(mrr, noOfMonths, id)}
-            noOfMonths={noOfMonths}
-          />
-        ),
-        cell: ({ getValue }) => (
-          <RenderMonthMrr
-            monthMrr={getValue<MonthMrr>()}
-            noOfMonths={noOfMonths}
-          />
-        ),
-      })
-    )
+    map((id: number): ColumnDef<AccountMrr> => ({
+      accessorKey: `month${id}Mrr`,
+      header: getMonthName(noOfMonths, id),
+      footer: () => (
+        <RenderMonthMrr
+          monthMrr={getMonthlyTotals(mrr, noOfMonths, id)}
+          noOfMonths={noOfMonths}
+        />
+      ),
+      cell: ({ getValue }) => (
+        <RenderMonthMrr
+          monthMrr={getValue<MonthMrr>()}
+          noOfMonths={noOfMonths}
+        />
+      ),
+    }))
   )(noOfMonths);

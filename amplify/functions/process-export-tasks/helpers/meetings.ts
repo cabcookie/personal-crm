@@ -208,7 +208,9 @@ export const getMeetingMd = async (task: ExportTask): Promise<string> => {
       return da < db ? -1 : da > db ? 1 : 0;
     });
 
-  const dateTime = formatMeetingDateTime(meeting.meetingOn || meeting.createdAt);
+  const dateTime = formatMeetingDateTime(
+    meeting.meetingOn || meeting.createdAt
+  );
   const title = meeting.topic?.trim() || "Untitled meeting";
   const heading = dateTime ? `# ${dateTime} - ${title}` : `# ${title}`;
 
