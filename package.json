@@ -101,8 +101,7 @@
     "zod": "^3.23.8"
   },
   "overrides": {
-    "@aws-amplify/data-schema": "1.22.0",
-    "@aws-amplify/data-schema-types": "1.2.0"
+    "@aws-amplify/data-schema": "1.24.0"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.0.4",
