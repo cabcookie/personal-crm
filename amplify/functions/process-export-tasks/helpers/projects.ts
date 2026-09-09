@@ -1,4 +1,3 @@
-import { differenceInCalendarDays } from "date-fns";
 import {
   fetchActivitiesForProject,
   renderActivitiesSection,

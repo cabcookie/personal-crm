@@ -32,7 +32,9 @@ type LearningRecord = {
 
 const resolveIntroduction = (account: AccountRecord): string => {
   if (account.introductionJson)
-    return renderDoc(account.introductionJson as Parameters<typeof renderDoc>[0]);
+    return renderDoc(
+      account.introductionJson as Parameters<typeof renderDoc>[0]
+    );
   return account.introduction ?? "";
 };
 

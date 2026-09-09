@@ -75,7 +75,7 @@ const mapInteraction = (
       union(meetingIds),
       uniq
     )(ad),
-  } as Interaction);
+  }) as Interaction;
 
 const interactionWithoutCurrentPerson = (
   interactions: Interaction[],

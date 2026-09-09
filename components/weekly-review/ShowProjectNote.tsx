@@ -27,8 +27,8 @@ export const ShowProjectNote: FC<ShowProjectNoteProps> = ({
 
   const removeFromReview = (id: string) => () => {
     setProjectNotes((projects) =>
-      projects.map(
-        (p): ProjectForReview => (p.id !== id ? p : { ...p, category: "none" })
+      projects.map((p): ProjectForReview =>
+        p.id !== id ? p : { ...p, category: "none" }
       )
     );
   };

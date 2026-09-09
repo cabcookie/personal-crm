@@ -18,10 +18,7 @@ interface DefaultAccordionItemProps extends AccordionItemProps {
   triggerTitle: ReactNode;
   link?: string;
   triggerSubTitle?:
-    | string
-    | boolean
-    | null
-    | (string | undefined | null | boolean)[];
+    string | boolean | null | (string | undefined | null | boolean)[];
   isVisible?: boolean;
   onDelete?: () => void;
   actionIcon?: ReactNode;
