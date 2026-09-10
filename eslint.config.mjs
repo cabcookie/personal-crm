@@ -20,6 +20,8 @@ const config = [
       // kept out here so this upgrade does not widen what gets linted.
       "scripts/**",
       "test-export.mjs",
+      // Carried over from the .eslintignore that ESLint 9 no longer reads.
+      "components/import-data/**",
     ],
   },
   js.configs.recommended,
@@ -58,11 +60,6 @@ const config = [
   {
     rules: {
       "prettier/prettier": ["error", { singleQuote: false }],
-      // React Compiler rules new in eslint-config-next 16. They flag 34
-      // pre-existing patterns; demoted to warnings so lint stays usable
-      // while they are addressed in their own PR.
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/purity": "warn",
     },
   },
 ];

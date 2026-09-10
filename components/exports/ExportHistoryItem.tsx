@@ -145,6 +145,10 @@ export const ExportHistoryItem: FC<ExportHistoryItemProps> = ({
         )}`
       : "N/A";
 
+  // Read once per mount: calling Date.now() during render is impure and would
+  // drift between re-renders.
+  const [nowMs] = useState(() => Date.now());
+
   const createdAgo = task.createdAt
     ? formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })
     : "N/A";
@@ -190,9 +194,7 @@ export const ExportHistoryItem: FC<ExportHistoryItemProps> = ({
               <div className="flex items-center gap-1">
                 <span>
                   Auto-deletes in{" "}
-                  {Math.ceil(
-                    (task.ttl * 1000 - Date.now()) / (1000 * 60 * 60 * 24)
-                  )}{" "}
+                  {Math.ceil((task.ttl * 1000 - nowMs) / (1000 * 60 * 60 * 24))}{" "}
                   days
                 </span>
               </div>

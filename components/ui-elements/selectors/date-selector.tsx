@@ -9,7 +9,7 @@ import { toLocaleTimeString } from "@/helpers/functional";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
-import { ChangeEvent, FC, useEffect, useState } from "react";
+import { ChangeEvent, FC, useState } from "react";
 
 type DateSelectorProps = {
   elementId?: string;
@@ -41,11 +41,15 @@ const DateSelector: FC<DateSelectorProps> = ({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [time, setTime] = useState(date);
   const [selectedDate, setSelectedDate] = useState(date);
+  const [lastDate, setLastDate] = useState(date);
 
-  useEffect(() => {
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastDate !== date) {
+    setLastDate(date);
     setTime(date);
     setSelectedDate(date);
-  }, [date]);
+  }
 
   const getCombinedDate = (d: Date | undefined, t: Date | string | undefined) =>
     d &&

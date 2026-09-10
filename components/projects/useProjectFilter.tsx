@@ -6,7 +6,7 @@ import {
   createContext,
   FC,
   useContext,
-  useEffect,
+  useMemo,
   useState,
 } from "react";
 import { SearchProvider, useSearch } from "../search/useSearch";
@@ -109,25 +109,27 @@ export const ProjectFilterProvider: FC<ProjectFilterProviderProps> = ({
     moveProjectDown: globalMoveProjectDown,
   } = useProjectsContext();
   const { accounts } = useAccountsContext();
-  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   const { searchText, isSearchActive } = useSearch();
   const [filter, setFilter] = useState<ProjectFilters>("WIP");
 
   const onFilterChange = (newFilter: string) =>
     isValidProjectFilter(newFilter) && setFilter(newFilter);
 
-  useEffect(() => {
-    if (!projects) return setFilteredProjects([]);
-    setFilteredProjects(
-      filterProjects({
-        projects,
-        accountId,
-        projectFilter: filter,
-        accounts,
-        searchText,
-      })
-    );
-  }, [accountId, accounts, filter, projects, searchText]);
+  // Derived from projects and the active filter, so computed during render
+  // instead of pushed into state from an effect.
+  const filteredProjects: Project[] = useMemo(
+    () =>
+      !projects
+        ? []
+        : filterProjects({
+            projects,
+            accountId,
+            projectFilter: filter,
+            accounts,
+            searchText,
+          }),
+    [accountId, accounts, filter, projects, searchText]
+  );
 
   // Filtered move functions that calculate order based on filtered context
   const moveProjectUp = async (

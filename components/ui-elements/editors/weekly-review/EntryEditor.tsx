@@ -1,7 +1,7 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useExtentions } from "./useExtensions";
 import { Editor } from "@tiptap/core";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import { cn } from "@/lib/utils";
 import { useWeeklyReview } from "@/api/useWeeklyReview";
 import { debounce } from "lodash";
@@ -12,7 +12,6 @@ interface EntryEditorProps {
 }
 
 export const EntryEditor: FC<EntryEditorProps> = ({ content, entryId }) => {
-  const [editorContent, setEditorContent] = useState<string>();
   const extensions = useExtentions();
   const { updateWeeklyReviewEntryContent: updateFn } = useWeeklyReview();
 
@@ -25,13 +24,13 @@ export const EntryEditor: FC<EntryEditorProps> = ({ content, entryId }) => {
     },
   });
 
-  useEffect(() => {
-    if (!editor) return;
-    if (!editorContent) return setEditorContent(editor.getText());
-    if (editorContent === editor.getText()) return;
-    setEditorContent(editor.getText());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor?.getText()]);
+  /** The editor is an external mutable store, so its text is subscribed to
+   * rather than mirrored into state from an effect. */
+  const editorContent = useEditorState({
+    editor,
+    selector: ({ editor }) => editor?.getText(),
+  });
+
   useEffect(() => {
     if (!editor) return;
     if (editor.getText() === "") editor.commands.setContent(content);

@@ -1,4 +1,4 @@
-import { createContext, FC, useContext, useEffect, useState } from "react";
+import { createContext, FC, useContext, useState } from "react";
 
 interface SearchType {
   searchText: string;
@@ -21,11 +21,7 @@ interface SearchProviderProps {
 
 export const SearchProvider: FC<SearchProviderProps> = ({ children }) => {
   const [search, setSearch] = useState("");
-  const [isSearchActive, setIsSearchActive] = useState(false);
-
-  useEffect(() => {
-    setIsSearchActive(!!search);
-  }, [search]);
+  const isSearchActive = !!search;
 
   return (
     <Search.Provider

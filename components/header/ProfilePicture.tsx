@@ -4,7 +4,7 @@ import { signOut } from "aws-amplify/auth";
 import { defaultTo, flow, get, identity, join, map, split } from "lodash/fp";
 import { LogOut, UserCircle2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
   DropdownMenu,
@@ -19,17 +19,21 @@ import Version from "../version/version";
 const ProfilePicture = () => {
   const { user, createProfile } = useCurrentUser();
   const [open, setOpen] = useState(false);
-  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+  // Guards the in-flight createProfile call. Never rendered, so a ref keeps
+  // it out of the render cycle instead of setting state inside the effect.
+  const isCreatingProfile = useRef(false);
   const [imageUrl, setImgUrl] = useState<string | undefined>(undefined);
   const [initials, setInitials] = useState<string | undefined>("NA");
 
   useEffect(() => {
     if (!open) return;
-    if (isCreatingProfile) return;
+    if (isCreatingProfile.current) return;
     if (!user?.hasNoProfile) return;
-    setIsCreatingProfile(true);
-    createProfile(() => setIsCreatingProfile(false));
-  }, [createProfile, isCreatingProfile, open, user]);
+    isCreatingProfile.current = true;
+    createProfile(() => {
+      isCreatingProfile.current = false;
+    });
+  }, [createProfile, open, user]);
 
   useEffect(() => {
     flow(

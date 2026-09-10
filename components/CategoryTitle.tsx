@@ -19,6 +19,14 @@ export type CategoryTitleProps = {
 const CategoryTitle: FC<CategoryTitleProps> = (props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(props.title);
+  const [lastPropsTitle, setLastPropsTitle] = useState(props.title);
+
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastPropsTitle !== props.title) {
+    setLastPropsTitle(props.title);
+    setTitle(props.title);
+  }
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const router = useRouter();
 
@@ -33,10 +41,6 @@ const CategoryTitle: FC<CategoryTitleProps> = (props) => {
       textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
     }
   }, [title, isEditing]);
-
-  useEffect(() => {
-    setTitle(props.title);
-  }, [props.title]);
 
   const handleBlur = () => {
     setIsEditing(false);

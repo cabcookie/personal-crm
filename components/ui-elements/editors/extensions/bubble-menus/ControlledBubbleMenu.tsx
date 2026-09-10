@@ -1,6 +1,13 @@
 import { Popover, PopoverContent } from "@/components/ui/popover";
 import { Editor, isNodeSelection, posToDOMRect } from "@tiptap/core";
-import { FC, ReactNode, useCallback, useEffect, useState } from "react";
+import {
+  FC,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 type PopoverStylesProps =
   | {
@@ -57,7 +64,14 @@ const ControlledBubbleMenu: FC<ControlledBubbleMenuProps> = ({
     setPopoverStyles(styles);
   }, [editor]);
 
-  useEffect(() => {
+  // Measures DOM geometry to position the popover, so it has to run before
+  // paint -- otherwise the menu flashes at the previous position. Measuring
+  // the DOM and storing the result is the one case React documents as a
+  // legitimate reason to set state from an effect, so the rule is silenced
+  // here rather than the code contorted around it.
+
+  useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (open) calculateAnchorRect();
   }, [open, calculateAnchorRect]);
 

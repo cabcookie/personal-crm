@@ -5,7 +5,7 @@ import { Context } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
 import { CheckCircle2, Circle, Loader2 } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
@@ -54,12 +54,26 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     meeting?.meetingOn || new Date()
   );
   const { meetingTodos, mutate } = useMeetingTodos(meeting?.id);
+  const [lastMeeting, setLastMeeting] = useState(meeting);
+  const [lastTasksDone, setLastTasksDone] = useState(
+    meeting?.immediateTasksDone
+  );
 
-  useEffect(() => {
-    if (!meeting) return;
-    setMeetingDate(meeting.meetingOn);
-    setMeetingContext(meeting.context);
-  }, [meeting]);
+  // Both values stay in state because handlers update them optimistically;
+  // adjusting during render is React's documented alternative to syncing
+  // them in an effect.
+  if (lastMeeting !== meeting) {
+    setLastMeeting(meeting);
+    if (meeting) {
+      setMeetingDate(meeting.meetingOn);
+      setMeetingContext(meeting.context);
+    }
+  }
+
+  if (lastTasksDone !== meeting?.immediateTasksDone) {
+    setLastTasksDone(meeting?.immediateTasksDone);
+    setImmediateTasksDone(!!meeting?.immediateTasksDone);
+  }
 
   const addParticipant = (personId: string | null) => {
     if (!personId) return;
@@ -94,10 +108,6 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
 
   const handleSelectProject = (projectId: string | null) =>
     projectId && createMeetingActivity(projectId);
-
-  useEffect(() => {
-    setImmediateTasksDone(!!meeting?.immediateTasksDone);
-  }, [meeting?.immediateTasksDone]);
 
   return (
     <div className="space-y-2">
