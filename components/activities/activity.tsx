@@ -2,7 +2,7 @@ import useActivity from "@/api/useActivity";
 import useMeeting from "@/api/useMeeting";
 import { ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import ApiLoadingError from "../layouts/ApiLoadingError";
 import MeetingAccordionItem from "../meetings/MeetingAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
@@ -52,11 +52,15 @@ const ActivityComponent: FC<ActivityComponentProps> = ({
   const { meeting, deleteMeetingActivity } = useMeeting(activity?.meetingId);
   const [dateSaved, setDateSaved] = useState(true);
   const [date, setDate] = useState(activity?.finishedOn || new Date());
+  const [lastActivity, setLastActivity] = useState(activity);
   const { toast } = useToast();
 
-  useEffect(() => {
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastActivity !== activity) {
+    setLastActivity(activity);
     setDate(activity?.finishedOn || new Date());
-  }, [activity]);
+  }
 
   const handleDateUpdate = async (date: Date) => {
     setDateSaved(false);

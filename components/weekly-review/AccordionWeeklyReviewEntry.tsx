@@ -1,5 +1,5 @@
 import { WeeklyReviewEntry, useWeeklyReview } from "@/api/useWeeklyReview";
-import { FC, useEffect, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { Project, useProjectsContext } from "@/api/ContextProjects";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
@@ -20,16 +20,19 @@ export const AccordionWeeklyReviewEntry: FC<
   const { projects } = useProjectsContext();
   const { updateWeeklyReviewEntryCategory, deleteWeeklyReviewEntry } =
     useWeeklyReview();
-  const [project, setProject] = useState<Project>();
   const [content, setContent] = useState(weeklyReviewEntry.content || "");
+  const [lastContent, setLastContent] = useState(weeklyReviewEntry.content);
 
-  useEffect(() => {
-    setProject(projects?.find((p) => p.id === weeklyReviewEntry.projectId));
-  }, [projects, weeklyReviewEntry.projectId]);
+  // Purely derived from the project list, so computed during render.
+  const project: Project | undefined = useMemo(
+    () => projects?.find((p) => p.id === weeklyReviewEntry.projectId),
+    [projects, weeklyReviewEntry.projectId]
+  );
 
-  useEffect(() => {
+  if (lastContent !== weeklyReviewEntry.content) {
+    setLastContent(weeklyReviewEntry.content);
     setContent(weeklyReviewEntry.content || "");
-  }, [weeklyReviewEntry.content]);
+  }
 
   const handleIgnore = async () => {
     await updateWeeklyReviewEntryCategory(weeklyReviewEntry.id, "none");

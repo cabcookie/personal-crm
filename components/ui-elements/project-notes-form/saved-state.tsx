@@ -7,16 +7,19 @@ type SavedStateProps = {
 
 const SavedState: FC<SavedStateProps> = (props) => {
   const [showSavedMsg, setShowSavedMsg] = useState(props.saved);
+  const [lastSaved, setLastSaved] = useState(props.saved);
+
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastSaved !== props.saved) {
+    setLastSaved(props.saved);
+    setShowSavedMsg(props.saved);
+  }
 
   useEffect(() => {
-    setShowSavedMsg(props.saved);
-    if (props.saved) {
-      setShowSavedMsg(true);
-      const timer = setTimeout(() => {
-        setShowSavedMsg(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    if (!props.saved) return;
+    const timer = setTimeout(() => setShowSavedMsg(false), 2000);
+    return () => clearTimeout(timer);
   }, [props.saved]);
 
   return (

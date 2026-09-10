@@ -1,14 +1,7 @@
 import { handleApiErrors } from "@/api/globals";
 import useWeekPlan, { WeeklyPlan } from "@/api/useWeekPlan";
 import { addDays } from "date-fns";
-import {
-  ComponentType,
-  createContext,
-  FC,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { ComponentType, createContext, FC, useContext, useState } from "react";
 import { toast } from "../ui/use-toast";
 import { client } from "@/lib/amplify";
 
@@ -53,11 +46,14 @@ const WeekPlanProvider: FC<WeekPlanProviderProps> = ({ children }) => {
   const [startDate, setStartDate] = useState(
     weekPlan?.startDate || addDays(new Date(), 1)
   );
+  const [lastWeekPlan, setLastWeekPlan] = useState(weekPlan);
 
-  useEffect(() => {
-    if (!weekPlan) return;
-    setStartDate(weekPlan.startDate);
-  }, [weekPlan]);
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastWeekPlan !== weekPlan) {
+    setLastWeekPlan(weekPlan);
+    if (weekPlan) setStartDate(weekPlan.startDate);
+  }
 
   const skipInbox = !weekPlan
     ? undefined

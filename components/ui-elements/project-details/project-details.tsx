@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
 import { addDays } from "date-fns";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useMemo, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
 import CrmProjectsList from "../crm-project-details/crm-projects-list";
@@ -43,16 +43,25 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     updateProjectContext,
     removeAccountFromProject,
   } = useProjectsContext();
-  const [project, setProject] = useState<Project | undefined>(
-    projectId ? getProjectById(projectId) : undefined
+  // Purely derived from the project list, so computed during render. The
+  // previous effect listed `project` as a dependency while also setting it,
+  // so it re-ran against a stale `project?.context`; the context now tracks
+  // the current project.
+  const project: Project | undefined = useMemo(
+    () => (projectId ? getProjectById(projectId) : undefined),
+    [getProjectById, projectId]
   );
+  // Kept as state because the context selector updates it optimistically.
   const [projectContext, setProjectContext] = useState(project?.context);
+  const [lastProjectContext, setLastProjectContext] = useState(
+    project?.context
+  );
   const [pushingInProgress, setPushingInProgress] = useState(false);
 
-  useEffect(() => {
-    setProject(getProjectById(projectId));
+  if (lastProjectContext !== project?.context) {
+    setLastProjectContext(project?.context);
     setProjectContext(project?.context);
-  }, [getProjectById, project, projectId]);
+  }
 
   const handleDateChange = async (props: {
     dueOn?: Date | undefined;

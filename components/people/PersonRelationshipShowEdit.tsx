@@ -1,6 +1,6 @@
 import { PersonRelationship } from "@/helpers/person/relationships";
 import { PlusCircle } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Button } from "../ui/button";
 import RelationEdit from "./relations/relation-edit";
 import RelationText from "./relations/relation-text";
@@ -25,10 +25,14 @@ const PersonRelationshipShowEdit: FC<PersonRelationshipShowEditProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [relation, setRelation] = useState(relationship);
+  const [lastRelationship, setLastRelationship] = useState(relationship);
 
-  useEffect(() => {
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastRelationship !== relationship) {
+    setLastRelationship(relationship);
     setRelation(relationship);
-  }, [relationship]);
+  }
 
   const saveChanges = async () => {
     await updateRelationship(relation);

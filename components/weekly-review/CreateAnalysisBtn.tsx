@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useMemo } from "react";
 import {
   getWeekStart,
   ProjectForReview,
@@ -28,18 +28,20 @@ export const CreateAnalysisBtn: FC<CreateAnalysisBtnProps> = ({
   const { weeklyReviews: existingReviewsForReview } =
     useWeeklyReview(getWeekStart());
   const { weeksToReview } = useTimeFrameFilter();
-  const [hasProjects, setHasProjects] = useState(false);
   const { accounts } = useAccountsContext();
 
-  useEffect(() => {
-    if (!projects) return;
-    const updated = hasProjectsToReview(
-      projects,
-      existingReviewsForReview,
-      weeksToReview
-    );
-    setHasProjects(updated);
-  }, [projects, weeksToReview, existingReviewsForReview]);
+  // Purely derived, so computed during render.
+  const hasProjects = useMemo(
+    () =>
+      !projects
+        ? false
+        : hasProjectsToReview(
+            projects,
+            existingReviewsForReview,
+            weeksToReview
+          ),
+    [projects, weeksToReview, existingReviewsForReview]
+  );
 
   return (
     <>

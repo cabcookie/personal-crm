@@ -2,7 +2,7 @@ import useCrmProject from "@/api/useCrmProject";
 import { CrmProject } from "@/api/useCrmProjects";
 import { format } from "date-fns";
 import { ClipboardCopy, Edit, Loader2 } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import {
@@ -22,13 +22,17 @@ const NextStep: FC<NextStepProps> = ({ crmProject }) => {
   const [editing, setEditing] = useState(false);
   const [nextStepVal, setNextStepVal] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [lastCrmProject, setLastCrmProject] = useState(crmProject);
   const { toast } = useToast();
 
-  useEffect(() => {
+  // Resetting on a prop change during render is React's documented
+  // alternative to doing it in an effect.
+  if (lastCrmProject !== crmProject) {
+    setLastCrmProject(crmProject);
     setEditing(false);
     setIsSaving(false);
     setNextStepVal("");
-  }, [crmProject]);
+  }
 
   const handleSaveClick = () => {
     setIsSaving(true);

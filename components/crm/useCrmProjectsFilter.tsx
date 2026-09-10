@@ -1,13 +1,13 @@
 import useCrmProjects, { CrmProject } from "@/api/useCrmProjects";
 import useCurrentUser, { User } from "@/api/useUser";
-import { filter, flow } from "lodash/fp";
+import { filter } from "lodash/fp";
 import {
   ComponentType,
   createContext,
   FC,
   ReactNode,
   useContext,
-  useEffect,
+  useMemo,
   useState,
 } from "react";
 import { hasHygieneIssues } from "./pipeline-hygiene";
@@ -60,37 +60,33 @@ const CrmProjectsFilterProvider: FC<CrmProjectsFilterProviderProps> = ({
 }) => {
   const { user } = useCurrentUser();
   const { crmProjects, isLoading, error } = useCrmProjects();
-  const [availableFilters, setAvailableFilters] = useState<TProjectFilters[]>([
-    "All",
-  ]);
   const [selectedMore, setSelectedMore] = useState(false);
-  const [filtered, setFiltered] = useState<CrmProject[] | null>(null);
   const [crmFilter, setCrmFilter] = useState<TProjectFilters>("All");
 
-  useEffect(() => {
-    if (!crmProjects) return setFiltered(null);
-    if (crmFilter === "All") return setFiltered(crmProjects);
+  // Both values are derived from crmProjects and the active filter, so they
+  // are computed during render instead of pushed into state from an effect.
+  // PROJECT_FILTERS covers exactly these four cases.
+  const filtered: CrmProject[] | null = useMemo(() => {
+    if (!crmProjects) return null;
     if (crmFilter === "Hygiene")
-      return flow(filter(hasHygieneIssues(user)), setFiltered)(crmProjects);
+      return filter(hasHygieneIssues(user), crmProjects);
     if (crmFilter === "By Partner")
-      return flow(filter(hasPartnerLinked), setFiltered)(crmProjects);
+      return filter(hasPartnerLinked, crmProjects);
     if (crmFilter === "By Account")
-      return flow(filter(hasAccountLinked), setFiltered)(crmProjects);
+      return filter(hasAccountLinked, crmProjects);
+    return crmProjects;
   }, [crmProjects, crmFilter, user]);
 
-  useEffect(() => {
-    if (!crmProjects) setAvailableFilters(["All"]);
-    else
-      setAvailableFilters(
-        (
-          [
-            "All",
-            ...enableUpdateDueFilter(user, crmProjects),
-            "By Partner",
-            "By Account",
-          ] as TProjectFilters[]
-        ).filter((t) => !!t)
-      );
+  const availableFilters: TProjectFilters[] = useMemo(() => {
+    if (!crmProjects) return ["All"];
+    return (
+      [
+        "All",
+        ...enableUpdateDueFilter(user, crmProjects),
+        "By Partner",
+        "By Account",
+      ] as TProjectFilters[]
+    ).filter((t) => !!t);
   }, [crmProjects, user]);
 
   const onFilterChange = (newFilter: string) =>

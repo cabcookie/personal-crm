@@ -2,22 +2,18 @@ import { Project, useProjectsContext } from "@/api/ContextProjects";
 import MainLayout from "@/components/layouts/MainLayout";
 import ProjectDetails from "@/components/ui-elements/project-details/project-details";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 const ProjectDetailPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const projectId = Array.isArray(id) ? id[0] : id;
   const { getProjectById, updateProjectState } = useProjectsContext();
-  const [project, setProject] = useState<Project | undefined>(
-    projectId ? getProjectById(projectId) : undefined
+  // Purely derived from the project list, so computed during render.
+  const project: Project | undefined = useMemo(
+    () => (projectId ? getProjectById(projectId) : undefined),
+    [getProjectById, projectId]
   );
-
-  useEffect(() => {
-    if (projectId) {
-      setProject(getProjectById(projectId));
-    }
-  }, [getProjectById, projectId]);
 
   const handleBackBtnClick = () => {
     router.push("/projects");

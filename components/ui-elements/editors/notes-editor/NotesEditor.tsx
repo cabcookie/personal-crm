@@ -1,6 +1,6 @@
 import useActivity from "@/api/useActivity";
 import { Editor, JSONContent } from "@tiptap/core";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
 import { FC, useEffect, useState } from "react";
 import EditorMenu from "../EditorMenu";
 import LinkBubbleMenu from "../extensions/link-bubble-menu/LinkBubbleMenu";
@@ -23,7 +23,7 @@ type NotesEditorProps = {
 const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
   const { activity, updateNotes } = useActivity(activityId);
   const [activityNotes, setActivityNotes] = useState<JSONContent | undefined>();
-  const [editorContent, setEditorContent] = useState<JSONContent | undefined>();
+  const [lastActivity, setLastActivity] = useState(activity);
   const extensions = useExtensions();
 
   const handleNotesUpdate = (editor: Editor) => {
@@ -40,18 +40,20 @@ const NotesEditor: FC<NotesEditorProps> = ({ activityId, readonly }) => {
     },
   });
 
-  /** Handle changes on activity.notes, editor's content, extensions, or readonly state */
-  useEffect(() => {
-    if (!editor) return;
-    if (!editorContent) return setEditorContent(editor.getJSON());
-    if (isUpToDate(editorContent, editor.getJSON())) return;
-    setEditorContent(editor.getJSON());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editor?.getJSON()]);
-  useEffect(() => {
-    if (!activity) return;
-    setActivityNotes(activity.notes);
-  }, [activity]);
+  /** The editor is an external mutable store, so its content is subscribed to
+   * rather than mirrored into state from an effect. isUpToDate is the same
+   * comparison the effect used to decide whether the content really changed. */
+  const editorContent = useEditorState({
+    editor,
+    selector: ({ editor }) => editor?.getJSON(),
+    equalityFn: (a, b) =>
+      (!a && !b) || (!!a && !!isUpToDate(a, b ?? undefined)),
+  });
+
+  if (lastActivity !== activity) {
+    setLastActivity(activity);
+    if (activity) setActivityNotes(activity.notes);
+  }
   useEffect(() => {
     updateEditorContent(editor, activityNotes);
   }, [editor, activityNotes]);

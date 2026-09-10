@@ -1,6 +1,6 @@
 import { Payer } from "@/api/usePayer";
 import { cn } from "@/lib/utils";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
@@ -11,11 +11,15 @@ type NotesInputProps = {
 };
 
 const NotesInput: FC<NotesInputProps> = ({ payer, onChange, className }) => {
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(payer?.notes ?? "");
+  const [lastPayer, setLastPayer] = useState(payer);
 
-  useEffect(() => {
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect, and avoids the extra render pass.
+  if (lastPayer !== payer) {
+    setLastPayer(payer);
     setNotes(payer?.notes ?? "");
-  }, [payer]);
+  }
 
   return (
     <div className={cn("space-y-1", className)}>

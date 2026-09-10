@@ -1,7 +1,7 @@
 import useWeekPlan from "@/api/useWeekPlan";
 import { isDeselectedForWeek, isSelectedForWeek } from "@/helpers/planning";
 import { cn } from "@/lib/utils";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Label } from "../ui/label";
 import DecisionButton from "./DecisionButton";
 
@@ -23,15 +23,20 @@ const DecisionSection: FC<DecisionSectionProps> = ({
 }) => {
   const { makeProjectDecision, weekPlan } = useWeekPlan();
   const [selectedChoice, setSelectedChoice] = useState("");
+  const [lastInputs, setLastInputs] = useState({ weekPlan, project });
 
-  useEffect(() => {
-    if (!weekPlan) return;
+  // Clears the pending indicator once the plan reflects the decision. Keyed on
+  // the same inputs the effect watched, so the timing is unchanged -- only the
+  // extra render pass is gone.
+  if (lastInputs.weekPlan !== weekPlan || lastInputs.project !== project) {
+    setLastInputs({ weekPlan, project });
     if (
-      isSelectedForWeek(weekPlan, project) ||
-      isDeselectedForWeek(weekPlan, project)
+      weekPlan &&
+      (isSelectedForWeek(weekPlan, project) ||
+        isDeselectedForWeek(weekPlan, project))
     )
       setSelectedChoice("");
-  }, [weekPlan, project]);
+  }
 
   const handleDecision = (inFocusThisWeek: boolean, choice: string) => () => {
     setSelectedChoice(choice);

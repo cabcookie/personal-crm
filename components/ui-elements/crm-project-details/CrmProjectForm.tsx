@@ -36,7 +36,7 @@ import { revenueNumber } from "@/helpers/ui-form-helpers";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edit } from "lucide-react";
 import { FC, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import CurrencyInput from "../forms/CurrencyInput";
 
@@ -111,7 +111,9 @@ const CrmProjectForm: FC<CrmProjectFormProps> = ({
     setFormOpen(open);
   };
 
-  const crmId = form.watch("crmId");
+  // useWatch instead of form.watch: the latter returns a fresh function
+  // each render, which makes React Compiler skip the whole component.
+  const crmId = useWatch({ control: form.control, name: "crmId" });
 
   useEffect(() => {
     if (!crmId) return;

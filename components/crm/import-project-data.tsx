@@ -6,10 +6,9 @@ import {
   newProjects,
 } from "@/helpers/crm/filters";
 import { cn } from "@/lib/utils";
-import { flow, map, sum } from "lodash/fp";
 import { ExternalLink, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import ApiLoadingError from "../layouts/ApiLoadingError";
 import { Accordion } from "../ui/accordion";
 import { Button } from "../ui/button";
@@ -41,21 +40,26 @@ const ImportProjectData: FC<ImportProjectDataProps> = ({ reloader }) => {
   const [processedData, setProcessedData] = useState<
     Omit<CrmProject, "id">[] | null
   >(null);
-  const [changeSet, setChangeSet] = useState<DataChanged | null>(null);
-  const [projectsCount, setProjectsCount] = useState(0);
+  // Purely derived from the processed import, so computed during render.
+  const changeSet: DataChanged | null = useMemo(
+    () =>
+      !processedData || !crmProjects
+        ? null
+        : {
+            new: processedData.filter(newProjects(crmProjects)),
+            missing: crmProjects.filter(missingProjects(processedData)),
+            changed: processedData.filter(changedProjects(crmProjects)),
+          },
+    [crmProjects, processedData]
+  );
 
-  useEffect(() => {
-    if (!changeSet) return setProjectsCount(0);
+  const projectsCount = useMemo(() => {
+    if (!changeSet) return 0;
     const validKeys: (keyof DataChanged)[] = ["new", "missing", "changed"];
-    flow(
-      map(
-        (key: keyof DataChanged) =>
-          changeSet[key] as Omit<CrmProject, "id">[] | CrmProject[] | undefined
-      ),
-      map((p) => p?.length || 0),
-      sum,
-      setProjectsCount
-    )(validKeys);
+    return validKeys.reduce(
+      (total, key) => total + (changeSet[key]?.length ?? 0),
+      0
+    );
   }, [changeSet]);
 
   useEffect(() => {
@@ -73,18 +77,6 @@ const ImportProjectData: FC<ImportProjectDataProps> = ({ reloader }) => {
     downloadAndProcessImportData,
     processedData,
   ]);
-
-  useEffect(() => {
-    if (!processedData || !crmProjects) {
-      setChangeSet(null);
-      return;
-    }
-    setChangeSet({
-      new: processedData.filter(newProjects(crmProjects)),
-      missing: crmProjects.filter(missingProjects(processedData)),
-      changed: processedData.filter(changedProjects(crmProjects)),
-    });
-  }, [crmProjects, processedData]);
 
   const handleClose = async () => {
     await closeImportFile();

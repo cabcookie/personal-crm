@@ -10,9 +10,8 @@ import NextAction from "@/components/planning/day/NextAction";
 import { useContextContext } from "@/contexts/ContextContext";
 import { filterProjectsForDailyPlanning } from "@/helpers/planning";
 import { format } from "date-fns";
-import { find, flow, identity } from "lodash/fp";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const DailyPlanningPage = () => {
   const {
@@ -29,20 +28,19 @@ const DailyPlanningPage = () => {
   const [projectsForDecision, setProjectsForDecision] = useState<
     Project[] | undefined
   >();
-  const [dailyPlan, setDailyPlan] = useState<DailyPlan | undefined>();
   const [day, setDay] = useState<Date>(new Date());
 
-  useEffect(() => {
-    flow(
-      identity<DailyPlan[] | undefined>,
-      find(["context", context]),
-      setDailyPlan
-    )(dailyPlans);
-  }, [dailyPlans, context]);
+  // Purely derived from the plan list, so computed during render.
+  const dailyPlan: DailyPlan | undefined = useMemo(
+    () => dailyPlans?.find((p) => p.context === context),
+    [dailyPlans, context]
+  );
 
-  useEffect(() => {
+  const [lastDailyPlan, setLastDailyPlan] = useState(dailyPlan);
+  if (lastDailyPlan !== dailyPlan) {
+    setLastDailyPlan(dailyPlan);
     setDay(dailyPlan?.day ?? new Date());
-  }, [dailyPlan]);
+  }
 
   useEffect(() => {
     if (!dailyPlan) return;

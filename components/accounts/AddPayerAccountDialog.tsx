@@ -1,5 +1,5 @@
 import { Account } from "@/api/ContextAccounts";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import ListPayerAccounts from "./ListPayerAccounts";
@@ -17,18 +17,18 @@ const AddPayerAccountDialog: FC<AddPayerAccountDialogProps> = ({
 }) => {
   const [value, setValue] = useState("");
 
-  useEffect(() => {
-    if (/^\d*$/.test(value)) {
-      if (value.length === 12) {
-        const payer = value;
-        setValue("");
-        addPayerAccount(id, payer);
-      }
-    } else {
-      setValue(value.replace(/\D/g, ""));
+  // This was an effect reacting to its own state; it is input handling, so it
+  // belongs in the change handler. Non-digits are now stripped in one pass
+  // instead of via a second render.
+  const handleChange = (input: string) => {
+    const digits = input.replace(/\D/g, "");
+    if (digits.length === 12) {
+      setValue("");
+      addPayerAccount(id, digits);
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+    setValue(digits);
+  };
 
   return (
     <div>
@@ -39,7 +39,7 @@ const AddPayerAccountDialog: FC<AddPayerAccountDialogProps> = ({
         placeholder="Add AWS Account ID…"
         className="mt-2"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
       />
       <div className="m-2">
         <ListPayerAccounts

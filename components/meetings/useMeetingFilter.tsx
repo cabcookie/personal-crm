@@ -11,13 +11,13 @@ import {
   TMeetingFilters,
   topicIncludesSearchText,
 } from "@/helpers/meetings";
-import { filter, flow, map, uniq } from "lodash/fp";
+import { flow, map, uniq } from "lodash/fp";
 import {
   ComponentType,
   createContext,
   FC,
   useContext,
-  useEffect,
+  useMemo,
   useState,
 } from "react";
 import { SearchProvider, useSearch } from "../search/useSearch";
@@ -64,29 +64,27 @@ const MeetingFilterProvider: FC<MeetingFilterProviderProps> = ({
       context,
       startDate: fromDate,
     });
-  const [meetingDates, setMeetingDates] = useState<string[]>([]);
   const [meetingFilter, setMeetingFilter] = useState<TMeetingFilters>("All");
-  const [filtered, setFiltered] = useState<Meeting[] | undefined>(undefined);
   const { people } = usePeople();
   const { searchText, isSearchActive } = useSearch();
 
-  useEffect(() => {
-    if (!meetings) return setFiltered(undefined);
-    if (searchText)
-      return flow(
-        filter(topicIncludesSearchText(searchText)),
-        setFiltered
-      )(meetings);
-    if (meetingFilter === "All") return setFiltered(meetings);
-    if (meetingFilter === "With Todos")
-      return flow(filter(hasTodos), setFiltered)(meetings);
-    if (meetingFilter === "Old versions")
-      return flow(filter(hasOldVersion), setFiltered)(meetings);
+  // Derived from meetings and the active filter, so computed during render
+  // rather than pushed into state from an effect. MEETING_FILTERS covers
+  // exactly these three cases.
+  const filtered: Meeting[] | undefined = useMemo(() => {
+    if (!meetings) return undefined;
+    // Native filter: the lodash/fp overloads mis-resolve here because
+    // topicIncludesSearchText is typed as returning unknown.
+    if (searchText) return meetings.filter(topicIncludesSearchText(searchText));
+    if (meetingFilter === "With Todos") return meetings.filter(hasTodos);
+    if (meetingFilter === "Old versions") return meetings.filter(hasOldVersion);
+    return meetings;
   }, [meetingFilter, meetings, searchText]);
 
-  useEffect(() => {
-    flow(map("meetingDayStr"), uniq, setMeetingDates)(filtered);
-  }, [filtered]);
+  const meetingDates: string[] = useMemo(
+    () => flow(map("meetingDayStr"), uniq)(filtered),
+    [filtered]
+  );
 
   const onFilterChange = (newFilter: string) => {
     if (!isValidMeetingFilter(newFilter)) return;

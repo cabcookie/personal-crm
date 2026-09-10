@@ -93,6 +93,8 @@ const PersonContactDetailsForm: FC<PersonContactDetailsFormProps> = ({
   personDetail,
 }) => {
   const [formOpen, setFormOpen] = useState(false);
+  // Stays in state: it feeds useForm's resolver, while selectedLabel is read
+  // back off that same form -- deriving it would be circular.
   const [currentSchema, setCurrentSchema] = useState(
     !personDetail?.label ||
       !personDetailsLabels.some((l) => l.fieldLabel === personDetail.label)
@@ -108,6 +110,18 @@ const PersonContactDetailsForm: FC<PersonContactDetailsFormProps> = ({
   });
 
   const selectedLabel = useWatch({ control: form.control, name: "label" });
+  const [lastSelectedLabel, setLastSelectedLabel] = useState(selectedLabel);
+
+  // Adjusting state during render is React's documented alternative to
+  // syncing it in an effect.
+  if (lastSelectedLabel !== selectedLabel) {
+    setLastSelectedLabel(selectedLabel);
+    setCurrentSchema(
+      personDetailsLabels.some((l) => l.fieldLabel === selectedLabel)
+        ? getSchema(selectedLabel as TDetailLabel)
+        : FormSchema
+    );
+  }
 
   useEffect(() => {
     form.reset(
@@ -122,11 +136,6 @@ const PersonContactDetailsForm: FC<PersonContactDetailsFormProps> = ({
   }, [formOpen]);
 
   useEffect(() => {
-    setCurrentSchema(
-      personDetailsLabels.some((l) => l.fieldLabel === selectedLabel)
-        ? getSchema(selectedLabel as TDetailLabel)
-        : FormSchema
-    );
     form.reset({ ...form.getValues() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedLabel]);
