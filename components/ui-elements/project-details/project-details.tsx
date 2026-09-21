@@ -18,6 +18,7 @@ import ProjectNextActions from "./next-actions";
 import ProjectAccountDetails from "./project-account-details";
 import ProjectDates from "./project-dates";
 import { ExportButton } from "@/components/exports/ExportButton";
+import ProjectSummary from "@/components/projects/ProjectSummary";
 
 type ProjectDetailsProps = {
   projectId: string;
@@ -126,6 +127,11 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
             presets={[7, 14, 28]}
           />
         </div>
+
+        <ProjectSummary
+          summary={project.projectSummary}
+          updatedAt={project.projectSummaryUpdatedAt}
+        />
 
         {showContext && (
           <RecordDetails title="Context">

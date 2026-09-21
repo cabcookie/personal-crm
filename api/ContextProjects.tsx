@@ -119,6 +119,8 @@ export type Project = {
   hasOldVersionedActivityFormat: boolean;
   involvedPeopleIds: string[];
   pinned: Schema["ProjectPinned"]["type"];
+  projectSummary?: string;
+  projectSummaryUpdatedAt?: Date;
 };
 
 const selectionSet = [
@@ -136,6 +138,8 @@ const selectionSet = [
   "context",
   "order",
   "pinned",
+  "projectSummary",
+  "projectSummaryUpdatedAt",
   "accounts.accountId",
   "accounts.createdAt",
   "partner.id",
@@ -190,6 +194,8 @@ const mapProject: (project: ProjectData) => Project = ({
   context,
   order,
   pinned,
+  projectSummary,
+  projectSummaryUpdatedAt,
   accounts,
   activities,
   crmProjects,
@@ -291,6 +297,10 @@ const mapProject: (project: ProjectData) => Project = ({
             (a) => !a.activity?.formatVersion || a.activity.formatVersion < 3
           ),
     pinned,
+    projectSummary: projectSummary || undefined,
+    projectSummaryUpdatedAt: projectSummaryUpdatedAt
+      ? new Date(projectSummaryUpdatedAt)
+      : undefined,
   } as Project;
 };
 
