@@ -46,6 +46,8 @@ export type BlockRecord = {
   content?: JSONContent | string | null;
   todoId?: string | null;
   todo?: TodoRecord | null;
+  // AI-generated description for `s3image` blocks (see NoteBlock schema).
+  imageDescription?: string | null;
   [k: string]: unknown;
 };
 
@@ -362,6 +364,13 @@ export const renderBlocks = (blocks: BlockRecord[] | undefined): string => {
         const checked = block.todo.status === "DONE";
         parts.push(renderListItemNode(parsed, 0, "-", checked) + "\n");
       }
+    } else if (block.type === "s3image") {
+      // The raw image is useless to a text model, but the image-description
+      // Lambda leaves an AI-generated caption on the NoteBlock. Emit it as a
+      // labelled paragraph so it flows into the activity markdown (and any
+      // downstream summary). Images without a description yet are skipped.
+      const desc = block.imageDescription?.trim();
+      if (desc) parts.push(`**Image:** ${desc}\n\n`);
     } else {
       const md = renderBlock(block);
       if (md.trim()) parts.push(md);

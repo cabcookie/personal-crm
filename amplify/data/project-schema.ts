@@ -153,6 +153,11 @@ const projectSchema = {
       order: a.float(),
       tasksSummary: a.string(),
       tasksSummaryUpdatedAt: a.datetime(),
+      // AI-generated prose summary of the whole project, regenerated ~6 min
+      // after the last activity-markdown snapshot changes (trailing debounce).
+      // Shown in the project detail view.
+      projectSummary: a.string(),
+      projectSummaryUpdatedAt: a.datetime(),
       pinned: a.ref("ProjectPinned").required(),
       // Ids for relations
       partnerId: a.id(),

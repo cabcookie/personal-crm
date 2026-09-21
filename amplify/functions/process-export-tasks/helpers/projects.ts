@@ -7,6 +7,7 @@ import {
 } from "./activities";
 import { getItem, queryByIndex, batchGetItems } from "./dynamodb";
 import type { ExportTask } from "./load-task-record";
+import { assembleProjectFromCache } from "./cached-assembly";
 
 /* ============================ constants ============================ */
 
@@ -159,23 +160,35 @@ export const renderProjectsSection = (
  * task.endDate].
  */
 export const getProjectMd = async (task: ExportTask): Promise<string> => {
-  const dateWindow: DateWindow = {
-    startDate: task.startDate,
-    endDate: task.endDate,
-  };
-  const project = await fetchProject(task.itemId, {
-    owner: task.owner,
-    withActivities: true,
-    dateWindow,
-  });
+  // Fetch the project itself (name + meta + partner) but NOT its activities —
+  // the activity notes are assembled from cache (notesMarkdown + cached
+  // headers) via assembleProjectFromCache, which is far cheaper than the old
+  // live block rendering. The synchronous Export-for-AI refresh makes the
+  // cache fresh before this runs.
+  const project = await fetchProject(task.itemId, { owner: task.owner });
   if (!project) {
     console.warn(
       `[export] project ${task.itemId} not found or not owned by ${task.owner}`
     );
     return "";
   }
-  const body = renderProject(project, 1);
-  return body ? `${body}\n` : "";
+
+  const meta: string[] = [];
+  if (project.dueOn) meta.push(`**Due:** ${project.dueOn}`);
+  if (project.done && project.doneOn) meta.push(`**Done:** ${project.doneOn}`);
+  if (project.partnerName) meta.push(`**Partner:** ${project.partnerName}`);
+
+  const notes = await assembleProjectFromCache(
+    task.itemId,
+    { owner: task.owner },
+    2 // activity headings at "## " under the "# Project: …" title
+  );
+
+  const parts: string[] = [`# Project: ${project.project}`];
+  if (meta.length) parts.push(meta.join("\n"));
+  if (notes) parts.push(notes);
+  if (parts.length === 1) return ""; // title only → nothing worth exporting
+  return `${parts.join("\n\n")}\n`;
 };
 
 // Re-export for convenience where consumers want the types.
