@@ -11,7 +11,7 @@ import {
 import { loadAmplify } from "@/lib/amplify";
 import { cn } from "@/lib/utils";
 import "@/styles/globals.css";
-import { withAuthenticator } from "@aws-amplify/ui-react";
+import { Heading, Text, withAuthenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import type { AppProps } from "next/app";
 import { Inter as FontSans } from "next/font/google";
@@ -75,4 +75,41 @@ function App(appProps: AppProps) {
   );
 }
 
-export default withAuthenticator(App);
+// MFA is REQUIRED in the backend (amplify/auth/resource.ts, TOTP only). The
+// Authenticator reads that from amplify_outputs.json and automatically renders
+// the TOTP setup step (QR code / secret on first sign-in) and the TOTP
+// challenge step (6-digit code on every subsequent sign-in). The slots below
+// only add clearer guidance to those two steps; the flow itself is built in.
+export default withAuthenticator(App, {
+  components: {
+    SetupTotp: {
+      Header() {
+        return (
+          <Heading level={3}>Zwei-Faktor-Authentifizierung einrichten</Heading>
+        );
+      },
+      Footer() {
+        return (
+          <Text>
+            Scanne den QR-Code mit einer Authenticator-App (z. B. Google
+            Authenticator, 1Password oder Authy) und gib den angezeigten
+            6-stelligen Code ein, um die Einrichtung abzuschließen.
+          </Text>
+        );
+      },
+    },
+    ConfirmSignIn: {
+      Header() {
+        return <Heading level={3}>Bestätigungscode eingeben</Heading>;
+      },
+      Footer() {
+        return (
+          <Text>
+            Öffne deine Authenticator-App und gib den aktuellen 6-stelligen Code
+            ein.
+          </Text>
+        );
+      },
+    },
+  },
+});

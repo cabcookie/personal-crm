@@ -44,6 +44,7 @@ export function setupExportTasks(backend: BackendType) {
   const exportTaskTable = backend.data.resources.tables["ExportTask"];
   const exportPermissionTable =
     backend.data.resources.tables["ExportPermission"];
+  const recurringExportTable = backend.data.resources.tables["RecurringExport"];
   const s3Bucket = backend.storage.resources.bucket;
 
   /**
@@ -96,6 +97,25 @@ export function setupExportTasks(backend: BackendType) {
 
   backend.manageExportPermissions.resources.lambda.addEventSource(
     new DynamoEventSource(exportPermissionTable, {
+      startingPosition: StartingPosition.LATEST,
+      batchSize: 5,
+      retryAttempts: 3,
+    })
+  );
+
+  /**
+   * 4b. Cascade cleanup: when a RecurringExport is deleted, remove its
+   *     ExportPermission records so orphaned cross-account grants don't linger
+   *     in the bucket policy. Deleting each ExportPermission emits its own
+   *     REMOVE event, which manageExportPermissions (wired above) consumes to
+   *     strip the bucket-policy statements.
+   */
+  recurringExportTable.grantStreamRead(
+    backend.cleanupExportPermissions.resources.lambda
+  );
+
+  backend.cleanupExportPermissions.resources.lambda.addEventSource(
+    new DynamoEventSource(recurringExportTable, {
       startingPosition: StartingPosition.LATEST,
       batchSize: 5,
       retryAttempts: 3,

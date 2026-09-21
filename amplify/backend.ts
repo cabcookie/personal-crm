@@ -7,6 +7,7 @@ import {
   processExportTasks,
   scheduleRecurringExports,
   manageExportPermissions,
+  cleanupExportPermissions,
 } from "./functions/process-export-tasks/resource";
 import { setupDataSeeding } from "./custom/backend/seeding";
 import { setupInferenceProfiles } from "./custom/backend/inference-schema";
@@ -22,6 +23,7 @@ const backend = defineBackend({
   processExportTasks,
   scheduleRecurringExports,
   manageExportPermissions,
+  cleanupExportPermissions,
 });
 
 export type BackendType = typeof backend;

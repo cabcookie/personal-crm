@@ -36,6 +36,7 @@ import {
   processExportTasks,
   scheduleRecurringExports,
   manageExportPermissions,
+  cleanupExportPermissions,
 } from "../functions/process-export-tasks/resource";
 
 export const tablesWithDeleteProtection = [
@@ -107,6 +108,7 @@ const schema = a
     allow.resource(processExportTasks),
     allow.resource(scheduleRecurringExports),
     allow.resource(manageExportPermissions),
+    allow.resource(cleanupExportPermissions),
   ]);
 
 export type Schema = ClientSchema<typeof schema>;
