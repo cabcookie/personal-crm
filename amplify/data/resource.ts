@@ -98,6 +98,16 @@ const schema = a
         topic: a.string().required(),
         meetingOn: a.datetime(),
         immediateTasksDone: a.boolean(),
+        // Cached, context-free meeting header (no leading '#'; export routines
+        // add the heading level). Regenerated on a 5-min debounce whenever the
+        // meeting's topic/time, its participants, or the @-mentions in any of
+        // its activities' notes change. Shape:
+        //   "<de date>, Meeting: <topic>"
+        //   "**Participants:** Name (Company, Role), …"
+        //   "**People mentioned:** …"  (mentioned but not participating,
+        //                                deduped across the meeting's activities)
+        meetingHeaderMarkdown: a.string(),
+        meetingHeaderMarkdownUpdatedAt: a.datetime(),
         participants: a.hasMany("MeetingParticipant", "meetingId"),
         activities: a.hasMany("Activity", "meetingActivitiesId"),
       })
