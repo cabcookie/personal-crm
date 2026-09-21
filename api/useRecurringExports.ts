@@ -179,11 +179,37 @@ export const useRecurringExports = (status: RecurringExportStatus) => {
   };
 
   /**
-   * Delete a recurring export
+   * Delete a recurring export.
+   *
+   * ExportPermissions that reference this export are deleted first so their
+   * cross-account grants are stripped from the bucket policy (each delete
+   * triggers the manageExportPermissions Lambda). The cleanupExportPermissions
+   * Lambda performs the same cascade server-side as a safety net for any code
+   * path that bypasses this hook or fails midway — this client-side pass just
+   * makes the UI converge immediately.
    */
   const deleteRecurringExport = async (id: string): Promise<void> => {
     const updated = recurringExports?.filter((e) => e.id !== id);
     if (updated) mutate(updated, false);
+
+    // Delete associated permissions first (best-effort; server-side cascade
+    // guarantees eventual cleanup even if this loop is interrupted).
+    const { data: permissions, errors: listErrors } =
+      await client.models.ExportPermission.listExportPermissionByRecurringExportId(
+        { recurringExportId: id }
+      );
+
+    if (listErrors) {
+      handleApiErrors(listErrors, "Failed loading export permissions");
+    } else if (permissions) {
+      for (const permission of permissions) {
+        const { errors: permErrors } =
+          await client.models.ExportPermission.delete({ id: permission.id });
+        if (permErrors) {
+          handleApiErrors(permErrors, "Failed deleting export permission");
+        }
+      }
+    }
 
     const { errors } = await client.models.RecurringExport.delete({ id });
 

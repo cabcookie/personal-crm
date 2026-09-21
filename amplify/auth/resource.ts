@@ -10,6 +10,14 @@ export const auth = defineAuth({
   loginWith: {
     email: true,
   },
+  // Require MFA for every sign-in. TOTP (authenticator app) only — SMS is
+  // weaker and adds cost, so it stays off. With REQUIRED, existing users are
+  // prompted to set up TOTP on their next sign-in; the login UI must render
+  // the setup + challenge steps (handled by the Authenticator component).
+  multifactor: {
+    mode: "REQUIRED",
+    totp: true,
+  },
   userAttributes: {
     givenName: {
       mutable: true,

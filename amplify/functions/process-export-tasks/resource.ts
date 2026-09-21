@@ -34,3 +34,15 @@ export const manageExportPermissions = defineFunction({
     retention: "1 week",
   },
 });
+
+export const cleanupExportPermissions = defineFunction({
+  name: "cleanup-export-permissions",
+  entry: "./cleanup-permissions-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 2 * 60, // 2 minutes - deletes ExportPermission records
+  logging: {
+    retention: "1 week",
+  },
+});
