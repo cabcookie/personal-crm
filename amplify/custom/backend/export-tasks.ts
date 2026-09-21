@@ -216,6 +216,22 @@ export function setupExportTasks(backend: BackendType) {
   );
 
   /**
+   * 8b. The export now refreshes the cached markdown building blocks
+   * synchronously before assembling (see fetching/process-export.ts ->
+   * refresh-cache.ts), so it needs UpdateItem on Activity and Meeting to write
+   * notesMarkdown / activityHeaderMarkdown / meetingHeaderMarkdown.
+   */
+  backend.processExportTasks.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:UpdateItem"],
+      resources: [
+        backend.data.resources.tables["Activity"].tableArn,
+        backend.data.resources.tables["Meeting"].tableArn,
+      ],
+    })
+  );
+
+  /**
    * 9. Add S3 lifecycle policy for one-time exports
    * Auto-delete after 90 days to match extended retention period
    */
