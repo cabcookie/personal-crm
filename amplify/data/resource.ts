@@ -108,6 +108,22 @@ const schema = a
         //                                deduped across the meeting's activities)
         meetingHeaderMarkdown: a.string(),
         meetingHeaderMarkdownUpdatedAt: a.datetime(),
+        // --- Nova Sonic live-transcription usage (Etappe 1) ---------------
+        // Written by the client after a live transcription session so we can
+        // observe real cost per meeting and reconcile against Cost Explorer a
+        // few days later. Duration is wall-clock seconds the Sonic stream was
+        // open; token counts are the cumulative totals from the final
+        // usageEvent; the estimated cost is computed client-side from the
+        // per-token rates (kept alongside the raw tokens so a later rate
+        // change doesn't invalidate the stored figure).
+        sonicSessionCount: a.integer(),
+        sonicDurationSeconds: a.integer(),
+        sonicInputSpeechTokens: a.integer(),
+        sonicInputTextTokens: a.integer(),
+        sonicOutputSpeechTokens: a.integer(),
+        sonicOutputTextTokens: a.integer(),
+        sonicEstimatedCostUsd: a.float(),
+        sonicUsageUpdatedAt: a.datetime(),
         participants: a.hasMany("MeetingParticipant", "meetingId"),
         activities: a.hasMany("Activity", "meetingActivitiesId"),
       })

@@ -10,6 +10,7 @@ import {
   SNAPSHOT_DELAY_MINUTES,
   SUMMARY_DELAY_MINUTES,
   MEETING_HEADER_DELAY_MINUTES,
+  PERSON_EMBEDDING_DELAY_MINUTES,
 } from "./lib/scheduler";
 
 /**
@@ -220,6 +221,41 @@ const handleProjectActivity = async (record: DynamoDBRecord): Promise<void> => {
   await armActivity(activityId, owner, activity?.meetingActivitiesId ?? null);
 };
 
+const armPersonEmbedding = async (personId: string): Promise<void> => {
+  await upsertOneTimeSchedule({
+    kind: "person-embedding",
+    id: personId,
+    delayMinutes: PERSON_EMBEDDING_DELAY_MINUTES,
+  });
+  console.log(`[schedule] person-embedding ${personId}`);
+};
+
+const handlePerson = async (record: DynamoDBRecord): Promise<void> => {
+  // Break the loop: our own embedding write streams back here. Skip when only
+  // the embedding cache fields changed (nothing the embedding depends on did).
+  if (
+    onlyIgnoredFieldsChanged(record, [
+      "nameEmbedding",
+      "nameEmbeddingSource",
+      "nameEmbeddingUpdatedAt",
+    ])
+  ) {
+    return;
+  }
+  const image = newOrOld(record);
+  const personId = image?.id as string | undefined;
+  if (!personId) return;
+  await armPersonEmbedding(personId);
+};
+
+const handlePersonAccount = async (record: DynamoDBRecord): Promise<void> => {
+  // Employment (company/role) drives the embedded string too.
+  const image = newOrOld(record);
+  const personId = image?.personId as string | undefined;
+  if (!personId) return;
+  await armPersonEmbedding(personId);
+};
+
 export const handler: DynamoDBStreamHandler = async (event) => {
   for (const record of event.Records) {
     try {
@@ -232,6 +268,10 @@ export const handler: DynamoDBStreamHandler = async (event) => {
         await handleMeeting(record);
       } else if (matches(table, "ProjectActivity")) {
         await handleProjectActivity(record);
+      } else if (matches(table, "PersonAccount")) {
+        await handlePersonAccount(record);
+      } else if (matches(table, "Person")) {
+        await handlePerson(record);
       } else {
         console.warn(`[schedule] unrecognized stream table: ${table}`);
       }

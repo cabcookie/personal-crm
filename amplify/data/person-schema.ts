@@ -142,6 +142,27 @@ const personSchmema = {
       howToSay: a.string(),
       birthday: a.date(),
       dateOfDeath: a.date(),
+      // Semantic-search vector over "Name (Company, Role)" produced by the
+      // debounced person-embedding pipeline (Titan Text Embeddings v2, 1024
+      // dims). Declared here so Amplify knows the attribute, but the actual
+      // value is written directly to DynamoDB as a native List<Number> (`L`
+      // of `N`) by the embedding Lambda — NOT through AppSync, which would
+      // JSON-stringify it and make it unsearchable. A DynamoDB vector index
+      // (`PersonNameEmbeddingIndex`) is created on this attribute via a CDK
+      // custom resource (see custom/backend/person-embedding.ts). Never write
+      // this field from the client.
+      nameEmbedding: a.json(),
+      nameEmbeddingUpdatedAt: a.datetime(),
+      // Source text the embedding was last generated from. Lets the pipeline
+      // skip re-embedding (a Bedrock call) when the semantic inputs
+      // (name/company/role) did not actually change.
+      nameEmbeddingSource: a.string(),
+      // Backfill marker. Set to "1" by scripts/mark-people-embedding-pending.js
+      // on existing Person rows that lack an embedding. The backfill worker
+      // clears it once the embedding is generated. Left unset in normal
+      // operation, so the GSI below is SPARSE — it holds only people still
+      // awaiting a backfilled embedding.
+      nameEmbeddingPending: a.string(),
       // relations
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
@@ -154,6 +175,10 @@ const personSchmema = {
       relationshipsFrom: a.hasMany("PersonRelationship", "personId"),
       relationshipsTo: a.hasMany("PersonRelationship", "relatedPersonId"),
     })
+    .secondaryIndexes((index) => [
+      // Sparse work-queue index for the person-embedding backfill.
+      index("nameEmbeddingPending").queryField("listNameEmbeddingPending"),
+    ])
     .authorization((allow) => [allow.owner()]),
 };
 

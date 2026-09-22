@@ -65,6 +65,22 @@ export const describeNoteImage = defineFunction({
 });
 
 /**
+ * Person-embedding Lambda. Fired by a one-time EventBridge schedule ~2 min
+ * after the last Person/PersonAccount change (keyed by personId). Builds
+ * "Name (Company, Role)", embeds it with Titan Text Embeddings v2, and writes
+ * the 1024-dim vector onto the Person record for DynamoDB vector search.
+ */
+export const generatePersonEmbedding = defineFunction({
+  name: "generate-person-embedding",
+  entry: "./person-embedding-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 60,
+  logging: { retention: "1 week" },
+});
+
+/**
  * One-off image-description backfill (manually triggered).
  *
  * backfillImagesEnqueue pages the sparse `imageDescriptionPending` GSI and
@@ -119,5 +135,34 @@ export const backfillSnapshotsWorker = defineFunction({
   runtime: 22,
   architecture: "arm64",
   timeoutSeconds: 5 * 60,
+  logging: { retention: "1 week" },
+});
+
+/**
+ * One-off person-embedding backfill (manually triggered).
+ *
+ * backfillPersonEmbeddingEnqueue pages the sparse `nameEmbeddingPending` GSI
+ * on Person and fans person ids out to SQS; backfillPersonEmbeddingWorker
+ * consumes them with capped concurrency, embeds "Name (Company, Role)" via
+ * Titan v2, and clears the marker. See custom/backend/project-summary.ts for
+ * the SQS + concurrency wiring.
+ */
+export const backfillPersonEmbeddingEnqueue = defineFunction({
+  name: "backfill-person-embed-enqueue",
+  entry: "./backfill-person-embedding-enqueue-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 60,
+  logging: { retention: "1 week" },
+});
+
+export const backfillPersonEmbeddingWorker = defineFunction({
+  name: "backfill-person-embed-worker",
+  entry: "./backfill-person-embedding-worker-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 2 * 60,
   logging: { retention: "1 week" },
 });
