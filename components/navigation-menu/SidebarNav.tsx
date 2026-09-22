@@ -6,6 +6,7 @@ import { buttonVariants } from "../ui/button";
 
 const sidebarNavItems = [
   { title: "Profile", href: "/profile" },
+  { title: "Tools", href: "/profile/tools" },
   { title: "Planning", href: "/profile/planning" },
   { title: "Labels", href: "/profile/labels" },
   { title: "Exports", href: "/profile/exports" },

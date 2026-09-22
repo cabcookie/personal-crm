@@ -94,12 +94,22 @@ const config = {
           "0%, 100%": { opacity: "0.2" },
           "50%": { opacity: "0.4" },
         },
+        // Subtle "knock" — a small tilt/wobble to draw attention to the
+        // detected-people popover without being loud.
+        knock: {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "20%": { transform: "rotate(-6deg)" },
+          "40%": { transform: "rotate(5deg)" },
+          "60%": { transform: "rotate(-3deg)" },
+          "80%": { transform: "rotate(2deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         fadeOut: "fadeOut 2s forwards",
         pulseOpacity: "pulseOpacity 2s infinite",
+        knock: "knock 0.6s ease-in-out",
       },
       backgroundColor: {
         inherit: "inherit",

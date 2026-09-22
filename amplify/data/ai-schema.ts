@@ -1,5 +1,6 @@
 import { a } from "@aws-amplify/backend";
 import { personVectorSearch } from "../functions/person-vector-search/resource";
+import { summarizeMeeting } from "../functions/summarize-meeting/resource";
 import { projectCategorizationPrompt } from "./prompts/project-categorization";
 import { generateTasksSummaryPrompt } from "./prompts/generate-task-summary";
 import { rewriteProjectNotesPrompt } from "./prompts/rewrite-project-notes";
@@ -108,6 +109,18 @@ const aiSchema = {
     .arguments({ query: a.string().required(), topK: a.integer() })
     .returns(a.ref("PersonVoiceMatch").array())
     .handler(a.handler.function(personVectorSearch))
+    .authorization((allow) => [allow.authenticated()]),
+
+  /**
+   * Server-side meeting summarizer. `payload` is a JSON string with the
+   * meeting's projects (+ full summaries as context), participants, mentioned
+   * people, and transcript. Returns the model's JSON summary as a string.
+   */
+  summarizeMeeting: a
+    .query()
+    .arguments({ payload: a.string().required() })
+    .returns(a.json())
+    .handler(a.handler.function(summarizeMeeting))
     .authorization((allow) => [allow.authenticated()]),
 
   // ------- Enums

@@ -1,6 +1,7 @@
 import { AccountsContextProvider } from "@/api/ContextAccounts";
 import { ProjectsContextProvider } from "@/api/ContextProjects";
 import { ExportsProvider } from "@/api/ContextExports";
+import { RecordingProvider } from "@/contexts/RecordingContext";
 import { contexts } from "@/components/navigation-menu/ContextSwitcher";
 import {
   Context,
@@ -45,7 +46,9 @@ const ProjectsContext = ({ Component, pageProps }: AppProps) => {
     <ProjectsContextProvider context={context}>
       <AccountsContextProvider>
         <ExportsProvider>
-          <Component {...pageProps} />
+          <RecordingProvider>
+            <Component {...pageProps} />
+          </RecordingProvider>
         </ExportsProvider>
       </AccountsContextProvider>
     </ProjectsContextProvider>

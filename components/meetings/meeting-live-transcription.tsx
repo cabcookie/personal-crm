@@ -1,8 +1,9 @@
 import { FC } from "react";
-import { Info } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
 import { Card } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import type { TranscriptLine } from "@/api/useSonicTranscription";
+import MeetingSummaryView from "./meeting-summary-view";
 
 const fmtDuration = (s: number): string => {
   const m = Math.floor(s / 60);
@@ -18,6 +19,8 @@ type Props = {
   estimatedCostUsd: number;
   elapsedSeconds: number;
   systemAudioNote: string | null;
+  summary?: unknown;
+  summarizing?: boolean;
 };
 
 const MeetingLiveTranscription: FC<Props> = ({
@@ -26,6 +29,8 @@ const MeetingLiveTranscription: FC<Props> = ({
   estimatedCostUsd,
   elapsedSeconds,
   systemAudioNote,
+  summary,
+  summarizing,
 }) => {
   return (
     <div className="space-y-3 px-2 md:px-4 pt-2">
@@ -64,6 +69,15 @@ const MeetingLiveTranscription: FC<Props> = ({
           )}
         </ScrollArea>
       </Card>
+
+      {summarizing && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Zusammenfassung wird erstellt…
+        </div>
+      )}
+
+      {!!summary && <MeetingSummaryView summary={summary} />}
     </div>
   );
 };

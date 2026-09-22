@@ -5,6 +5,7 @@ import CreateInboxItemDialog from "../inbox/CreateInboxItemDialog";
 import { Button } from "../ui/button";
 import Logo from "./Logo";
 import ProfilePicture from "./ProfilePicture";
+import RecordingIndicator from "./RecordingIndicator";
 
 type HeaderProps = {
   context?: Context;
@@ -23,7 +24,8 @@ const Header: FC<HeaderProps> = ({ context }) => (
         />
       </div>
       <Logo context={context} />
-      <div className="absolute right-2 flex items-center">
+      <div className="absolute right-2 flex items-center gap-2">
+        <RecordingIndicator />
         <ProfilePicture />
       </div>
     </div>

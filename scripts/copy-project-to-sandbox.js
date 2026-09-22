@@ -19,7 +19,7 @@
  *    full plan (per-table counts) without touching the sandbox.
  *
  * Usage:
- *   node scripts/copy-project-to-sandbox.js --project <id> [--days 28] [--commit]
+ *   node scripts/copy-project-to-sandbox.js --project <id> [--project <id> ...] [--days 28] [--skip-images] [--commit]
  */
 const {
   DynamoDBClient,
@@ -41,9 +41,21 @@ const arg = (name, def) => {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : def;
 };
-const projectId = arg("project", "3ba94b8c-388a-4d33-b680-fd8a4f773b59");
+const argList = (name) => {
+  const out = [];
+  for (let i = 0; i < process.argv.length; i++) {
+    if (process.argv[i] === `--${name}` && process.argv[i + 1])
+      out.push(process.argv[i + 1]);
+  }
+  return out;
+};
+const projectIds = (() => {
+  const ids = argList("project");
+  return ids.length ? ids : ["3ba94b8c-388a-4d33-b680-fd8a4f773b59"];
+})();
 const days = parseInt(arg("days", "28"), 10);
 const commit = process.argv.includes("--commit");
+const skipImages = process.argv.includes("--skip-images");
 
 const prod = new DynamoDBClient({
   region: REGION,
@@ -109,7 +121,9 @@ const withSandboxOwner = (item) => {
 
 const batchWrite = async (table, items) => {
   if (!commit || !items.length) return;
-  const rows = items.map((it) => ({ PutRequest: { Item: withSandboxOwner(it) } }));
+  const rows = items.map((it) => ({
+    PutRequest: { Item: withSandboxOwner(it) },
+  }));
   for (let i = 0; i < rows.length; i += 25) {
     let batch = rows.slice(i, i + 25);
     while (batch.length) {
@@ -124,7 +138,8 @@ const batchWrite = async (table, items) => {
 };
 
 const S = (item, key) => item?.[key]?.S;
-const strList = (item, key) => (item?.[key]?.L ?? []).map((e) => e.S).filter(Boolean);
+const strList = (item, key) =>
+  (item?.[key]?.L ?? []).map((e) => e.S).filter(Boolean);
 
 const effectiveDate = (activity, meetingById) => {
   const meeting = activity.meetingActivitiesId
@@ -148,14 +163,14 @@ const isCurrent = (pa) => {
 
 /* -------------------------------- main -------------------------------- */
 
-const run = async () => {
-  console.log(
-    `${commit ? "COPYING" : "DRY RUN"} project ${projectId} (last ${days} days, cutoff ${cutoff.toISOString()})\n`
-  );
-
+// Collect the full copy graph for ONE project. Returns per-table arrays.
+const collectProject = async (projectId) => {
   // 1. Project
   const projectItems = await batchGet("Projects", [projectId]);
-  if (!projectItems.length) throw new Error("project not found in prod");
+  if (!projectItems.length) {
+    console.warn(`  ! project ${projectId} not found in prod — skipping`);
+    return null;
+  }
 
   // 2. ProjectActivity junctions for this project
   const allJunctions = await queryAll(
@@ -164,11 +179,15 @@ const run = async () => {
     "projectsId",
     projectId
   );
-  const activityIds = allJunctions.map((j) => S(j, "activityId")).filter(Boolean);
+  const activityIds = allJunctions
+    .map((j) => S(j, "activityId"))
+    .filter(Boolean);
 
   // 3. Activities + their meetings, to apply the date window
   const activities = await batchGet("Activity", activityIds);
-  const meetingIds = activities.map((a) => S(a, "meetingActivitiesId")).filter(Boolean);
+  const meetingIds = activities
+    .map((a) => S(a, "meetingActivitiesId"))
+    .filter(Boolean);
   const meetings = await batchGet("Meeting", meetingIds);
   const meetingById = new Map(meetings.map((m) => [S(m, "id"), m]));
 
@@ -179,15 +198,36 @@ const run = async () => {
   const keepActivityIds = new Set(inWindow.map((a) => S(a, "id")));
 
   // Junctions/meetings limited to in-window activities
-  const junctions = allJunctions.filter((j) => keepActivityIds.has(S(j, "activityId")));
+  const junctions = allJunctions.filter((j) =>
+    keepActivityIds.has(S(j, "activityId"))
+  );
   const keepMeetingIds = new Set(
     inWindow.map((a) => S(a, "meetingActivitiesId")).filter(Boolean)
   );
   const keepMeetings = meetings.filter((m) => keepMeetingIds.has(S(m, "id")));
 
-  // 4. NoteBlocks (+ Todos for taskItems) of in-window activities
+  // 4. NoteBlocks (+ Todos for taskItems) of in-window activities.
+  //    With --skip-images, drop s3image blocks (and their ids from activities).
   const noteBlockIds = inWindow.flatMap((a) => strList(a, "noteBlockIds"));
-  const noteBlocks = await batchGet("NoteBlock", noteBlockIds);
+  let noteBlocks = await batchGet("NoteBlock", noteBlockIds);
+  let activitiesToCopy = inWindow;
+  let skippedImageCount = 0;
+  if (skipImages) {
+    const imageBlockIds = new Set(
+      noteBlocks
+        .filter((b) => S(b, "type") === "s3image")
+        .map((b) => S(b, "id"))
+    );
+    skippedImageCount = imageBlockIds.size;
+    noteBlocks = noteBlocks.filter((b) => !imageBlockIds.has(S(b, "id")));
+    // Rewrite each activity's noteBlockIds list to drop the removed image ids.
+    activitiesToCopy = inWindow.map((a) => {
+      const ids = strList(a, "noteBlockIds").filter(
+        (id) => !imageBlockIds.has(id)
+      );
+      return { ...a, noteBlockIds: { L: ids.map((id) => ({ S: id })) } };
+    });
+  }
   const todoIds = noteBlocks
     .filter((b) => S(b, "type") === "taskItem" && S(b, "todoId"))
     .map((b) => S(b, "todoId"));
@@ -197,16 +237,24 @@ const run = async () => {
   const participantRows = (
     await Promise.all(
       [...keepMeetingIds].map((mid) =>
-        queryAll("MeetingParticipant", "gsi-Meeting.participants", "meetingId", mid)
+        queryAll(
+          "MeetingParticipant",
+          "gsi-Meeting.participants",
+          "meetingId",
+          mid
+        )
       )
     )
   ).flat();
-  const participantPersonIds = participantRows.map((p) => S(p, "personId")).filter(Boolean);
+  const participantPersonIds = participantRows
+    .map((p) => S(p, "personId"))
+    .filter(Boolean);
 
   const mentionIds = new Set();
   const collect = (node) => {
     if (!node || typeof node !== "object") return;
-    if (node.type === "mention" && node.attrs?.id) mentionIds.add(node.attrs.id);
+    if (node.type === "mention" && node.attrs?.id)
+      mentionIds.add(node.attrs.id);
     if (Array.isArray(node.content)) node.content.forEach(collect);
   };
   for (const b of noteBlocks) {
@@ -231,30 +279,69 @@ const run = async () => {
     )
   ).flat();
   const currentPersonAccounts = personAccountRows.filter(isCurrent);
-  const accountIds = currentPersonAccounts.map((pa) => S(pa, "accountId")).filter(Boolean);
+  const accountIds = currentPersonAccounts
+    .map((pa) => S(pa, "accountId"))
+    .filter(Boolean);
   const accounts = await batchGet("Account", accountIds);
 
-  // ------------------------------ plan ------------------------------
-  const plan = [
-    ["Projects", projectItems],
-    ["ProjectActivity", junctions],
-    ["Activity", inWindow],
-    ["Meeting", keepMeetings],
-    ["NoteBlock", noteBlocks],
-    ["Todo", todos],
-    ["MeetingParticipant", participantRows],
-    ["Person", persons],
-    ["PersonAccount", currentPersonAccounts],
-    ["Account", accounts],
+  console.log(
+    `  ${projectId}: ${activitiesToCopy.length} activities, ${keepMeetings.length} meetings, ` +
+      `${noteBlocks.length} noteBlocks${skipImages ? ` (skipped ${skippedImageCount} images)` : ""}, ` +
+      `${persons.length} people`
+  );
+
+  return {
+    Projects: projectItems,
+    ProjectActivity: junctions,
+    Activity: activitiesToCopy,
+    Meeting: keepMeetings,
+    NoteBlock: noteBlocks,
+    Todo: todos,
+    MeetingParticipant: participantRows,
+    Person: persons,
+    PersonAccount: currentPersonAccounts,
+    Account: accounts,
+  };
+};
+
+const run = async () => {
+  console.log(
+    `${commit ? "COPYING" : "DRY RUN"} ${projectIds.length} project(s) ` +
+      `(last ${days} days, cutoff ${cutoff.toISOString()}${skipImages ? ", skip-images" : ""})\n`
+  );
+
+  const TABLES = [
+    "Projects",
+    "ProjectActivity",
+    "Activity",
+    "Meeting",
+    "NoteBlock",
+    "Todo",
+    "MeetingParticipant",
+    "Person",
+    "PersonAccount",
+    "Account",
   ];
 
-  console.log("Plan (records to copy):");
+  // Merge per-project results, deduping shared entities (people, accounts) by id.
+  const merged = Object.fromEntries(TABLES.map((t) => [t, new Map()]));
+  for (const pid of projectIds) {
+    const res = await collectProject(pid);
+    if (!res) continue;
+    for (const table of TABLES) {
+      for (const item of res[table]) {
+        const key = S(item, "id");
+        if (key) merged[table].set(key, item);
+      }
+    }
+  }
+
+  const plan = TABLES.map((table) => [table, [...merged[table].values()]]);
+
+  console.log("\nPlan (unique records to copy across all projects):");
   for (const [table, items] of plan) {
     console.log(`  ${table.padEnd(20)} ${items.length}`);
   }
-  console.log(
-    `\n(${allJunctions.length} total junctions in prod; ${junctions.length} within window)`
-  );
 
   if (!commit) {
     console.log("\nDry run — nothing written. Re-run with --commit to copy.");
