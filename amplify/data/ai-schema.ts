@@ -112,6 +112,20 @@ const aiSchema = {
     .authorization((allow) => [allow.authenticated()]),
 
   /**
+   * Server-side person semantic search for TYPED lookups (people selector,
+   * Cmd+K, mention picker). Same engine as searchPeopleByVoice — embeds the
+   * typed query and vector-searches the caller's own people (owner enforced in
+   * the Lambda) — just a distinct query name for the non-voice path. Replaces
+   * loading all people into memory + client-side substring filtering.
+   */
+  searchPeople: a
+    .query()
+    .arguments({ query: a.string().required(), topK: a.integer() })
+    .returns(a.ref("PersonVoiceMatch").array())
+    .handler(a.handler.function(personVectorSearch))
+    .authorization((allow) => [allow.authenticated()]),
+
+  /**
    * Server-side meeting summarizer. `payload` is a JSON string with the
    * meeting's projects (+ full summaries as context), participants, mentioned
    * people, and transcript. Returns the model's JSON summary as a string.

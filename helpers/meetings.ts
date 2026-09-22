@@ -10,7 +10,9 @@ const getFirstName = flow(identity<string>, split(" "), first);
 const getAccountName = flow(identity<string>, split(","), first);
 
 type CreateMeetingNameProps = {
-  people?: LeanPerson[];
+  // Minimal shape so callers can pass either LeanPerson[] or the lighter
+  // {id,name,accountNames} items the command palette holds.
+  people?: Pick<LeanPerson, "id" | "name" | "accountNames">[];
   participantId?: string;
 };
 export const createMeetingName = ({

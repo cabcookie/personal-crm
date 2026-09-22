@@ -1,5 +1,4 @@
 import useMeetings from "@/api/useMeetings";
-import usePeople from "@/api/usePeople";
 import { useContextContext } from "@/contexts/ContextContext";
 import { createMeetingName } from "@/helpers/meetings";
 import { FC } from "react";
@@ -20,11 +19,12 @@ const CreateOneOnOneMeeting: FC<CreateOneOnOneMeetingProps> = ({
 }) => {
   const { context } = useContextContext();
   const { createMeeting, createMeetingParticipant } = useMeetings({ context });
-  const { people } = usePeople();
 
   const handleCreate = (personId: string) => async () => {
     const meetingName = createMeetingName({
-      people,
+      // Resolve the name from the items shown in the palette (recent + search
+      // matches), not a full in-memory people list.
+      people: items,
       participantId: personId,
     });
     if (!meetingName) return;
