@@ -4,8 +4,13 @@ import useMeetingTodos from "@/api/useMeetingTodos";
 import { Context } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
-import { CheckCircle2, Circle, Loader2 } from "lucide-react";
+import { CheckCircle2, Circle, Info, Loader2, Mic, Square } from "lucide-react";
 import { FC, useState } from "react";
+import useSonicTranscription from "@/api/useSonicTranscription";
+import { cn } from "@/lib/utils";
+import AudioPulse from "./audio-pulse";
+import MeetingMicSettings from "./meeting-mic-settings";
+import MeetingDetectedPeopleBar from "./meeting-detected-people-bar";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
@@ -18,6 +23,7 @@ import { Accordion } from "../ui/accordion";
 import { Button } from "../ui/button";
 import { MeetingExportButton } from "../exports/MeetingExportButton";
 import MeetingActivityList from "./meeting-activity-list";
+import MeetingLiveTranscription from "./meeting-live-transcription";
 import MeetingNextActions from "./meeting-next-actions";
 import MeetingParticipants from "./meeting-participants";
 import MeetingProjectRecommender from "./meeting-project-recommender";
@@ -54,6 +60,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     meeting?.meetingOn || new Date()
   );
   const { meetingTodos, mutate } = useMeetingTodos(meeting?.id);
+  const sonic = useSonicTranscription(meeting?.id);
   const [lastMeeting, setLastMeeting] = useState(meeting);
   const [lastTasksDone, setLastTasksDone] = useState(
     meeting?.immediateTasksDone
@@ -112,6 +119,44 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
+        {meeting?.id &&
+          (!sonic.recording ? (
+            <div className="flex items-center gap-1">
+              <Button
+                onClick={sonic.start}
+                size="sm"
+                className="gap-1"
+                disabled={sonic.starting}
+              >
+                {sonic.starting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Mic className="w-4 h-4" />
+                )}
+                {sonic.starting ? "Startet…" : "Record for AI Summary"}
+              </Button>
+              <MeetingMicSettings
+                mics={sonic.mics}
+                selectedMicId={sonic.selectedMicId}
+                onSelect={sonic.setSelectedMicId}
+                loadMics={sonic.loadMics}
+                disabled={sonic.starting}
+              />
+            </div>
+          ) : (
+            <Button
+              onClick={sonic.stop}
+              size="sm"
+              variant="destructive"
+              className="gap-1"
+            >
+              <Square className="w-4 h-4" />
+              Stoppen
+              <span className="text-white ml-1">
+                <AudioPulse level={sonic.audioLevel} />
+              </span>
+            </Button>
+          ))}
         <Button
           onClick={handleUpdateImmediateTasksDone}
           variant="outline"
@@ -144,6 +189,40 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           />
         )}
       </div>
+
+      {/* Before recording: the browser-prompt hint (fades out on start). */}
+      {meeting?.id && (
+        <div
+          className={cn(
+            "transition-opacity duration-500",
+            sonic.recording
+              ? "opacity-0 pointer-events-none h-0 overflow-hidden"
+              : "opacity-100"
+          )}
+        >
+          <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md p-2 mx-2 md:mx-4">
+            <Info className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              Beim Start der Transkription fragt der Browser nach einer
+              Bildschirm-/Tab-Freigabe — das ist nötig, um das Meeting-Audio
+              mitzuhören. Aktiviere im Dialog „Audio teilen“. Das Bild wird
+              nicht verwendet (der Video-Anteil wird sofort verworfen);
+              übertragen wird ausschließlich Audio.
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* While recording: the detected-people confirmation bar (fades in). */}
+      {meeting?.id && sonic.recording && (
+        <div className="transition-opacity duration-500 opacity-100 animate-in fade-in">
+          <MeetingDetectedPeopleBar
+            people={sonic.detectedPeople}
+            onToggleConfirm={sonic.toggleConfirm}
+            onSelectMatch={sonic.selectMatch}
+          />
+        </div>
+      )}
 
       {showContext && (
         <div className="space-y-2">
@@ -229,6 +308,16 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           </>
         )}
       </Accordion>
+
+      {meeting && (
+        <MeetingLiveTranscription
+          recording={sonic.recording}
+          transcript={sonic.transcript}
+          estimatedCostUsd={sonic.estimatedCostUsd}
+          elapsedSeconds={sonic.elapsedSeconds}
+          systemAudioNote={sonic.systemAudioNote}
+        />
+      )}
     </div>
   );
 };

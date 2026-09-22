@@ -1,8 +1,9 @@
 # Backfill Runbooks
 
-One-off backfills that populate the cached Markdown building blocks for
-existing data. Both are **idempotent**, **throttled** (worker reserved
-concurrency = 2), and safe to re-run. Each follows the same shape:
+One-off backfills that populate cached building blocks (Markdown snapshots and
+name-embedding vectors) for existing data. All are **idempotent**, **throttled**
+(worker reserved concurrency = 2), and safe to re-run. Each follows the same
+shape:
 
 1. a **mark** script sets a sparse `*Pending` flag on the records to process
    (dry-run by default; `--commit` to write),
@@ -70,6 +71,29 @@ aws lambda invoke --profile impulso-prod --region us-east-1 \
 Project summaries are **not** run directly — the snapshot write arms the
 summary scheduler, which fires ~7 min after the last change per project.
 
+## Backfill 3 — Person name embeddings
+
+Generates Titan Text Embeddings v2 vectors for existing `Person` rows that
+don't have one yet, writing `Person.nameEmbedding` (a native DynamoDB
+`List<Number>`) so the `PersonNameEmbeddingIndex` vector index can find them.
+New/edited people already get embeddings automatically via the debounced online
+pipeline; this backfills the existing population. The embedded string is
+"Name (Company, Role)" (current employment resolved the same way as the meeting
+header).
+
+```bash
+node scripts/mark-people-embedding-pending.js -env prod          # dry run
+node scripts/mark-people-embedding-pending.js -env prod --commit # mark
+
+aws lambda invoke --profile impulso-prod --region us-east-1 \
+  --function-name <backfill-person-embed-enqueue-fn> \
+  --cli-binary-format raw-in-base64-out --payload '{}' /tmp/out.json
+```
+
+The Sonic `report_detected_person` tool only matches people that have an
+embedding, so run this once per environment before relying on person detection
+against the existing population.
+
 ---
 
 ## What to watch
@@ -111,7 +135,9 @@ summary scheduler, which fires ~7 min after the last change per project.
 
 - The physical GSI name is **not** the schema `queryField` name — it is derived
   from the key schema (e.g. `projectActivitiesBySnapshotPendingAndProjectsId`,
-  `noteBlocksByImageDescriptionPending`). Confirm via `describe-table` if unsure.
+  `noteBlocksByImageDescriptionPending`, `peopleByNameEmbeddingPending`).
+  Confirm via `describe-table` if unsure — the person-embed enqueue Lambda
+  hardcodes `peopleByNameEmbeddingPending`.
 - Changing a table's secondary indexes drops & recreates the table **in the
   sandbox only** (Amplify deploy behavior); production is unaffected.
 - `scripts/copy-project-to-sandbox.js` is a dev-only helper that copies a

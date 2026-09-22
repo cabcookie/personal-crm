@@ -37,10 +37,11 @@ import {
 export const SNAPSHOT_DELAY_MINUTES = 5;
 export const SUMMARY_DELAY_MINUTES = 7;
 export const MEETING_HEADER_DELAY_MINUTES = 5;
+export const PERSON_EMBEDDING_DELAY_MINUTES = 2;
 
 const client = new SchedulerClient({});
 
-type Kind = "snapshot" | "summary" | "meeting-header";
+type Kind = "snapshot" | "summary" | "meeting-header" | "person-embedding";
 
 const env = (key: string): string => {
   const value = process.env[key];
@@ -56,6 +57,8 @@ const targetArnFor = (kind: Kind): string => {
       return env("SUMMARY_TARGET_ARN");
     case "meeting-header":
       return env("MEETING_HEADER_TARGET_ARN");
+    case "person-embedding":
+      return env("PERSON_EMBEDDING_TARGET_ARN");
   }
 };
 
@@ -89,6 +92,8 @@ const inputFor = (kind: Kind, id: string): Record<string, string> => {
       return { projectId: id };
     case "meeting-header":
       return { meetingId: id };
+    case "person-embedding":
+      return { personId: id };
   }
 };
 

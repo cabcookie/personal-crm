@@ -1,4 +1,5 @@
 import { a } from "@aws-amplify/backend";
+import { personVectorSearch } from "../functions/person-vector-search/resource";
 import { projectCategorizationPrompt } from "./prompts/project-categorization";
 import { generateTasksSummaryPrompt } from "./prompts/generate-task-summary";
 import { rewriteProjectNotesPrompt } from "./prompts/rewrite-project-notes";
@@ -83,6 +84,30 @@ const aiSchema = {
       userFeedback: a.string(),
     })
     .returns(a.string())
+    .authorization((allow) => [allow.authenticated()]),
+
+  // ------- Custom queries
+  /** One vector-search match for the Sonic person-detection tool. */
+  PersonVoiceMatch: a.customType({
+    personId: a.string(),
+    name: a.string(),
+    source: a.string(),
+    company: a.string(),
+    role: a.string(),
+    score: a.float(),
+  }),
+
+  /**
+   * Server-side person vector search for the Sonic `report_detected_person`
+   * tool. Embeds the spoken name and searches the Person vector index scoped
+   * to the caller's own owner (enforced in the Lambda from the Cognito
+   * identity). Returns closest matches with a similarity score.
+   */
+  searchPeopleByVoice: a
+    .query()
+    .arguments({ query: a.string().required(), topK: a.integer() })
+    .returns(a.ref("PersonVoiceMatch").array())
+    .handler(a.handler.function(personVectorSearch))
     .authorization((allow) => [allow.authenticated()]),
 
   // ------- Enums

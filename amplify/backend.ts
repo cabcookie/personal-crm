@@ -15,16 +15,22 @@ import {
   generateProjectSummary,
   generateMeetingHeader,
   describeNoteImage,
+  generatePersonEmbedding,
   backfillImagesEnqueue,
   backfillImagesWorker,
   backfillSnapshotsEnqueue,
   backfillSnapshotsWorker,
+  backfillPersonEmbeddingEnqueue,
+  backfillPersonEmbeddingWorker,
 } from "./functions/project-summary/resource";
 import { setupDataSeeding } from "./custom/backend/seeding";
 import { setupInferenceProfiles } from "./custom/backend/inference-schema";
 import { setupDeleteProtection } from "./custom/backend/delete-protection";
 import { setupExportTasks } from "./custom/backend/export-tasks";
 import { setupProjectSummary } from "./custom/backend/project-summary";
+import { personVectorSearch } from "./functions/person-vector-search/resource";
+import { setupPersonVectorSearch } from "./custom/backend/person-vector-search";
+import { ensurePersonVectorIndex } from "./functions/person-vector-index/resource";
 
 const backend = defineBackend({
   auth,
@@ -41,10 +47,15 @@ const backend = defineBackend({
   generateProjectSummary,
   generateMeetingHeader,
   describeNoteImage,
+  generatePersonEmbedding,
   backfillImagesEnqueue,
   backfillImagesWorker,
   backfillSnapshotsEnqueue,
   backfillSnapshotsWorker,
+  backfillPersonEmbeddingEnqueue,
+  backfillPersonEmbeddingWorker,
+  personVectorSearch,
+  ensurePersonVectorIndex,
 });
 
 export type BackendType = typeof backend;
@@ -64,3 +75,8 @@ setupExportTasks(backend);
 // Setup debounced project-summary / activity-snapshot / image-description
 // pipelines and the one-off image-description backfill.
 setupProjectSummary(backend);
+
+// Grant the person-vector-search resolver Lambda access to the Person table +
+// vector index + Titan embeddings, and let the authenticated Cognito role
+// reach Bedrock Nova Sonic directly from the browser.
+setupPersonVectorSearch(backend);
