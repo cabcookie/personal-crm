@@ -1,0 +1,51 @@
+name: PR Checks
+
+# Gate that mirrors the Amplify Hosting build environment (Linux + Node 22 +
+# `npm ci`) so lockfile/platform/type/lint problems surface in the PR instead
+# of only failing the production deploy after merge. Prompted by a deploy that
+# passed locally (npm install) but broke in the Amplify build (npm ci): a
+# transitive @opentelemetry/core conflict and a missing @parcel/watcher Linux
+# binary. Running the exact build steps here catches both classes early.
+
+on:
+  pull_request:
+    branches:
+      - main
+
+# Cancel superseded runs on the same PR to save minutes.
+concurrency:
+  group: pr-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Lockfile, types, lint, build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # `npm ci` (NOT `npm install`) is what the Amplify build runs. It fails
+      # hard when package.json and package-lock.json are out of sync, which is
+      # exactly the discrepancy that only showed up in production before.
+      - name: Install dependencies (npm ci)
+        run: npm ci
+
+      # Frontend type check (`prebuild`) + Next.js build. On Linux this also
+      # exercises the platform-specific optional deps (e.g. @parcel/watcher
+      # Linux binary) that a macOS-generated lockfile can omit.
+      - name: Build (tsc + next build)
+        run: npm run build
+
+      # Backend (Amplify Gen2) type check — mirrors the backend build's
+      # compile step without deploying to AWS.
+      - name: Backend type check
+        run: npx tsc --noEmit -p amplify/tsconfig.json
+
+      - name: Lint
+        run: npm run lint
