@@ -5,24 +5,22 @@ import { Checkbox } from "../ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 
-type Props = {
-  people: DetectedPerson[];
-  onToggleConfirm: (detectedId: string) => void;
-  onSelectMatch: (detectedId: string, personId: string) => void;
-};
-
 const roleLine = (company: string | null, role: string | null): string => {
   const parts = [role, company].filter(Boolean) as string[];
   return parts.join(" · ");
 };
 
 /**
- * One detected person chip. EVERY heard name is shown. If the best match was
+ * One detected-person chip. EVERY heard name is shown. If the best match was
  * confident (score <= threshold) a candidate is pre-selected; otherwise none
  * is, and the chip shows the heard name and prompts the user to assign one.
  * The candidate list (alternatives) is ALWAYS available via the popover.
+ *
+ * Extracted from the former always-on MeetingDetectedPeopleBar so it can be
+ * reused inside the discreet detection popover on both the meeting page and the
+ * app header.
  */
-const PersonChip: FC<{
+export const DetectedPersonChip: FC<{
   person: DetectedPerson;
   onToggleConfirm: (id: string) => void;
   onSelectMatch: (id: string, personId: string) => void;
@@ -133,34 +131,36 @@ const PersonChip: FC<{
   );
 };
 
-const MeetingDetectedPeopleBar: FC<Props> = ({
-  people,
-  onToggleConfirm,
-  onSelectMatch,
-}) => {
-  return (
-    <div className="rounded-md border border-dashed p-2 mx-2 md:mx-4">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-medium text-muted-foreground">
-          Erkannte Personen
-        </span>
-        {people.length === 0 ? (
-          <span className="text-xs text-muted-foreground">
-            Warte auf erwähnte Personen…
-          </span>
-        ) : (
-          people.map((p) => (
-            <PersonChip
-              key={p.id}
-              person={p}
-              onToggleConfirm={onToggleConfirm}
-              onSelectMatch={onSelectMatch}
-            />
-          ))
-        )}
+/**
+ * The list of detected-person chips shown inside the discreet detection
+ * popover. Reused by both the meeting-page marker and the header marker.
+ */
+const DetectedPeoplePopoverContent: FC<{
+  people: DetectedPerson[];
+  onToggleConfirm: (detectedId: string) => void;
+  onSelectMatch: (detectedId: string, personId: string) => void;
+}> = ({ people, onToggleConfirm, onSelectMatch }) => (
+  <div className="space-y-2">
+    <p className="text-xs font-medium text-muted-foreground">
+      Erkannte Personen
+    </p>
+    {people.length === 0 ? (
+      <p className="text-xs text-muted-foreground">
+        Warte auf erwähnte Personen…
+      </p>
+    ) : (
+      <div className="flex flex-col gap-2">
+        {people.map((p) => (
+          <DetectedPersonChip
+            key={p.id}
+            person={p}
+            onToggleConfirm={onToggleConfirm}
+            onSelectMatch={onSelectMatch}
+          />
+        ))}
       </div>
-    </div>
-  );
-};
+    )}
+  </div>
+);
 
-export default MeetingDetectedPeopleBar;
+export default DetectedPeoplePopoverContent;

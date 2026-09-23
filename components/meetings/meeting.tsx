@@ -5,12 +5,17 @@ import { Context } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
 import { CheckCircle2, Circle, Info, Loader2, Mic, Square } from "lucide-react";
-import { FC, useState } from "react";
-import useSonicTranscription from "@/api/useSonicTranscription";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
+import { useRecording } from "@/contexts/RecordingContext";
+import useCurrentUser from "@/api/useUser";
+import useMeetingSonicData from "@/api/useMeetingSonicData";
+import { buildSonicContextPrompt } from "@/helpers/sonic/context-prompt";
 import { cn } from "@/lib/utils";
 import AudioPulse from "./audio-pulse";
 import MeetingMicSettings from "./meeting-mic-settings";
-import MeetingDetectedPeopleBar from "./meeting-detected-people-bar";
+import DetectedPeopleMarker from "./detected-people-marker";
+import MeetingSuggestedProjectsBar from "./meeting-suggested-projects-bar";
+import MeetingPromptDialog from "./meeting-prompt-dialog";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import LoadingAccordionItem from "../ui-elements/accordion/LoadingAccordionItem";
@@ -60,7 +65,59 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     meeting?.meetingOn || new Date()
   );
   const { meetingTodos, mutate } = useMeetingTodos(meeting?.id);
-  const sonic = useSonicTranscription(meeting?.id);
+  const { user } = useCurrentUser();
+  const { getOpenProjects, resolveParticipant } = useMeetingSonicData();
+  const sonic = useRecording();
+  const sonicContextPrompt = buildSonicContextPrompt(
+    user?.prompts,
+    meeting?.context
+  );
+
+  // This meeting is the one the (single) engine is attached to.
+  const isActiveMeeting = !!meeting?.id && sonic.activeMeetingId === meeting.id;
+  // Recording that belongs to THIS meeting (not some other meeting's session).
+  const isRecordingThis = isActiveMeeting && sonic.recording;
+  // The engine is busy with a different meeting → block starting a second one.
+  const busyElsewhere = (sonic.recording || sonic.starting) && !isActiveMeeting;
+
+  const sonicOptions = useMemo(
+    () => ({
+      contextPrompt: sonicContextPrompt,
+      meetingTopic: meeting?.topic,
+      getOpenProjects,
+      resolveParticipant,
+      participantIds: meeting?.participantIds,
+    }),
+    [
+      sonicContextPrompt,
+      meeting?.topic,
+      getOpenProjects,
+      resolveParticipant,
+      meeting?.participantIds,
+    ]
+  );
+
+  // Attach this meeting to the global engine (refreshes live options; when idle
+  // it rehydrates the persisted transcript + summary so returning shows them).
+  const { bindMeeting } = sonic;
+  const bindThisMeeting = useCallback(() => {
+    if (!meeting?.id) return;
+    bindMeeting(meeting.id, sonicOptions, {
+      transcript: meeting.sonicTranscript,
+      summary: meeting.sonicSummary,
+    });
+  }, [meeting, sonicOptions, bindMeeting]);
+
+  useEffect(() => {
+    bindThisMeeting();
+  }, [bindThisMeeting]);
+
+  const handleStart = useCallback(() => {
+    if (!meeting?.id) return;
+    // Ensure the engine is bound to THIS meeting before starting.
+    bindThisMeeting();
+    void sonic.start();
+  }, [meeting, bindThisMeeting, sonic]);
   const [lastMeeting, setLastMeeting] = useState(meeting);
   const [lastTasksDone, setLastTasksDone] = useState(
     meeting?.immediateTasksDone
@@ -85,6 +142,8 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   const addParticipant = (personId: string | null) => {
     if (!personId) return;
     createMeetingParticipant(personId);
+    // Tell the live Sonic session about the new participant (no-op if idle).
+    if (isRecordingThis) sonic.notifyParticipantAdded(personId);
   };
 
   const updateContext = (context: Context) => {
@@ -113,27 +172,45 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     }
   };
 
-  const handleSelectProject = (projectId: string | null) =>
-    projectId && createMeetingActivity(projectId);
+  const handleSelectProject = (projectId: string | null) => {
+    if (!projectId) return;
+    createMeetingActivity(projectId);
+    if (isRecordingThis) sonic.notifyProjectAdded(projectId);
+  };
+
+  /** Accept a Sonic project suggestion: add it to the meeting, notify Sonic,
+   * and clear the suggestion. */
+  const acceptSuggestedProject = (projectId: string) => {
+    createMeetingActivity(projectId);
+    if (isRecordingThis) sonic.notifyProjectAdded(projectId);
+    sonic.dismissSuggestedProject(projectId);
+  };
 
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {meeting?.id &&
-          (!sonic.recording ? (
+          (!isRecordingThis ? (
             <div className="flex items-center gap-1">
               <Button
-                onClick={sonic.start}
+                onClick={handleStart}
                 size="sm"
                 className="gap-1"
-                disabled={sonic.starting}
+                disabled={sonic.starting || busyElsewhere}
+                title={
+                  busyElsewhere
+                    ? "Es läuft bereits eine Aufnahme für ein anderes Meeting."
+                    : undefined
+                }
               >
-                {sonic.starting ? (
+                {sonic.starting && isActiveMeeting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <Mic className="w-4 h-4" />
                 )}
-                {sonic.starting ? "Startet…" : "Record for AI Summary"}
+                {sonic.starting && isActiveMeeting
+                  ? "Startet…"
+                  : "Record for AI Summary"}
               </Button>
               <MeetingMicSettings
                 mics={sonic.mics}
@@ -157,6 +234,16 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               </span>
             </Button>
           ))}
+        {/* Discreet detected-people marker while THIS meeting records. */}
+        {isRecordingThis && (
+          <DetectedPeopleMarker
+            people={sonic.detectedPeople}
+            unconfirmedCount={sonic.unconfirmedCount}
+            recentDetectionName={sonic.recentDetectionName}
+            onToggleConfirm={sonic.toggleConfirm}
+            onSelectMatch={sonic.selectMatch}
+          />
+        )}
         <Button
           onClick={handleUpdateImmediateTasksDone}
           variant="outline"
@@ -188,6 +275,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             meetingOn={meeting.meetingOn}
           />
         )}
+        {meeting?.id && <MeetingPromptDialog context={meeting.context} />}
       </div>
 
       {/* Before recording: the browser-prompt hint (fades out on start). */}
@@ -195,7 +283,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
         <div
           className={cn(
             "transition-opacity duration-500",
-            sonic.recording
+            isRecordingThis
               ? "opacity-0 pointer-events-none h-0 overflow-hidden"
               : "opacity-100"
           )}
@@ -213,13 +301,15 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
         </div>
       )}
 
-      {/* While recording: the detected-people confirmation bar (fades in). */}
-      {meeting?.id && sonic.recording && (
-        <div className="transition-opacity duration-500 opacity-100 animate-in fade-in">
-          <MeetingDetectedPeopleBar
-            people={sonic.detectedPeople}
-            onToggleConfirm={sonic.toggleConfirm}
-            onSelectMatch={sonic.selectMatch}
+      {/* While recording: the suggested-projects bar (fades in). Detected
+          people now live in the discreet marker next to the controls. */}
+      {isRecordingThis && sonic.suggestedProjects.length > 0 && (
+        <div className="transition-opacity duration-500 opacity-100 animate-in fade-in space-y-2">
+          <MeetingSuggestedProjectsBar
+            suggestions={sonic.suggestedProjects}
+            projects={getOpenProjects()}
+            onAccept={acceptSuggestedProject}
+            onDismiss={sonic.dismissSuggestedProject}
           />
         </div>
       )}
@@ -311,11 +401,15 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
 
       {meeting && (
         <MeetingLiveTranscription
-          recording={sonic.recording}
-          transcript={sonic.transcript}
-          estimatedCostUsd={sonic.estimatedCostUsd}
-          elapsedSeconds={sonic.elapsedSeconds}
-          systemAudioNote={sonic.systemAudioNote}
+          recording={isRecordingThis}
+          transcript={
+            isActiveMeeting ? sonic.transcript : (meeting.sonicTranscript ?? [])
+          }
+          estimatedCostUsd={isActiveMeeting ? sonic.estimatedCostUsd : 0}
+          elapsedSeconds={isActiveMeeting ? sonic.elapsedSeconds : 0}
+          systemAudioNote={isActiveMeeting ? sonic.systemAudioNote : null}
+          summary={isActiveMeeting ? sonic.summary : meeting.sonicSummary}
+          summarizing={isActiveMeeting ? sonic.summarizing : false}
         />
       )}
     </div>

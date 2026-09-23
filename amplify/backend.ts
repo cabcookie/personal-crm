@@ -31,6 +31,8 @@ import { setupProjectSummary } from "./custom/backend/project-summary";
 import { personVectorSearch } from "./functions/person-vector-search/resource";
 import { setupPersonVectorSearch } from "./custom/backend/person-vector-search";
 import { ensurePersonVectorIndex } from "./functions/person-vector-index/resource";
+import { summarizeMeeting } from "./functions/summarize-meeting/resource";
+import { setupSummarizeMeeting } from "./custom/backend/summarize-meeting";
 
 const backend = defineBackend({
   auth,
@@ -56,6 +58,7 @@ const backend = defineBackend({
   backfillPersonEmbeddingWorker,
   personVectorSearch,
   ensurePersonVectorIndex,
+  summarizeMeeting,
 });
 
 export type BackendType = typeof backend;
@@ -80,3 +83,6 @@ setupProjectSummary(backend);
 // vector index + Titan embeddings, and let the authenticated Cognito role
 // reach Bedrock Nova Sonic directly from the browser.
 setupPersonVectorSearch(backend);
+
+// Grant the meeting-summarizer resolver Lambda access to Bedrock (Sonnet 4.5).
+setupSummarizeMeeting(backend);

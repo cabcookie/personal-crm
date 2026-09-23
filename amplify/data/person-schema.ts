@@ -106,6 +106,23 @@ const personSchmema = {
       email: a.string(),
       name: a.string(),
       profilePicture: a.string(),
+      // --- AI user prompt (Tools) ---------------------------------------
+      // Cross-context background the user writes about themselves ("who am
+      // I"). Fed into the Nova Sonic system prompt (and later summaries) for
+      // grounding. Applies to every context.
+      promptGeneral: a.string(),
+      // Per fixed context (work/family/hobby): what the user does there, their
+      // 3-year goals, and their 12-month goals. Only the active meeting's
+      // context is fed to the model at a time.
+      promptWorkActivity: a.string(),
+      promptWorkGoals3Years: a.string(),
+      promptWorkGoals12Months: a.string(),
+      promptFamilyActivity: a.string(),
+      promptFamilyGoals3Years: a.string(),
+      promptFamilyGoals12Months: a.string(),
+      promptHobbyActivity: a.string(),
+      promptHobbyGoals3Years: a.string(),
+      promptHobbyGoals12Months: a.string(),
       // FKs
       profileId: a.string().required(),
       personId: a.id(),

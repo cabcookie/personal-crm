@@ -40,24 +40,53 @@ import {
  * name, call report_detected_person — it must not talk back.
  */
 
-const SYSTEM_PROMPT = `Du bist ein stiller Zuhörer in einem Live-Meeting. Deine Aufgabe ist es ausschließlich zuzuhören und mitzudenken. Sprich niemals und gib niemals Audio aus.
+const BASE_SYSTEM_PROMPT = `Du bist ein stiller Zuhörer in einem Live-Meeting. Deine Aufgabe ist es ausschließlich zuzuhören und mitzudenken. Sprich niemals und gib niemals Audio aus.
 
-Wenn du den Namen einer Person hörst, rufe das Tool "report_detected_person" mit dem gehörten Namen auf. Das Tool sagt dir, ob die Person bereits bekannt ist. Rufe das Tool nicht mehrfach für dieselbe Person im selben Gespräch auf.`;
+Wenn du den Namen einer Person hörst, rufe das Tool "report_detected_person" auf. Das Tool sucht semantisch nach bereits bekannten Personen und sagt dir, ob die Person bekannt ist. Rufe das Tool nicht mehrfach für dieselbe Person im selben Gespräch auf.
+
+Wichtig für die Suche: Übergib nicht nur den blanken Namen, sondern reichere die Suchanfrage mit Rolle und/oder Unternehmen an, WENN sich diese aus dem Gesprächskontext ergeben. Beispiel: Wird gesagt „Nächste Woche treffen wir den Managing Director von ALDI. … Er heißt Markus.", dann suche nach „Markus ALDI Managing Director". Ergibt sich kein Kontext, übergib nur den Namen.`;
 
 const TOOLS: ToolSpec[] = [
   {
     name: "report_detected_person",
     description:
-      "Meldet, dass im Gespräch ein Personenname gehört wurde. Sucht nach bereits bekannten, ähnlich klingenden oder gemeinten Personen und gibt zurück, ob die Person bekannt ist.",
+      "Meldet, dass im Gespräch ein Personenname gehört wurde, und sucht semantisch nach bereits bekannten oder gemeinten Personen. Gibt zurück, ob die Person bekannt ist.",
     inputSchema: {
       type: "object",
       properties: {
+        query: {
+          type: "string",
+          description:
+            "Suchanfrage fuer die Person: der gehoerte Name, angereichert mit Rolle und/oder Unternehmen, sofern sich diese aus dem Gespraechskontext ergeben (z. B. 'Markus ALDI Managing Director'). Sonst nur der Name.",
+        },
         name: {
           type: "string",
-          description: "Der gehörte Name der Person, so wörtlich wie möglich.",
+          description:
+            "Der reine gehörte Name der Person (ohne Rolle/Unternehmen), so wörtlich wie möglich — für die Anzeige.",
         },
       },
-      required: ["name"],
+      required: ["query", "name"],
+    },
+  },
+  {
+    name: "suggest_project",
+    description:
+      "Schlägt vor, ein bekanntes offenes Projekt diesem Meeting hinzuzufügen, wenn das Gespräch klar zu einem der Projekte aus der bereitgestellten Projektliste passt und es noch nicht hinzugefügt wurde. Verwende ausschließlich projectId-Werte aus dieser Liste.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        projectId: {
+          type: "string",
+          description:
+            "Die ID des vorgeschlagenen Projekts (aus der Projektliste, in eckigen Klammern angegeben).",
+        },
+        reason: {
+          type: "string",
+          description:
+            "Kurze Begründung, warum das Projekt zum Gespräch passt.",
+        },
+      },
+      required: ["projectId"],
     },
   },
 ];
@@ -78,6 +107,11 @@ export type ToolUseInfo = {
   matches?: PersonMatch[];
 };
 
+export type ProjectSuggestion = {
+  projectId: string;
+  reason?: string;
+};
+
 export type SonicCallbacks = {
   onTranscript: (text: string) => void;
   onToolUse: (info: ToolUseInfo) => void;
@@ -86,6 +120,19 @@ export type SonicCallbacks = {
   onClose: () => void;
   /** Executes the person search server-side; returns matches. */
   searchPeople: (query: string) => Promise<PersonMatch[]>;
+  /** Sonic suggests adding a known project to the meeting. */
+  onProjectSuggested?: (suggestion: ProjectSuggestion) => void;
+  /**
+   * Startup context (participants + open-project list) sent as a USER text
+   * turn right after the system prompt, before audio streaming begins.
+   */
+  startupContext?: string;
+  /**
+   * Optional user/context background (who the user is, what they do in this
+   * meeting's context, their goals) appended to the system prompt so the model
+   * has grounding for person/role detection.
+   */
+  contextPrompt?: string;
 };
 
 const encoder = new TextEncoder();
@@ -146,6 +193,8 @@ export class SonicClient {
   private running = false;
   // De-dupe repeated detections of the same name within a session.
   private reportedNames = new Set<string>();
+  // De-dupe repeated project suggestions within a session.
+  private suggestedProjects = new Set<string>();
 
   constructor(cbs: SonicCallbacks) {
     this.cbs = cbs;
@@ -164,11 +213,20 @@ export class SonicClient {
     this.queue.push(sessionStartEvent());
     this.queue.push(promptStartEvent(this.promptName, TOOLS));
     const sysContent = uuid();
+    const systemPrompt = this.cbs.contextPrompt?.trim()
+      ? `${BASE_SYSTEM_PROMPT}\n\n--- Hintergrund zum Nutzer und Kontext dieses Meetings ---\n${this.cbs.contextPrompt.trim()}`
+      : BASE_SYSTEM_PROMPT;
     this.queue.push(
       textContentStartEvent(this.promptName, sysContent, "SYSTEM")
     );
-    this.queue.push(textInputEvent(this.promptName, sysContent, SYSTEM_PROMPT));
+    this.queue.push(textInputEvent(this.promptName, sysContent, systemPrompt));
     this.queue.push(contentEndEvent(this.promptName, sysContent));
+
+    // Startup context (participants + open projects) as a USER text turn.
+    if (this.cbs.startupContext?.trim()) {
+      this.sendContext(this.cbs.startupContext.trim());
+    }
+
     this.queue.push(
       audioContentStartEvent(this.promptName, this.audioContentName)
     );
@@ -204,6 +262,23 @@ export class SonicClient {
     this.queue.push(
       audioInputEvent(this.promptName, this.audioContentName, base64Pcm)
     );
+  }
+
+  /**
+   * Send a cross-modal USER text turn to the running model (e.g. "participant
+   * added", "project added"). Interactive text alongside the audio stream, so
+   * the model gains context mid-conversation. Safe to call before audio starts
+   * (startup context) and while streaming.
+   */
+  sendContext(text: string): void {
+    if (!text.trim()) return;
+    // Once the queue is closed (after stop) we can't send anything.
+    const contentName = uuid();
+    this.queue.push(
+      textContentStartEvent(this.promptName, contentName, "USER", true)
+    );
+    this.queue.push(textInputEvent(this.promptName, contentName, text));
+    this.queue.push(contentEndEvent(this.promptName, contentName));
   }
 
   async stop(): Promise<void> {
@@ -272,15 +347,18 @@ export class SonicClient {
     }
 
     let matches: PersonMatch[] = [];
-    let result: unknown = { known: false };
+    let result: unknown = { ok: true };
 
     try {
       if (toolName === "report_detected_person") {
-        const name = String((input as { name?: string }).name ?? "").trim();
+        const typed = input as { name?: string; query?: string };
+        const name = String(typed.name ?? "").trim();
+        // Search with the context-enriched query when provided, else the name.
+        const query = String(typed.query ?? name).trim();
         const key = name.toLowerCase();
-        if (name && !this.reportedNames.has(key)) {
+        if (query && name && !this.reportedNames.has(key)) {
           this.reportedNames.add(key);
-          matches = await this.cbs.searchPeople(name);
+          matches = await this.cbs.searchPeople(query);
         }
         const best = matches[0];
         // COSINE score: lower = more similar. Treat a close match as "known".
@@ -288,6 +366,18 @@ export class SonicClient {
         result = known
           ? { known: true, person: best.name, similarity: best.score }
           : { known: false, heardName: name };
+      } else if (toolName === "suggest_project") {
+        const typed = input as { projectId?: string; reason?: string };
+        const projectId = String(typed.projectId ?? "").trim();
+        // De-dupe repeated suggestions of the same project.
+        if (projectId && !this.suggestedProjects.has(projectId)) {
+          this.suggestedProjects.add(projectId);
+          this.cbs.onProjectSuggested?.({
+            projectId,
+            reason: typed.reason,
+          });
+        }
+        result = { acknowledged: true };
       }
     } catch (err) {
       result = { error: err instanceof Error ? err.message : "tool failed" };

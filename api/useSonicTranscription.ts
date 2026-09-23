@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { client } from "@/lib/amplify";
 import { toast } from "@/components/ui/use-toast";
 import {
@@ -10,11 +10,21 @@ import {
   SonicClient,
   type PersonMatch,
   type ToolUseInfo,
+  type ProjectSuggestion,
 } from "@/helpers/sonic/client";
 import {
   estimateSonicCostUsd,
   type SonicTokenTotals,
 } from "@/helpers/sonic/constants";
+import type {
+  SonicProject,
+  SonicParticipant,
+} from "@/helpers/sonic/context-prompt";
+import {
+  buildProjectListContext,
+  buildParticipantContext,
+  buildProjectAddedContext,
+} from "@/helpers/sonic/context-prompt";
 
 /**
  * Orchestrates a live Nova Sonic transcription session for one meeting:
@@ -53,11 +63,61 @@ const emptyTotals: SonicTokenTotals = {
   outputTextTokens: 0,
 };
 
-const useSonicTranscription = (meetingId?: string) => {
+const safeParse = (s: string): unknown => {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return { raw: s };
+  }
+};
+
+export type SuggestedProject = {
+  projectId: string;
+  reason?: string;
+  at: number;
+};
+
+export type MeetingSummary = unknown; // free-form JSON from Sonnet
+
+export type SonicOptions = {
+  contextPrompt?: string;
+  /** Topic of the bound meeting (for the header link/label). */
+  meetingTopic?: string;
+  /** Build the open-project list (filtered/sorted) at start/summary time. */
+  getOpenProjects?: () => SonicProject[];
+  /** Resolve a person id to {name, company, role} for participant context. */
+  resolveParticipant?: (personId: string) => SonicParticipant | undefined;
+  /** Current participant person ids at start. */
+  participantIds?: string[];
+};
+
+/**
+ * The engine is instantiated ONCE, in the global RecordingProvider, so a
+ * recording survives page navigation. The active meeting is not fixed at mount
+ * — the meeting page calls `bindMeeting` to attach its id/topic/options, and
+ * `activeMeetingId` tracks which meeting the (single) session belongs to.
+ */
+const useSonicTranscription = () => {
   const [recording, setRecording] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [activeMeetingId, setActiveMeetingId] = useState<string | undefined>(
+    undefined
+  );
+  const [activeMeetingTopic, setActiveMeetingTopic] = useState<
+    string | undefined
+  >(undefined);
   const [transcript, setTranscript] = useState<TranscriptLine[]>([]);
   const [detectedPeople, setDetectedPeople] = useState<DetectedPerson[]>([]);
+  const [suggestedProjects, setSuggestedProjects] = useState<
+    SuggestedProject[]
+  >([]);
+  const [summary, setSummary] = useState<MeetingSummary | null>(null);
+  const [summarizing, setSummarizing] = useState(false);
+  // The name of the most recently detected person, shown briefly as a discreet
+  // transient hint at the marker; self-clears a few seconds after detection.
+  const [recentDetectionName, setRecentDetectionName] = useState<string | null>(
+    null
+  );
   const [totals, setTotals] = useState<SonicTokenTotals>(emptyTotals);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [systemAudioNote, setSystemAudioNote] = useState<string | null>(null);
@@ -71,7 +131,29 @@ const useSonicTranscription = (meetingId?: string) => {
   const clientRef = useRef<SonicClient | null>(null);
   const startedAtRef = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Clears the transient "name detected" hint a few seconds after it appears.
+  const detectionHintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const totalsRef = useRef<SonicTokenTotals>(emptyTotals);
+  // The meeting the CURRENT session is bound to. Set by `start`; used by all
+  // persistence so a page navigation (which rebinds options) can't misroute a
+  // running session's writes.
+  const recordingMeetingIdRef = useRef<string | undefined>(undefined);
+  // Latest transcript + detected people for building the summary payload at
+  // stop time (avoids stale closures).
+  const transcriptRef = useRef<TranscriptLine[]>([]);
+  const detectedRef = useRef<DetectedPerson[]>([]);
+  // Latest options + bound meeting id/topic. Updated via `bindMeeting`, NOT a
+  // hook argument, because this hook is a single global instance.
+  const optionsRef = useRef<SonicOptions>({});
+  const boundMeetingIdRef = useRef<string | undefined>(undefined);
+  // Keep transcript/detected refs in sync outside of render (lint: no ref
+  // writes during render). These feed the summary payload + notifications.
+  useEffect(() => {
+    transcriptRef.current = transcript;
+    detectedRef.current = detectedPeople;
+  });
 
   const searchPeople = useCallback(
     async (query: string): Promise<PersonMatch[]> => {
@@ -101,7 +183,20 @@ const useSonicTranscription = (meetingId?: string) => {
     []
   );
 
+  // Briefly surface a just-detected name at the marker, then self-clear.
+  const DETECTION_HINT_MS = 4000;
+  const flashDetection = useCallback((name: string) => {
+    setRecentDetectionName(name);
+    if (detectionHintTimerRef.current)
+      clearTimeout(detectionHintTimerRef.current);
+    detectionHintTimerRef.current = setTimeout(
+      () => setRecentDetectionName(null),
+      DETECTION_HINT_MS
+    );
+  }, []);
+
   const persistUsage = useCallback(async () => {
+    const meetingId = recordingMeetingIdRef.current;
     if (!meetingId) return;
     const t = totalsRef.current;
     const durationSeconds = Math.round(
@@ -119,7 +214,108 @@ const useSonicTranscription = (meetingId?: string) => {
       sonicUsageUpdatedAt: new Date().toISOString(),
     });
     if (errors) console.error("persistUsage", errors);
-  }, [meetingId]);
+  }, []);
+
+  /**
+   * Provisionally persist the live transcript onto the Meeting so it survives
+   * navigation / reload and can be re-displayed on return. Stored as the JSON
+   * array of transcript lines. Best-effort; failures are logged, not surfaced.
+   */
+  const persistTranscript = useCallback(async () => {
+    const meetingId = recordingMeetingIdRef.current;
+    if (!meetingId) return;
+    const lines = transcriptRef.current;
+    const { errors } = await client.models.Meeting.update({
+      id: meetingId,
+      sonicTranscript: lines,
+      sonicTranscriptUpdatedAt: new Date().toISOString(),
+    });
+    if (errors) console.error("persistTranscript", errors);
+  }, []);
+
+  /** Provisionally persist the generated summary onto the Meeting. */
+  const persistSummary = useCallback(async (parsed: MeetingSummary) => {
+    const meetingId = recordingMeetingIdRef.current;
+    if (!meetingId || parsed == null) return;
+    const { errors } = await client.models.Meeting.update({
+      id: meetingId,
+      sonicSummary: parsed,
+    });
+    if (errors) console.error("persistSummary", errors);
+  }, []);
+
+  /**
+   * Build the summary payload from the current transcript + confirmed people +
+   * the open-project context, then ask the server-side summarizer (Sonnet).
+   */
+  const runSummary = useCallback(async () => {
+    const lines = transcriptRef.current;
+    if (!lines.length) return;
+    const transcriptText = lines.map((l) => l.text).join("\n");
+    const opts = optionsRef.current;
+    const projects = opts.getOpenProjects?.() ?? [];
+
+    // Confirmed detected people → mentioned people {id, name, company, role}.
+    const mentioned = detectedRef.current
+      .filter((p) => p.confirmed && p.selectedPersonId)
+      .map((p) => {
+        const m = p.matches.find((mm) => mm.personId === p.selectedPersonId);
+        return m
+          ? {
+              id: m.personId,
+              name: m.name,
+              company: m.company,
+              role: m.role,
+            }
+          : null;
+      })
+      .filter((x): x is NonNullable<typeof x> => !!x);
+
+    // Participants → {id, name, company, role} via the resolver.
+    const participants = (opts.participantIds ?? [])
+      .map((id) => opts.resolveParticipant?.(id))
+      .filter((x): x is SonicParticipant => !!x)
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        company: p.company,
+        role: p.role,
+      }));
+
+    const payload = {
+      projects: projects.map((p) => ({
+        id: p.id,
+        name: p.name,
+        company: p.company,
+        partner: p.partner,
+        summary: p.summary,
+      })),
+      participants,
+      mentionedPeople: mentioned,
+      transcript: transcriptText,
+    };
+
+    setSummarizing(true);
+    try {
+      const { data, errors } = await client.queries.summarizeMeeting({
+        payload: JSON.stringify(payload),
+      });
+      if (errors) {
+        console.error("summarizeMeeting", errors);
+        return;
+      }
+      // data is AWSJSON — may arrive as string or parsed object.
+      const parsed =
+        typeof data === "string" ? safeParse(data) : (data ?? null);
+      setSummary(parsed);
+      // Provisionally persist so it survives navigation/reload.
+      void persistSummary(parsed);
+    } catch (err) {
+      console.error("summarizeMeeting failed", err);
+    } finally {
+      setSummarizing(false);
+    }
+  }, [persistSummary]);
 
   const stop = useCallback(async () => {
     if (timerRef.current) {
@@ -133,17 +329,49 @@ const useSonicTranscription = (meetingId?: string) => {
     setRecording(false);
     setAudioLevel(0);
     await persistUsage();
-  }, [persistUsage]);
+    // Provisionally persist the transcript, then generate + persist the summary.
+    await persistTranscript();
+    void runSummary();
+  }, [persistUsage, persistTranscript, runSummary]);
 
   const start = useCallback(async () => {
     if (recording || starting) return;
+    const meetingId = boundMeetingIdRef.current;
+    if (!meetingId) {
+      console.warn("Sonic start called without a bound meeting");
+      return;
+    }
     setStarting(true);
+    // Bind this session to the currently-bound meeting so all persistence
+    // routes correctly even if the user navigates and rebinds another meeting.
+    recordingMeetingIdRef.current = meetingId;
+    setActiveMeetingId(meetingId);
+    setActiveMeetingTopic(optionsRef.current.meetingTopic);
     setTranscript([]);
     setDetectedPeople([]);
+    setSuggestedProjects([]);
+    setSummary(null);
+    setRecentDetectionName(null);
     setTotals(emptyTotals);
     totalsRef.current = emptyTotals;
     setElapsedSeconds(0);
     setSystemAudioNote(null);
+
+    // Build the startup context: participants (name/company/role) + the open
+    // project list (name/company/partner/goal).
+    const opts = optionsRef.current;
+    const startupParts: string[] = [];
+    const startupParticipants = (opts.participantIds ?? [])
+      .map((id) => opts.resolveParticipant?.(id))
+      .filter((x): x is SonicParticipant => !!x);
+    for (const p of startupParticipants) {
+      startupParts.push(buildParticipantContext(p));
+    }
+    const startupProjects = opts.getOpenProjects?.() ?? [];
+    if (startupProjects.length) {
+      startupParts.push(buildProjectListContext(startupProjects));
+    }
+    const startupContext = startupParts.join("\n\n");
 
     try {
       const sonic = new SonicClient({
@@ -172,7 +400,10 @@ const useSonicTranscription = (meetingId?: string) => {
               (p) => p.heardName.toLowerCase() === key
             );
             if (existing) {
+              // Already confirmed → nothing to draw attention to.
               if (existing.confirmed) return prev;
+              // Refreshed an unconfirmed detection: flash discreetly again.
+              flashDetection(heardName);
               return prev.map((p) =>
                 p === existing
                   ? {
@@ -184,6 +415,8 @@ const useSonicTranscription = (meetingId?: string) => {
                   : p
               );
             }
+            // Brand-new detection → flash the discreet hint.
+            flashDetection(heardName);
             return [
               ...prev,
               {
@@ -212,6 +445,18 @@ const useSonicTranscription = (meetingId?: string) => {
         },
         onClose: () => setRecording(false),
         searchPeople,
+        contextPrompt: optionsRef.current.contextPrompt,
+        startupContext,
+        onProjectSuggested: (s: ProjectSuggestion) => {
+          setSuggestedProjects((prev) =>
+            prev.some((x) => x.projectId === s.projectId)
+              ? prev
+              : [
+                  ...prev,
+                  { projectId: s.projectId, reason: s.reason, at: Date.now() },
+                ]
+          );
+        },
       });
 
       const capture = new AudioCapture({
@@ -228,13 +473,13 @@ const useSonicTranscription = (meetingId?: string) => {
       clientRef.current = sonic;
       captureRef.current = capture;
       startedAtRef.current = Date.now();
-      timerRef.current = setInterval(
-        () =>
-          setElapsedSeconds(
-            Math.round((Date.now() - startedAtRef.current) / 1000)
-          ),
-        1000
-      );
+      timerRef.current = setInterval(() => {
+        const secs = Math.round((Date.now() - startedAtRef.current) / 1000);
+        setElapsedSeconds(secs);
+        // Periodically persist the transcript so a crash / reload / accidental
+        // navigation away doesn't lose the running session's transcript.
+        if (secs > 0 && secs % 15 === 0) void persistTranscript();
+      }, 1000);
       setRecording(true);
     } catch (err) {
       console.error("Failed to start Sonic transcription", err);
@@ -252,7 +497,33 @@ const useSonicTranscription = (meetingId?: string) => {
     } finally {
       setStarting(false);
     }
-  }, [recording, starting, searchPeople, stop, selectedMicId]);
+  }, [recording, starting, searchPeople, stop, selectedMicId, flashDetection]);
+
+  /** Notify Sonic (cross-modal) that a participant was added mid-recording. */
+  const notifyParticipantAdded = useCallback((personId: string) => {
+    const p = optionsRef.current.resolveParticipant?.(personId);
+    if (p && clientRef.current) {
+      clientRef.current.sendContext(buildParticipantContext(p));
+    }
+  }, []);
+
+  /** Notify Sonic (cross-modal) that a project was added, with the rest of its
+   * summary. */
+  const notifyProjectAdded = useCallback((projectId: string) => {
+    const proj = optionsRef.current
+      .getOpenProjects?.()
+      .find((p) => p.id === projectId);
+    if (proj && clientRef.current) {
+      clientRef.current.sendContext(buildProjectAddedContext(proj));
+    }
+  }, []);
+
+  /** Remove a project suggestion (after the user accepts or dismisses it). */
+  const dismissSuggestedProject = useCallback((projectId: string) => {
+    setSuggestedProjects((prev) =>
+      prev.filter((p) => p.projectId !== projectId)
+    );
+  }, []);
 
   /** Load available microphones (for the settings popover). */
   const loadMics = useCallback(async () => {
@@ -281,11 +552,69 @@ const useSonicTranscription = (meetingId?: string) => {
     );
   }, []);
 
+  /**
+   * Attach a meeting to the (single, global) engine. Called by the meeting
+   * page on mount / when its data changes. Always refreshes the live options
+   * (context prompt, project/participant resolvers) so a running session picks
+   * up newer data. When NOT recording, it also rehydrates the transcript +
+   * summary from the meeting record so returning to the page shows the last
+   * session's results.
+   */
+  const bindMeeting = useCallback(
+    (
+      meetingId: string,
+      options: SonicOptions,
+      persisted?: {
+        transcript?: TranscriptLine[];
+        summary?: MeetingSummary;
+      }
+    ) => {
+      boundMeetingIdRef.current = meetingId;
+      optionsRef.current = options;
+      // Don't disturb a live session; only rehydrate when idle.
+      if (recording || starting) return;
+      // If this meeting is the one we already have results for in memory, keep
+      // them; otherwise load whatever was persisted (possibly nothing).
+      if (activeMeetingId !== meetingId) {
+        setActiveMeetingId(meetingId);
+        setActiveMeetingTopic(options.meetingTopic);
+        setTranscript(persisted?.transcript ?? []);
+        setSummary(persisted?.summary ?? null);
+        setDetectedPeople([]);
+        setSuggestedProjects([]);
+        setRecentDetectionName(null);
+      }
+    },
+    [recording, starting, activeMeetingId]
+  );
+
+  // Stop the streams if the whole app unmounts (provider teardown). This is the
+  // safety net that was missing when the engine lived in the page component.
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (detectionHintTimerRef.current)
+        clearTimeout(detectionHintTimerRef.current);
+      void captureRef.current?.stop().catch(() => undefined);
+      void clientRef.current?.stop().catch(() => undefined);
+    },
+    []
+  );
+
+  const unconfirmedCount = detectedPeople.filter((p) => !p.confirmed).length;
+
   return {
     recording,
     starting,
+    activeMeetingId,
+    activeMeetingTopic,
     transcript,
     detectedPeople,
+    unconfirmedCount,
+    recentDetectionName,
+    suggestedProjects,
+    summary,
+    summarizing,
     totals,
     estimatedCostUsd: estimateSonicCostUsd(totals),
     elapsedSeconds,
@@ -297,6 +626,10 @@ const useSonicTranscription = (meetingId?: string) => {
     loadMics,
     toggleConfirm,
     selectMatch,
+    notifyParticipantAdded,
+    notifyProjectAdded,
+    dismissSuggestedProject,
+    bindMeeting,
     start,
     stop,
   };

@@ -15,6 +15,8 @@ import { handleApiErrors } from "./globals";
 import { Activity, mapActivity } from "./useActivity";
 import { client } from "@/lib/amplify";
 
+export type TranscriptLine = { id: string; text: string; at: number };
+
 export type Meeting = {
   id: string;
   topic: string;
@@ -27,6 +29,10 @@ export type Meeting = {
   hasOldVersionFormattedActivities: boolean;
   hasOpenTodos: boolean;
   immediateTasksDone?: boolean;
+  // Provisional live-transcription persistence (see amplify Meeting model).
+  sonicTranscript?: TranscriptLine[];
+  sonicSummary?: unknown;
+  sonicTranscriptUpdatedAt?: string;
 };
 
 export const meetingSelectionSet = [
@@ -35,6 +41,9 @@ export const meetingSelectionSet = [
   "context",
   "meetingOn",
   "immediateTasksDone",
+  "sonicTranscript",
+  "sonicSummary",
+  "sonicTranscriptUpdatedAt",
   "createdAt",
   "participants.id",
   "participants.personId",
@@ -68,6 +77,16 @@ type MeetingData = SelectionSet<
   typeof meetingSelectionSet
 >;
 
+/** a.json() fields come back parsed, but be defensive if a string arrives. */
+const parseJson = (value: unknown): unknown => {
+  if (typeof value !== "string") return value ?? undefined;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return undefined;
+  }
+};
+
 export const mapMeeting: (data: MeetingData) => Meeting = ({
   id,
   topic,
@@ -77,6 +96,9 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   participants,
   activities,
   immediateTasksDone,
+  sonicTranscript,
+  sonicSummary,
+  sonicTranscriptUpdatedAt,
 }) => ({
   id,
   topic,
@@ -85,6 +107,9 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   context: context || undefined,
   participantMeetingIds: participants.map(({ id }) => id),
   participantIds: participants.map(({ personId }) => personId),
+  sonicTranscript: parseJson(sonicTranscript) as TranscriptLine[] | undefined,
+  sonicSummary: parseJson(sonicSummary),
+  sonicTranscriptUpdatedAt: sonicTranscriptUpdatedAt || undefined,
   activities: flow(
     map(mapActivity),
     sortBy((a) => a.finishedOn.getTime())

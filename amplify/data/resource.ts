@@ -124,6 +124,16 @@ const schema = a
         sonicOutputTextTokens: a.integer(),
         sonicEstimatedCostUsd: a.float(),
         sonicUsageUpdatedAt: a.datetime(),
+        // --- PROVISIONAL live-transcription persistence -------------------
+        // Temporary storage so a recording survives navigation and can be
+        // re-displayed when returning to the meeting page. `sonicTranscript`
+        // is the JSON array of transcript lines ({id,text,at}); `sonicSummary`
+        // is the free-form summary JSON from the server-side summarizer.
+        // Marked provisional: we intend to remove these once the transcript is
+        // folded into the meeting notes / activities.
+        sonicTranscript: a.json(),
+        sonicSummary: a.json(),
+        sonicTranscriptUpdatedAt: a.datetime(),
         participants: a.hasMany("MeetingParticipant", "meetingId"),
         activities: a.hasMany("Activity", "meetingActivitiesId"),
       })
