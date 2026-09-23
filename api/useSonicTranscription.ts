@@ -9,6 +9,7 @@ import {
 import {
   SonicClient,
   type PersonMatch,
+  type ProjectMatch,
   type ToolUseInfo,
   type ProjectSuggestion,
 } from "@/helpers/sonic/client";
@@ -73,7 +74,11 @@ const safeParse = (s: string): unknown => {
 
 export type SuggestedProject = {
   projectId: string;
+  name?: string;
   reason?: string;
+  score?: number;
+  /** Whether the user has confirmed this project suggestion (gate). */
+  confirmed?: boolean;
   at: number;
 };
 
@@ -174,6 +179,32 @@ const useSonicTranscription = () => {
                 source: m.source ?? null,
                 company: m.company ?? null,
                 role: m.role ?? null,
+                score: m.score ?? 0,
+              },
+            ]
+          : []
+      );
+    },
+    []
+  );
+
+  const searchProjects = useCallback(
+    async (query: string): Promise<ProjectMatch[]> => {
+      const { data, errors } = await client.queries.suggestProjectByVoice({
+        query,
+        topK: 3,
+      });
+      if (errors) {
+        console.error("suggestProjectByVoice", errors);
+        return [];
+      }
+      return (data ?? []).flatMap((m): ProjectMatch[] =>
+        m && m.projectId && m.name
+          ? [
+              {
+                projectId: m.projectId,
+                name: m.name,
+                summarySnippet: m.summarySnippet ?? null,
                 score: m.score ?? 0,
               },
             ]
@@ -445,15 +476,24 @@ const useSonicTranscription = () => {
         },
         onClose: () => setRecording(false),
         searchPeople,
+        searchProjects,
         contextPrompt: optionsRef.current.contextPrompt,
         startupContext,
         onProjectSuggested: (s: ProjectSuggestion) => {
+          flashDetection(s.name ?? "Projekt");
           setSuggestedProjects((prev) =>
             prev.some((x) => x.projectId === s.projectId)
               ? prev
               : [
                   ...prev,
-                  { projectId: s.projectId, reason: s.reason, at: Date.now() },
+                  {
+                    projectId: s.projectId,
+                    name: s.name,
+                    reason: s.reason,
+                    score: s.score,
+                    confirmed: false,
+                    at: Date.now(),
+                  },
                 ]
           );
         },
@@ -497,7 +537,15 @@ const useSonicTranscription = () => {
     } finally {
       setStarting(false);
     }
-  }, [recording, starting, searchPeople, stop, selectedMicId, flashDetection]);
+  }, [
+    recording,
+    starting,
+    searchPeople,
+    searchProjects,
+    stop,
+    selectedMicId,
+    flashDetection,
+  ]);
 
   /** Notify Sonic (cross-modal) that a participant was added mid-recording. */
   const notifyParticipantAdded = useCallback((personId: string) => {

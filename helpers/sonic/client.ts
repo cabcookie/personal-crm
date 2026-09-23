@@ -40,11 +40,16 @@ import {
  * name, call report_detected_person — it must not talk back.
  */
 
+/** COSINE score at/below which a project vector match is treated as confident. */
+const KNOWN_PROJECT_THRESHOLD = 0.5;
+
 const BASE_SYSTEM_PROMPT = `Du bist ein stiller Zuhörer in einem Live-Meeting. Deine Aufgabe ist es ausschließlich zuzuhören und mitzudenken. Sprich niemals und gib niemals Audio aus.
 
 Wenn du den Namen einer Person hörst, rufe das Tool "report_detected_person" auf. Das Tool sucht semantisch nach bereits bekannten Personen und sagt dir, ob die Person bekannt ist. Rufe das Tool nicht mehrfach für dieselbe Person im selben Gespräch auf.
 
-Wichtig für die Suche: Übergib nicht nur den blanken Namen, sondern reichere die Suchanfrage mit Rolle und/oder Unternehmen an, WENN sich diese aus dem Gesprächskontext ergeben. Beispiel: Wird gesagt „Nächste Woche treffen wir den Managing Director von ALDI. … Er heißt Markus.", dann suche nach „Markus ALDI Managing Director". Ergibt sich kein Kontext, übergib nur den Namen.`;
+Wichtig für die Suche: Übergib nicht nur den blanken Namen, sondern reichere die Suchanfrage mit Rolle und/oder Unternehmen an, WENN sich diese aus dem Gesprächskontext ergeben. Beispiel: Wird gesagt „Nächste Woche treffen wir den Managing Director von ALDI. … Er heißt Markus.", dann suche nach „Markus ALDI Managing Director". Ergibt sich kein Kontext, übergib nur den Namen.
+
+Wenn das Gespräch klar um ein bestimmtes Projekt oder Vorhaben geht (z. B. ein konkretes Kundenprojekt, ein Deal, eine Initiative), rufe das Tool "suggest_project" auf. Übergib als "query" worum es geht — Projektname, Kunde/Partner, Ziel oder Thema, so wie es sich aus dem Gespräch ergibt. Das Tool sucht serverseitig nach dem gemeinten Projekt. Rufe es nicht mehrfach für dasselbe Projekt im selben Gespräch auf. Die verfügbaren offenen Projekte sind dir als Kontext genannt; nutze sie zur Formulierung der Suchanfrage, aber die Zuordnung übernimmt der Server.`;
 
 const TOOLS: ToolSpec[] = [
   {
@@ -71,22 +76,22 @@ const TOOLS: ToolSpec[] = [
   {
     name: "suggest_project",
     description:
-      "Schlägt vor, ein bekanntes offenes Projekt diesem Meeting hinzuzufügen, wenn das Gespräch klar zu einem der Projekte aus der bereitgestellten Projektliste passt und es noch nicht hinzugefügt wurde. Verwende ausschließlich projectId-Werte aus dieser Liste.",
+      "Meldet, dass das Gespräch klar um ein bestimmtes Projekt/Vorhaben geht, und sucht semantisch nach dem gemeinten Projekt. Das Tool durchsucht serverseitig die Projekte des Nutzers und gibt die besten Treffer zurück. Rufe es auf, sobald ein Projektbezug erkennbar ist; nicht mehrfach für dasselbe Projekt im selben Gespräch.",
     inputSchema: {
       type: "object",
       properties: {
-        projectId: {
+        query: {
           type: "string",
           description:
-            "Die ID des vorgeschlagenen Projekts (aus der Projektliste, in eckigen Klammern angegeben).",
+            "Suchanfrage für das Projekt: worum es im Gespräch geht — Projektname, Kunde/Partner, Ziel oder Thema, so wie es sich aus dem Kontext ergibt (z. B. 'Marketplace Deal mit ALDI' oder 'EBC Organisation ALDI').",
         },
-        reason: {
+        name: {
           type: "string",
           description:
-            "Kurze Begründung, warum das Projekt zum Gespräch passt.",
+            "Kurzer, sprechender Titel des gemeinten Projekts für die Anzeige (falls im Gespräch genannt), sonst weglassen.",
         },
       },
-      required: ["projectId"],
+      required: ["query"],
     },
   },
 ];
@@ -107,9 +112,18 @@ export type ToolUseInfo = {
   matches?: PersonMatch[];
 };
 
+export type ProjectMatch = {
+  projectId: string;
+  name: string;
+  summarySnippet: string | null;
+  score: number;
+};
+
 export type ProjectSuggestion = {
   projectId: string;
+  name?: string;
   reason?: string;
+  score?: number;
 };
 
 export type SonicCallbacks = {
@@ -120,6 +134,8 @@ export type SonicCallbacks = {
   onClose: () => void;
   /** Executes the person search server-side; returns matches. */
   searchPeople: (query: string) => Promise<PersonMatch[]>;
+  /** Executes the project search server-side; returns matches. */
+  searchProjects: (query: string) => Promise<ProjectMatch[]>;
   /** Sonic suggests adding a known project to the meeting. */
   onProjectSuggested?: (suggestion: ProjectSuggestion) => void;
   /**
@@ -193,8 +209,11 @@ export class SonicClient {
   private running = false;
   // De-dupe repeated detections of the same name within a session.
   private reportedNames = new Set<string>();
-  // De-dupe repeated project suggestions within a session.
+  // De-dupe repeated project suggestions within a session (by resolved id).
   private suggestedProjects = new Set<string>();
+  // De-dupe repeated project searches by heard query (avoids re-searching the
+  // same phrasing).
+  private searchedProjectQueries = new Set<string>();
 
   constructor(cbs: SonicCallbacks) {
     this.cbs = cbs;
@@ -367,17 +386,30 @@ export class SonicClient {
           ? { known: true, person: best.name, similarity: best.score }
           : { known: false, heardName: name };
       } else if (toolName === "suggest_project") {
-        const typed = input as { projectId?: string; reason?: string };
-        const projectId = String(typed.projectId ?? "").trim();
-        // De-dupe repeated suggestions of the same project.
-        if (projectId && !this.suggestedProjects.has(projectId)) {
-          this.suggestedProjects.add(projectId);
+        const typed = input as { query?: string; name?: string };
+        const query = String(typed.query ?? typed.name ?? "").trim();
+        const key = query.toLowerCase();
+        let projectMatches: ProjectMatch[] = [];
+        if (query && !this.searchedProjectQueries.has(key)) {
+          this.searchedProjectQueries.add(key);
+          projectMatches = await this.cbs.searchProjects(query);
+        }
+        // COSINE score: lower = more similar. Only surface a confident hit,
+        // and only once per resolved project.
+        const best = projectMatches[0];
+        const confident = !!best && best.score <= KNOWN_PROJECT_THRESHOLD;
+        if (confident && !this.suggestedProjects.has(best.projectId)) {
+          this.suggestedProjects.add(best.projectId);
           this.cbs.onProjectSuggested?.({
-            projectId,
-            reason: typed.reason,
+            projectId: best.projectId,
+            name: best.name,
+            reason: typed.name || query,
+            score: best.score,
           });
         }
-        result = { acknowledged: true };
+        result = best
+          ? { known: confident, project: best.name, similarity: best.score }
+          : { known: false, heard: query };
       }
     } catch (err) {
       result = { error: err instanceof Error ? err.message : "tool failed" };

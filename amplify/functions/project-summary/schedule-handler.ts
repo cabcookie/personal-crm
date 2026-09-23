@@ -11,6 +11,7 @@ import {
   SUMMARY_DELAY_MINUTES,
   MEETING_HEADER_DELAY_MINUTES,
   PERSON_EMBEDDING_DELAY_MINUTES,
+  PROJECT_EMBEDDING_DELAY_MINUTES,
 } from "./lib/scheduler";
 
 /**
@@ -256,6 +257,42 @@ const handlePersonAccount = async (record: DynamoDBRecord): Promise<void> => {
   await armPersonEmbedding(personId);
 };
 
+const armProjectEmbedding = async (projectId: string): Promise<void> => {
+  await upsertOneTimeSchedule({
+    kind: "project-embedding",
+    id: projectId,
+    delayMinutes: PROJECT_EMBEDDING_DELAY_MINUTES,
+  });
+  console.log(`[schedule] project-embedding ${projectId}`);
+};
+
+const handleProjects = async (record: DynamoDBRecord): Promise<void> => {
+  // Only the project name + summary drive the embedding. Skip when neither
+  // changed — this also breaks the loop from our own embedding write and from
+  // the frequent unrelated Projects edits (order, pinned, tasksSummary, next
+  // actions, etc.). On INSERT (no OldImage) we always arm.
+  if (record.eventName === "MODIFY") {
+    const n = asRecord(
+      record.dynamodb?.NewImage as Record<string, AttributeValue>
+    );
+    const o = asRecord(
+      record.dynamodb?.OldImage as Record<string, AttributeValue>
+    );
+    if (n && o) {
+      const nameChanged =
+        JSON.stringify(n.project ?? null) !== JSON.stringify(o.project ?? null);
+      const summaryChanged =
+        JSON.stringify(n.projectSummary ?? null) !==
+        JSON.stringify(o.projectSummary ?? null);
+      if (!nameChanged && !summaryChanged) return;
+    }
+  }
+  const image = newOrOld(record);
+  const projectId = image?.id as string | undefined;
+  if (!projectId) return;
+  await armProjectEmbedding(projectId);
+};
+
 export const handler: DynamoDBStreamHandler = async (event) => {
   for (const record of event.Records) {
     try {
@@ -268,6 +305,8 @@ export const handler: DynamoDBStreamHandler = async (event) => {
         await handleMeeting(record);
       } else if (matches(table, "ProjectActivity")) {
         await handleProjectActivity(record);
+      } else if (matches(table, "Projects")) {
+        await handleProjects(record);
       } else if (matches(table, "PersonAccount")) {
         await handlePersonAccount(record);
       } else if (matches(table, "Person")) {

@@ -158,6 +158,27 @@ const projectSchema = {
       // Shown in the project detail view.
       projectSummary: a.string(),
       projectSummaryUpdatedAt: a.datetime(),
+      // Semantic-search vector over "<project name> — <first summary section>"
+      // produced by the debounced project-embedding pipeline (Titan Text
+      // Embeddings v2, 1024 dims). Declared here so Amplify knows the
+      // attribute, but the actual value is written directly to DynamoDB as a
+      // native List<Number> (`L` of `N`) by the embedding Lambda — NOT through
+      // AppSync, which would JSON-stringify it and make it unsearchable. A
+      // DynamoDB vector index (`ProjectSummaryEmbeddingIndex`) is created on
+      // this attribute via a CDK custom resource (see
+      // custom/backend/project-summary.ts). Never write this from the client.
+      summaryEmbedding: a.json(),
+      summaryEmbeddingUpdatedAt: a.datetime(),
+      // Source text the embedding was last generated from. Lets the pipeline
+      // skip re-embedding (a Bedrock call) when the semantic inputs (name +
+      // first summary section) did not actually change.
+      summaryEmbeddingSource: a.string(),
+      // Backfill marker. Set to "1" by scripts/mark-projects-embedding-pending.js
+      // on existing projects that lack an embedding. The backfill worker clears
+      // it once the embedding is generated. Left unset in normal operation, so
+      // the GSI below is SPARSE — it holds only projects still awaiting a
+      // backfilled embedding.
+      summaryEmbeddingPending: a.string(),
       pinned: a.ref("ProjectPinned").required(),
       // Ids for relations
       partnerId: a.id(),
@@ -174,6 +195,10 @@ const projectSchema = {
     .secondaryIndexes((index) => [
       index("partnerId").queryField("listByPartnerId"),
       index("pinned").queryField("listByPinnedState"),
+      // Sparse work-queue index for the project-embedding backfill.
+      index("summaryEmbeddingPending").queryField(
+        "listSummaryEmbeddingPending"
+      ),
     ])
     .authorization((allow) => [allow.owner()]),
 };

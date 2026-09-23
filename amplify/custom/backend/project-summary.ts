@@ -19,6 +19,15 @@ import { CustomResource } from "aws-cdk-lib";
  */
 export const PERSON_VECTOR_INDEX_NAME = "PersonNameEmbeddingIndex";
 const PERSON_VECTOR_ATTRIBUTE = "nameEmbedding";
+
+/**
+ * Vector index config for Projects.summaryEmbedding. Same engine as the person
+ * index: Titan Text Embeddings v2 → 1024 dims, COSINE. Searched by the Sonic
+ * `suggest_project` tool via SearchVectors.
+ */
+export const PROJECT_VECTOR_INDEX_NAME = "ProjectSummaryEmbeddingIndex";
+const PROJECT_VECTOR_ATTRIBUTE = "summaryEmbedding";
+const PROJECT_VECTOR_DIMENSIONS = 1024;
 const PERSON_VECTOR_DIMENSIONS = 1024;
 
 /**
@@ -78,6 +87,10 @@ const setupPersonVectorIndex = (
       // so re-runs on unrelated deploys are harmless no-ops.
       tableName: personTable.tableName,
       indexName: PERSON_VECTOR_INDEX_NAME,
+      // Force an Update event on every deploy so the (idempotent) handler
+      // always runs — CFN otherwise skips the resource when its properties are
+      // unchanged, which is why a missing index never self-healed before.
+      redeployNonce: Date.now().toString(),
     },
   });
 
@@ -86,6 +99,70 @@ const setupPersonVectorIndex = (
     new iam.PolicyStatement({
       actions: ["dynamodb:SearchVectors"],
       resources: [`${personTable.tableArn}/index/${PERSON_VECTOR_INDEX_NAME}`],
+    })
+  );
+};
+
+/**
+ * Ensure the DynamoDB vector index on Projects.summaryEmbedding exists. Mirrors
+ * setupPersonVectorIndex (same self-healing custom-resource rationale). The
+ * reader is the project-vector-search Lambda (Sonic `suggest_project` tool).
+ */
+const setupProjectVectorIndex = (
+  stack: Stack,
+  projectsTable: { tableName: string; tableArn: string },
+  ensureFn: {
+    addEnvironment: (k: string, v: string) => void;
+    resources: {
+      lambda: import("aws-cdk-lib/aws-lambda").IFunction & {
+        addToRolePolicy: (s: iam.PolicyStatement) => void;
+      };
+    };
+  },
+  reader: {
+    resources: {
+      lambda: { addToRolePolicy: (s: iam.PolicyStatement) => void };
+    };
+  }
+): void => {
+  ensureFn.addEnvironment("DDB_TABLE_PROJECTS", projectsTable.tableName);
+  ensureFn.addEnvironment("VECTOR_INDEX_NAME", PROJECT_VECTOR_INDEX_NAME);
+  ensureFn.addEnvironment("VECTOR_ATTRIBUTE", PROJECT_VECTOR_ATTRIBUTE);
+  ensureFn.addEnvironment(
+    "VECTOR_DIMENSIONS",
+    String(PROJECT_VECTOR_DIMENSIONS)
+  );
+  ensureFn.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:UpdateTable", "dynamodb:DescribeTable"],
+      resources: [projectsTable.tableArn],
+    })
+  );
+
+  const provider = new Provider(stack, "ProjectVectorIndexProvider", {
+    onEventHandler: ensureFn.resources.lambda,
+  });
+
+  new CustomResource(stack, "ProjectVectorIndex", {
+    serviceToken: provider.serviceToken,
+    properties: {
+      tableName: projectsTable.tableName,
+      indexName: PROJECT_VECTOR_INDEX_NAME,
+      // Change a property on every deploy so CloudFormation always sends an
+      // Update event and re-invokes the (idempotent) handler. Without this, CFN
+      // skips the custom resource when tableName/indexName are unchanged, so a
+      // missing index (e.g. it was never created, or lost on a table recreate)
+      // never gets healed. The handler no-ops when the index already exists.
+      redeployNonce: Date.now().toString(),
+    },
+  });
+
+  reader.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:SearchVectors"],
+      resources: [
+        `${projectsTable.tableArn}/index/${PROJECT_VECTOR_INDEX_NAME}`,
+      ],
     })
   );
 };
@@ -198,12 +275,15 @@ export function setupProjectSummary(backend: BackendType) {
     generateMeetingHeader,
     describeNoteImage,
     generatePersonEmbedding,
+    generateProjectEmbedding,
     backfillImagesEnqueue,
     backfillImagesWorker,
     backfillSnapshotsEnqueue,
     backfillSnapshotsWorker,
     backfillPersonEmbeddingEnqueue,
     backfillPersonEmbeddingWorker,
+    backfillProjectEmbeddingEnqueue,
+    backfillProjectEmbeddingWorker,
   } = backend;
 
   const stack = Stack.of(scheduleDebounce.resources.lambda);
@@ -273,6 +353,8 @@ export function setupProjectSummary(backend: BackendType) {
     projectActivityTable,
     personTable,
     personAccountTable,
+    // Projects name/summary changes re-arm the project-embedding schedule.
+    projectsTable,
   ]) {
     table.grantStreamRead(scheduleDebounce.resources.lambda);
     scheduleDebounce.resources.lambda.addEventSource(
@@ -306,11 +388,13 @@ export function setupProjectSummary(backend: BackendType) {
   const meetingHeaderArn = generateMeetingHeader.resources.lambda.functionArn;
   const personEmbeddingArn =
     generatePersonEmbedding.resources.lambda.functionArn;
+  const projectEmbeddingArn =
+    generateProjectEmbedding.resources.lambda.functionArn;
 
   const schedulerRole = new iam.Role(stack, "ProjectSummarySchedulerRole", {
     assumedBy: new iam.ServicePrincipal("scheduler.amazonaws.com"),
     description:
-      "Role EventBridge Scheduler assumes to invoke the snapshot/summary/meeting-header/person-embedding Lambdas",
+      "Role EventBridge Scheduler assumes to invoke the snapshot/summary/meeting-header/person-embedding/project-embedding Lambdas",
   });
   schedulerRole.addToPolicy(
     new iam.PolicyStatement({
@@ -320,6 +404,7 @@ export function setupProjectSummary(backend: BackendType) {
         summaryArn,
         meetingHeaderArn,
         personEmbeddingArn,
+        projectEmbeddingArn,
       ],
     })
   );
@@ -360,6 +445,10 @@ export function setupProjectSummary(backend: BackendType) {
   scheduleDebounce.addEnvironment(
     "PERSON_EMBEDDING_TARGET_ARN",
     personEmbeddingArn
+  );
+  scheduleDebounce.addEnvironment(
+    "PROJECT_EMBEDDING_TARGET_ARN",
+    projectEmbeddingArn
   );
 
   /* ------------------------------------------------------------------ *
@@ -432,6 +521,24 @@ export function setupProjectSummary(backend: BackendType) {
   );
 
   /* ------------------------------------------------------------------ *
+   * 5c-2. Project-embedding Lambda: read Projects, invoke Titan v2, write
+   *       Projects.summaryEmbedding (native List<Number>).
+   * ------------------------------------------------------------------ */
+  generateProjectEmbedding.addEnvironment(
+    "DDB_TABLE_PROJECTS",
+    projectsTable.tableName
+  );
+  generateProjectEmbedding.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:GetItem", "dynamodb:UpdateItem"],
+      resources: [projectsTable.tableArn],
+    })
+  );
+  generateProjectEmbedding.resources.lambda.addToRolePolicy(
+    titanEmbedInvokeStatement(stack)
+  );
+
+  /* ------------------------------------------------------------------ *
    * 5d. DynamoDB vector index on Person.nameEmbedding.
    *
    *     The DynamoDB vector-search feature (GA Aug 2026) is not yet exposed
@@ -446,6 +553,17 @@ export function setupProjectSummary(backend: BackendType) {
     personTable,
     backend.ensurePersonVectorIndex,
     generatePersonEmbedding
+  );
+
+  /* ------------------------------------------------------------------ *
+   * 5d-2. DynamoDB vector index on Projects.summaryEmbedding + grant the
+   *       project-vector-search reader SearchVectors on it.
+   * ------------------------------------------------------------------ */
+  setupProjectVectorIndex(
+    stack,
+    projectsTable,
+    backend.ensureProjectVectorIndex,
+    backend.projectVectorSearch
   );
 
   /* ------------------------------------------------------------------ *
@@ -757,6 +875,86 @@ export function setupProjectSummary(backend: BackendType) {
   // Cap concurrency for Titan rate limits on the first run.
   (
     backfillPersonEmbeddingWorker.resources.lambda.node
+      .defaultChild as CfnFunction
+  ).reservedConcurrentExecutions = 2;
+
+  /* ------------------------------------------------------------------ *
+   * 10. One-off project-embedding backfill: SQS queue + DLQ, enqueue &
+   *     worker Lambdas. Mirrors the person-embedding backfill (single-id
+   *     message; the worker re-reads the Projects row). Manually triggered.
+   * ------------------------------------------------------------------ */
+  const projectEmbedBackfillDlq = new Queue(stack, "ProjectEmbedBackfillDlq", {
+    retentionPeriod: Duration.days(14),
+  });
+  const projectEmbedBackfillQueue = new Queue(
+    stack,
+    "ProjectEmbedBackfillQueue",
+    {
+      // >= worker timeout (2 min) with headroom.
+      visibilityTimeout: Duration.minutes(3),
+      deadLetterQueue: { maxReceiveCount: 3, queue: projectEmbedBackfillDlq },
+    }
+  );
+
+  // Enqueue: page the sparse listSummaryEmbeddingPending GSI + fan project ids
+  // to SQS. Explicit read policy incl. /index/*.
+  backfillProjectEmbeddingEnqueue.addEnvironment(
+    "DDB_TABLE_PROJECTS",
+    projectsTable.tableName
+  );
+  backfillProjectEmbeddingEnqueue.addEnvironment(
+    "BACKFILL_PROJECT_EMBED_QUEUE_URL",
+    projectEmbedBackfillQueue.queueUrl
+  );
+  backfillProjectEmbeddingEnqueue.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:Query", "dynamodb:GetItem"],
+      resources: [projectsTable.tableArn, `${projectsTable.tableArn}/index/*`],
+    })
+  );
+  projectEmbedBackfillQueue.grantSendMessages(
+    backfillProjectEmbeddingEnqueue.resources.lambda
+  );
+  // Self-invoke for pagination — stack-wildcard ARN (not grantInvoke(self),
+  // which would create a CloudFormation circular dependency).
+  backfillProjectEmbeddingEnqueue.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["lambda:InvokeFunction"],
+      resources: [
+        Stack.of(backfillProjectEmbeddingEnqueue.resources.lambda).formatArn({
+          service: "lambda",
+          resource: "function",
+          resourceName: "*",
+          arnFormat: ArnFormat.COLON_RESOURCE_NAME,
+        }),
+      ],
+    })
+  );
+
+  // Worker: read the Projects row, embed via Titan, write
+  // Projects.summaryEmbedding + clear the marker.
+  backfillProjectEmbeddingWorker.addEnvironment(
+    "DDB_TABLE_PROJECTS",
+    projectsTable.tableName
+  );
+  backfillProjectEmbeddingWorker.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:GetItem", "dynamodb:UpdateItem"],
+      resources: [projectsTable.tableArn],
+    })
+  );
+  backfillProjectEmbeddingWorker.resources.lambda.addToRolePolicy(
+    titanEmbedInvokeStatement(stack)
+  );
+  backfillProjectEmbeddingWorker.resources.lambda.addEventSource(
+    new SqsEventSource(projectEmbedBackfillQueue, {
+      batchSize: 5,
+      reportBatchItemFailures: true,
+    })
+  );
+  // Cap concurrency for Titan rate limits on the first run.
+  (
+    backfillProjectEmbeddingWorker.resources.lambda.node
       .defaultChild as CfnFunction
   ).reservedConcurrentExecutions = 2;
 }
