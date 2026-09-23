@@ -1,11 +1,18 @@
 name: PR Checks
 
-# Gate that mirrors the Amplify Hosting build environment (Linux + Node 22 +
-# `npm ci`) so lockfile/platform/type/lint problems surface in the PR instead
-# of only failing the production deploy after merge. Prompted by a deploy that
-# passed locally (npm install) but broke in the Amplify build (npm ci): a
-# transitive @opentelemetry/core conflict and a missing @parcel/watcher Linux
-# binary. Running the exact build steps here catches both classes early.
+# Gate for the exact failure class that broke a past production deploy: the
+# Amplify build runs `npm ci` (NOT `npm install`), which fails hard when
+# package.json and package-lock.json are out of sync, or when a macOS-generated
+# lockfile omits a Linux-only optional dependency (e.g. @parcel/watcher). This
+# job reproduces that on clean Linux + Node 22 so it surfaces in the PR.
+#
+# Scope is deliberately narrow: `npm ci` (lockfile/platform) + lint. It does NOT
+# run `next build` or the Amplify `tsc` type-checks, because those import
+# artifacts that only exist after an Amplify backend deploy — amplify_outputs.json
+# and the .amplify/generated/env/* modules — which are git-ignored and absent in
+# a bare CI checkout. Faking them with placeholders here would add maintenance
+# and could mask real type errors; the full type-check/build against the real
+# generated schema already runs in the Amplify deploy (and locally).
 
 on:
   pull_request:
@@ -19,7 +26,7 @@ concurrency:
 
 jobs:
   build:
-    name: Lockfile, types, lint, build
+    name: Lockfile + lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,21 +38,10 @@ jobs:
           node-version: "22"
 
       # `npm ci` (NOT `npm install`) is what the Amplify build runs. It fails
-      # hard when package.json and package-lock.json are out of sync, which is
-      # exactly the discrepancy that only showed up in production before.
+      # hard when package.json and package-lock.json are out of sync — exactly
+      # the discrepancy that only showed up in production before.
       - name: Install dependencies (npm ci)
         run: npm ci
-
-      # Frontend type check (`prebuild`) + Next.js build. On Linux this also
-      # exercises the platform-specific optional deps (e.g. @parcel/watcher
-      # Linux binary) that a macOS-generated lockfile can omit.
-      - name: Build (tsc + next build)
-        run: npm run build
-
-      # Backend (Amplify Gen2) type check — mirrors the backend build's
-      # compile step without deploying to AWS.
-      - name: Backend type check
-        run: npx tsc --noEmit -p amplify/tsconfig.json
 
       - name: Lint
         run: npm run lint
