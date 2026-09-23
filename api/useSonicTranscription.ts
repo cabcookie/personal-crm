@@ -26,6 +26,7 @@ import {
   buildParticipantContext,
   buildProjectAddedContext,
 } from "@/helpers/sonic/context-prompt";
+import { normalize } from "@/helpers/functional";
 
 /**
  * Orchestrates a live Nova Sonic transcription session for one meeting:
@@ -118,6 +119,9 @@ const useSonicTranscription = () => {
   >([]);
   const [summary, setSummary] = useState<MeetingSummary | null>(null);
   const [summarizing, setSummarizing] = useState(false);
+  // Confirmation gate: after stop, before the summary is written, the user
+  // reviews (confirms/rejects) detected people + suggested projects.
+  const [pendingConfirmation, setPendingConfirmation] = useState(false);
   // The name of the most recently detected person, shown briefly as a discreet
   // transient hint at the marker; self-clears a few seconds after detection.
   const [recentDetectionName, setRecentDetectionName] = useState<string | null>(
@@ -149,6 +153,7 @@ const useSonicTranscription = () => {
   // stop time (avoids stale closures).
   const transcriptRef = useRef<TranscriptLine[]>([]);
   const detectedRef = useRef<DetectedPerson[]>([]);
+  const suggestedProjectsRef = useRef<SuggestedProject[]>([]);
   // Latest options + bound meeting id/topic. Updated via `bindMeeting`, NOT a
   // hook argument, because this hook is a single global instance.
   const optionsRef = useRef<SonicOptions>({});
@@ -156,6 +161,7 @@ const useSonicTranscription = () => {
   // Keep transcript/detected refs in sync outside of render (lint: no ref
   // writes during render). These feed the summary payload + notifications.
   useEffect(() => {
+    suggestedProjectsRef.current = suggestedProjects;
     transcriptRef.current = transcript;
     detectedRef.current = detectedPeople;
   });
@@ -360,10 +366,56 @@ const useSonicTranscription = () => {
     setRecording(false);
     setAudioLevel(0);
     await persistUsage();
-    // Provisionally persist the transcript, then generate + persist the summary.
+    // Provisionally persist the transcript now (independent of the gate).
     await persistTranscript();
-    void runSummary();
+    // Gate: before writing the summary, the user confirms/rejects the detected
+    // people and suggested projects. If there is anything to review, open the
+    // gate and defer the summary until confirmDetectionsAndSummarize(). If
+    // there is nothing to review, summarize immediately.
+    const hasReviewables =
+      detectedRef.current.length > 0 || suggestedProjectsRef.current.length > 0;
+    if (hasReviewables) {
+      setPendingConfirmation(true);
+    } else {
+      void runSummary();
+    }
   }, [persistUsage, persistTranscript, runSummary]);
+
+  /**
+   * Called from the confirmation gate: run the summary from the confirmed
+   * detections, then close the gate. Only confirmed people / accepted projects
+   * feed the summary (runSummary already filters confirmed people).
+   */
+  const confirmDetectionsAndSummarize = useCallback(async () => {
+    setPendingConfirmation(false);
+    await runSummary();
+  }, [runSummary]);
+
+  /**
+   * True when the heard name matches a CURRENT meeting participant — those
+   * people are already in the meeting, so Sonic reporting them as freshly
+   * "detected" is just noise and should be suppressed. Matches token-wise and
+   * normalized (case/diacritics/punctuation-insensitive): a heard first name
+   * ("Matt") matches a participant "Matthias Müller", and vice versa.
+   */
+  const isCurrentParticipantName = useCallback((heardName: string): boolean => {
+    const heard = normalize(heardName);
+    if (!heard) return false;
+    const opts = optionsRef.current;
+    const names = (opts.participantIds ?? [])
+      .map((id) => opts.resolveParticipant?.(id)?.name)
+      .filter((n): n is string => !!n);
+    for (const full of names) {
+      const tokens = full
+        .split(/\s+/)
+        .map((t) => normalize(t))
+        .filter((t) => t.length >= 3);
+      // Match on the full normalized name or any significant name token.
+      if (normalize(full) === heard) return true;
+      if (tokens.some((t) => t === heard)) return true;
+    }
+    return false;
+  }, []);
 
   const start = useCallback(async () => {
     if (recording || starting) return;
@@ -382,6 +434,7 @@ const useSonicTranscription = () => {
     setDetectedPeople([]);
     setSuggestedProjects([]);
     setSummary(null);
+    setPendingConfirmation(false);
     setRecentDetectionName(null);
     setTotals(emptyTotals);
     totalsRef.current = emptyTotals;
@@ -412,10 +465,16 @@ const useSonicTranscription = () => {
             { id: crypto.randomUUID(), text, at: Date.now() },
           ]),
         onToolUse: (info: ToolUseInfo) => {
+          // onToolUse fires for BOTH tools; project suggestions are handled by
+          // onProjectSuggested. Only person detections build the people list.
+          if (info.toolName !== "report_detected_person") return;
           const heardName = (
             (info.input as { name?: string })?.name ?? ""
           ).trim();
           if (!heardName) return;
+          // Skip people already in the meeting: the current participants are
+          // known, so reporting them as freshly "detected" is just noise.
+          if (isCurrentParticipantName(heardName)) return;
           const matches = info.matches ?? [];
           const best = matches[0];
           // Pre-select the best match ONLY when it's a confident hit; otherwise
@@ -545,6 +604,8 @@ const useSonicTranscription = () => {
     stop,
     selectedMicId,
     flashDetection,
+    persistTranscript,
+    isCurrentParticipantName,
   ]);
 
   /** Notify Sonic (cross-modal) that a participant was added mid-recording. */
@@ -591,11 +652,73 @@ const useSonicTranscription = () => {
     );
   }, []);
 
-  /** Pick a different candidate for a detected person (from the alternatives). */
+  /**
+   * Pick a candidate for a detected person. Selecting a match ALSO confirms the
+   * mention (the user's explicit choice is the acknowledgement — no extra
+   * click needed).
+   */
   const selectMatch = useCallback((detectedId: string, personId: string) => {
     setDetectedPeople((prev) =>
       prev.map((p) =>
-        p.id === detectedId ? { ...p, selectedPersonId: personId } : p
+        p.id === detectedId
+          ? { ...p, selectedPersonId: personId, confirmed: true }
+          : p
+      )
+    );
+  }, []);
+
+  /** Reject/remove a detected person (from the confirmation gate). */
+  const rejectDetectedPerson = useCallback((detectedId: string) => {
+    setDetectedPeople((prev) => prev.filter((p) => p.id !== detectedId));
+  }, []);
+
+  /**
+   * Assign a freshly created person to a detection and confirm it. Used by the
+   * "create new person" flow: the caller creates the Person (+ PersonAccount)
+   * and passes the new id + display fields; we inject it as a match, select it,
+   * and mark the detection confirmed.
+   */
+  const assignCreatedPerson = useCallback(
+    (
+      detectedId: string,
+      person: {
+        personId: string;
+        name: string;
+        company: string | null;
+        role: string | null;
+      }
+    ) => {
+      setDetectedPeople((prev) =>
+        prev.map((p) =>
+          p.id === detectedId
+            ? {
+                ...p,
+                matches: [
+                  {
+                    personId: person.personId,
+                    name: person.name,
+                    source: null,
+                    company: person.company,
+                    role: person.role,
+                    score: 0,
+                  },
+                  ...p.matches,
+                ],
+                selectedPersonId: person.personId,
+                confirmed: true,
+              }
+            : p
+        )
+      );
+    },
+    []
+  );
+
+  /** Toggle acceptance of a suggested project (from the gate / pills). */
+  const toggleConfirmProject = useCallback((projectId: string) => {
+    setSuggestedProjects((prev) =>
+      prev.map((p) =>
+        p.projectId === projectId ? { ...p, confirmed: !p.confirmed } : p
       )
     );
   }, []);
@@ -630,6 +753,7 @@ const useSonicTranscription = () => {
         setSummary(persisted?.summary ?? null);
         setDetectedPeople([]);
         setSuggestedProjects([]);
+        setPendingConfirmation(false);
         setRecentDetectionName(null);
       }
     },
@@ -663,6 +787,7 @@ const useSonicTranscription = () => {
     suggestedProjects,
     summary,
     summarizing,
+    pendingConfirmation,
     totals,
     estimatedCostUsd: estimateSonicCostUsd(totals),
     elapsedSeconds,
@@ -674,6 +799,10 @@ const useSonicTranscription = () => {
     loadMics,
     toggleConfirm,
     selectMatch,
+    rejectDetectedPerson,
+    assignCreatedPerson,
+    toggleConfirmProject,
+    confirmDetectionsAndSummarize,
     notifyParticipantAdded,
     notifyProjectAdded,
     dismissSuggestedProject,

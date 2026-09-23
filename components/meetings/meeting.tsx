@@ -13,8 +13,8 @@ import { buildSonicContextPrompt } from "@/helpers/sonic/context-prompt";
 import { cn } from "@/lib/utils";
 import AudioPulse from "./audio-pulse";
 import MeetingMicSettings from "./meeting-mic-settings";
-import DetectedPeopleMarker from "./detected-people-marker";
-import MeetingSuggestedProjectsBar from "./meeting-suggested-projects-bar";
+import MeetingDetectionPills from "./meeting-detection-pills";
+import MeetingConfirmationGate from "./meeting-confirmation-gate";
 import MeetingPromptDialog from "./meeting-prompt-dialog";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -178,12 +178,38 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     if (isRecordingThis) sonic.notifyProjectAdded(projectId);
   };
 
-  /** Accept a Sonic project suggestion: add it to the meeting, notify Sonic,
-   * and clear the suggestion. */
-  const acceptSuggestedProject = (projectId: string) => {
-    createMeetingActivity(projectId);
-    if (isRecordingThis) sonic.notifyProjectAdded(projectId);
-    sonic.dismissSuggestedProject(projectId);
+  /**
+   * A detection was resolved by creating a new person. Add them as a meeting
+   * participant, notify a live Sonic session, and assign+confirm the detection.
+   */
+  const handleAssignCreatedPerson = (
+    detectedId: string,
+    person: {
+      personId: string;
+      name: string;
+      company: string | null;
+      role: string | null;
+    }
+  ) => {
+    createMeetingParticipant(person.personId);
+    if (isRecordingThis) sonic.notifyParticipantAdded(person.personId);
+    sonic.assignCreatedPerson(detectedId, person);
+  };
+
+  /**
+   * Toggle acceptance of a suggested project. Confirming also adds the project
+   * to the meeting (and notifies a live Sonic session); un-confirming only
+   * flips the flag (the activity, once created, stays).
+   */
+  const handleToggleConfirmProject = (projectId: string) => {
+    const wasConfirmed = sonic.suggestedProjects.find(
+      (p) => p.projectId === projectId
+    )?.confirmed;
+    if (!wasConfirmed) {
+      createMeetingActivity(projectId);
+      if (isRecordingThis) sonic.notifyProjectAdded(projectId);
+    }
+    sonic.toggleConfirmProject(projectId);
   };
 
   return (
@@ -234,16 +260,6 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               </span>
             </Button>
           ))}
-        {/* Discreet detected-people marker while THIS meeting records. */}
-        {isRecordingThis && (
-          <DetectedPeopleMarker
-            people={sonic.detectedPeople}
-            unconfirmedCount={sonic.unconfirmedCount}
-            recentDetectionName={sonic.recentDetectionName}
-            onToggleConfirm={sonic.toggleConfirm}
-            onSelectMatch={sonic.selectMatch}
-          />
-        )}
         <Button
           onClick={handleUpdateImmediateTasksDone}
           variant="outline"
@@ -301,17 +317,39 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
         </div>
       )}
 
-      {/* While recording: the suggested-projects bar (fades in). Detected
-          people now live in the discreet marker next to the controls. */}
-      {isRecordingThis && sonic.suggestedProjects.length > 0 && (
-        <div className="transition-opacity duration-500 opacity-100 animate-in fade-in space-y-2">
-          <MeetingSuggestedProjectsBar
-            suggestions={sonic.suggestedProjects}
-            projects={getOpenProjects()}
-            onAccept={acceptSuggestedProject}
-            onDismiss={sonic.dismissSuggestedProject}
-          />
-        </div>
+      {/* While recording: persistent detection pills (people + projects) that
+          stay visible for the whole session. */}
+      {isRecordingThis &&
+        (sonic.detectedPeople.length > 0 ||
+          sonic.suggestedProjects.length > 0) && (
+          <div className="transition-opacity duration-500 opacity-100 animate-in fade-in">
+            <MeetingDetectionPills
+              people={sonic.detectedPeople}
+              suggestedProjects={sonic.suggestedProjects}
+              onSelectMatch={sonic.selectMatch}
+              onToggleConfirm={sonic.toggleConfirm}
+              onRejectPerson={sonic.rejectDetectedPerson}
+              onAssignCreatedPerson={handleAssignCreatedPerson}
+              onToggleConfirmProject={handleToggleConfirmProject}
+              onDismissProject={sonic.dismissSuggestedProject}
+            />
+          </div>
+        )}
+
+      {/* After stop: confirmation gate before the summary is written. */}
+      {isActiveMeeting && sonic.pendingConfirmation && (
+        <MeetingConfirmationGate
+          people={sonic.detectedPeople}
+          suggestedProjects={sonic.suggestedProjects}
+          summarizing={sonic.summarizing}
+          onSelectMatch={sonic.selectMatch}
+          onToggleConfirm={sonic.toggleConfirm}
+          onRejectPerson={sonic.rejectDetectedPerson}
+          onAssignCreatedPerson={handleAssignCreatedPerson}
+          onToggleConfirmProject={handleToggleConfirmProject}
+          onDismissProject={sonic.dismissSuggestedProject}
+          onConfirm={sonic.confirmDetectionsAndSummarize}
+        />
       )}
 
       {showContext && (
