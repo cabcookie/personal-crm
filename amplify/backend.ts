@@ -33,6 +33,8 @@ import { setupPersonVectorSearch } from "./custom/backend/person-vector-search";
 import { ensurePersonVectorIndex } from "./functions/person-vector-index/resource";
 import { summarizeMeeting } from "./functions/summarize-meeting/resource";
 import { setupSummarizeMeeting } from "./custom/backend/summarize-meeting";
+import { touchPersonLastSeen } from "./functions/touch-person-last-seen/resource";
+import { setupTouchPersonLastSeen } from "./custom/backend/touch-person-last-seen";
 
 const backend = defineBackend({
   auth,
@@ -59,6 +61,7 @@ const backend = defineBackend({
   personVectorSearch,
   ensurePersonVectorIndex,
   summarizeMeeting,
+  touchPersonLastSeen,
 });
 
 export type BackendType = typeof backend;
@@ -86,3 +89,7 @@ setupPersonVectorSearch(backend);
 
 // Grant the meeting-summarizer resolver Lambda access to Bedrock (Sonnet 4.5).
 setupSummarizeMeeting(backend);
+
+// Maintain Person.lastSeen off the MeetingParticipant / NoteBlockPerson streams
+// (powers the "recently seen people" initial set).
+setupTouchPersonLastSeen(backend);

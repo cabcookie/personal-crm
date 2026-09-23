@@ -180,6 +180,15 @@ const personSchmema = {
       // operation, so the GSI below is SPARSE — it holds only people still
       // awaiting a backfilled embedding.
       nameEmbeddingPending: a.string(),
+      // Recency marker: when this person was last SEEN — i.e. last added as a
+      // meeting participant or @-mentioned in a note. Written by the
+      // touch-person-last-seen Lambda off the MeetingParticipant /
+      // NoteBlockPerson DynamoDB streams (direct DDB, owner-preserving). Powers
+      // the "recently seen people" initial set: the client no longer loads all
+      // people into memory, it loads the 50 most recently seen via the sparse
+      // GSI below and pulls anything else on demand by id / via search. Left
+      // unset until a person is first seen, so the GSI is SPARSE.
+      lastSeen: a.datetime(),
       // relations
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
@@ -195,6 +204,12 @@ const personSchmema = {
     .secondaryIndexes((index) => [
       // Sparse work-queue index for the person-embedding backfill.
       index("nameEmbeddingPending").queryField("listNameEmbeddingPending"),
+      // Sparse recency index (owner PK, lastSeen SK): "most recently seen
+      // people" for the initial in-memory set. Query descending + limit 50.
+      // Only people that have ever been seen have `lastSeen`, so this index is
+      // sparse. Single-user CRM: the per-owner write rate is tiny, so the
+      // single owner partition is not a hot-partition concern.
+      index("owner").sortKeys(["lastSeen"]).queryField("listPeopleByLastSeen"),
     ])
     .authorization((allow) => [allow.owner()]),
 };

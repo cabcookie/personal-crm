@@ -1,9 +1,9 @@
 import { type Schema } from "@/amplify/data/resource";
 import { handleApiErrors } from "@/api/globals";
 import { fetchUser } from "@/api/useUser";
-import usePeople, { LeanPerson } from "@/api/usePeople";
+import { LeanPerson, resolvePeopleByIds } from "@/api/usePeople";
 import { SelectionSet } from "aws-amplify/data";
-import { filter, map, sortBy, identity, flow } from "lodash/fp";
+import { map, sortBy, flow } from "lodash/fp";
 import useSWR from "swr";
 import { client } from "@/lib/amplify";
 
@@ -49,10 +49,7 @@ const getInvolvedPeopleIds = (data: InvolvedPersonData[]) => {
 };
 
 const fetchInvolvedPeople =
-  (people: LeanPerson[] | undefined, projectId: string) =>
-  async (): Promise<InvolvedPerson[]> => {
-    if (!people) return [];
-
+  (projectId: string) => async (): Promise<InvolvedPerson[]> => {
     await fetchUser();
     const { data, errors } =
       await client.models.ProjectActivity.listProjectActivityByProjectsId(
@@ -66,12 +63,13 @@ const fetchInvolvedPeople =
     if (!data) return [];
 
     const latestDatesPerPerson = getInvolvedPeopleIds(data);
+    const involvedIds = Object.keys(latestDatesPerPerson);
 
     try {
-      // Create InvolvedPerson array by combining people with their latest interaction dates
+      // Load exactly the involved people by id (on demand, cached), then attach
+      // their latest interaction date. No dependency on a preloaded full list.
+      const people = await resolvePeopleByIds(involvedIds);
       return flow(
-        identity<LeanPerson[]>,
-        filter(({ id }) => Boolean(latestDatesPerPerson[id])),
         map<LeanPerson, InvolvedPerson>((person) => ({
           ...person,
           lastInteraction: latestDatesPerPerson[person.id],
@@ -85,14 +83,13 @@ const fetchInvolvedPeople =
   };
 
 const useInvolvedPeople = (projectId: string) => {
-  const { people } = usePeople();
   const {
     data: involvedPeople,
     isLoading,
     error,
   } = useSWR(
-    `/api/project/id/${projectId}/involved-people/${people?.length ?? 0}`,
-    fetchInvolvedPeople(people, projectId)
+    `/api/project/id/${projectId}/involved-people`,
+    fetchInvolvedPeople(projectId)
   );
 
   return { involvedPeople, isLoading, error };

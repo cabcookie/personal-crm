@@ -21,7 +21,7 @@ const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
 const useMeetingSonicData = () => {
   const { projects } = useProjectsContext();
   const { getAccountNamesByIds, getAccountById } = useAccountsContext();
-  const { people } = usePeople();
+  const { getPersonById } = usePeople();
 
   // Built on demand (at recording start) so the 4-week cutoff uses the current
   // time — kept as a callback to avoid an impure Date.now() during render.
@@ -56,7 +56,10 @@ const useMeetingSonicData = () => {
 
   const resolveParticipant = useCallback(
     (personId: string): SonicParticipant | undefined => {
-      const person = people?.find((p) => p.id === personId);
+      // Reads from the people cache; getPersonById triggers an on-demand load
+      // for anyone not yet cached (the meeting page also pre-warms participants
+      // via ensurePeopleLoaded), so a participant resolves once loaded.
+      const person = getPersonById(personId);
       if (!person) return undefined;
       // accountNames is "Company, Role" or "Company, Role, Company2, …".
       // Take the first company + role pair for context.
@@ -71,7 +74,7 @@ const useMeetingSonicData = () => {
         role: parts[1] ?? null,
       };
     },
-    [people]
+    [getPersonById]
   );
 
   return { getOpenProjects, resolveParticipant };

@@ -1,5 +1,4 @@
 import usePeople, { LeanPerson } from "@/api/usePeople";
-import { find, flow, get } from "lodash/fp";
 import { FC } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import { Accordion } from "../ui/accordion";
@@ -16,7 +15,12 @@ const PeopleList: FC<PeopleListProps> = ({
   showNotes,
   onDelete,
 }) => {
-  const { people } = usePeople();
+  const { getPeopleByIds } = usePeople();
+
+  // Resolve from the cache; any id not yet loaded is fetched on demand and the
+  // component re-renders once it lands (so a person is never invisible here).
+  const resolved = getPeopleByIds(personIds);
+  const byId = new Map(resolved.map((p) => [p.id, p]));
 
   const personName = (person?: LeanPerson) =>
     !person
@@ -25,21 +29,21 @@ const PeopleList: FC<PeopleListProps> = ({
 
   return (
     <Accordion type="single" collapsible>
-      {personIds?.map((personId) => (
-        <DefaultAccordionItem
-          key={personId}
-          value={personId}
-          triggerTitle={personName(people?.find((p) => p.id === personId))}
-          triggerSubTitle={flow(
-            find((p: LeanPerson) => p.id === personId),
-            get("accountNames")
-          )(people)}
-          onDelete={!onDelete ? undefined : () => onDelete(personId)}
-          link={`/people/${personId}`}
-        >
-          <PersonDetails personId={personId} showNotes={showNotes} />
-        </DefaultAccordionItem>
-      ))}
+      {personIds?.map((personId) => {
+        const person = byId.get(personId);
+        return (
+          <DefaultAccordionItem
+            key={personId}
+            value={personId}
+            triggerTitle={personName(person)}
+            triggerSubTitle={person?.accountNames}
+            onDelete={!onDelete ? undefined : () => onDelete(personId)}
+            link={`/people/${personId}`}
+          >
+            <PersonDetails personId={personId} showNotes={showNotes} />
+          </DefaultAccordionItem>
+        );
+      })}
     </Accordion>
   );
 };

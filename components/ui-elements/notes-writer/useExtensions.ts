@@ -1,10 +1,5 @@
-import usePeople from "@/api/usePeople";
-import {
-  filterPersonByQuery,
-  limitItems,
-  mapPersonToSuggestion,
-  renderer,
-} from "@/helpers/ui-notes-writer/suggestions";
+import { renderer } from "@/helpers/ui-notes-writer/suggestions";
+import { queryPerson } from "@/api/usePeople";
 import { EditorOptions } from "@tiptap/core";
 import Highlight from "@tiptap/extension-highlight";
 import Link from "@tiptap/extension-link";
@@ -15,7 +10,6 @@ import TaskList from "@tiptap/extension-task-list";
 import Typography from "@tiptap/extension-typography";
 import { mergeAttributes } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { filter, flow, map } from "lodash/fp";
 import { useMemo } from "react";
 import HeadingCustom from "../editors/extensions/heading/heading";
 import LinkBubbleMenuHandler from "../editors/extensions/link-bubble-menu/LinkBubbleMenuHandler";
@@ -28,8 +22,6 @@ interface UseExtensionsProps {
 const useExtensions = ({
   placeholder = "Start taking notes...",
 }: UseExtensionsProps): EditorOptions["extensions"] => {
-  const { people } = usePeople();
-
   const extensions = useMemo(() => {
     return [
       StarterKit.configure({ heading: false }),
@@ -65,12 +57,7 @@ const useExtensions = ({
           `${options.suggestion.char ?? "@"}${node.attrs.label ?? node.attrs.id}`,
         ],
         suggestion: {
-          items: ({ query }) =>
-            flow(
-              filter(filterPersonByQuery(query)),
-              map(mapPersonToSuggestion),
-              limitItems(7)
-            )(people),
+          items: ({ query }) => queryPerson(query),
           render: renderer,
         },
       }),
@@ -84,7 +71,7 @@ const useExtensions = ({
       }),
       LinkBubbleMenuHandler,
     ];
-  }, [people, placeholder]);
+  }, [placeholder]);
 
   return extensions;
 };

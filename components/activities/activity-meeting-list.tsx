@@ -1,8 +1,7 @@
 import { Meeting } from "@/api/useMeetings";
 import usePeople from "@/api/usePeople";
-import { Person } from "@/api/usePerson";
 import { format } from "date-fns";
-import { filter, flow, map } from "lodash/fp";
+import { map } from "lodash/fp";
 import { FC } from "react";
 import MeetingAccordionItem from "../meetings/MeetingAccordionItem";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -17,7 +16,7 @@ const ActivityMeetingList: FC<ActivityMeetingListProps> = ({
   meeting,
   showMeeting,
 }) => {
-  const { people } = usePeople();
+  const { getPeopleByIds } = usePeople();
 
   return (
     meeting && (
@@ -27,12 +26,8 @@ const ActivityMeetingList: FC<ActivityMeetingListProps> = ({
         triggerSubTitle={[
           meeting?.topic,
           meeting?.meetingOn && `On: ${format(meeting?.meetingOn, "PPp")}`,
-          ...flow(
-            filter(
-              (person: Person) => !!meeting?.participantIds.includes(person.id)
-            ),
-            map("name")
-          )(people),
+          // Resolve participant names on demand (cache-backed), no full list.
+          ...map("name")(getPeopleByIds(meeting?.participantIds)),
         ]}
         className="tracking-tight"
         isVisible={showMeeting && !!meeting}

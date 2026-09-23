@@ -1,9 +1,8 @@
 import usePeople from "@/api/usePeople";
 import { cn } from "@/lib/utils";
-import { flow, identity } from "lodash/fp";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 
 type PayerHeaderPersonProps = {
   personId?: string;
@@ -16,16 +15,13 @@ const PayerHeaderPerson: FC<PayerHeaderPersonProps> = ({
   className,
   textResellerSize = "sm",
 }) => {
-  const { getNamesByIds } = usePeople();
-  const [personName, setPersonName] = useState<string | undefined>();
-
-  useEffect(() => {
-    flow(
-      identity<string | undefined>,
-      (id) => (!id ? undefined : getNamesByIds([id])),
-      setPersonName
-    )(personId);
-  }, [personId, getNamesByIds]);
+  const { getPersonById } = usePeople();
+  // Reads from the cache and triggers an on-demand load if not present; the
+  // component re-renders (via the people SWR key) once the person lands.
+  const person = getPersonById(personId);
+  const personName = person
+    ? `${person.name}${person.howToSay ? ` (say: ${person.howToSay})` : ""}`
+    : undefined;
 
   return (
     personName && (

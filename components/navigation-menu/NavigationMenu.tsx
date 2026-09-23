@@ -12,8 +12,12 @@ import {
   ForwardRefExoticComponent,
   KeyboardEventHandler,
   RefAttributes,
+  useEffect,
+  useMemo,
+  useRef,
   useState,
 } from "react";
+import type { LeanPerson } from "@/api/usePeople";
 import {
   BiCalendarEvent,
   BiCalendarWeek,
@@ -65,9 +69,42 @@ const NavigationMenu = () => {
   const { projects, createProject } = useProjectsContext();
   const { accounts } = useAccountsContext();
   // const { bible } = useBible();
-  const { people, createPerson } = usePeople();
+  const { people, createPerson, searchPeople } = usePeople();
   const { createMeeting } = useMeetings({ context });
   const [search, setSearch] = useState("");
+  // People shown in the palette: the recent set by default, plus semantic
+  // search matches while typing (the store no longer holds every person).
+  const [peopleMatches, setPeopleMatches] = useState<LeanPerson[]>([]);
+  const peopleSearchDebounce = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (peopleSearchDebounce.current)
+      clearTimeout(peopleSearchDebounce.current);
+    const q = search.trim();
+    // All state updates happen asynchronously inside the timer (never
+    // synchronously in the effect body) to avoid cascading renders.
+    peopleSearchDebounce.current = setTimeout(async () => {
+      if (q.length < 2) {
+        setPeopleMatches([]);
+        return;
+      }
+      setPeopleMatches(await searchPeople(q));
+    }, 250);
+    return () => {
+      if (peopleSearchDebounce.current)
+        clearTimeout(peopleSearchDebounce.current);
+    };
+  }, [search, searchPeople]);
+
+  // Merge recent + matches, deduped by id.
+  const displayedPeople = useMemo(() => {
+    const byId = new Map<string, LeanPerson>();
+    for (const p of people ?? []) byId.set(p.id, p);
+    for (const p of peopleMatches) byId.set(p.id, p);
+    return [...byId.values()];
+  }, [people, peopleMatches]);
   const [metaPressed, setMetaPressed] = useState(false);
   const router = useRouter();
 
@@ -255,7 +292,7 @@ const NavigationMenu = () => {
         <SearchableDataGroup
           heading="People"
           metaPressed={metaPressed}
-          items={people?.map(({ id, name, accountNames }) => ({
+          items={displayedPeople.map(({ id, name, accountNames }) => ({
             id,
             value: `${name}${!accountNames ? "" : ` (${accountNames})`}`,
             link: `/people/${id}`,
@@ -275,7 +312,10 @@ const NavigationMenu = () => {
               link: `/projects/${id}`,
             }))}
         />
-        <CreateOneOnOneMeeting metaPressed={metaPressed} items={people} />
+        <CreateOneOnOneMeeting
+          metaPressed={metaPressed}
+          items={displayedPeople}
+        />
         {createItemsNavigation.map(({ label, action }, index) => (
           <CommandItem key={index} forceMount={true} onSelect={action}>
             <Plus className="mr-2 h-4 w-4" />

@@ -1,9 +1,8 @@
 import usePayer from "@/api/usePayer";
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
 import DeleteWarning from "../ui-elements/project-notes-form/DeleteWarning";
-import usePeople, { LeanPerson } from "@/api/usePeople";
-import { flow, identity, find } from "lodash/fp";
+import usePeople from "@/api/usePeople";
 import PersonDetails from "../people/PersonDetails";
 
 type PayerPersonProps = {
@@ -13,17 +12,10 @@ type PayerPersonProps = {
 
 const PayerPerson: FC<PayerPersonProps> = ({ payerId, showPerson }) => {
   const { payer, deletePerson } = usePayer(payerId);
-  const { people, getNamesByIds } = usePeople();
-  const [person, setPerson] = useState<LeanPerson | undefined>();
+  const { getPersonById, getNamesByIds } = usePeople();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
-  useEffect(() => {
-    flow(
-      identity<LeanPerson[] | undefined>,
-      find(["id", payer?.mainContactId]),
-      setPerson
-    )(people);
-  }, [payer, people]);
+  // Cache-backed; triggers an on-demand load and re-renders once present.
+  const person = getPersonById(payer?.mainContactId);
 
   return (
     person && (

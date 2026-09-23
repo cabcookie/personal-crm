@@ -22,6 +22,13 @@ export type PopoverContentComboBoxProps = {
   closePopover?: () => void;
   onChange?: (selectedValue: string | null) => void;
   onCreate?: (newLabel: string) => void;
+  /**
+   * When provided, the input is treated as a REMOTE search: each change is
+   * forwarded here (debounced by the caller's data layer) and the client-side
+   * cmdk filtering is disabled, since `options` already reflects server-side
+   * results. Use for large datasets that must not be fully loaded (people).
+   */
+  onSearch?: (query: string) => void;
   placeholder?: string;
   noSearchResultMsg?: string;
   loadingResultsMsg?: string;
@@ -34,6 +41,7 @@ const PopoverContentComboBox: FC<PopoverContentComboBoxProps> = ({
   closePopover,
   onChange,
   onCreate,
+  onSearch,
   placeholder = "Search for entry…",
   noSearchResultMsg = "No entry found.",
   loadingResultsMsg = "Loading results…",
@@ -44,18 +52,26 @@ const PopoverContentComboBox: FC<PopoverContentComboBoxProps> = ({
   return (
     <Command
       loop
-      filter={(val, search) =>
-        val.toLowerCase().includes(search.toLowerCase())
-          ? 1
-          : val === "create-new-record"
-            ? 1
-            : 0
+      // For remote search the server already filtered — don't also filter
+      // client-side (except keeping the create-new row visible).
+      filter={
+        onSearch
+          ? (val) => (val === "create-new-record" ? 1 : 1)
+          : (val, search) =>
+              val.toLowerCase().includes(search.toLowerCase())
+                ? 1
+                : val === "create-new-record"
+                  ? 1
+                  : 0
       }
     >
       <CommandInput
         placeholder={placeholder}
         value={searchVal}
-        onValueChange={setSearchVal}
+        onValueChange={(v) => {
+          setSearchVal(v);
+          onSearch?.(v);
+        }}
       />
       <CommandList>
         {!options && <CommandLoading>{loadingResultsMsg}</CommandLoading>}
