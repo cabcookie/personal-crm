@@ -67,8 +67,11 @@ const foldLatestByPerson = async (model, acc) => {
   process.stdout.write("\n");
 };
 
-const stamp = async (personId, seenAt) => {
-  await client.send(
+// Send one forward-only stamp, retrying transient/throttling errors with
+// exponential backoff. Returns "stamped" | "skipped". Throws only after
+// exhausting retries, so a real failure is never silently swallowed.
+const stampOnce = (personId, seenAt) =>
+  client.send(
     new UpdateItemCommand({
       TableName: table("Person"),
       Key: { id: { S: personId } },
@@ -79,6 +82,31 @@ const stamp = async (personId, seenAt) => {
       ExpressionAttributeValues: { ":s": { S: seenAt } },
     })
   );
+
+const TRANSIENT = new Set([
+  "ProvisionedThroughputExceededException",
+  "ThrottlingException",
+  "RequestLimitExceeded",
+  "InternalServerError",
+  "TransactionConflictException",
+]);
+
+const stamp = async (personId, seenAt) => {
+  let attempt = 0;
+  for (;;) {
+    try {
+      await stampOnce(personId, seenAt);
+      return "stamped";
+    } catch (err) {
+      if (err.name === "ConditionalCheckFailedException") return "skipped";
+      if (TRANSIENT.has(err.name) && attempt < 6) {
+        await sleep(100 * 2 ** attempt); // 100,200,400,...,3200ms
+        attempt += 1;
+        continue;
+      }
+      throw err; // non-transient, or retries exhausted
+    }
+  }
 };
 
 const run = async () => {
@@ -99,22 +127,34 @@ const run = async () => {
 
   let stamped = 0;
   let skipped = 0;
+  let failed = 0;
+  let processed = 0;
   for (const [personId, seenAt] of latest) {
     try {
-      await stamp(personId, seenAt);
-      stamped += 1;
+      const result = await stamp(personId, seenAt);
+      if (result === "stamped") stamped += 1;
+      else skipped += 1;
     } catch (err) {
-      // ConditionalCheckFailed = person gone, or already newer; expected.
-      if (err.name !== "ConditionalCheckFailedException") {
-        console.error(`  failed to stamp ${personId}:`, err.message);
-      } else {
-        skipped += 1;
-      }
+      failed += 1;
+      console.error(
+        `\n  failed to stamp ${personId}: ${err.name} ${err.message}`
+      );
     }
-    if ((stamped + skipped) % 25 === 0) await sleep(20);
-    process.stdout.write(`\r  stamped ${stamped}, skipped ${skipped}`);
+    processed += 1;
+    if (processed % 20 === 0) await sleep(40); // gentle, steady throttle
+    process.stdout.write(
+      `\r  stamped ${stamped}, skipped ${skipped}, failed ${failed} (${processed}/${latest.size})`
+    );
   }
-  console.log(`\n\nDone. Stamped ${stamped}, skipped ${skipped}.`);
+  console.log(
+    `\n\nDone. Stamped ${stamped}, skipped ${skipped}, failed ${failed}.`
+  );
+  if (failed > 0) {
+    console.log(
+      "Some writes failed after retries. Re-run (idempotent) to finish them."
+    );
+    process.exitCode = 1;
+  }
 };
 
 run().catch((err) => {
