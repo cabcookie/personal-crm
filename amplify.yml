@@ -14,6 +14,10 @@ frontend:
         - nvm install 22
         - nvm use 22
         - npm ci
+        # tsc --noEmit (prebuild) + next build over the full project exceed
+        # Node's default ~2 GB heap and OOM-crash the build (exit 134). Raise
+        # the heap limit; the Amplify build container has ample RAM.
+        - export NODE_OPTIONS=--max-old-space-size=8192
         - npm run build
     postBuild:
       commands:
