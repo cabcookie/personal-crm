@@ -181,7 +181,8 @@ export const getProjectMd = async (task: ExportTask): Promise<string> => {
   const notes = await assembleProjectFromCache(
     task.itemId,
     { owner: task.owner },
-    2 // activity headings at "## " under the "# Project: …" title
+    2, // activity headings at "## " under the "# Project: …" title
+    { startDate: task.startDate, endDate: task.endDate }
   );
 
   const parts: string[] = [`# Project: ${project.project}`];
