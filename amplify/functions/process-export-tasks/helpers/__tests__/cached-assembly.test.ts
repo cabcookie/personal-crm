@@ -20,7 +20,7 @@ vi.mock("../dynamodb", () => ({
 import { assembleProjectFromCache } from "../cached-assembly";
 import { queryByIndex, batchGetItems } from "../dynamodb";
 
-const asMap = <T,>(items: Array<T & { id: string }>): Map<string, T> =>
+const asMap = <T>(items: Array<T & { id: string }>): Map<string, T> =>
   new Map(items.map((it) => [it.id, it]));
 
 const PROJECT_ID = "proj-1";
@@ -46,9 +46,21 @@ const activities = [
 ];
 
 const meetings = [
-  { id: "m-recent", meetingOn: "2026-09-15T10:00:00Z", meetingHeaderMarkdown: "Recent meeting" },
-  { id: "m-old", meetingOn: "2026-06-09T10:00:00Z", meetingHeaderMarkdown: "Old meeting" },
-  { id: "m-ancient", meetingOn: "2026-06-05T10:00:00Z", meetingHeaderMarkdown: "Ancient meeting" },
+  {
+    id: "m-recent",
+    meetingOn: "2026-09-15T10:00:00Z",
+    meetingHeaderMarkdown: "Recent meeting",
+  },
+  {
+    id: "m-old",
+    meetingOn: "2026-06-09T10:00:00Z",
+    meetingHeaderMarkdown: "Old meeting",
+  },
+  {
+    id: "m-ancient",
+    meetingOn: "2026-06-05T10:00:00Z",
+    meetingHeaderMarkdown: "Ancient meeting",
+  },
 ];
 
 beforeEach(() => {
