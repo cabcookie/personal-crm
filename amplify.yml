@@ -14,10 +14,15 @@ frontend:
         - nvm install 22
         - nvm use 22
         - npm ci
-        # tsc --noEmit (prebuild) + next build over the full project exceed
-        # Node's default ~2 GB heap and OOM-crash the build (exit 134). Raise
-        # the heap limit; the Amplify build container has ample RAM.
-        - export NODE_OPTIONS=--max-old-space-size=8192
+        # The `prebuild` step (`tsc --noEmit`) OOM-crashes here (exit 134):
+        # `next build` itself skips type-checking (ignoreBuildErrors), so the
+        # full-project type-check runs only in prebuild. tsc loads ~10.9k files
+        # (only ~545 are ours; the rest are dependency .d.ts — AWS SDK, Amplify,
+        # React 19, Next 16) and peaks ~1.4 GB+, above Node's default heap.
+        # skipLibCheck is already on. Raise the heap to 4 GB — well above the
+        # peak, and half the container's 8 GB so the OS keeps headroom (setting
+        # it to the full 8 GB risks an exit-137 OS kill instead).
+        - export NODE_OPTIONS=--max-old-space-size=4096
         - npm run build
     postBuild:
       commands:
@@ -35,3 +40,8 @@ frontend:
       - .next/cache/**/*
       - .npm/**/*
       - node_modules/**/*
+      # tsconfig has incremental: true; caching its build-info lets prebuild's
+      # tsc re-check only changed files on subsequent deploys (less memory/time).
+      # The first build (cold cache) still runs a full check, so this augments
+      # the heap bump above rather than replacing it.
+      - tsconfig.tsbuildinfo
