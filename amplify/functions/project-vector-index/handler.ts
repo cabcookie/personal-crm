@@ -18,7 +18,9 @@ import {
 const ddb = new DynamoDBClient({});
 
 type CfnEvent = {
-  RequestType: "Create" | "Update" | "Delete";
+  // Present when invoked as a CloudFormation custom resource; absent when
+  // invoked directly (lambda:Invoke) by the AwsCustomResource trigger.
+  RequestType?: "Create" | "Update" | "Delete";
 };
 
 const env = (key: string): string => {

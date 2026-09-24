@@ -9,8 +9,11 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import { CfnScheduleGroup } from "aws-cdk-lib/aws-scheduler";
 import { Queue } from "aws-cdk-lib/aws-sqs";
 import { ArnFormat, Duration, Stack } from "aws-cdk-lib";
-import { Provider } from "aws-cdk-lib/custom-resources";
-import { CustomResource } from "aws-cdk-lib";
+import {
+  AwsCustomResource,
+  AwsCustomResourcePolicy,
+  PhysicalResourceId,
+} from "aws-cdk-lib/custom-resources";
 
 /**
  * Vector index config for Person.nameEmbedding. Must match the embedding
@@ -75,23 +78,32 @@ const setupPersonVectorIndex = (
     })
   );
 
-  const provider = new Provider(stack, "PersonVectorIndexProvider", {
-    onEventHandler: ensureFn.resources.lambda,
-  });
-
-  new CustomResource(stack, "PersonVectorIndex", {
-    serviceToken: provider.serviceToken,
-    properties: {
-      // Re-invoke the handler whenever the physical table name changes (a
-      // table recreate) so the index is recreated. The handler is idempotent,
-      // so re-runs on unrelated deploys are harmless no-ops.
-      tableName: personTable.tableName,
-      indexName: PERSON_VECTOR_INDEX_NAME,
-      // Force an Update event on every deploy so the (idempotent) handler
-      // always runs — CFN otherwise skips the resource when its properties are
-      // unchanged, which is why a missing index never self-healed before.
-      redeployNonce: Date.now().toString(),
+  // Trigger the ensure-lambda on every deploy via AwsCustomResource (a direct
+  // lambda:Invoke). The previous Provider + CustomResource(onEvent) wiring did
+  // NOT reliably invoke the handler in this Amplify setup — the provider ran
+  // but never called through — so the index was never created. AwsCustomResource
+  // performs the SDK call itself on create/update; a per-deploy physical id
+  // makes onUpdate fire every time, and the handler is idempotent.
+  const ensureArn = ensureFn.resources.lambda.functionArn;
+  new AwsCustomResource(stack, "PersonVectorIndexInvoke", {
+    onUpdate: {
+      service: "Lambda",
+      action: "Invoke",
+      parameters: {
+        FunctionName: ensureArn,
+        Payload: JSON.stringify({ RequestType: "Update" }),
+      },
+      physicalResourceId: PhysicalResourceId.of(
+        `person-vector-index-${Date.now()}`
+      ),
     },
+    policy: AwsCustomResourcePolicy.fromStatements([
+      new iam.PolicyStatement({
+        actions: ["lambda:InvokeFunction"],
+        resources: [ensureArn],
+      }),
+    ]),
+    installLatestAwsSdk: false,
   });
 
   // The reader Lambda (Sonic tool path) needs SearchVectors on the index.
@@ -139,22 +151,28 @@ const setupProjectVectorIndex = (
     })
   );
 
-  const provider = new Provider(stack, "ProjectVectorIndexProvider", {
-    onEventHandler: ensureFn.resources.lambda,
-  });
-
-  new CustomResource(stack, "ProjectVectorIndex", {
-    serviceToken: provider.serviceToken,
-    properties: {
-      tableName: projectsTable.tableName,
-      indexName: PROJECT_VECTOR_INDEX_NAME,
-      // Change a property on every deploy so CloudFormation always sends an
-      // Update event and re-invokes the (idempotent) handler. Without this, CFN
-      // skips the custom resource when tableName/indexName are unchanged, so a
-      // missing index (e.g. it was never created, or lost on a table recreate)
-      // never gets healed. The handler no-ops when the index already exists.
-      redeployNonce: Date.now().toString(),
+  // Trigger on every deploy via a direct lambda:Invoke (see the person index
+  // above for why the Provider/CustomResource onEvent wiring was replaced).
+  const ensureArn = ensureFn.resources.lambda.functionArn;
+  new AwsCustomResource(stack, "ProjectVectorIndexInvoke", {
+    onUpdate: {
+      service: "Lambda",
+      action: "Invoke",
+      parameters: {
+        FunctionName: ensureArn,
+        Payload: JSON.stringify({ RequestType: "Update" }),
+      },
+      physicalResourceId: PhysicalResourceId.of(
+        `project-vector-index-${Date.now()}`
+      ),
     },
+    policy: AwsCustomResourcePolicy.fromStatements([
+      new iam.PolicyStatement({
+        actions: ["lambda:InvokeFunction"],
+        resources: [ensureArn],
+      }),
+    ]),
+    installLatestAwsSdk: false,
   });
 
   reader.resources.lambda.addToRolePolicy(
