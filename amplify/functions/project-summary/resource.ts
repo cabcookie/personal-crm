@@ -81,6 +81,23 @@ export const generatePersonEmbedding = defineFunction({
 });
 
 /**
+ * Project-embedding Lambda. Fired by a one-time EventBridge schedule ~2 min
+ * after the last Project name/summary change (keyed by projectId). Builds
+ * "<name> — <first summary section>", embeds it with Titan Text Embeddings v2,
+ * and writes the 1024-dim vector onto the Projects record for DynamoDB vector
+ * search (semantic project detection in the Sonic meeting flow).
+ */
+export const generateProjectEmbedding = defineFunction({
+  name: "generate-project-embedding",
+  entry: "./project-embedding-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 60,
+  logging: { retention: "1 week" },
+});
+
+/**
  * One-off image-description backfill (manually triggered).
  *
  * backfillImagesEnqueue pages the sparse `imageDescriptionPending` GSI and
@@ -160,6 +177,35 @@ export const backfillPersonEmbeddingEnqueue = defineFunction({
 export const backfillPersonEmbeddingWorker = defineFunction({
   name: "backfill-person-embed-worker",
   entry: "./backfill-person-embedding-worker-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 2 * 60,
+  logging: { retention: "1 week" },
+});
+
+/**
+ * One-off project-embedding backfill (manually triggered).
+ *
+ * backfillProjectEmbeddingEnqueue pages the sparse `summaryEmbeddingPending`
+ * GSI on Projects and fans project ids out to SQS; backfillProjectEmbeddingWorker
+ * consumes them with capped concurrency, embeds "<name> — <first summary
+ * section>" via Titan v2, and clears the marker. See custom/backend/
+ * project-summary.ts for the SQS + concurrency wiring.
+ */
+export const backfillProjectEmbeddingEnqueue = defineFunction({
+  name: "backfill-project-embed-enqueue",
+  entry: "./backfill-project-embedding-enqueue-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 60,
+  logging: { retention: "1 week" },
+});
+
+export const backfillProjectEmbeddingWorker = defineFunction({
+  name: "backfill-project-embed-worker",
+  entry: "./backfill-project-embedding-worker-handler.ts",
   resourceGroupName: "data",
   runtime: 22,
   architecture: "arm64",

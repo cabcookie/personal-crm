@@ -1,5 +1,6 @@
 import { a } from "@aws-amplify/backend";
 import { personVectorSearch } from "../functions/person-vector-search/resource";
+import { projectVectorSearch } from "../functions/project-vector-search/resource";
 import { summarizeMeeting } from "../functions/summarize-meeting/resource";
 import { projectCategorizationPrompt } from "./prompts/project-categorization";
 import { generateTasksSummaryPrompt } from "./prompts/generate-task-summary";
@@ -123,6 +124,29 @@ const aiSchema = {
     .arguments({ query: a.string().required(), topK: a.integer() })
     .returns(a.ref("PersonVoiceMatch").array())
     .handler(a.handler.function(personVectorSearch))
+    .authorization((allow) => [allow.authenticated()]),
+
+  /** One vector-search match for the Sonic `suggest_project` tool. */
+  ProjectVoiceMatch: a.customType({
+    projectId: a.string(),
+    name: a.string(),
+    summarySnippet: a.string(),
+    score: a.float(),
+  }),
+
+  /**
+   * Server-side project vector search for the Sonic `suggest_project` tool.
+   * Embeds the query (a snippet of the conversation about a project) and
+   * searches the Projects summary-embedding index scoped to the caller's own
+   * owner (enforced in the Lambda). Returns closest matches with a score. The
+   * server is the authority for the projectId — the client no longer matches
+   * projects locally.
+   */
+  suggestProjectByVoice: a
+    .query()
+    .arguments({ query: a.string().required(), topK: a.integer() })
+    .returns(a.ref("ProjectVoiceMatch").array())
+    .handler(a.handler.function(projectVectorSearch))
     .authorization((allow) => [allow.authenticated()]),
 
   /**

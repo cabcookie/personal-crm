@@ -16,12 +16,15 @@ import {
   generateMeetingHeader,
   describeNoteImage,
   generatePersonEmbedding,
+  generateProjectEmbedding,
   backfillImagesEnqueue,
   backfillImagesWorker,
   backfillSnapshotsEnqueue,
   backfillSnapshotsWorker,
   backfillPersonEmbeddingEnqueue,
   backfillPersonEmbeddingWorker,
+  backfillProjectEmbeddingEnqueue,
+  backfillProjectEmbeddingWorker,
 } from "./functions/project-summary/resource";
 import { setupDataSeeding } from "./custom/backend/seeding";
 import { setupInferenceProfiles } from "./custom/backend/inference-schema";
@@ -35,6 +38,9 @@ import { summarizeMeeting } from "./functions/summarize-meeting/resource";
 import { setupSummarizeMeeting } from "./custom/backend/summarize-meeting";
 import { touchPersonLastSeen } from "./functions/touch-person-last-seen/resource";
 import { setupTouchPersonLastSeen } from "./custom/backend/touch-person-last-seen";
+import { projectVectorSearch } from "./functions/project-vector-search/resource";
+import { setupProjectVectorSearch } from "./custom/backend/project-vector-search";
+import { ensureProjectVectorIndex } from "./functions/project-vector-index/resource";
 
 const backend = defineBackend({
   auth,
@@ -52,16 +58,21 @@ const backend = defineBackend({
   generateMeetingHeader,
   describeNoteImage,
   generatePersonEmbedding,
+  generateProjectEmbedding,
   backfillImagesEnqueue,
   backfillImagesWorker,
   backfillSnapshotsEnqueue,
   backfillSnapshotsWorker,
   backfillPersonEmbeddingEnqueue,
   backfillPersonEmbeddingWorker,
+  backfillProjectEmbeddingEnqueue,
+  backfillProjectEmbeddingWorker,
   personVectorSearch,
   ensurePersonVectorIndex,
   summarizeMeeting,
   touchPersonLastSeen,
+  projectVectorSearch,
+  ensureProjectVectorIndex,
 });
 
 export type BackendType = typeof backend;
@@ -86,6 +97,10 @@ setupProjectSummary(backend);
 // vector index + Titan embeddings, and let the authenticated Cognito role
 // reach Bedrock Nova Sonic directly from the browser.
 setupPersonVectorSearch(backend);
+
+// Grant the project-vector-search resolver Lambda access to the Projects table
+// + vector index + Titan embeddings (Sonic `suggest_project` tool).
+setupProjectVectorSearch(backend);
 
 // Grant the meeting-summarizer resolver Lambda access to Bedrock (Sonnet 4.5).
 setupSummarizeMeeting(backend);

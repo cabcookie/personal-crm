@@ -40,11 +40,16 @@ import {
  * name, call report_detected_person — it must not talk back.
  */
 
+/** COSINE score at/below which a project vector match is treated as confident. */
+const KNOWN_PROJECT_THRESHOLD = 0.5;
+
 const BASE_SYSTEM_PROMPT = `Du bist ein stiller Zuhörer in einem Live-Meeting. Deine Aufgabe ist es ausschließlich zuzuhören und mitzudenken. Sprich niemals und gib niemals Audio aus.
 
-Wenn du den Namen einer Person hörst, rufe das Tool "report_detected_person" auf. Das Tool sucht semantisch nach bereits bekannten Personen und sagt dir, ob die Person bekannt ist. Rufe das Tool nicht mehrfach für dieselbe Person im selben Gespräch auf.
+Melde eine Person NUR, wenn im Gespräch tatsächlich über eine konkrete, benannte Person gesprochen wird, die für das Meeting relevant ist (z. B. ein neuer Kontakt, eine erwähnte Ansprechperson). Rufe dann das Tool "report_detected_person" auf. Sei zurückhaltend: Melde NICHT die Teilnehmer dieses Meetings (sie sind dir als Kontext bereits bekannt), keine beiläufig genannten Namen ohne Bezug, keine allgemeinen Anreden und keine Personen, die nur grüßen oder sich vorstellen, ohne dass es um sie geht. Rufe das Tool nicht mehrfach für dieselbe Person im selben Gespräch auf. Im Zweifel: nicht melden.
 
-Wichtig für die Suche: Übergib nicht nur den blanken Namen, sondern reichere die Suchanfrage mit Rolle und/oder Unternehmen an, WENN sich diese aus dem Gesprächskontext ergeben. Beispiel: Wird gesagt „Nächste Woche treffen wir den Managing Director von ALDI. … Er heißt Markus.", dann suche nach „Markus ALDI Managing Director". Ergibt sich kein Kontext, übergib nur den Namen.`;
+Wichtig für die Suche: Übergib nicht nur den blanken Namen, sondern reichere die Suchanfrage mit Rolle und/oder Unternehmen an, WENN sich diese aus dem Gesprächskontext ergeben. Beispiel: Wird gesagt „Nächste Woche treffen wir den Managing Director von ALDI. … Er heißt Markus.", dann suche nach „Markus ALDI Managing Director". Ergibt sich kein Kontext, übergib nur den Namen.
+
+Wenn das Gespräch klar um ein bestimmtes Projekt oder Vorhaben geht (z. B. ein konkretes Kundenprojekt, ein Deal, eine Initiative), rufe das Tool "suggest_project" auf. Übergib als "query" worum es geht — Projektname, Kunde/Partner, Ziel oder Thema, so wie es sich aus dem Gespräch ergibt. Das Tool sucht serverseitig nach dem gemeinten Projekt. Rufe es nicht mehrfach für dasselbe Projekt im selben Gespräch auf. Die verfügbaren offenen Projekte sind dir als Kontext genannt; nutze sie zur Formulierung der Suchanfrage, aber die Zuordnung übernimmt der Server.`;
 
 const TOOLS: ToolSpec[] = [
   {
@@ -71,22 +76,22 @@ const TOOLS: ToolSpec[] = [
   {
     name: "suggest_project",
     description:
-      "Schlägt vor, ein bekanntes offenes Projekt diesem Meeting hinzuzufügen, wenn das Gespräch klar zu einem der Projekte aus der bereitgestellten Projektliste passt und es noch nicht hinzugefügt wurde. Verwende ausschließlich projectId-Werte aus dieser Liste.",
+      "Meldet, dass das Gespräch klar um ein bestimmtes Projekt/Vorhaben geht, und sucht semantisch nach dem gemeinten Projekt. Das Tool durchsucht serverseitig die Projekte des Nutzers und gibt die besten Treffer zurück. Rufe es auf, sobald ein Projektbezug erkennbar ist; nicht mehrfach für dasselbe Projekt im selben Gespräch.",
     inputSchema: {
       type: "object",
       properties: {
-        projectId: {
+        query: {
           type: "string",
           description:
-            "Die ID des vorgeschlagenen Projekts (aus der Projektliste, in eckigen Klammern angegeben).",
+            "Suchanfrage für das Projekt: worum es im Gespräch geht — Projektname, Kunde/Partner, Ziel oder Thema, so wie es sich aus dem Kontext ergibt (z. B. 'Marketplace Deal mit ALDI' oder 'EBC Organisation ALDI').",
         },
-        reason: {
+        name: {
           type: "string",
           description:
-            "Kurze Begründung, warum das Projekt zum Gespräch passt.",
+            "Kurzer, sprechender Titel des gemeinten Projekts für die Anzeige (falls im Gespräch genannt), sonst weglassen.",
         },
       },
-      required: ["projectId"],
+      required: ["query"],
     },
   },
 ];
@@ -107,9 +112,18 @@ export type ToolUseInfo = {
   matches?: PersonMatch[];
 };
 
+export type ProjectMatch = {
+  projectId: string;
+  name: string;
+  summarySnippet: string | null;
+  score: number;
+};
+
 export type ProjectSuggestion = {
   projectId: string;
+  name?: string;
   reason?: string;
+  score?: number;
 };
 
 export type SonicCallbacks = {
@@ -120,6 +134,8 @@ export type SonicCallbacks = {
   onClose: () => void;
   /** Executes the person search server-side; returns matches. */
   searchPeople: (query: string) => Promise<PersonMatch[]>;
+  /** Executes the project search server-side; returns matches. */
+  searchProjects: (query: string) => Promise<ProjectMatch[]>;
   /** Sonic suggests adding a known project to the meeting. */
   onProjectSuggested?: (suggestion: ProjectSuggestion) => void;
   /**
@@ -183,18 +199,67 @@ class EventQueue {
   }
 }
 
+/**
+ * Nova 2 Sonic closes every bidirectional stream after a hard 8-minute
+ * connection limit. To keep a meeting recording running longer we renew the
+ * connection before that limit: open a fresh stream, prime it with the same
+ * system prompt + context, switch audio frames over to it, then close the old
+ * one — seamless for the user. Renew a minute early to leave headroom.
+ */
+const SESSION_RENEW_MS = 7 * 60 * 1000;
+
+/** One bidirectional stream to Sonic. A SonicClient owns a chain of these. */
+type Session = {
+  id: number;
+  promptName: string;
+  audioContentName: string;
+  queue: EventQueue;
+  client: BedrockRuntimeClient;
+  audioStarted: boolean;
+  /** Set once we've torn this session down (renewal or stop) so its consumer
+   * loop ending doesn't fire onClose. */
+  superseded: boolean;
+  /** Latest cumulative usage reported by THIS session (resets per stream). */
+  lastUsage: SonicTokenTotals;
+};
+
+const zeroTotals: SonicTokenTotals = {
+  inputSpeechTokens: 0,
+  inputTextTokens: 0,
+  outputSpeechTokens: 0,
+  outputTextTokens: 0,
+};
+
+const addTotals = (
+  a: SonicTokenTotals,
+  b: SonicTokenTotals
+): SonicTokenTotals => ({
+  inputSpeechTokens: a.inputSpeechTokens + b.inputSpeechTokens,
+  inputTextTokens: a.inputTextTokens + b.inputTextTokens,
+  outputSpeechTokens: a.outputSpeechTokens + b.outputSpeechTokens,
+  outputTextTokens: a.outputTextTokens + b.outputTextTokens,
+});
+
 export class SonicClient {
   private readonly cbs: SonicCallbacks;
-  private readonly promptName = uuid();
-  private readonly audioContentName = uuid();
-  private queue = new EventQueue();
-  private client: BedrockRuntimeClient | null = null;
-  private audioStarted = false;
+  private credentials:
+    Awaited<ReturnType<typeof fetchAuthSession>>["credentials"] | null = null;
+  // The stream currently receiving audio. Replaced on renewal.
+  private current: Session | null = null;
   private running = false;
-  // De-dupe repeated detections of the same name within a session.
+  private sessionSeq = 0;
+  private renewTimer: ReturnType<typeof setTimeout> | null = null;
+  // Summed usage from sessions that have been superseded (renewal). The live
+  // total reported to onUsage is this baseline + the current session's usage,
+  // because each stream reports usage that resets from zero.
+  private finalizedUsage: SonicTokenTotals = zeroTotals;
+  // De-dupe repeated detections of the same name — kept on the CLIENT (not the
+  // session) so renewal doesn't re-surface everything already detected.
   private reportedNames = new Set<string>();
-  // De-dupe repeated project suggestions within a session.
+  // De-dupe repeated project suggestions across the whole recording.
   private suggestedProjects = new Set<string>();
+  // De-dupe repeated project searches by heard query.
+  private searchedProjectQueries = new Set<string>();
 
   constructor(cbs: SonicCallbacks) {
     this.cbs = cbs;
@@ -203,96 +268,162 @@ export class SonicClient {
   async start(): Promise<void> {
     const { credentials } = await fetchAuthSession();
     if (!credentials) throw new Error("Keine Cognito-Credentials verfügbar.");
+    this.credentials = credentials;
+    this.running = true;
+    this.current = this.openSession();
+    this.scheduleRenewal();
+  }
 
-    this.client = new BedrockRuntimeClient({
-      region: SONIC_REGION,
-      credentials,
-    });
+  /** Open + prime a new bidirectional stream and start consuming its output. */
+  private openSession(): Session {
+    const session: Session = {
+      id: ++this.sessionSeq,
+      promptName: uuid(),
+      audioContentName: uuid(),
+      queue: new EventQueue(),
+      client: new BedrockRuntimeClient({
+        region: SONIC_REGION,
+        credentials: this.credentials!,
+      }),
+      audioStarted: false,
+      superseded: false,
+      lastUsage: zeroTotals,
+    };
 
     // Prime the session before opening the stream so the first events are ready.
-    this.queue.push(sessionStartEvent());
-    this.queue.push(promptStartEvent(this.promptName, TOOLS));
+    session.queue.push(sessionStartEvent());
+    session.queue.push(promptStartEvent(session.promptName, TOOLS));
     const sysContent = uuid();
     const systemPrompt = this.cbs.contextPrompt?.trim()
       ? `${BASE_SYSTEM_PROMPT}\n\n--- Hintergrund zum Nutzer und Kontext dieses Meetings ---\n${this.cbs.contextPrompt.trim()}`
       : BASE_SYSTEM_PROMPT;
-    this.queue.push(
-      textContentStartEvent(this.promptName, sysContent, "SYSTEM")
+    session.queue.push(
+      textContentStartEvent(session.promptName, sysContent, "SYSTEM")
     );
-    this.queue.push(textInputEvent(this.promptName, sysContent, systemPrompt));
-    this.queue.push(contentEndEvent(this.promptName, sysContent));
+    session.queue.push(
+      textInputEvent(session.promptName, sysContent, systemPrompt)
+    );
+    session.queue.push(contentEndEvent(session.promptName, sysContent));
 
-    // Startup context (participants + open projects) as a USER text turn.
+    // Startup context (participants + open projects) as a USER text turn — sent
+    // on every (re)new session so a renewed stream keeps the same grounding.
     if (this.cbs.startupContext?.trim()) {
-      this.sendContext(this.cbs.startupContext.trim());
+      this.pushContext(session, this.cbs.startupContext.trim());
     }
 
-    this.queue.push(
-      audioContentStartEvent(this.promptName, this.audioContentName)
+    session.queue.push(
+      audioContentStartEvent(session.promptName, session.audioContentName)
     );
-    this.audioStarted = true;
-    this.running = true;
+    session.audioStarted = true;
 
     const command = new InvokeModelWithBidirectionalStreamCommand({
       modelId: SONIC_MODEL_ID,
-      body: this.queue.iterator(),
+      body: session.queue.iterator(),
     });
 
-    // Consume the response stream in the background.
-    void this.client
+    void session.client
       .send(command)
       .then(async (response) => {
         for await (const item of response.body ?? []) {
           if (!this.running) break;
           if (item.chunk?.bytes) {
-            this.handleOutput(decoder.decode(item.chunk.bytes));
+            this.handleOutput(session, decoder.decode(item.chunk.bytes));
           }
         }
-        this.cbs.onClose();
+        // Only the still-current, non-superseded session ending means the
+        // whole recording ended. A superseded session (renewal) is expected.
+        if (!session.superseded && this.running) this.cbs.onClose();
       })
       .catch((err) => {
+        // A superseded session erroring out mid-teardown is not user-facing.
+        if (session.superseded) return;
         this.running = false;
         this.cbs.onError(err);
       });
+
+    return session;
   }
 
-  /** Push a base64 16 kHz PCM frame into the audio stream. */
-  sendAudioFrame(base64Pcm: string): void {
-    if (!this.running || !this.audioStarted) return;
-    this.queue.push(
-      audioInputEvent(this.promptName, this.audioContentName, base64Pcm)
+  /** Arm the renewal timer for the current session. */
+  private scheduleRenewal(): void {
+    if (this.renewTimer) clearTimeout(this.renewTimer);
+    this.renewTimer = setTimeout(() => void this.renew(), SESSION_RENEW_MS);
+  }
+
+  /**
+   * Renew the connection before Sonic's 8-min limit: open a new stream, switch
+   * audio to it, then gracefully end the old one. Detection/suggestion de-dupe
+   * state lives on the client, so nothing is re-emitted after the swap.
+   */
+  private async renew(): Promise<void> {
+    if (!this.running) return;
+    const old = this.current;
+    const next = this.openSession();
+    this.current = next; // audio frames now flow to the new stream
+    this.scheduleRenewal();
+    // Gracefully close the previous stream (it may still flush a little output;
+    // handleOutput dedupes, so that's harmless).
+    if (old) {
+      old.superseded = true;
+      // Fold the old stream's usage into the baseline so the running total
+      // carries across the swap (each stream's usageEvent resets from zero).
+      this.finalizedUsage = addTotals(this.finalizedUsage, old.lastUsage);
+      this.endSession(old);
+    }
+  }
+
+  /** Push the closing event sequence + close the queue for one session. */
+  private endSession(session: Session): void {
+    if (session.audioStarted) {
+      session.queue.push(
+        contentEndEvent(session.promptName, session.audioContentName)
+      );
+    }
+    session.queue.push(promptEndEvent(session.promptName));
+    session.queue.push(sessionEndEvent());
+    session.queue.close();
+  }
+
+  /** Push a cross-modal USER text turn onto a specific session. */
+  private pushContext(session: Session, text: string): void {
+    const contentName = uuid();
+    session.queue.push(
+      textContentStartEvent(session.promptName, contentName, "USER", true)
     );
+    session.queue.push(textInputEvent(session.promptName, contentName, text));
+    session.queue.push(contentEndEvent(session.promptName, contentName));
+  }
+
+  /** Push a base64 16 kHz PCM frame into the current audio stream. */
+  sendAudioFrame(base64Pcm: string): void {
+    const s = this.current;
+    if (!this.running || !s || !s.audioStarted) return;
+    s.queue.push(audioInputEvent(s.promptName, s.audioContentName, base64Pcm));
   }
 
   /**
    * Send a cross-modal USER text turn to the running model (e.g. "participant
-   * added", "project added"). Interactive text alongside the audio stream, so
-   * the model gains context mid-conversation. Safe to call before audio starts
-   * (startup context) and while streaming.
+   * added", "project added"). Targets the current session.
    */
   sendContext(text: string): void {
-    if (!text.trim()) return;
-    // Once the queue is closed (after stop) we can't send anything.
-    const contentName = uuid();
-    this.queue.push(
-      textContentStartEvent(this.promptName, contentName, "USER", true)
-    );
-    this.queue.push(textInputEvent(this.promptName, contentName, text));
-    this.queue.push(contentEndEvent(this.promptName, contentName));
+    if (!text.trim() || !this.current) return;
+    this.pushContext(this.current, text.trim());
   }
 
   async stop(): Promise<void> {
     if (!this.running) return;
     this.running = false;
-    if (this.audioStarted) {
-      this.queue.push(contentEndEvent(this.promptName, this.audioContentName));
+    if (this.renewTimer) {
+      clearTimeout(this.renewTimer);
+      this.renewTimer = null;
     }
-    this.queue.push(promptEndEvent(this.promptName));
-    this.queue.push(sessionEndEvent());
-    this.queue.close();
+    if (this.current) {
+      this.endSession(this.current);
+      this.current = null;
+    }
   }
 
-  private handleOutput(raw: string): void {
+  private handleOutput(session: Session, raw: string): void {
     let parsed: { event?: Record<string, any> };
     try {
       parsed = JSON.parse(raw);
@@ -312,30 +443,35 @@ export class SonicClient {
     }
 
     if (event.toolUse) {
-      void this.handleToolUse(event.toolUse);
+      void this.handleToolUse(session, event.toolUse);
       return;
     }
 
     if (event.usageEvent) {
       const total = event.usageEvent.details?.total;
       if (total) {
-        this.cbs.onUsage({
+        session.lastUsage = {
           inputSpeechTokens: total.input?.speechTokens ?? 0,
           inputTextTokens: total.input?.textTokens ?? 0,
           outputSpeechTokens: total.output?.speechTokens ?? 0,
           outputTextTokens: total.output?.textTokens ?? 0,
-        });
+        };
+        // Report the running total across all sessions of this recording.
+        this.cbs.onUsage(addTotals(this.finalizedUsage, session.lastUsage));
       }
       return;
     }
     // audioOutput and everything else: discarded.
   }
 
-  private async handleToolUse(toolUse: {
-    toolName?: string;
-    toolUseId?: string;
-    content?: string;
-  }): Promise<void> {
+  private async handleToolUse(
+    session: Session,
+    toolUse: {
+      toolName?: string;
+      toolUseId?: string;
+      content?: string;
+    }
+  ): Promise<void> {
     const { toolName, toolUseId, content } = toolUse;
     if (!toolName || !toolUseId) return;
 
@@ -367,29 +503,47 @@ export class SonicClient {
           ? { known: true, person: best.name, similarity: best.score }
           : { known: false, heardName: name };
       } else if (toolName === "suggest_project") {
-        const typed = input as { projectId?: string; reason?: string };
-        const projectId = String(typed.projectId ?? "").trim();
-        // De-dupe repeated suggestions of the same project.
-        if (projectId && !this.suggestedProjects.has(projectId)) {
-          this.suggestedProjects.add(projectId);
+        const typed = input as { query?: string; name?: string };
+        const query = String(typed.query ?? typed.name ?? "").trim();
+        const key = query.toLowerCase();
+        let projectMatches: ProjectMatch[] = [];
+        if (query && !this.searchedProjectQueries.has(key)) {
+          this.searchedProjectQueries.add(key);
+          projectMatches = await this.cbs.searchProjects(query);
+        }
+        // COSINE score: lower = more similar. Only surface a confident hit,
+        // and only once per resolved project.
+        const best = projectMatches[0];
+        const confident = !!best && best.score <= KNOWN_PROJECT_THRESHOLD;
+        if (confident && !this.suggestedProjects.has(best.projectId)) {
+          this.suggestedProjects.add(best.projectId);
           this.cbs.onProjectSuggested?.({
-            projectId,
-            reason: typed.reason,
+            projectId: best.projectId,
+            name: best.name,
+            reason: typed.name || query,
+            score: best.score,
           });
         }
-        result = { acknowledged: true };
+        result = best
+          ? { known: confident, project: best.name, similarity: best.score }
+          : { known: false, heard: query };
       }
     } catch (err) {
       result = { error: err instanceof Error ? err.message : "tool failed" };
     }
 
-    // Always answer a toolUse, or Sonic stalls.
+    // Always answer a toolUse, or Sonic stalls — on the SAME session that
+    // issued it (a renewal may have swapped `current` while we awaited the
+    // search). If that session's queue is already closed (superseded + torn
+    // down), the push is a no-op.
     const toolContent = uuid();
-    this.queue.push(
-      toolContentStartEvent(this.promptName, toolContent, toolUseId)
+    session.queue.push(
+      toolContentStartEvent(session.promptName, toolContent, toolUseId)
     );
-    this.queue.push(toolResultEvent(this.promptName, toolContent, result));
-    this.queue.push(contentEndEvent(this.promptName, toolContent));
+    session.queue.push(
+      toolResultEvent(session.promptName, toolContent, result)
+    );
+    session.queue.push(contentEndEvent(session.promptName, toolContent));
 
     this.cbs.onToolUse({ toolName, toolUseId, input, matches });
   }

@@ -6,21 +6,13 @@ import {
 
 /**
  * CloudFormation custom-resource handler that ensures the DynamoDB vector
- * index on Person.nameEmbedding exists — idempotently.
+ * index on Projects.summaryEmbedding exists — idempotently. Mirrors
+ * ensure-person-vector-index (see that handler for the full rationale): runs on
+ * Create AND Update, DescribeTable-checks, and only issues UpdateTable when the
+ * index is missing — safe to re-run and self-healing after a table recreate.
+ * Delete is a no-op.
  *
- * Why a Lambda instead of AwsCustomResource: CDK doesn't model vector indexes,
- * and a plain updateTable custom resource can't check "does it already exist?"
- * — so it breaks in two ways: (1) it errors if the index is already there, and
- * (2) it does NOT re-run when Amplify drops & recreates the Person table on a
- * secondary-index change (the table comes back WITHOUT the vector index, but
- * the custom resource's physical id is unchanged, so CFN never re-invokes it).
- *
- * This handler runs on Create AND Update, calls DescribeTable, and only issues
- * updateTable when the index is missing. That makes it safe to re-run on every
- * deploy and self-healing after a table recreate. Delete is a no-op (dropping a
- * vector index on a live table is deliberately left as a manual action).
- *
- * Env: DDB_TABLE_PERSON, VECTOR_INDEX_NAME, VECTOR_ATTRIBUTE, VECTOR_DIMENSIONS.
+ * Env: DDB_TABLE_PROJECTS, VECTOR_INDEX_NAME, VECTOR_ATTRIBUTE, VECTOR_DIMENSIONS.
  */
 
 const ddb = new DynamoDBClient({});
@@ -38,7 +30,7 @@ const env = (key: string): string => {
 };
 
 const ensureIndex = async (): Promise<string> => {
-  const TableName = env("DDB_TABLE_PERSON");
+  const TableName = env("DDB_TABLE_PROJECTS");
   const IndexName = env("VECTOR_INDEX_NAME");
   const AttributeName = env("VECTOR_ATTRIBUTE");
   const Dimensions = parseInt(env("VECTOR_DIMENSIONS"), 10);
@@ -48,11 +40,11 @@ const ensureIndex = async (): Promise<string> => {
     (vi) => vi.IndexName === IndexName
   );
   if (existing) {
-    console.log(`[person-vector-index] ${IndexName} already exists; no-op`);
+    console.log(`[project-vector-index] ${IndexName} already exists; no-op`);
     return "exists";
   }
 
-  console.log(`[person-vector-index] creating ${IndexName} on ${TableName}`);
+  console.log(`[project-vector-index] creating ${IndexName} on ${TableName}`);
   await ddb.send(
     new UpdateTableCommand({
       TableName,
@@ -63,10 +55,8 @@ const ensureIndex = async (): Promise<string> => {
             VectorAttribute: { AttributeName },
             Dimensions,
             DistanceFunction: "COSINE",
-            // No SearchSchema: an owner HASH/INLINE_FILTER would have to be a
-            // declared table AttributeDefinition (it isn't on this Amplify
-            // table). Tenant isolation is enforced in the search resolver,
-            // which post-filters by the caller's owner.
+            // No SearchSchema: tenant isolation is enforced in the search
+            // resolver (owner post-filter), same as the person index.
             Projection: { ProjectionType: "ALL" },
           },
         },
@@ -77,7 +67,7 @@ const ensureIndex = async (): Promise<string> => {
 };
 
 export const handler = async (event: CfnEvent): Promise<void> => {
-  console.log("[person-vector-index] event", event.RequestType);
+  console.log("[project-vector-index] event", event.RequestType);
   if (event.RequestType === "Delete") return; // no-op, see header
   await ensureIndex();
 };
