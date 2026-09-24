@@ -26,8 +26,24 @@ export type ProjectRecord = {
   onHoldTill?: string | null;
   partnerId?: string | null;
   partnerName?: string | null;
+  projectSummary?: string | null;
   activities?: ActivityRecord[];
   [k: string]: unknown;
+};
+
+/**
+ * The AI-generated project summary as a `## Summary` section, or "" when the
+ * project has no summary yet. Included in exports regardless of the date window
+ * (it is a whole-project summary, not a windowed slice) so the reader always
+ * gets the overall context before the (windowed) notes.
+ */
+const renderSummarySection = (
+  project: ProjectRecord,
+  headingLevel: number
+): string => {
+  const summary = (project.projectSummary ?? "").trim();
+  if (!summary) return "";
+  return `${"#".repeat(headingLevel)} Summary\n\n${summary}`;
 };
 
 /* ============================ fetching ============================= */
@@ -128,6 +144,8 @@ export const renderProject = (
   if (project.done && project.doneOn) meta.push(`**Done:** ${project.doneOn}`);
   if (project.partnerName) meta.push(`**Partner:** ${project.partnerName}`);
   if (meta.length) body.push(meta.join("\n"));
+  const summarySection = renderSummarySection(project, headingLevel + 1);
+  if (summarySection) body.push(summarySection);
   if (project.activities?.length) {
     const notes = renderActivitiesSection(project.activities, headingLevel + 1);
     if (notes) body.push(notes);
@@ -181,13 +199,19 @@ export const getProjectMd = async (task: ExportTask): Promise<string> => {
   const notes = await assembleProjectFromCache(
     task.itemId,
     { owner: task.owner },
-    2 // activity headings at "## " under the "# Project: …" title
+    2, // activity headings at "## " under the "# Project: …" title
+    { startDate: task.startDate, endDate: task.endDate }
   );
+
+  const summarySection = renderSummarySection(project, 2);
 
   const parts: string[] = [`# Project: ${project.project}`];
   if (meta.length) parts.push(meta.join("\n"));
+  if (summarySection) parts.push(summarySection);
   if (notes) parts.push(notes);
-  if (parts.length === 1) return ""; // title only → nothing worth exporting
+  // Title + summary alone is worth exporting; only bail if there's nothing
+  // beyond the title.
+  if (parts.length === 1) return "";
   return `${parts.join("\n\n")}\n`;
 };
 

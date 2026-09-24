@@ -1,6 +1,6 @@
 import { batchGetItems, getItem, queryByIndex } from "./dynamodb";
 import { bumpHeadings } from "./tiptap-doc";
-import type { ActivityRecord } from "./activities";
+import type { ActivityRecord, DateWindow } from "./activities";
 
 /**
  * Assemble project / meeting markdown from the CACHED per-record building
@@ -57,11 +57,17 @@ const effectiveDateMs = (
  *
  * `activityHeadingLevel` defaults to 3 (`### `), matching the original project
  * export. The body's headings are bumped by (level - 2).
+ *
+ * When `dateWindow` is given, only activities whose effective date falls inside
+ * [startDate, endDate] (inclusive, calendar-day granularity) are included — the
+ * same window semantics the account export uses. Without it, all activities are
+ * rendered.
  */
 export const assembleProjectFromCache = async (
   projectId: string,
   opts: OwnerOpts,
-  activityHeadingLevel = 3
+  activityHeadingLevel = 3,
+  dateWindow?: DateWindow
 ): Promise<string> => {
   const junctions = await queryByIndex(
     "ProjectActivity",
@@ -105,7 +111,22 @@ export const assembleProjectFromCache = async (
   const hashes = "#".repeat(activityHeadingLevel);
   const bumpBy = Math.max(0, activityHeadingLevel - 2);
 
-  return activities
+  // Restrict to the export's date window when given. Inclusive on both ends at
+  // calendar-day granularity: compare against [startOfDay(start), endOfDay(end)]
+  // so the whole end day counts (mirrors withinDateWindow's semantics).
+  const inWindow = (a: CachedActivity): boolean => {
+    if (!dateWindow) return true;
+    const t = effectiveDateMs(a, meetingById);
+    if (!t) return false;
+    const startMs = new Date(dateWindow.startDate).setHours(0, 0, 0, 0);
+    const endMs = new Date(dateWindow.endDate).setHours(23, 59, 59, 999);
+    return t >= startMs && t <= endMs;
+  };
+
+  const windowed = activities.filter(inWindow);
+  if (!windowed.length) return "";
+
+  return windowed
     .slice()
     .sort(
       (a, b) =>
