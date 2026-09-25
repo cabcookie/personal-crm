@@ -66,7 +66,8 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   );
   const { meetingTodos, mutate } = useMeetingTodos(meeting?.id);
   const { user } = useCurrentUser();
-  const { getOpenProjects, resolveParticipant } = useMeetingSonicData();
+  const { getOpenProjects, ensureOpenProjectSummaries, resolveParticipant } =
+    useMeetingSonicData();
   const sonic = useRecording();
   const sonicContextPrompt = buildSonicContextPrompt(
     user?.prompts,
@@ -116,8 +117,10 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     if (!meeting?.id) return;
     // Ensure the engine is bound to THIS meeting before starting.
     bindThisMeeting();
-    void sonic.start();
-  }, [meeting, bindThisMeeting, sonic]);
+    // Pre-warm the full project summaries the Sonic context needs (the active
+    // set is lean and doesn't carry the heavy summary markdown), then start.
+    void ensureOpenProjectSummaries().finally(() => void sonic.start());
+  }, [meeting, bindThisMeeting, ensureOpenProjectSummaries, sonic]);
   const [lastMeeting, setLastMeeting] = useState(meeting);
   const [lastTasksDone, setLastTasksDone] = useState(
     meeting?.immediateTasksDone

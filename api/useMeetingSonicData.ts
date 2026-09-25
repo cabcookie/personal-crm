@@ -19,20 +19,23 @@ const FOUR_WEEKS_MS = 28 * 24 * 60 * 60 * 1000;
  *    context (company/role parsed from the person's accountNames string).
  */
 const useMeetingSonicData = () => {
-  const { projects } = useProjectsContext();
+  const { projects, getProjectById, ensureProjectSummaries } =
+    useProjectsContext();
   const { getAccountNamesByIds, getAccountById } = useAccountsContext();
   const { getPersonById } = usePeople();
 
-  // Built on demand (at recording start) so the 4-week cutoff uses the current
-  // time — kept as a callback to avoid an impure Date.now() during render.
-  const getOpenProjects = useCallback((): SonicProject[] => {
+  // The open projects Sonic cares about: open, recently-updated (summary within
+  // 4 weeks) projects of the current context. Uses the lean active set —
+  // projectSummaryUpdatedAt is loaded lean, the heavy summary text is NOT — so
+  // the ids are known up front and their full summaries are pre-warmed via
+  // ensureOpenProjectSummaries() before recording starts.
+  const openProjectIds = useCallback((): string[] => {
     if (!projects) return [];
     const cutoff = Date.now() - FOUR_WEEKS_MS;
     return projects
       .filter(
         (p) =>
           !p.done &&
-          p.projectSummary &&
           p.projectSummaryUpdatedAt &&
           p.projectSummaryUpdatedAt.getTime() >= cutoff
       )
@@ -41,18 +44,40 @@ const useMeetingSonicData = () => {
           (b.projectSummaryUpdatedAt?.getTime() ?? 0) -
           (a.projectSummaryUpdatedAt?.getTime() ?? 0)
       )
-      .map((p) => ({
-        id: p.id,
-        name: p.project,
-        company: p.accountIds.length
-          ? getAccountNamesByIds(p.accountIds) || null
-          : null,
-        partner: p.partnerId
-          ? (getAccountById(p.partnerId)?.name ?? null)
-          : null,
-        summary: p.projectSummary ?? null,
-      }));
-  }, [projects, getAccountNamesByIds, getAccountById]);
+      .map((p) => p.id);
+  }, [projects]);
+
+  // Pre-warm the full projectSummary markdown for the open projects. Call this
+  // when recording starts (mirrors ensurePeopleLoaded for participants) so the
+  // synchronous getOpenProjects below finds the summaries in the cache.
+  const ensureOpenProjectSummaries = useCallback(
+    () => ensureProjectSummaries(openProjectIds()),
+    [ensureProjectSummaries, openProjectIds]
+  );
+
+  // Built on demand (at recording start) so the 4-week cutoff uses the current
+  // time — kept as a callback to avoid an impure Date.now() during render.
+  // Reads the full summary from the by-id cache (populated by
+  // ensureOpenProjectSummaries); falls back to null if not yet loaded.
+  const getOpenProjects = useCallback((): SonicProject[] => {
+    return openProjectIds().flatMap((id) => {
+      const p = getProjectById(id);
+      if (!p) return [];
+      return [
+        {
+          id: p.id,
+          name: p.project,
+          company: p.accountIds.length
+            ? getAccountNamesByIds(p.accountIds) || null
+            : null,
+          partner: p.partnerId
+            ? (getAccountById(p.partnerId)?.name ?? null)
+            : null,
+          summary: p.projectSummary ?? null,
+        },
+      ];
+    });
+  }, [openProjectIds, getProjectById, getAccountNamesByIds, getAccountById]);
 
   const resolveParticipant = useCallback(
     (personId: string): SonicParticipant | undefined => {
@@ -77,7 +102,7 @@ const useMeetingSonicData = () => {
     [getPersonById]
   );
 
-  return { getOpenProjects, resolveParticipant };
+  return { getOpenProjects, ensureOpenProjectSummaries, resolveParticipant };
 };
 
 export default useMeetingSonicData;
