@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Context } from "@/contexts/ContextContext";
 import { addDays } from "date-fns";
 import { ArrowRightCircle, Loader2 } from "lucide-react";
-import { FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import ButtonGroup from "../btn-group/btn-group";
 import ContextWarning from "../context-warning/context-warning";
 import CrmProjectsList from "../crm-project-details/crm-projects-list";
@@ -43,6 +43,7 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     updatePartnerOfProject,
     updateProjectContext,
     removeAccountFromProject,
+    ensureProjectSummaries,
   } = useProjectsContext();
   // Purely derived from the project list, so computed during render. The
   // previous effect listed `project` as a dependency while also setting it,
@@ -52,6 +53,13 @@ const ProjectDetails: FC<ProjectDetailsProps> = ({
     () => (projectId ? getProjectById(projectId) : undefined),
     [getProjectById, projectId]
   );
+
+  // The list / active set is lean (no projectSummary markdown). Pull the full
+  // summary on demand once we're on the detail page so the ProjectSummary block
+  // renders. Cached after first load.
+  useEffect(() => {
+    if (projectId) void ensureProjectSummaries([projectId]);
+  }, [projectId, ensureProjectSummaries]);
   // Kept as state because the context selector updates it optimistically.
   const [projectContext, setProjectContext] = useState(project?.context);
   const [lastProjectContext, setLastProjectContext] = useState(

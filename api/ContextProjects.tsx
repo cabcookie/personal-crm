@@ -23,7 +23,7 @@ import {
   sortBy,
 } from "lodash/fp";
 import { FC, ReactNode, createContext, useContext } from "react";
-import useSWR, { KeyedMutator } from "swr";
+import useSWR, { KeyedMutator, mutate as globalMutate } from "swr";
 import { handleApiErrors } from "./globals";
 import {
   createActivityApi,
@@ -87,6 +87,13 @@ interface ProjectsContextType {
   ) => Promise<string | undefined>;
   mutateProjects: KeyedMutator<Project[] | undefined>;
   getProjectNamesByIds: (projectIds?: string[]) => string;
+  /** Semantic (vector) search for typed lookups (search box / selector). */
+  searchProjects: (
+    query: string,
+    topK?: number
+  ) => Promise<ProjectSearchMatch[]>;
+  /** Load full projectSummary markdown on demand for the given project ids. */
+  ensureProjectSummaries: (projectIds: string[]) => Promise<void>;
   deleteLegacyNextActions: (projectId: string) => Promise<string | undefined>;
   moveProjectUp: (
     projectId: string,
@@ -123,7 +130,25 @@ export type Project = {
   projectSummaryUpdatedAt?: Date;
 };
 
-const selectionSet = [
+/**
+ * Lean selection set for the list / active working set.
+ *
+ * Deliberately DROPS the `projectSummary` full text (AI-generated markdown,
+ * potentially several KB per project). Including it in the list query bloated
+ * items so much that a single DynamoDB page (1 MB) only held a handful of
+ * projects — which is why the list silently showed < 10 projects. The full
+ * summary is pulled on demand by id (detail page, Sonic context) via
+ * `fullSelectionSet` below.
+ *
+ * `projectSummaryUpdatedAt` is a tiny datetime and IS kept — Sonic's
+ * `getOpenProjects` needs it to pick recently-updated projects, and the detail
+ * view can show "last updated" without the full text.
+ *
+ * NOTE: the semantic-search vector (`summaryEmbedding`) is intentionally NOT
+ * listed here or anywhere on the client — it is written to DynamoDB natively
+ * and AppSync never returns it, so it can't bloat any client query.
+ */
+const leanSelectionSet = [
   "id",
   "project",
   "done",
@@ -138,7 +163,6 @@ const selectionSet = [
   "context",
   "order",
   "pinned",
-  "projectSummary",
   "projectSummaryUpdatedAt",
   "accounts.accountId",
   "accounts.createdAt",
@@ -170,9 +194,15 @@ const selectionSet = [
   "crmProjects.crmProject.territoryName",
 ] as const;
 
+/**
+ * Full selection set for on-demand by-id loads (detail page, Sonic summary
+ * context). Same as lean plus the heavy `projectSummary` markdown.
+ */
+const fullSelectionSet = [...leanSelectionSet, "projectSummary"] as const;
+
 type ProjectData = SelectionSet<
   Schema["Projects"]["type"],
-  typeof selectionSet
+  typeof fullSelectionSet
 >;
 export type CrmDataProps = ProjectData["crmProjects"][number];
 
@@ -409,9 +439,172 @@ const normalizeProjectOrders = debounce(
   30000
 );
 
-const fetchProjects = (context?: Context) => async () => {
-  if (!context) return;
-  const { data, errors } = await client.models.Projects.list({
+/* -------------------------------------------------------------------------- *
+ * On-demand project loading (cache-and-keep for by-id references)
+ *
+ * Mirrors the people data layer (api/usePeople.ts). The active working set —
+ * open projects (+ recently-done within 90d) of the current context — is loaded
+ * lean and paginated by `fetchProjects` below and stays the SWR-backed
+ * `projects` list. Anything ELSE referenced by id (a done/archived project
+ * shown on a meeting, a person's notes, a day plan) is pulled on demand by id
+ * and kept in this module-level cache, so a referenced project is never
+ * permanently invisible just because it isn't in the active set.
+ *
+ * The cache is keyed by id and never evicted for the session. `by-id` fetches
+ * are coalesced so N consumers asking for the same missing id trigger one call.
+ * -------------------------------------------------------------------------- */
+const projectCache = new Map<string, Project>();
+const inFlightById = new Map<string, Promise<void>>();
+// Ids whose FULL projectSummary text has been loaded (via fullSelectionSet), so
+// we don't re-fetch the heavy markdown once we have it.
+const fullSummaryLoaded = new Set<string>();
+
+// SWR key whose value is a monotonically increasing version. Bumped whenever
+// the by-id cache changes, so provider consumers re-render and pick up newly
+// loaded (done/archived) projects. Mirrors usePeople's globalMutate(SWR_KEY).
+const CACHE_VERSION_KEY = "/api/projects-cache-version";
+let cacheVersion = 0;
+const bumpCacheVersion = (): void => {
+  cacheVersion += 1;
+  void globalMutate(CACHE_VERSION_KEY, cacheVersion, false);
+};
+
+const cacheProjects = (projects: Project[]): void => {
+  for (const p of projects) projectCache.set(p.id, p);
+};
+
+/** Fetch specific projects by id (full shape) and cache them. */
+const loadProjectsByIds = async (ids: string[]): Promise<void> => {
+  const missing = [...new Set(ids)].filter((id) => id && !projectCache.has(id));
+  if (!missing.length) return;
+  await Promise.all(
+    missing.map((id) => {
+      const existing = inFlightById.get(id);
+      if (existing) return existing;
+      const p = (async () => {
+        try {
+          const { data, errors } = await client.models.Projects.get(
+            { id },
+            { selectionSet: fullSelectionSet }
+          );
+          if (errors) {
+            handleApiErrors(errors, "Error loading project");
+            return;
+          }
+          if (data) {
+            cacheProjects([mapProject(data)]);
+            fullSummaryLoaded.add(id);
+          }
+        } finally {
+          inFlightById.delete(id);
+        }
+      })();
+      inFlightById.set(id, p);
+      return p;
+    })
+  );
+};
+
+/**
+ * Ensure the FULL projectSummary markdown is loaded for the given ids. The list
+ * / active set is lean (no summary text), so callers that actually need the
+ * summary (detail page, Sonic context) call this first. Re-fetches ids we only
+ * have in lean form.
+ */
+const ensureProjectSummaries = async (ids: string[]): Promise<void> => {
+  const need = [...new Set(ids)].filter(
+    (id) => id && !fullSummaryLoaded.has(id)
+  );
+  if (!need.length) return;
+  await Promise.all(
+    need.map(async (id) => {
+      const { data, errors } = await client.models.Projects.get(
+        { id },
+        { selectionSet: fullSelectionSet }
+      );
+      if (errors) {
+        handleApiErrors(errors, "Error loading project summary");
+        return;
+      }
+      if (data) {
+        cacheProjects([mapProject(data)]);
+        fullSummaryLoaded.add(id);
+      }
+    })
+  );
+  bumpCacheVersion();
+};
+
+/**
+ * Async resolver for callers outside React render (e.g. SWR fetchers / Sonic
+ * context assembly): loads any missing ids, then returns the resolved projects
+ * in input order (skipping any that couldn't be loaded).
+ */
+export const resolveProjectsByIds = async (
+  ids: string[]
+): Promise<Project[]> => {
+  await loadProjectsByIds(ids);
+  return ids.map((id) => projectCache.get(id)).filter((p): p is Project => !!p);
+};
+
+/**
+ * By-id load that re-renders provider consumers when it completes (via the
+ * cache-version SWR key). Used by the synchronous getters (getProjectById,
+ * getProjectNamesByIds) to surface a referenced project that wasn't in the
+ * active set once it has loaded.
+ */
+const loadAndRerender = async (ids: string[]): Promise<void> => {
+  await loadProjectsByIds(ids);
+  bumpCacheVersion();
+};
+
+/**
+ * Semantic (vector) search over the caller's own projects, for TYPED lookups
+ * (project search box / selector). Mirrors searchPeopleRemote: calls the
+ * server-side `searchProjects` query (owner enforced in the Lambda) and returns
+ * the matches as lightweight results. The heavy fields are pulled on demand by
+ * id when a match is actually opened.
+ */
+export type ProjectSearchMatch = {
+  id: string;
+  name: string;
+  summarySnippet?: string;
+  score: number;
+};
+
+export const searchProjectsRemote = async (
+  query: string,
+  topK = 10
+): Promise<ProjectSearchMatch[]> => {
+  const q = query.trim();
+  if (!q) return [];
+  const { data, errors } = await client.queries.searchProjects({
+    query: q,
+    topK,
+  });
+  if (errors) {
+    console.error("searchProjects", errors);
+    return [];
+  }
+  return (data ?? []).flatMap((m) =>
+    m && m.projectId && m.name
+      ? [
+          {
+            id: m.projectId,
+            name: m.name,
+            summarySnippet: m.summarySnippet ?? undefined,
+            score: m.score ?? 0,
+          },
+        ]
+      : []
+  );
+};
+
+const fetchProjectsWithToken = async (
+  context: Context,
+  token?: string
+): Promise<ProjectData[]> => {
+  const { data, errors, nextToken } = await client.models.Projects.list({
     filter: {
       context: { eq: context },
       or: [
@@ -423,15 +616,34 @@ const fetchProjects = (context?: Context) => async () => {
         },
       ],
     },
-    limit: 5000,
-    selectionSet,
+    // Page size only. DynamoDB caps a page at ~1 MB regardless, so we MUST
+    // follow nextToken to get the complete set — not doing so is what silently
+    // truncated the list to < 10 projects once items grew. The lean selection
+    // set (no projectSummary text) also keeps pages small.
+    limit: 1000,
+    nextToken: token,
+    selectionSet: leanSelectionSet,
   });
   if (errors) {
     handleApiErrors(errors, "Error loading projects");
     throw errors;
   }
+  if (!nextToken) return data as unknown as ProjectData[];
+  return [
+    ...(data as unknown as ProjectData[]),
+    ...(await fetchProjectsWithToken(context, nextToken)),
+  ];
+};
+
+const fetchProjects = (context?: Context) => async () => {
+  if (!context) return;
   try {
-    return data.map(mapProject).sort((a, b) => a.order - b.order);
+    const data = await fetchProjectsWithToken(context);
+    const projects = data.map(mapProject).sort((a, b) => a.order - b.order);
+    // Seed the by-id cache with the active set so getProjectById resolves them
+    // without a round-trip.
+    cacheProjects(projects);
+    return projects;
   } catch (error) {
     console.error("fetchProjects", { error });
     throw error;
@@ -453,6 +665,10 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     isLoading: loadingProjects,
     mutate: mutateProjects,
   } = useSWR(`/api/projects/${context}`, fetchProjects(context));
+
+  // Subscribe to the by-id cache version so on-demand loaded (done/archived)
+  // projects surface through getProjectById / getProjectNamesByIds once loaded.
+  useSWR(CACHE_VERSION_KEY, () => cacheVersion);
 
   const {
     pinnedProjects,
@@ -510,8 +726,32 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data || undefined;
   };
 
-  const getProjectById = (projectId: string) =>
-    projects?.find((project) => project.id === projectId);
+  const getProjectById = (projectId: string): Project | undefined => {
+    if (!projectId) return undefined;
+    const fromActive = projects?.find((project) => project.id === projectId);
+    const cached = projectCache.get(projectId);
+    // The active object always wins (it carries fresh optimistic edits); we
+    // only borrow the heavy summary fields from the cache when they've been
+    // loaded, so the detail page shows the summary without shadowing in-list
+    // edits.
+    if (fromActive) {
+      if (fullSummaryLoaded.has(projectId) && cached?.projectSummary) {
+        return {
+          ...fromActive,
+          projectSummary: cached.projectSummary,
+          projectSummaryUpdatedAt:
+            cached.projectSummaryUpdatedAt ??
+            fromActive.projectSummaryUpdatedAt,
+        };
+      }
+      return fromActive;
+    }
+    // Not in the active working set — surface from the by-id cache, and trigger
+    // a background load (+ cache re-render) if we don't have it yet, so a
+    // referenced done/archived project is never permanently invisible.
+    if (!cached) void loadAndRerender([projectId]);
+    return cached;
+  };
 
   const createProjectActivity = async (projectId: string) => {
     const activity = await createActivityApi();
@@ -700,15 +940,24 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
     return data?.id;
   };
 
-  const getProjectNamesByIds = (projectIds?: string[]): string =>
-    !projectIds || !projects
-      ? ""
-      : flow(
-          filter((p: Project) => projectIds.includes(p.id)),
-          filter((p) => !p.done),
-          map("project"),
-          join(", ")
-        )(projects);
+  const getProjectNamesByIds = (projectIds?: string[]): string => {
+    if (!projectIds || !projects) return "";
+    // Merge active set + by-id cache so referenced done/archived projects still
+    // resolve a name; trigger a background load for anything not yet cached.
+    const missing = projectIds.filter(
+      (id) => id && !projects.some((p) => p.id === id) && !projectCache.has(id)
+    );
+    if (missing.length) void loadAndRerender(missing);
+    const resolved: Project[] = projectIds.flatMap((id) => {
+      const p = projects.find((pr) => pr.id === id) ?? projectCache.get(id);
+      return p ? [p] : [];
+    });
+    return flow(
+      filter((p: Project) => !p.done),
+      map("project"),
+      join(", ")
+    )(resolved);
+  };
 
   const deleteLegacyNextActions: (
     projectId: string
@@ -911,6 +1160,8 @@ export const ProjectsContextProvider: FC<ProjectsContextProviderProps> = ({
         updateProjectContext,
         mutateProjects,
         getProjectNamesByIds,
+        searchProjects: searchProjectsRemote,
+        ensureProjectSummaries,
         deleteLegacyNextActions,
         moveProjectUp,
         moveProjectDown,

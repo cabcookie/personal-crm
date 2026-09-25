@@ -150,6 +150,21 @@ const aiSchema = {
     .authorization((allow) => [allow.authenticated()]),
 
   /**
+   * Server-side project semantic search for TYPED lookups (project selector,
+   * project search box). Same engine as suggestProjectByVoice — embeds the
+   * typed query and vector-searches the caller's own projects (owner enforced
+   * in the Lambda) — just a distinct query name for the non-voice path.
+   * Replaces loading all projects into memory + client-side substring
+   * filtering (mirrors searchPeople for the people data layer).
+   */
+  searchProjects: a
+    .query()
+    .arguments({ query: a.string().required(), topK: a.integer() })
+    .returns(a.ref("ProjectVoiceMatch").array())
+    .handler(a.handler.function(projectVectorSearch))
+    .authorization((allow) => [allow.authenticated()]),
+
+  /**
    * Server-side meeting summarizer. `payload` is a JSON string with the
    * meeting's projects (+ full summaries as context), participants, mentioned
    * people, and transcript. Returns the model's JSON summary as a string.
