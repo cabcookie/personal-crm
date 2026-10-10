@@ -271,6 +271,9 @@ interface Meeting {
 
 Model `Activity` with `NoteBlock`, `Todo` and `ProjectActivity`. One record per
 activity; inside a meeting there is one activity per project discussion.
+Activities whose meeting has been deleted are leftovers and are not exported
+(neither their todos nor their images), so `meetingId` always points into
+`meetings.json`.
 
 ```ts
 interface Activity {
@@ -327,7 +330,7 @@ interface Doc {
 | Activity v1 (`notes`)           | Each line becomes a `paragraph`; empty lines become empty paragraphs.                                                                                                                                                                                                                                          |
 | Activity v2 (`notesJson`)       | Parsed and cleaned (see below).                                                                                                                                                                                                                                                                                |
 | Activity v3 (`noteBlocks`)      | Blocks in `noteBlockIds` order. Consecutive `listItem`, `listItemOrdered` and `taskItem` blocks are wrapped into `bulletList`, `orderedList` (`start: 1`) and `taskList`, as `transform-v3.ts` does. A `taskItem` takes its content from the linked `Todo`. Ids in `noteBlockIds` without a block are skipped. |
-| Learnings, account introduction | `learning` / `introductionJson` parsed and cleaned; `introduction` (plain text) like v1.                                                                                                                                                                                                                       |
+| Learnings, account introduction | `learning` / `introductionJson` parsed and cleaned; `introduction` (plain text) like v1. A JSON field that holds plain text instead of a document (older person learnings) is treated like v1 as well; the same applies to v2 notes.                                                                           |
 
 Cleaning removes editor-internal attributes (`blockId`, `recordId`, `src`,
 `expiresAt`, `fileKey`, the `doc`-level `projects`) and drops `null`
