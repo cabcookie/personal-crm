@@ -181,8 +181,22 @@ export const cleanDoc = (node: JsonNode | null, source: DocSource): Doc => {
 };
 
 /** A parsed TipTap JSON field (v2 notes, learnings, account introduction). */
-export const jsonFieldToDoc = (value: unknown, source: DocSource): Doc =>
-  cleanDoc(parseJson(value, source), source);
+export const jsonFieldToDoc = (value: unknown, source: DocSource): Doc => {
+  if (typeof value === "string") {
+    // Older records (e.g. person learnings 2023-2024) hold the text itself
+    // instead of a TipTap document, sometimes JSON-encoded as a string.
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      return textToDoc(value);
+    }
+    if (typeof parsed === "string") return textToDoc(parsed);
+    // Plain text that happens to be valid JSON, e.g. "42" or "true".
+    if (typeof parsed !== "object" || parsed === null) return textToDoc(value);
+  }
+  return cleanDoc(parseJson(value, source), source);
+};
 
 const todoToTaskItem = (
   todo: TodoRecord,

@@ -143,13 +143,23 @@ describe("jsonFieldToDoc (format v2, learnings, introduction)", () => {
     ]);
   });
 
-  it("reports unparseable content and returns an empty document", () => {
+  it("treats a field holding plain text instead of JSON like format v1", () => {
+    // Older person learnings (2023-2024) stored the text itself.
     const src = source();
-    expect(jsonFieldToDoc("{not json", src)).toEqual({
-      type: "doc",
-      content: [],
-    });
-    expect(src.warnings[0].code).toBe("UNPARSEABLE_CONTENT");
+    expect(jsonFieldToDoc("Met at the conference\nLikes sailing", src)).toEqual(
+      textToDoc("Met at the conference\nLikes sailing")
+    );
+    expect(src.warnings).toEqual([]);
+  });
+
+  it("treats plain text that happens to be valid JSON like format v1", () => {
+    expect(jsonFieldToDoc("42", source())).toEqual(textToDoc("42"));
+  });
+
+  it("treats a JSON-encoded string like format v1", () => {
+    expect(jsonFieldToDoc(JSON.stringify("just text"), source())).toEqual(
+      textToDoc("just text")
+    );
   });
 
   it("returns an empty document for missing content", () => {
