@@ -4,6 +4,7 @@ import {
   blocksToDoc,
   collectMentionIds,
   collectS3Keys,
+  dropUnknownMentions,
   jsonFieldToDoc,
   textToDoc,
   type DocSource,
@@ -310,6 +311,38 @@ describe("collectors and file hashes", () => {
     expect(doc.content.slice(1)).toEqual([
       { type: "image", attrs: { fileHash: "hash-1", s3Key: "k1" } },
       { type: "image", attrs: { fileHash: null, s3Key: "k2" } },
+    ]);
+  });
+});
+
+describe("dropUnknownMentions", () => {
+  it("keeps known mentions, writes the old name for deleted people, drops nameless ones", () => {
+    const doc = jsonFieldToDoc(
+      {
+        type: "doc",
+        content: [
+          {
+            type: "paragraph",
+            content: [
+              { type: "text", text: "With " },
+              { type: "mention", attrs: { id: "known", label: "Ada" } },
+              { type: "text", text: ", " },
+              { type: "mention", attrs: { id: "gone", label: "Bob" } },
+              { type: "text", text: " and " },
+              { type: "mention", attrs: { id: "gone-too" } },
+            ],
+          },
+        ],
+      },
+      source()
+    );
+    dropUnknownMentions(doc, new Set(["known"]));
+    expect(doc.content[0].content).toEqual([
+      { type: "text", text: "With " },
+      { type: "mention", attrs: { id: "known", label: "Ada" } },
+      { type: "text", text: ", " },
+      { type: "text", text: "Bob" },
+      { type: "text", text: " and " },
     ]);
   });
 });

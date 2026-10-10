@@ -314,3 +314,31 @@ export const applyFileHashes = (
       node.attrs.fileHash = hashByKey.get(node.attrs.s3Key as string) ?? null;
     })
   );
+
+const resolveMentions = (
+  nodes: JsonNode[],
+  knownPeople: Set<string>
+): JsonNode[] =>
+  nodes.flatMap((node): JsonNode[] => {
+    if (node.type === "mention") {
+      const id = node.attrs?.id as string | undefined;
+      if (id && knownPeople.has(id)) return [node];
+      const label = node.attrs?.label as string | undefined;
+      return label ? [{ type: "text", text: label }] : [];
+    }
+    if (node.content)
+      return [{ ...node, content: resolveMentions(node.content, knownPeople) }];
+    return [node];
+  });
+
+/**
+ * Mentions of people that no longer exist: the old name, when the node still
+ * carries it, stays as plain text; otherwise the mention is dropped (owner
+ * decision 2026-10-10).
+ */
+export const dropUnknownMentions = (
+  doc: Doc,
+  knownPeople: Set<string>
+): void => {
+  doc.content = resolveMentions(doc.content, knownPeople);
+};

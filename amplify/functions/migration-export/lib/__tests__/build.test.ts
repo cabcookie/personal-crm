@@ -105,6 +105,7 @@ const tables = (): RawTables => ({
   ],
   AccountLearningPerson: [
     { id: "alp1", learningId: "al1", personId: "p-ada", ...ts(1) },
+    { id: "alp2", learningId: "al1", personId: "p-deleted", ...ts(2) },
   ],
   Projects: [
     {
@@ -134,6 +135,7 @@ const tables = (): RawTables => ({
   MeetingParticipant: [
     { id: "mp1", meetingId: "m1", personId: "p-ada", ...ts(1) },
     { id: "mp2", meetingId: "m1", personId: "p-ada", ...ts(2) },
+    { id: "mp3", meetingId: "m1", personId: "p-deleted", ...ts(3) },
   ],
   Activity: [
     {
@@ -302,7 +304,6 @@ describe("buildExport", () => {
     expect(v1.sourceFormatVersion).toBe(1);
     expect(v1.document.content).toHaveLength(2);
     expect(v2.sourceFormatVersion).toBe(2);
-    expect(v2.mentionedPersonIds).toEqual(["p-ghost"]);
     expect(v3.sourceFormatVersion).toBe(3);
     expect(v3.projectIds).toEqual(["prj-1"]);
     expect(v3.mentionedPersonIds).toEqual(["p-ada"]);
@@ -318,15 +319,24 @@ describe("buildExport", () => {
     expect([...imageUsage(data).keys()]).not.toContain("k-orphan");
   });
 
-  it("reports references to records outside the export", () => {
-    expect(data.warnings).toEqual([
-      {
-        code: "DANGLING_REFERENCE",
-        entity: "activities.json",
-        id: "act-1",
-        detail: "personId p-ghost",
-      },
+  it("replaces mentions of deleted people with their old name", () => {
+    const v2 = data.activities.find((a) => a.id === "act-1")!;
+    expect(v2.mentionedPersonIds).toEqual([]);
+    expect(v2.document.content[0].content).toEqual([
+      { type: "text", text: "p-ghost" },
     ]);
+  });
+
+  it("ignores deleted people as participants and linked people", () => {
+    expect(data.meetings[0].participantPersonIds).toEqual(["p-ada"]);
+    expect(data.accountLearnings[0].mentionedPersonIds).toEqual([
+      "p-ada",
+      "p-me",
+    ]);
+  });
+
+  it("leaves no dangling person references", () => {
+    expect(data.warnings).toEqual([]);
   });
 
   it("collects image usage and descriptions", () => {
