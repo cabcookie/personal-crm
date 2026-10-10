@@ -4,7 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExportHistoryList } from "@/components/exports/ExportHistoryList";
 import { RecurringExportList } from "@/components/exports/RecurringExportList";
-import { Clock, RefreshCw, RefreshCwOff } from "lucide-react";
+import { MigrationExportPanel } from "@/components/exports/MigrationExportPanel";
+import { Clock, PackageOpen, RefreshCw, RefreshCwOff } from "lucide-react";
 
 const ExportsPage: FC = () => (
   <SettingsLayout>
@@ -36,6 +37,10 @@ const ExportsPage: FC = () => (
             <RefreshCwOff className="size-4" />
             Recurring (Inactive)
           </TabsTrigger>
+          <TabsTrigger value="migration" className="flex items-center gap-2">
+            <PackageOpen className="size-4" />
+            Migration
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="history" className="mt-6">
           <div className="space-y-4">
@@ -61,6 +66,9 @@ const ExportsPage: FC = () => (
             </p>
             <RecurringExportList status="inactive" />
           </div>
+        </TabsContent>
+        <TabsContent value="migration" className="mt-6">
+          <MigrationExportPanel />
         </TabsContent>
       </Tabs>
     </div>
