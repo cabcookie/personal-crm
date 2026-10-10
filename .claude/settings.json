@@ -1,4 +1,35 @@
 {
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "nxf prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      },
+      {
+        "hooks": [
+          {
+            "command": "nxc prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      },
+      {
+        "hooks": [
+          {
+            "command": "nxm prime || cat NEXUS_MEMORY.md 2>/dev/null",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ]
+  },
   "permissions": {
     "allow": [
       "Bash(aws appsync list-graphql-apis *)",
@@ -33,7 +64,11 @@
       "Bash(npx tsc *)",
       "mcp__ide__*",
       "WebFetch",
-      "WebSearch"
+      "WebSearch",
+      "Bash(nxs:*)",
+      "Bash(nxf:*)",
+      "Bash(nxc:*)",
+      "Bash(nxm:*)"
     ],
     "deny": []
   }
