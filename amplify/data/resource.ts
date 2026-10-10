@@ -17,6 +17,9 @@ import bibleSchema, {
 import contextSchema, {
   tablesWithDeleteProtection as contextTdp,
 } from "./context-schema";
+import migrationSchema, {
+  tablesWithDeleteProtection as migrationTdp,
+} from "./migration-schema";
 import personSchmema, {
   tablesWithDeleteProtection as personTdp,
 } from "./person-schema";
@@ -45,6 +48,7 @@ export const tablesWithDeleteProtection = [
   ...analyticsTdp,
   ...bibleTdp,
   ...contextTdp,
+  ...migrationTdp,
   ...personTdp,
   ...planningTdp,
   ...prayerTdp,
@@ -62,6 +66,7 @@ const schema = a
     ...analyticsSchema,
     ...bibleSchema,
     ...contextSchema,
+    ...migrationSchema,
     ...personSchmema,
     ...planningSchema,
     ...prayerSchema,

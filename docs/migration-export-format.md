@@ -14,8 +14,12 @@ replaced by nexflow.it; this export carries the owner's data across.
 
 ## Archive layout
 
-One ZIP per export, written to `exports/<identityId>/migration/<exportedAt>.zip`
-in the default storage bucket.
+One ZIP per export, written to `exports/<identityId>/migration/<stamp>.zip` in
+the default storage bucket (`<stamp>` is `exportedAt` with `:` and `.` replaced
+by `-`). While the export runs, `<stamp>.running.json` exists next to it; a
+failed run leaves `<stamp>.error.json` (`{ startedAt, failedAt, message }`)
+instead of the ZIP. Exports expire after 90 days with the bucket's `exports/`
+lifecycle rule.
 
 ```text
 manifest.json
@@ -290,7 +294,7 @@ Every file referenced by an `image` node in any document.
 
 ```ts
 interface FileEntry {
-  hash: string; // sha256 hex of the content; file is files/<hash>
+  hash: string | null; // sha256 hex; content is files/<hash>; null if missing
   s3Key: string; // original key, e.g. user-files/<identityId>/<name>
   name: string; // last segment of s3Key
   mime: string | null; // S3 ContentType
@@ -298,7 +302,7 @@ interface FileEntry {
   missing: boolean; // true when the S3 object no longer exists
   description: string | null; // AI image description (NoteBlock.imageDescription)
   descriptionUpdatedAt: string | null;
-  activityIds: string[]; // where the file is used
+  activityIds: string[]; // activities using it; empty for learnings/intros
 }
 ```
 
@@ -331,19 +335,19 @@ attributes.
 
 ### Node types
 
-| Type                          | Attributes                                     | Notes                                                              |
-| ----------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
-| `paragraph`                   |                                                |                                                                    |
-| `heading`                     | `level`: 1–4                                   | Levels are passed through unchanged.                               |
-| `bulletList`, `orderedList`   | `start` (ordered)                              |                                                                    |
-| `listItem`                    |                                                |                                                                    |
-| `taskList`                    |                                                |                                                                    |
-| `taskItem`                    | `todoId`, `checked`, `doneOn` (date or `null`) | `checked` = Todo status `DONE`.                                    |
-| `blockquote`, `codeBlock`     | `language` (code)                              |                                                                    |
-| `horizontalRule`, `hardBreak` |                                                |                                                                    |
-| `image`                       | `fileHash`, `s3Key`                            | Replaces `s3image`; `fileHash` is `null` when the file is missing. |
-| `mention`                     | `id` (personId), `label`                       | `label` is the name at the time of writing.                        |
-| `text`                        | `marks`                                        |                                                                    |
+| Type                          | Attributes                                     | Notes                                                                                                                      |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `paragraph`                   |                                                |                                                                                                                            |
+| `heading`                     | `level`: 1–4                                   | Levels are passed through unchanged.                                                                                       |
+| `bulletList`, `orderedList`   | `start` (ordered)                              |                                                                                                                            |
+| `listItem`                    |                                                |                                                                                                                            |
+| `taskList`                    |                                                |                                                                                                                            |
+| `taskItem`                    | `todoId`, `checked`, `doneOn` (date or `null`) | `checked` = Todo status `DONE`.                                                                                            |
+| `blockquote`, `codeBlock`     | `language` (code)                              |                                                                                                                            |
+| `horizontalRule`, `hardBreak` |                                                |                                                                                                                            |
+| `image`                       | `fileHash`, `s3Key`                            | Replaces `s3image`; `fileHash` is `null` when the file is missing or outside the user's `user-files/<identityId>/` prefix. |
+| `mention`                     | `id` (personId), `label`                       | `label` is the name at the time of writing.                                                                                |
+| `text`                        | `marks`                                        |                                                                                                                            |
 
 Marks: `bold`, `italic`, `strike`, `code`, `highlight`, `link` (`href`).
 

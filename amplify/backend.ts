@@ -41,6 +41,8 @@ import { setupTouchPersonLastSeen } from "./custom/backend/touch-person-last-see
 import { projectVectorSearch } from "./functions/project-vector-search/resource";
 import { setupProjectVectorSearch } from "./custom/backend/project-vector-search";
 import { ensureProjectVectorIndex } from "./functions/project-vector-index/resource";
+import { migrationExport } from "./functions/migration-export/resource";
+import { setupMigrationExport } from "./custom/backend/migration-export";
 
 const backend = defineBackend({
   auth,
@@ -73,6 +75,7 @@ const backend = defineBackend({
   touchPersonLastSeen,
   projectVectorSearch,
   ensureProjectVectorIndex,
+  migrationExport,
 });
 
 export type BackendType = typeof backend;
@@ -88,6 +91,10 @@ setupDeleteProtection(backend, tablesWithDeleteProtection);
 
 // Setup export tasks functionality
 setupExportTasks(backend);
+
+// Migration export for nexflow.it: table/bucket access for the Lambda behind
+// the startMigrationExport mutation.
+setupMigrationExport(backend);
 
 // Setup debounced project-summary / activity-snapshot / image-description
 // pipelines and the one-off image-description backfill.
