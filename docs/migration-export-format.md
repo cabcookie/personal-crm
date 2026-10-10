@@ -223,7 +223,8 @@ interface AccountLearning {
   accountId: string;
   learnedOn: string | null; // date; fall back to createdAt
   status: "new" | "archived";
-  // Union of AccountLearningPerson rows and mention nodes in the document.
+  // Union of AccountLearningPerson rows and mention nodes in the document;
+  // deleted people are left out.
   mentionedPersonIds: string[];
   document: Doc;
   createdAt: string;
@@ -260,7 +261,7 @@ interface Meeting {
   topic: string;
   meetingOn: string | null; // date-time; fall back to createdAt
   context: "work" | "family" | "hobby" | null;
-  participantPersonIds: string[];
+  participantPersonIds: string[]; // deleted people are left out
   activityIds: string[]; // the meeting's activities, by createdAt ascending
   createdAt: string;
   updatedAt: string;
@@ -338,19 +339,19 @@ attributes.
 
 ### Node types
 
-| Type                          | Attributes                                     | Notes                                                                                                                      |
-| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `paragraph`                   |                                                |                                                                                                                            |
-| `heading`                     | `level`: 1–4                                   | Levels are passed through unchanged.                                                                                       |
-| `bulletList`, `orderedList`   | `start` (ordered)                              |                                                                                                                            |
-| `listItem`                    |                                                |                                                                                                                            |
-| `taskList`                    |                                                |                                                                                                                            |
-| `taskItem`                    | `todoId`, `checked`, `doneOn` (date or `null`) | `checked` = Todo status `DONE`.                                                                                            |
-| `blockquote`, `codeBlock`     | `language` (code)                              |                                                                                                                            |
-| `horizontalRule`, `hardBreak` |                                                |                                                                                                                            |
-| `image`                       | `fileHash`, `s3Key`                            | Replaces `s3image`; `fileHash` is `null` when the file is missing or outside the user's `user-files/<identityId>/` prefix. |
-| `mention`                     | `id` (personId), `label`                       | `label` is the name at the time of writing.                                                                                |
-| `text`                        | `marks`                                        |                                                                                                                            |
+| Type                          | Attributes                                     | Notes                                                                                                                                                                                          |
+| ----------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `paragraph`                   |                                                |                                                                                                                                                                                                |
+| `heading`                     | `level`: 1–4                                   | Levels are passed through unchanged.                                                                                                                                                           |
+| `bulletList`, `orderedList`   | `start` (ordered)                              |                                                                                                                                                                                                |
+| `listItem`                    |                                                |                                                                                                                                                                                                |
+| `taskList`                    |                                                |                                                                                                                                                                                                |
+| `taskItem`                    | `todoId`, `checked`, `doneOn` (date or `null`) | `checked` = Todo status `DONE`.                                                                                                                                                                |
+| `blockquote`, `codeBlock`     | `language` (code)                              |                                                                                                                                                                                                |
+| `horizontalRule`, `hardBreak` |                                                |                                                                                                                                                                                                |
+| `image`                       | `fileHash`, `s3Key`                            | Replaces `s3image`; `fileHash` is `null` when the file is missing or outside the user's `user-files/<identityId>/` prefix.                                                                     |
+| `mention`                     | `id` (personId), `label`                       | `label` is the name at the time of writing. `id` always points into `people.json`: a mention of a deleted person becomes a `text` node with its `label`, or is dropped when there is no label. |
+| `text`                        | `marks`                                        |                                                                                                                                                                                                |
 
 Marks: `bold`, `italic`, `strike`, `code`, `highlight`, `link` (`href`).
 

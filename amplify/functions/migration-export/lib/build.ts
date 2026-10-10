@@ -2,6 +2,7 @@ import {
   blocksToDoc,
   collectMentionIds,
   collectS3Keys,
+  dropUnknownMentions,
   jsonFieldToDoc,
   textToDoc,
   type BlockRecord,
@@ -440,6 +441,23 @@ const checkReferences = (data: ExportData): void => {
     );
 };
 
+/**
+ * People that no longer exist are dropped as mentions, participants and linked
+ * people of account learnings (owner decision 2026-10-10).
+ */
+const removeDeletedPeople = (data: ExportData): void => {
+  const known = new Set(data.people.map((p) => p.id));
+  allDocuments(data).forEach((doc) => dropUnknownMentions(doc, known));
+  for (const a of data.activities)
+    a.mentionedPersonIds = collectMentionIds(a.document);
+  for (const l of data.accountLearnings)
+    l.mentionedPersonIds = l.mentionedPersonIds.filter((id) => known.has(id));
+  for (const m of data.meetings)
+    m.participantPersonIds = m.participantPersonIds.filter((id) =>
+      known.has(id)
+    );
+};
+
 export const buildExport = (t: RawTables): ExportData => {
   const warnings: Warning[] = [];
   const data: ExportData = {
@@ -455,6 +473,7 @@ export const buildExport = (t: RawTables): ExportData => {
     imageBlocks: collectImageBlocks(t),
     warnings,
   };
+  removeDeletedPeople(data);
   checkReferences(data);
   return data;
 };
