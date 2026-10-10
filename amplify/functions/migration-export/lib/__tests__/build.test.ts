@@ -152,6 +152,13 @@ const tables = (): RawTables => ({
       ...ts(2),
     },
     { id: "act-0", notes: "plain\ntext", ...ts(1) },
+    {
+      id: "act-orphan",
+      meetingActivitiesId: "m-deleted",
+      formatVersion: 2,
+      notesJson: doc({ type: "s3image", attrs: { s3Key: "k-orphan" } }),
+      ...ts(4),
+    },
   ],
   ProjectActivity: [
     { id: "pa1", activityId: "act-2", projectsId: "prj-1", ...ts(1) },
@@ -304,6 +311,11 @@ describe("buildExport", () => {
       "taskList",
       "image",
     ]);
+  });
+
+  it("ignores activities whose meeting was deleted", () => {
+    expect(data.activities.map((a) => a.id)).not.toContain("act-orphan");
+    expect([...imageUsage(data).keys()]).not.toContain("k-orphan");
   });
 
   it("reports references to records outside the export", () => {

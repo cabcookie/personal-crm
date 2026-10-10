@@ -271,6 +271,9 @@ interface Meeting {
 
 Model `Activity` with `NoteBlock`, `Todo` and `ProjectActivity`. One record per
 activity; inside a meeting there is one activity per project discussion.
+Activities whose meeting has been deleted are leftovers and are not exported
+(neither their todos nor their images), so `meetingId` always points into
+`meetings.json`.
 
 ```ts
 interface Activity {

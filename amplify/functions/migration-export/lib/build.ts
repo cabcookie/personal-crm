@@ -301,34 +301,48 @@ const activityDoc = (
   );
 };
 
+/**
+ * Activities of a deleted meeting are leftovers and are not exported (owner
+ * decision 2026-10-10). Activities without a meeting are standalone notes.
+ */
+const belongsToExistingMeeting =
+  (meetingIds: Set<string>) =>
+  (a: Rec): boolean => {
+    const meetingId = str(a, "meetingActivitiesId");
+    return !meetingId || meetingIds.has(meetingId);
+  };
+
 const buildActivities = (t: RawTables, warnings: Warning[]): Activity[] => {
   const blocks = groupBy(t.NoteBlock, "activityId");
   const todos = new Map(t.Todo.map((td) => [req(td, "id"), td]));
   const projects = groupBy(t.ProjectActivity, "activityId");
-  return sortRecs(t.Activity).map((a) => {
-    const document = activityDoc(
-      a,
-      blocks,
-      todos,
-      docSource("activities.json", a, warnings)
-    );
-    return {
-      id: req(a, "id"),
-      name: str(a, "name"),
-      meetingId: str(a, "meetingActivitiesId"),
-      projectIds: [
-        ...new Set(
-          (projects.get(req(a, "id")) ?? []).map((p) => req(p, "projectsId"))
-        ),
-      ],
-      finishedOn: str(a, "finishedOn"),
-      sourceFormatVersion: formatVersionOf(a),
-      document,
-      mentionedPersonIds: collectMentionIds(document),
-      fileHashes: [],
-      ...timestamps(a),
-    };
-  });
+  const meetingIds = new Set(t.Meeting.map((m) => req(m, "id")));
+  return sortRecs(t.Activity)
+    .filter(belongsToExistingMeeting(meetingIds))
+    .map((a) => {
+      const document = activityDoc(
+        a,
+        blocks,
+        todos,
+        docSource("activities.json", a, warnings)
+      );
+      return {
+        id: req(a, "id"),
+        name: str(a, "name"),
+        meetingId: str(a, "meetingActivitiesId"),
+        projectIds: [
+          ...new Set(
+            (projects.get(req(a, "id")) ?? []).map((p) => req(p, "projectsId"))
+          ),
+        ],
+        finishedOn: str(a, "finishedOn"),
+        sourceFormatVersion: formatVersionOf(a),
+        document,
+        mentionedPersonIds: collectMentionIds(document),
+        fileHashes: [],
+        ...timestamps(a),
+      };
+    });
 };
 
 const collectImageBlocks = (t: RawTables): ExportData["imageBlocks"] => {
