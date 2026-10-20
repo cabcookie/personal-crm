@@ -495,7 +495,12 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           estimatedCostUsd={isActiveMeeting ? sonic.estimatedCostUsd : 0}
           elapsedSeconds={isActiveMeeting ? sonic.elapsedSeconds : 0}
           systemAudioNote={isActiveMeeting ? sonic.systemAudioNote : null}
-          summary={isActiveMeeting ? sonic.summary : meeting.sonicSummary}
+          // The summary result lives only on the Meeting record (the async
+          // Lambda writes it straight to DynamoDB; the Sonic hook never sees
+          // it). Always read it from `meeting`, which the useMeeting
+          // subscription keeps live — NOT from sonic.summary, which stays null
+          // through an async run even while this meeting is the active session.
+          summary={meeting.sonicSummary}
           summarizing={meeting.sonicSummaryStatus === "PENDING"}
           summaryError={
             meeting.sonicSummaryStatus === "ERROR"
