@@ -61,6 +61,7 @@ export const tablesWithDeleteProtection = [
 
 const schema = a
   .schema({
+    MeetingSummaryStatus: a.enum(["PENDING", "DONE", "ERROR", "APPLIED"]),
     ...accountSchema,
     ...activitySchema,
     ...analyticsSchema,
@@ -132,13 +133,42 @@ const schema = a
         // --- PROVISIONAL live-transcription persistence -------------------
         // Temporary storage so a recording survives navigation and can be
         // re-displayed when returning to the meeting page. `sonicTranscript`
-        // is the JSON array of transcript lines ({id,text,at}); `sonicSummary`
-        // is the free-form summary JSON from the server-side summarizer.
-        // Marked provisional: we intend to remove these once the transcript is
-        // folded into the meeting notes / activities.
+        // is the JSON array of transcript lines ({id,text,at}), written by the
+        // client. Marked provisional: we intend to remove it once the
+        // transcript is folded into the meeting notes / activities.
         sonicTranscript: a.json(),
-        sonicSummary: a.json(),
         sonicTranscriptUpdatedAt: a.datetime(),
+        // --- Server-side meeting summary -----------------------------------
+        // `sonicSummary` is the transcript-grounded summary JSON (per-topic
+        // accomplishments/newTasks/blockers — see
+        // amplify/data/prompts/meeting-summary.ts), written ONLY by the
+        // `summarize-meeting` Lambda via a direct DynamoDB UpdateItem (never
+        // by the client — this is what keeps it from ever being double-JSON-
+        // encoded). The client starts a run by setting `sonicSummaryStatus` to
+        // "PENDING"; a DynamoDB stream on this table picks up that transition
+        // and invokes the Lambda. "DONE"/"ERROR" are terminal, written by the
+        // Lambda alongside `sonicSummary`/`sonicSummaryError`.
+        sonicSummary: a.json(),
+        sonicSummaryStatus: a.ref("MeetingSummaryStatus"),
+        sonicSummaryError: a.string(),
+        // Confirmed people detected during the live transcription but NOT
+        // formal participants (the detection pills) — written by the client
+        // alongside `sonicSummaryStatus: "PENDING"` so the summarize-meeting
+        // Lambda can resolve them into `mentionedPeople` (participants are
+        // resolved server-side directly; these aren't reconstructable from
+        // any other table). JSON array of person ids.
+        sonicMentionedPersonIds: a.json(),
+        // Live detection state (detected people + suggested projects from the
+        // Sonic tool calls, see helpers/sonic/client.ts). Previously held only
+        // in browser memory — lost on reload/tab-close mid-meeting. Shape:
+        // { people: DetectedPerson[], projects: SuggestedProject[] } (see
+        // api/useSonicTranscription.ts for the field shapes). Every write
+        // (both from a tool-call result and from a user action like
+        // confirm/reject/assign) goes through a single client-side write
+        // sequencer (helpers/sonic/detections-store.ts) that read-modifies-writes
+        // this field, so concurrent tool calls can't clobber each other.
+        sonicDetections: a.json(),
+        sonicDetectionsUpdatedAt: a.datetime(),
         participants: a.hasMany("MeetingParticipant", "meetingId"),
         activities: a.hasMany("Activity", "meetingActivitiesId"),
       })

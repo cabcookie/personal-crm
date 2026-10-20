@@ -29,14 +29,21 @@ export const converseText = async ({
   systemPrompt,
   content,
   maxTokens = 2048,
-  temperature = 0.2,
+  temperature,
 }: ConverseArgs): Promise<string> => {
   const res = await client.send(
     new ConverseCommand({
       modelId,
       system: [{ text: systemPrompt }],
       messages: [{ role: "user", content }],
-      inferenceConfig: { maxTokens, temperature },
+      // `temperature` must be OMITTED entirely for current Claude models
+      // (Sonnet 5+ etc.): Bedrock rejects any non-default sampling parameter
+      // with "`temperature` is deprecated for this model." Only include it
+      // when a caller explicitly passes one (for older models that allow it).
+      inferenceConfig: {
+        maxTokens,
+        ...(temperature !== undefined ? { temperature } : {}),
+      },
     })
   );
 

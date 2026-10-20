@@ -36,6 +36,7 @@ import { setupPersonVectorSearch } from "./custom/backend/person-vector-search";
 import { ensurePersonVectorIndex } from "./functions/person-vector-index/resource";
 import { summarizeMeeting } from "./functions/summarize-meeting/resource";
 import { setupSummarizeMeeting } from "./custom/backend/summarize-meeting";
+import { deleteMeetingTranscript } from "./functions/delete-meeting-transcript/resource";
 import { touchPersonLastSeen } from "./functions/touch-person-last-seen/resource";
 import { setupTouchPersonLastSeen } from "./custom/backend/touch-person-last-seen";
 import { projectVectorSearch } from "./functions/project-vector-search/resource";
@@ -72,6 +73,7 @@ const backend = defineBackend({
   personVectorSearch,
   ensurePersonVectorIndex,
   summarizeMeeting,
+  deleteMeetingTranscript,
   touchPersonLastSeen,
   projectVectorSearch,
   ensureProjectVectorIndex,
@@ -109,7 +111,8 @@ setupPersonVectorSearch(backend);
 // + vector index + Titan embeddings (Sonic `suggest_project` tool).
 setupProjectVectorSearch(backend);
 
-// Grant the meeting-summarizer resolver Lambda access to Bedrock (Sonnet 4.5).
+// Grant the meeting-summarizer Lambda DynamoDB stream + read/write access and
+// Bedrock access (Claude Sonnet).
 setupSummarizeMeeting(backend);
 
 // Maintain Person.lastSeen off the MeetingParticipant / NoteBlockPerson streams

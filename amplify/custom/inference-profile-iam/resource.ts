@@ -15,10 +15,10 @@ export class InferenceProfileIAM extends Construct {
         new PolicyStatement({
           actions: ["bedrock:InvokeModel"],
           resources: [
-            `arn:aws:bedrock:${scope.region}:${scope.account}:inference-profile/us.anthropic.claude-sonnet-4-20250514-v1:0`,
-            "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0",
-            "arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0",
-            "arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0",
+            `arn:aws:bedrock:${scope.region}:${scope.account}:inference-profile/us.anthropic.claude-sonnet-5-5`,
+            "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-5-5",
+            "arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-sonnet-5-5",
+            "arn:aws:bedrock:us-west-2::foundation-model/anthropic.claude-sonnet-5-5",
           ],
         })
       );

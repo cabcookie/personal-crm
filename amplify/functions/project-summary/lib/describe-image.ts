@@ -1,6 +1,6 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import type { JSONContent } from "@tiptap/core";
-import { ClaudeSonnet45Us } from "../../../data/models";
+import { ClaudeSonnetUs } from "../../../data/models";
 import { describeNoteImagePrompt } from "../../../data/prompts/describe-note-image";
 import { converseText, type ContentBlock } from "./bedrock";
 import { updateItemAttributes } from "./ddb-write";
@@ -93,7 +93,7 @@ export const describeAndPersist = async (
   ];
 
   const description = await converseText({
-    modelId: ClaudeSonnet45Us.resourcePath,
+    modelId: ClaudeSonnetUs.resourcePath,
     systemPrompt: describeNoteImagePrompt,
     content,
     maxTokens: 512,

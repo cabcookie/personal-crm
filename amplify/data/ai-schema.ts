@@ -1,7 +1,6 @@
 import { a } from "@aws-amplify/backend";
 import { personVectorSearch } from "../functions/person-vector-search/resource";
 import { projectVectorSearch } from "../functions/project-vector-search/resource";
-import { summarizeMeeting } from "../functions/summarize-meeting/resource";
 import { projectCategorizationPrompt } from "./prompts/project-categorization";
 import { generateTasksSummaryPrompt } from "./prompts/generate-task-summary";
 import { rewriteProjectNotesPrompt } from "./prompts/rewrite-project-notes";
@@ -9,13 +8,13 @@ import {
   generateWeeklyNarrativePrompt,
   improveWeeklyNarrativePrompt,
 } from "./prompts/generate-weekly-narrative";
-import { ClaudeSonnet4Us } from "./models";
+import { ClaudeSonnetUs } from "./models";
 
 const aiSchema = {
   // ------- Chat Conversations
   generalChat: a
     .conversation({
-      aiModel: ClaudeSonnet4Us,
+      aiModel: ClaudeSonnetUs,
       systemPrompt: "You are a helpful assistant.",
     })
     .authorization((allow) => allow.owner()),
@@ -33,7 +32,7 @@ const aiSchema = {
 
   rewriteProjectNotes: a
     .generation({
-      aiModel: ClaudeSonnet4Us,
+      aiModel: ClaudeSonnetUs,
       systemPrompt: rewriteProjectNotesPrompt,
     })
     .arguments({ content: a.string() })
@@ -51,7 +50,7 @@ const aiSchema = {
 
   categorizeProject: a
     .generation({
-      aiModel: ClaudeSonnet4Us,
+      aiModel: ClaudeSonnetUs,
       systemPrompt: projectCategorizationPrompt,
     })
     .arguments({
@@ -63,7 +62,7 @@ const aiSchema = {
 
   generateWeeklyNarrative: a
     .generation({
-      aiModel: ClaudeSonnet4Us,
+      aiModel: ClaudeSonnetUs,
       systemPrompt: generateWeeklyNarrativePrompt,
     })
     .arguments({
@@ -77,7 +76,7 @@ const aiSchema = {
 
   updateNarrative: a
     .generation({
-      aiModel: ClaudeSonnet4Us,
+      aiModel: ClaudeSonnetUs,
       systemPrompt: improveWeeklyNarrativePrompt,
     })
     .arguments({
@@ -131,6 +130,7 @@ const aiSchema = {
     projectId: a.string(),
     name: a.string(),
     summarySnippet: a.string(),
+    company: a.string(),
     score: a.float(),
   }),
 
@@ -162,18 +162,6 @@ const aiSchema = {
     .arguments({ query: a.string().required(), topK: a.integer() })
     .returns(a.ref("ProjectVoiceMatch").array())
     .handler(a.handler.function(projectVectorSearch))
-    .authorization((allow) => [allow.authenticated()]),
-
-  /**
-   * Server-side meeting summarizer. `payload` is a JSON string with the
-   * meeting's projects (+ full summaries as context), participants, mentioned
-   * people, and transcript. Returns the model's JSON summary as a string.
-   */
-  summarizeMeeting: a
-    .query()
-    .arguments({ payload: a.string().required() })
-    .returns(a.json())
-    .handler(a.handler.function(summarizeMeeting))
     .authorization((allow) => [allow.authenticated()]),
 
   // ------- Enums

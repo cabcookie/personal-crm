@@ -4,6 +4,7 @@ import { Context } from "@/contexts/ContextContext";
 import { newDateTimeString, toISODateTimeString } from "@/helpers/functional";
 import { format } from "date-fns";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Meeting, mapMeeting, meetingSelectionSet } from "./useMeetings";
@@ -41,6 +42,22 @@ const useMeeting = (meetingId?: string) => {
     mutate: mutateMeeting,
   } = useSWR(`/api/meetings/${meetingId}`, fetchMeeting(meetingId));
   const router = useRouter();
+
+  // Keep this meeting live: when anything updates it on the backend — most
+  // importantly the async summary flow flipping sonicSummaryStatus
+  // PENDING -> DONE/ERROR (see amplify/functions/summarize-meeting) — pull the
+  // fresh record so the in-place status/summary UI updates without a manual
+  // reload. onUpdate() isn't id-filtered, so we match the id client-side.
+  useEffect(() => {
+    if (!meetingId) return;
+    const sub = client.models.Meeting.onUpdate().subscribe({
+      next: (data) => {
+        if (data?.id === meetingId) mutateMeeting();
+      },
+      error: (error) => console.error("Meeting onUpdate subscription", error),
+    });
+    return () => sub.unsubscribe();
+  }, [meetingId, mutateMeeting]);
 
   const updateMeeting = async ({ meetingOn, title }: MeetingUpdateProps) => {
     if (!meeting) return;
@@ -195,6 +212,25 @@ const useMeeting = (meetingId?: string) => {
     return data?.id;
   };
 
+  /**
+   * Optimistically flip this meeting to the "summary in progress" state so the
+   * in-place PENDING notice + disabled button show immediately on confirm,
+   * without waiting for the write/subscription round-trip. The subscription
+   * above then reconciles to DONE/ERROR when the Lambda finishes. The actual
+   * PENDING write is done by useSonicTranscription.requestSummary.
+   */
+  const markSummaryPending = () => {
+    if (!meeting) return;
+    mutateMeeting(
+      {
+        ...meeting,
+        sonicSummaryStatus: "PENDING",
+        sonicSummaryError: undefined,
+      },
+      false
+    );
+  };
+
   return {
     meeting,
     errorMeeting,
@@ -207,6 +243,7 @@ const useMeeting = (meetingId?: string) => {
     deleteMeetingActivity,
     deleteMeeting,
     updateImmediateTasksDoneStatus,
+    markSummaryPending,
   };
 };
 

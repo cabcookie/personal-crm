@@ -1,14 +1,14 @@
 import { defineFunction } from "@aws-amplify/backend";
 
 /**
- * Server-side meeting summarizer. Takes the meeting payload (projects with
- * their full summaries as context, participants, mentioned people, and the
- * transcript) and asks Claude Sonnet 4.5 for a transcript-grounded meeting
- * summary as JSON.
- *
- * Server-side (not browser) so the Bedrock call is signed with the app's role
- * and the long transcript/context isn't shipped through client-side Bedrock
- * credentials. Mirrors the person-vector-search resolver pattern.
+ * Server-side meeting summarizer. Triggered by a DynamoDB stream on the
+ * Meeting table (see custom/backend/summarize-meeting.ts) when
+ * `sonicSummaryStatus` transitions to "PENDING". Resolves the meeting's
+ * topics (the projects added as Activities) and participants (always
+ * including the owner's own linked person) directly from DynamoDB, asks
+ * Claude Sonnet for a transcript-grounded summary, and writes the result (or
+ * an error) back onto the Meeting record — never through AppSync, so the
+ * result is never double-JSON-encoded and `owner` is never touched.
  */
 export const summarizeMeeting = defineFunction({
   name: "summarize-meeting",

@@ -228,16 +228,16 @@ const READ_TABLES = [
 // Sonnet 4.5 (US cross-region inference profile). Mirrors the ids in
 // amplify/data/models.ts. InvokeModel must be granted on both the inference
 // profile and the underlying foundation models in every routed region.
-const SONNET_45 = "anthropic.claude-sonnet-4-5-20250929-v1:0";
+const SONNET = "anthropic.claude-sonnet-5-5";
 
 const bedrockInvokeStatement = (stack: Stack): iam.PolicyStatement =>
   new iam.PolicyStatement({
     actions: ["bedrock:InvokeModel"],
     resources: [
-      `arn:aws:bedrock:${stack.region}:${stack.account}:inference-profile/us.${SONNET_45}`,
-      `arn:aws:bedrock:us-east-1::foundation-model/${SONNET_45}`,
-      `arn:aws:bedrock:us-east-2::foundation-model/${SONNET_45}`,
-      `arn:aws:bedrock:us-west-2::foundation-model/${SONNET_45}`,
+      `arn:aws:bedrock:${stack.region}:${stack.account}:inference-profile/us.${SONNET}`,
+      `arn:aws:bedrock:us-east-1::foundation-model/${SONNET}`,
+      `arn:aws:bedrock:us-east-2::foundation-model/${SONNET}`,
+      `arn:aws:bedrock:us-west-2::foundation-model/${SONNET}`,
     ],
   });
 
