@@ -470,7 +470,30 @@ const bumpCacheVersion = (): void => {
 };
 
 const cacheProjects = (projects: Project[]): void => {
-  for (const p of projects) projectCache.set(p.id, p);
+  for (const p of projects) {
+    // Don't let a lean incoming object (no projectSummary — the active-set
+    // fetch uses leanSelectionSet) clobber a full entry we already upgraded
+    // via ensureProjectSummaries/loadProjectsByIds. The lean active-set SWR
+    // key revalidates on window focus; without this guard that revalidation
+    // silently strips the summary out of the cache while `fullSummaryLoaded`
+    // still reports the id as loaded, so ensureProjectSummaries won't refetch
+    // it — and the detail page's summary disappears until a hard reload.
+    const existing = projectCache.get(p.id);
+    if (
+      existing?.projectSummary &&
+      p.projectSummary == null &&
+      fullSummaryLoaded.has(p.id)
+    ) {
+      projectCache.set(p.id, {
+        ...p,
+        projectSummary: existing.projectSummary,
+        projectSummaryUpdatedAt:
+          p.projectSummaryUpdatedAt ?? existing.projectSummaryUpdatedAt,
+      });
+    } else {
+      projectCache.set(p.id, p);
+    }
+  }
 };
 
 /** Fetch specific projects by id (full shape) and cache them. */
