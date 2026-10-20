@@ -56,11 +56,12 @@ const matchesOwner = (record: DdbRecord, owner: string): boolean =>
  */
 export const getItemRaw = async <T extends DdbRecord = DdbRecord>(
   model: string,
-  id: string
+  id: string,
+  keyField = "id"
 ): Promise<T | null> => {
   const TableName = getTableName(model);
   const res = await client.send(
-    new GetItemCommand({ TableName, Key: { id: { S: id } } })
+    new GetItemCommand({ TableName, Key: { [keyField]: { S: id } } })
   );
   if (!res.Item) return null;
   return unmarshall(res.Item) as T;

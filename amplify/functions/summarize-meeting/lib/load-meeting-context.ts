@@ -8,6 +8,16 @@ import { fetchCurrentEmployment } from "../../process-export-tasks/helpers/activ
 
 type OwnerOpts = { owner: string };
 
+/** Parse a JSON string into an array, or null if it isn't valid JSON / not an array. */
+const safeParseArray = (s: string): unknown[] | null => {
+  try {
+    const parsed = JSON.parse(s);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
 export type MeetingRecord = {
   id: string;
   owner?: string;
@@ -36,9 +46,13 @@ export const loadMeeting = (meetingId: string): Promise<MeetingRecord | null> =>
 export const resolveOwnPersonId = async (
   sub: string
 ): Promise<string | null> => {
+  // The User table's partition key is `profileId` (NOT `id`), formatted as
+  // `${sub}::${sub}` — passing `id` here yields DynamoDB's "provided key
+  // element does not match the schema" error.
   const user = await getItemRaw<{ personId?: string }>(
     "User",
-    `${sub}::${sub}`
+    `${sub}::${sub}`,
+    "profileId"
   );
   return user?.personId ?? null;
 };
@@ -119,8 +133,15 @@ export const fetchMentionedPeople = async (
   participantIds: Set<string>,
   opts: OwnerOpts
 ): Promise<PersonSummary[]> => {
-  const ids = Array.isArray(mentionedPersonIds)
-    ? (mentionedPersonIds as unknown[]).filter(
+  // The field is a.json() written by the client. Depending on how it was
+  // written it can come back from DynamoDB either as a native list or as a
+  // JSON string ('["id1","id2"]') — accept both.
+  const raw =
+    typeof mentionedPersonIds === "string"
+      ? safeParseArray(mentionedPersonIds)
+      : mentionedPersonIds;
+  const ids = Array.isArray(raw)
+    ? (raw as unknown[]).filter(
         (id): id is string => typeof id === "string" && !participantIds.has(id)
       )
     : [];

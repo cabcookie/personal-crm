@@ -311,7 +311,9 @@ const useSonicTranscription = () => {
     }));
     const { errors } = await client.models.Meeting.update({
       id: meetingId,
-      sonicTranscript: lines,
+      // a.json() must be sent as a JSON *string* (see requestSummary comment);
+      // mapMeeting/parseJson and the Lambda both read back either form.
+      sonicTranscript: JSON.stringify(lines),
       sonicTranscriptUpdatedAt: new Date().toISOString(),
     });
     if (errors) console.error("persistTranscript", errors);
@@ -355,12 +357,14 @@ const useSonicTranscription = () => {
       id: meetingId,
       sonicSummaryStatus: "PENDING",
       sonicSummaryError: undefined,
-      // An empty array sent as an AWSJSON value has been observed to make
-      // AppSync reject the whole mutation ("Variable
-      // 'sonicMentionedPersonIds' has an invalid value") — omit the field
-      // entirely when there's nothing to send instead of sending `[]`.
+      // a.json() fields must be sent as a JSON *string*, not a raw JS value:
+      // the Amplify client declares the GraphQL variable as `String` (AWSJSON)
+      // but does NOT stringify the value itself, so handing it a raw array
+      // makes AppSync reject the whole mutation ("Variable
+      // 'sonicMentionedPersonIds' has an invalid value"). Omit the field
+      // entirely when there's nothing to send rather than sending "[]".
       ...(mentionedPersonIds.length
-        ? { sonicMentionedPersonIds: mentionedPersonIds }
+        ? { sonicMentionedPersonIds: JSON.stringify(mentionedPersonIds) }
         : {}),
     });
     if (errors) console.error("requestSummary", errors);

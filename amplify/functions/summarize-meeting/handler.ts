@@ -23,6 +23,25 @@ const errorMessage = (err: unknown): string =>
   err instanceof Error ? err.message : String(err);
 
 /**
+ * Read sonicTranscript (an a.json() field) which DynamoDB may return as a
+ * native list or as a JSON string ('[{...}]') depending on how it was
+ * written — accept both.
+ */
+const parseTranscriptLines = (value: unknown): { text?: string }[] => {
+  const raw =
+    typeof value === "string"
+      ? (() => {
+          try {
+            return JSON.parse(value);
+          } catch {
+            return null;
+          }
+        })()
+      : value;
+  return Array.isArray(raw) ? (raw as { text?: string }[]) : [];
+};
+
+/**
  * Mark a summary run as failed. Swallows its own write errors (logs only) so
  * a failure writing the failure doesn't mask the original error.
  */
@@ -54,9 +73,7 @@ const runSummary = async (meetingId: string, owner: string): Promise<void> => {
     console.warn(`[summarize-meeting] meeting ${meetingId} not found`);
     return;
   }
-  const transcriptLines = Array.isArray(meeting.sonicTranscript)
-    ? (meeting.sonicTranscript as { text?: string }[])
-    : [];
+  const transcriptLines = parseTranscriptLines(meeting.sonicTranscript);
   const transcriptText = transcriptLines
     .map((l) => l.text ?? "")
     .filter(Boolean)

@@ -79,8 +79,9 @@ export function setupSummarizeMeeting(backend: BackendType) {
   );
 
   /* ---------------------------------------------------------------- *
-   * Write access: the Meeting record itself (sonicSummary +
-   * sonicSummaryStatus + sonicSummaryError).
+   * Meeting record access: read it (loadMeeting -> GetItem, to recover
+   * sonicTranscript / sonicMentionedPersonIds / owner) and write the result
+   * back (sonicSummary + sonicSummaryStatus + sonicSummaryError).
    * ---------------------------------------------------------------- */
   backend.summarizeMeeting.addEnvironment(
     "DDB_TABLE_MEETING",
@@ -88,7 +89,7 @@ export function setupSummarizeMeeting(backend: BackendType) {
   );
   fn.addToRolePolicy(
     new iam.PolicyStatement({
-      actions: ["dynamodb:UpdateItem"],
+      actions: ["dynamodb:GetItem", "dynamodb:UpdateItem"],
       resources: [meetingTable.tableArn],
     })
   );

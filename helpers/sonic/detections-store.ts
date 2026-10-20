@@ -104,7 +104,11 @@ const readModifyWrite = async (
 
   const { errors: writeErrors } = await client.models.Meeting.update({
     id: meetingId,
-    sonicDetections: after,
+    // a.json() must be sent as a JSON *string*: the Amplify client declares
+    // the GraphQL variable as `String` (AWSJSON) but doesn't stringify the
+    // value, so a raw object/array can make AppSync reject the mutation
+    // ("... has an invalid value"). parseDetections reads back either form.
+    sonicDetections: JSON.stringify(after),
     sonicDetectionsUpdatedAt: new Date().toISOString(),
   });
   if (writeErrors) console.error("sonicDetections write", writeErrors);

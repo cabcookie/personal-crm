@@ -72,13 +72,6 @@ const MeetingLiveTranscription: FC<Props> = ({
         </ScrollArea>
       </Card>
 
-      {summarizing && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          Zusammenfassung wird erstellt…
-        </div>
-      )}
-
       {summaryError && (
         <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/5 rounded-md p-2">
           <Info className="w-4 h-4 shrink-0 mt-0.5" />
@@ -86,7 +79,27 @@ const MeetingLiveTranscription: FC<Props> = ({
         </div>
       )}
 
-      {!!summary && <MeetingSummaryView summary={summary} />}
+      {/* Clear, prominent in-place notice where the summary will appear, so
+          it's obvious the run is in progress and that leaving the page is
+          safe (the global notification brings the user back — see
+          contexts/MeetingSummaryContext.tsx). */}
+      {summarizing ? (
+        <Card className="p-4 border-dashed">
+          <div className="flex items-start gap-3">
+            <Loader2 className="w-5 h-5 shrink-0 mt-0.5 animate-spin text-primary" />
+            <div className="space-y-1">
+              <p className="font-medium">Zusammenfassung wird erstellt…</p>
+              <p className="text-sm text-muted-foreground">
+                Das dauert meist unter einer Minute. Du kannst die Seite
+                verlassen — wir benachrichtigen dich, sobald die Zusammenfassung
+                fertig ist.
+              </p>
+            </div>
+          </div>
+        </Card>
+      ) : (
+        !!summary && <MeetingSummaryView summary={summary} />
+      )}
     </div>
   );
 };
