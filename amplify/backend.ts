@@ -109,7 +109,8 @@ setupPersonVectorSearch(backend);
 // + vector index + Titan embeddings (Sonic `suggest_project` tool).
 setupProjectVectorSearch(backend);
 
-// Grant the meeting-summarizer resolver Lambda access to Bedrock (Sonnet 4.5).
+// Grant the meeting-summarizer Lambda DynamoDB stream + read/write access and
+// Bedrock access (Claude Sonnet).
 setupSummarizeMeeting(backend);
 
 // Maintain Person.lastSeen off the MeetingParticipant / NoteBlockPerson streams

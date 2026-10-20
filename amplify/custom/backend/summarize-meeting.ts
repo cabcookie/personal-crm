@@ -1,25 +1,109 @@
 import type { BackendType } from "../../backend";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Stack } from "aws-cdk-lib";
+import { DynamoEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
+import { StartingPosition } from "aws-cdk-lib/aws-lambda";
 
 /**
- * Grants the `summarize-meeting` resolver Lambda permission to invoke Claude
- * Sonnet 4.5 (US cross-region inference profile + the underlying foundation
- * models in each routed region), mirroring the project-summary Lambda's IAM.
+ * Wires the `summarize-meeting` Lambda: a DynamoDB stream on the Meeting
+ * table triggers it whenever `sonicSummaryStatus` transitions to "PENDING"
+ * (the Lambda itself filters MODIFY-to-PENDING — see lib/load-record.ts);
+ * read access (direct DynamoDB, bypassing AppSync, same convention as
+ * project-summary.ts / export-tasks.ts) to resolve the meeting's topics and
+ * participants; write access to the Meeting table for the result; and Bedrock
+ * access for Claude Sonnet.
  */
-const SONNET_45 = "anthropic.claude-sonnet-4-5-20250929-v1:0";
+const SONNET = "anthropic.claude-sonnet-5-5";
+
+// Tables read directly to resolve a meeting's topics (Activity ->
+// ProjectActivity -> Projects -> Account) and participants (MeetingParticipant
+// -> Person -> PersonAccount -> Account), plus User to resolve the owner's own
+// linked Person.
+const READ_TABLES = [
+  "Activity",
+  "ProjectActivity",
+  "Projects",
+  "Account",
+  "MeetingParticipant",
+  "Person",
+  "PersonAccount",
+  "User",
+];
 
 export function setupSummarizeMeeting(backend: BackendType) {
   const fn = backend.summarizeMeeting.resources.lambda;
   const stack = Stack.of(fn);
+  const meetingTable = backend.data.resources.tables["Meeting"];
+
+  /* ---------------------------------------------------------------- *
+   * Trigger: Meeting table stream -> summarize-meeting (filtered to the
+   * sonicSummaryStatus -> PENDING transition inside the handler).
+   * ---------------------------------------------------------------- */
+  meetingTable.grantStreamRead(fn);
+  fn.addEventSource(
+    new DynamoEventSource(meetingTable, {
+      startingPosition: StartingPosition.LATEST,
+      batchSize: 10,
+      retryAttempts: 3,
+      bisectBatchOnError: true,
+    })
+  );
+
+  /* ---------------------------------------------------------------- *
+   * Read access: direct DynamoDB reads for topics + participants.
+   * ---------------------------------------------------------------- */
+  const readResources: string[] = [];
+  for (const name of READ_TABLES) {
+    const table = backend.data.resources.tables[name];
+    if (!table) {
+      throw new Error(
+        `setupSummarizeMeeting: table "${name}" not found in data resources`
+      );
+    }
+    readResources.push(table.tableArn, `${table.tableArn}/index/*`);
+    backend.summarizeMeeting.addEnvironment(
+      `DDB_TABLE_${name.toUpperCase()}`,
+      table.tableName
+    );
+  }
+  fn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: [
+        "dynamodb:GetItem",
+        "dynamodb:BatchGetItem",
+        "dynamodb:Query",
+        "dynamodb:DescribeTable",
+      ],
+      resources: readResources,
+    })
+  );
+
+  /* ---------------------------------------------------------------- *
+   * Write access: the Meeting record itself (sonicSummary +
+   * sonicSummaryStatus + sonicSummaryError).
+   * ---------------------------------------------------------------- */
+  backend.summarizeMeeting.addEnvironment(
+    "DDB_TABLE_MEETING",
+    meetingTable.tableName
+  );
+  fn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:UpdateItem"],
+      resources: [meetingTable.tableArn],
+    })
+  );
+
+  /* ---------------------------------------------------------------- *
+   * Bedrock: Claude Sonnet, US cross-region inference profile.
+   * ---------------------------------------------------------------- */
   fn.addToRolePolicy(
     new iam.PolicyStatement({
       actions: ["bedrock:InvokeModel"],
       resources: [
-        `arn:aws:bedrock:${stack.region}:${stack.account}:inference-profile/us.${SONNET_45}`,
-        `arn:aws:bedrock:us-east-1::foundation-model/${SONNET_45}`,
-        `arn:aws:bedrock:us-east-2::foundation-model/${SONNET_45}`,
-        `arn:aws:bedrock:us-west-2::foundation-model/${SONNET_45}`,
+        `arn:aws:bedrock:${stack.region}:${stack.account}:inference-profile/us.${SONNET}`,
+        `arn:aws:bedrock:us-east-1::foundation-model/${SONNET}`,
+        `arn:aws:bedrock:us-east-2::foundation-model/${SONNET}`,
+        `arn:aws:bedrock:us-west-2::foundation-model/${SONNET}`,
       ],
     })
   );

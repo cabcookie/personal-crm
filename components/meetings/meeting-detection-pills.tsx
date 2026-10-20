@@ -159,8 +159,13 @@ const ProjectPill: FC<{
     )}
   >
     <FolderPlus className="w-4 h-4 text-blue-600 shrink-0" />
-    <span className="font-medium leading-tight">
-      {suggestion.name ?? "Projekt"}
+    <span className="flex flex-col items-start leading-tight">
+      <span className="font-medium">{suggestion.name ?? "Projekt"}</span>
+      {suggestion.company && (
+        <span className="text-[11px] text-muted-foreground">
+          {suggestion.company}
+        </span>
+      )}
     </span>
     <button
       type="button"

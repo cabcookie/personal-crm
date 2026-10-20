@@ -12,14 +12,14 @@ import { PERSON_VECTOR_INDEX_NAME } from "./project-summary";
  *     filter itself — see the handler.
  *
  *  2. The authenticated Cognito role gets bedrock:InvokeModel /
- *     InvokeModelWithBidirectionalStream on Nova 2 Sonic so the browser can
+ *     InvokeModelWithBidirectionalStream on Nova 2.5 Sonic so the browser can
  *     open the live audio stream directly (no relay). This is safe: the user
  *     only streams their own audio. Tenant-sensitive data access (the vector
  *     search) is NOT exposed to the browser — it goes through the resolver
  *     Lambda above.
  */
 
-const NOVA_SONIC = "amazon.nova-2-sonic-v1:0";
+const NOVA_SONIC = "amazon.nova-2-5-sonic";
 
 export function setupPersonVectorSearch(backend: BackendType) {
   const personTable = backend.data.resources.tables["Person"];

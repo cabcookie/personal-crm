@@ -32,6 +32,8 @@ export type Meeting = {
   // Provisional live-transcription persistence (see amplify Meeting model).
   sonicTranscript?: TranscriptLine[];
   sonicSummary?: unknown;
+  sonicSummaryStatus?: "PENDING" | "DONE" | "ERROR";
+  sonicSummaryError?: string;
   sonicTranscriptUpdatedAt?: string;
 };
 
@@ -43,6 +45,8 @@ export const meetingSelectionSet = [
   "immediateTasksDone",
   "sonicTranscript",
   "sonicSummary",
+  "sonicSummaryStatus",
+  "sonicSummaryError",
   "sonicTranscriptUpdatedAt",
   "createdAt",
   "participants.id",
@@ -98,6 +102,8 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   immediateTasksDone,
   sonicTranscript,
   sonicSummary,
+  sonicSummaryStatus,
+  sonicSummaryError,
   sonicTranscriptUpdatedAt,
 }) => ({
   id,
@@ -109,6 +115,8 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   participantIds: participants.map(({ personId }) => personId),
   sonicTranscript: parseJson(sonicTranscript) as TranscriptLine[] | undefined,
   sonicSummary: parseJson(sonicSummary),
+  sonicSummaryStatus: sonicSummaryStatus || undefined,
+  sonicSummaryError: sonicSummaryError || undefined,
   sonicTranscriptUpdatedAt: sonicTranscriptUpdatedAt || undefined,
   activities: flow(
     map(mapActivity),

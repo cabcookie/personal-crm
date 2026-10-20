@@ -1,11 +1,11 @@
 /**
- * Shared constants for the Nova 2 Sonic live meeting-transcription feature
+ * Shared constants for the Nova 2.5 Sonic live meeting-transcription feature
  * (Etappe 1). Everything here is client-side.
  */
 
-// Nova 2 Sonic model + region. Sonic is only available in a few regions;
+// Nova 2.5 Sonic model + region. Sonic is only available in a few regions;
 // us-east-1 is confirmed and is where the app's Bedrock access is enabled.
-export const SONIC_MODEL_ID = "amazon.nova-2-sonic-v1:0";
+export const SONIC_MODEL_ID = "amazon.nova-2-5-sonic";
 export const SONIC_REGION = "us-east-1";
 
 // Audio format Sonic expects on the input stream: 16 kHz, 16-bit, mono LPCM,
@@ -19,7 +19,7 @@ export const SONIC_CHANNELS = 1;
 export const AUDIO_FRAME_MS = 32;
 
 /**
- * Nova 2 Sonic speech/text token rates (USD per token), us-east-1 on-demand.
+ * Nova 2.5 Sonic speech/text token rates (USD per token), us-east-1 on-demand.
  * Sourced from public pricing: ~$3 / 1M speech-input tokens, ~$12 / 1M
  * speech-output tokens; text tokens billed at the far cheaper text rate. These
  * are estimates kept next to the raw token counts so a rate change never

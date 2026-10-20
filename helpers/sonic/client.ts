@@ -26,7 +26,7 @@ import {
 } from "./events";
 
 /**
- * Browser-side Nova 2 Sonic bidirectional client.
+ * Browser-side Nova 2.5 Sonic bidirectional client.
  *
  * Opens the stream directly to Bedrock with the user's Cognito credentials
  * (SigV4 via the SDK's fetch handler, duplex:"half" over HTTP/2 — no relay).
@@ -116,12 +116,14 @@ export type ProjectMatch = {
   projectId: string;
   name: string;
   summarySnippet: string | null;
+  company: string | null;
   score: number;
 };
 
 export type ProjectSuggestion = {
   projectId: string;
   name?: string;
+  company?: string | null;
   reason?: string;
   score?: number;
 };
@@ -200,9 +202,11 @@ class EventQueue {
 }
 
 /**
- * Nova 2 Sonic closes every bidirectional stream after a hard 8-minute
- * connection limit. To keep a meeting recording running longer we renew the
- * connection before that limit: open a fresh stream, prime it with the same
+ * Nova 2.5 Sonic closes every bidirectional stream after a hard 8-minute
+ * connection limit (unchanged from Nova 2 Sonic — the limit is on the
+ * InvokeModelWithBidirectionalStream API itself, not model-specific). To keep
+ * a meeting recording running longer we renew the connection before that
+ * limit: open a fresh stream, prime it with the same
  * system prompt + context, switch audio frames over to it, then close the old
  * one — seamless for the user. Renew a minute early to leave headroom.
  */
@@ -520,6 +524,7 @@ export class SonicClient {
           this.cbs.onProjectSuggested?.({
             projectId: best.projectId,
             name: best.name,
+            company: best.company,
             reason: typed.name || query,
             score: best.score,
           });
