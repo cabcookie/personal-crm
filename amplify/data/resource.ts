@@ -61,7 +61,7 @@ export const tablesWithDeleteProtection = [
 
 const schema = a
   .schema({
-    MeetingSummaryStatus: a.enum(["PENDING", "DONE", "ERROR"]),
+    MeetingSummaryStatus: a.enum(["PENDING", "DONE", "ERROR", "APPLIED"]),
     ...accountSchema,
     ...activitySchema,
     ...analyticsSchema,

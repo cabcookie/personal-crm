@@ -86,6 +86,10 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
 
   // This meeting is the one the (single) engine is attached to.
   const isActiveMeeting = !!meeting?.id && sonic.activeMeetingId === meeting.id;
+  // Terminal state: the summary has been produced AND transferred into the
+  // topic notes (see summarize-meeting Lambda). Once summarized, the meeting is
+  // "done" — retire the recording/summary controls and the detection pills.
+  const isSummarized = meeting?.sonicSummaryStatus === "APPLIED";
   // Recording that belongs to THIS meeting (not some other meeting's session).
   const isRecordingThis = isActiveMeeting && sonic.recording;
   // The engine is busy with a different meeting → block starting a second one.
@@ -233,6 +237,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {meeting?.id &&
+          !isSummarized &&
           (!isRecordingThis ? (
             <div className="flex items-center gap-1">
               <Button
@@ -242,7 +247,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
                 disabled={sonic.starting || busyElsewhere}
                 title={
                   busyElsewhere
-                    ? "Es läuft bereits eine Aufnahme für ein anderes Meeting."
+                    ? "A recording is already running for another meeting."
                     : undefined
                 }
               >
@@ -252,7 +257,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
                   <Mic className="w-4 h-4" />
                 )}
                 {sonic.starting && isActiveMeeting
-                  ? "Startet…"
+                  ? "Starting…"
                   : "Record for AI Summary"}
               </Button>
               <MeetingMicSettings
@@ -271,7 +276,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               className="gap-1"
             >
               <Square className="w-4 h-4" />
-              Stoppen
+              Stop
               <span className="text-white ml-1">
                 <AudioPulse level={sonic.audioLevel} />
               </span>
@@ -308,7 +313,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             meetingOn={meeting.meetingOn}
           />
         )}
-        {meeting?.id && (
+        {meeting?.id && !isSummarized && (
           <Button
             onClick={() => setSummaryDialogOpen(true)}
             variant="outline"
@@ -320,7 +325,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             }
             title={
               meeting.activities.length === 0
-                ? "Füge zuerst mindestens ein Thema (Projekt) zum Meeting hinzu."
+                ? "Add at least one topic (project) to the meeting first."
                 : undefined
             }
           >
@@ -330,8 +335,8 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               <Sparkles className="w-4 h-4" />
             )}
             {meeting.sonicSummaryStatus === "PENDING"
-              ? "Zusammenfassung wird erstellt…"
-              : "Zusammenfassung erstellen"}
+              ? "Creating summary…"
+              : "Create summary"}
           </Button>
         )}
         {meeting?.id && <MeetingPromptDialog context={meeting.context} />}
@@ -364,6 +369,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           and after stop, until the summary is actually requested — the user
           can keep assigning/confirming detections right up to that point. */}
       {isActiveMeeting &&
+        !isSummarized &&
         (sonic.detectedPeople.length > 0 ||
           sonic.suggestedProjects.length > 0) && (
           <div className="transition-opacity duration-500 opacity-100 animate-in fade-in">

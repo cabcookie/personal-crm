@@ -217,3 +217,59 @@ export const fetchTopics = async (
   }
   return topics;
 };
+
+export type TopicActivity = {
+  projectId: string;
+  activityId: string;
+  noteBlockIds: string[];
+};
+
+/**
+ * Map each topic (projectId) of this meeting to the Activity that carries it,
+ * so the summary can be written into that Activity's notes. Mirrors
+ * fetchTopics' traversal (Activity -> ProjectActivity -> projectId) but keeps
+ * the activityId and the Activity's current noteBlockIds (the ordering array
+ * we must append to). If a project is linked to more than one of the
+ * meeting's activities, the first one wins (one topic = one Activity here).
+ */
+export const fetchTopicActivities = async (
+  meetingId: string,
+  opts: OwnerOpts
+): Promise<TopicActivity[]> => {
+  const activities = await queryByIndex<{
+    id: string;
+    noteBlockIds?: string[] | null;
+  }>(
+    "Activity",
+    "gsi-Meeting.activities",
+    "meetingActivitiesId",
+    meetingId,
+    opts
+  );
+  if (!activities.length) return [];
+
+  const seen = new Set<string>();
+  const result: TopicActivity[] = [];
+  for (const activity of activities) {
+    const junctions = await queryByIndex(
+      "ProjectActivity",
+      "gsi-Activity.forProjects",
+      "activityId",
+      activity.id,
+      opts
+    );
+    for (const j of junctions) {
+      const projectsId = (j as { projectsId?: string }).projectsId;
+      if (!projectsId || seen.has(projectsId)) continue;
+      seen.add(projectsId);
+      result.push({
+        projectId: projectsId,
+        activityId: activity.id,
+        noteBlockIds: Array.isArray(activity.noteBlockIds)
+          ? activity.noteBlockIds
+          : [],
+      });
+    }
+  }
+  return result;
+};

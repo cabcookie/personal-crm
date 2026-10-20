@@ -9,7 +9,7 @@ type Props = {
 /** Toast action for a finished meeting summary: jump straight to the meeting. */
 const MeetingSummaryNotificationAction: FC<Props> = ({ meetingId }) => (
   <Button asChild variant="outline" size="sm">
-    <Link href={`/meetings/${meetingId}`}>Ansehen</Link>
+    <Link href={`/meetings/${meetingId}`}>View</Link>
   </Button>
 );
 

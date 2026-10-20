@@ -59,14 +59,13 @@ const MeetingSummaryConfirmDialog: FC<Props> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Zusammenfassung erstellen?</DialogTitle>
+          <DialogTitle>Create summary?</DialogTitle>
           <DialogDescription>
-            Die Zusammenfassung ordnet jeden Punkt nur den Themen (Projekten)
-            zu, die diesem Meeting bereits hinzugefügt wurden, und kann nur
-            Personen berücksichtigen, die als Teilnehmer bestätigt oder als
-            erwähnt zugeordnet sind. Prüfe kurz: Sind alle besprochenen Projekte
-            als Themen hinzugefügt? Sind alle teilnehmenden und erwähnten
-            Personen zugeordnet?
+            The summary attributes every point only to the topics (projects)
+            already added to this meeting, and can only consider people
+            confirmed as participants or assigned as mentioned. Quick check: are
+            all discussed projects added as topics? Are all participating and
+            mentioned people assigned?
           </DialogDescription>
         </DialogHeader>
 
@@ -85,7 +84,7 @@ const MeetingSummaryConfirmDialog: FC<Props> = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Abbrechen
+            Cancel
           </Button>
           <Button
             onClick={() => {
@@ -95,7 +94,7 @@ const MeetingSummaryConfirmDialog: FC<Props> = ({
             className="gap-1"
           >
             <Sparkles className="w-4 h-4" />
-            Zusammenfassung erstellen
+            Create summary
           </Button>
         </DialogFooter>
       </DialogContent>

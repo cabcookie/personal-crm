@@ -26,19 +26,19 @@ export const MeetingSummaryProvider: FC<MeetingSummaryProviderProps> = ({
       next: (data) => {
         if (data.sonicSummaryStatus === "DONE") {
           toast({
-            title: "Zusammenfassung fertig",
+            title: "Summary ready",
             description: data.topic
-              ? `Die Zusammenfassung für „${data.topic}“ ist fertig.`
-              : "Die Meeting-Zusammenfassung ist fertig.",
+              ? `The summary for “${data.topic}” is ready.`
+              : "The meeting summary is ready.",
             duration: 30000,
             action: <MeetingSummaryNotificationAction meetingId={data.id} />,
           });
         } else if (data.sonicSummaryStatus === "ERROR") {
           toast({
-            title: "Zusammenfassung fehlgeschlagen",
+            title: "Summary failed",
             description: data.sonicSummaryError
-              ? `${data.topic ? `„${data.topic}“: ` : ""}${data.sonicSummaryError}`
-              : "Die Zusammenfassung konnte nicht erstellt werden.",
+              ? `${data.topic ? `“${data.topic}”: ` : ""}${data.sonicSummaryError}`
+              : "The summary could not be created.",
             variant: "destructive",
           });
         }

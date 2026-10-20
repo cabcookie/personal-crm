@@ -6,10 +6,15 @@ import { meetingSummaryPrompt } from "../../data/prompts/meeting-summary";
 import {
   fetchMentionedPeople,
   fetchParticipants,
+  fetchTopicActivities,
   fetchTopics,
   loadMeeting,
 } from "./lib/load-meeting-context";
 import { loadPendingSummaryRecord, SkipRecordError } from "./lib/load-record";
+import {
+  applySummaryToActivities,
+  type MeetingSummary,
+} from "./lib/apply-summary";
 
 /** Strip accidental ```json fences if the model adds them. */
 const stripFences = (s: string): string =>
@@ -131,12 +136,29 @@ const runSummary = async (meetingId: string, owner: string): Promise<void> => {
     return;
   }
 
+  // Persist the summary first so a transfer failure doesn't lose the result.
   await updateItemAttributes("Meeting", meetingId, {
     sonicSummary: summary,
     sonicSummaryStatus: "DONE",
     sonicSummaryError: undefined,
   });
   console.log(`[summarize-meeting] wrote summary for meeting ${meetingId}`);
+
+  // Transfer the summary into each topic's Activity notes, then mark the
+  // meeting APPLIED (the terminal "summarized & filed" state the UI uses to
+  // retire the recording/summary controls and detection pills).
+  const topicActivities = await fetchTopicActivities(meetingId, { owner });
+  const applied = await applySummaryToActivities(
+    summary as MeetingSummary,
+    topicActivities,
+    { owner }
+  );
+  console.log(
+    `[summarize-meeting] applied summary to ${applied} topic activit${applied === 1 ? "y" : "ies"} for meeting ${meetingId}`
+  );
+  await updateItemAttributes("Meeting", meetingId, {
+    sonicSummaryStatus: "APPLIED",
+  });
 };
 
 export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {

@@ -37,7 +37,7 @@ const MeetingLiveTranscription: FC<Props> = ({
   return (
     <div className="space-y-3 px-2 md:px-4 pt-2">
       <div className="flex flex-wrap items-baseline gap-2">
-        <h3 className="font-semibold tracking-tight">Transkript</h3>
+        <h3 className="font-semibold tracking-tight">Transcript</h3>
         {recording && (
           <span className="text-sm text-muted-foreground">
             {fmtDuration(elapsedSeconds)} · ~{fmtCost(estimatedCostUsd)}
@@ -56,9 +56,7 @@ const MeetingLiveTranscription: FC<Props> = ({
         <ScrollArea className="h-64 pr-2">
           {transcript.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {recording
-                ? "Warte auf gesprochene Inhalte…"
-                : "Noch keine Transkription."}
+              {recording ? "Waiting for spoken content…" : "No transcript yet."}
             </p>
           ) : (
             <div className="space-y-1">
@@ -75,7 +73,7 @@ const MeetingLiveTranscription: FC<Props> = ({
       {summaryError && (
         <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/5 rounded-md p-2">
           <Info className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>Zusammenfassung fehlgeschlagen: {summaryError}</span>
+          <span>Summary failed: {summaryError}</span>
         </div>
       )}
 
@@ -88,11 +86,10 @@ const MeetingLiveTranscription: FC<Props> = ({
           <div className="flex items-start gap-3">
             <Loader2 className="w-5 h-5 shrink-0 mt-0.5 animate-spin text-primary" />
             <div className="space-y-1">
-              <p className="font-medium">Zusammenfassung wird erstellt…</p>
+              <p className="font-medium">Creating summary…</p>
               <p className="text-sm text-muted-foreground">
-                Das dauert meist unter einer Minute. Du kannst die Seite
-                verlassen — wir benachrichtigen dich, sobald die Zusammenfassung
-                fertig ist.
+                This usually takes under a minute. You can leave this page —
+                we&apos;ll notify you as soon as the summary is ready.
               </p>
             </div>
           </div>

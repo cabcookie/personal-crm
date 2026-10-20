@@ -36,7 +36,7 @@ export type Meeting = {
   // Provisional live-transcription persistence (see amplify Meeting model).
   sonicTranscript?: TranscriptLine[];
   sonicSummary?: unknown;
-  sonicSummaryStatus?: "PENDING" | "DONE" | "ERROR";
+  sonicSummaryStatus?: "PENDING" | "DONE" | "ERROR" | "APPLIED";
   sonicSummaryError?: string;
   sonicTranscriptUpdatedAt?: string;
   // Live Sonic detection state (detected people + suggested projects) — see

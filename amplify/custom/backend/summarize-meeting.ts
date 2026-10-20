@@ -30,6 +30,13 @@ const READ_TABLES = [
   "User",
 ];
 
+// Tables the summary is written INTO when transferred into topic notes:
+// Activity (append to noteBlockIds), and the note-content models. These need
+// PutItem (new NoteBlock/Todo/NoteBlockPerson rows) and UpdateItem (Activity).
+// Each also needs a DDB_TABLE_<NAME> env (some overlap with READ_TABLES,
+// addEnvironment is idempotent for the same key/value).
+const WRITE_TABLES = ["Activity", "NoteBlock", "Todo", "NoteBlockPerson"];
+
 export function setupSummarizeMeeting(backend: BackendType) {
   const fn = backend.summarizeMeeting.resources.lambda;
   const stack = Stack.of(fn);
@@ -91,6 +98,34 @@ export function setupSummarizeMeeting(backend: BackendType) {
     new iam.PolicyStatement({
       actions: ["dynamodb:GetItem", "dynamodb:UpdateItem"],
       resources: [meetingTable.tableArn],
+    })
+  );
+
+  /* ---------------------------------------------------------------- *
+   * Write access: transfer the finished summary into topic notes.
+   * Activity gets UpdateItem (append noteBlockIds); the note-content models
+   * get PutItem (new rows). Read access for these already comes from
+   * READ_TABLES where they overlap (Activity); the rest only need write +
+   * their table-name env.
+   * ---------------------------------------------------------------- */
+  const writeResources: string[] = [];
+  for (const name of WRITE_TABLES) {
+    const table = backend.data.resources.tables[name];
+    if (!table) {
+      throw new Error(
+        `setupSummarizeMeeting: table "${name}" not found in data resources`
+      );
+    }
+    writeResources.push(table.tableArn);
+    backend.summarizeMeeting.addEnvironment(
+      `DDB_TABLE_${name.toUpperCase()}`,
+      table.tableName
+    );
+  }
+  fn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:PutItem", "dynamodb:UpdateItem"],
+      resources: writeResources,
     })
   );
 

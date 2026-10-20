@@ -115,7 +115,7 @@ const PersonPill: FC<{
             className="w-full flex items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-accent border-t mt-1 pt-2"
           >
             <UserPlus className="w-4 h-4 shrink-0 text-blue-600" />
-            <span className="text-sm">Suchen…</span>
+            <span className="text-sm">Search…</span>
           </button>
         </PopoverContent>
       </Popover>

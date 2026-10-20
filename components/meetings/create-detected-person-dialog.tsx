@@ -107,7 +107,7 @@ const CreateDetectedPersonDialog: FC<Props> = ({
               onChange={(id) => setPersonId(id ?? "")}
               allowNewPerson
               placeholder={
-                initialName ? `Suchen: „${initialName}“…` : "Person suchen…"
+                initialName ? `Search: “${initialName}”…` : "Search person…"
               }
             />
           </div>
@@ -119,7 +119,7 @@ const CreateDetectedPersonDialog: FC<Props> = ({
               value={accountId}
               onChange={(id) => setAccountId(id ?? "")}
               allowCreateAccounts
-              placeholder="Unternehmen suchen…"
+              placeholder="Search company…"
             />
           </div>
         </div>

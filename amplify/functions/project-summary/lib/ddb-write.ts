@@ -1,5 +1,6 @@
 import {
   DynamoDBClient,
+  PutItemCommand,
   UpdateItemCommand,
   type AttributeValue,
 } from "@aws-sdk/client-dynamodb";
@@ -31,6 +32,27 @@ const getTableName = (model: string): string => {
     );
   }
   return name;
+};
+
+/**
+ * Create one item (PutItem). The caller passes the full attribute map
+ * (including id, owner, __typename, createdAt, updatedAt and any
+ * model-specific fields); nested objects/arrays are marshalled to native
+ * DynamoDB map/list form — the same shape Amplify stores a.json() fields in,
+ * so the app's readers (which tolerate native or string) round-trip it
+ * correctly. Writing straight to DynamoDB (not AppSync) keeps the raw
+ * `sub::username` owner intact, same rationale as updateItemAttributes.
+ */
+export const putItem = async (
+  model: string,
+  item: Record<string, unknown>
+): Promise<void> => {
+  const TableName = getTableName(model);
+  const marshalled = marshall(item, {
+    removeUndefinedValues: true,
+    convertClassInstanceToMap: true,
+  });
+  await client.send(new PutItemCommand({ TableName, Item: marshalled }));
 };
 
 /**
