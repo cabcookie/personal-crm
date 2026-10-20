@@ -15,6 +15,11 @@ import {
 } from "@/helpers/sonic/client";
 import { sanitizeSonicText } from "@/helpers/sonic/sanitize-text";
 import {
+  mutateSonicDetections,
+  emptyDetections,
+  type PersistedDetections,
+} from "@/helpers/sonic/detections-store";
+import {
   estimateSonicCostUsd,
   type SonicTokenTotals,
 } from "@/helpers/sonic/constants";
@@ -155,6 +160,50 @@ const useSonicTranscription = () => {
     transcriptRef.current = transcript;
     detectedRef.current = detectedPeople;
   });
+
+  /**
+   * The single mutation point for detectedPeople/suggestedProjects. Every
+   * caller — a Sonic tool-call result, or a user action (confirm, reject,
+   * select a match, dismiss) — goes through here instead of calling
+   * setDetectedPeople/setSuggestedProjects directly, so every change is also
+   * queued onto Meeting.sonicDetections (see helpers/sonic/detections-store),
+   * which serializes concurrent writes with a read-modify-write and survives
+   * reload/tab-close. React state is then set from the WRITE'S OWN authoritative
+   * result (not from the locally-computed `next`), so two racing updates can
+   * never leave local state and the server disagreeing about the outcome.
+   */
+  const mutateDetections = useCallback(
+    (updater: (current: PersistedDetections) => PersistedDetections): void => {
+      const meetingId =
+        recordingMeetingIdRef.current ?? boundMeetingIdRef.current;
+      if (!meetingId) {
+        // No bound meeting yet (shouldn't normally happen — bindMeeting runs
+        // before start) — still apply locally so the UI doesn't silently drop
+        // the update, just without persistence.
+        const next = updater({
+          people: detectedRef.current,
+          projects: suggestedProjectsRef.current,
+        });
+        setDetectedPeople(next.people);
+        setSuggestedProjects(next.projects);
+        return;
+      }
+      void mutateSonicDetections(meetingId, updater).then((written) => {
+        // Only apply if this meeting is still the one bound/active — a rebind
+        // to a different meeting in the meantime shouldn't apply a stale
+        // write's result onto the new meeting's state.
+        if (
+          recordingMeetingIdRef.current !== meetingId &&
+          boundMeetingIdRef.current !== meetingId
+        ) {
+          return;
+        }
+        setDetectedPeople(written.people);
+        setSuggestedProjects(written.projects);
+      });
+    },
+    []
+  );
 
   const searchPeople = useCallback(
     async (query: string): Promise<PersonMatch[]> => {
@@ -357,14 +406,17 @@ const useSonicTranscription = () => {
     setActiveMeetingId(meetingId);
     setActiveMeetingTopic(optionsRef.current.meetingTopic);
     setTranscript([]);
-    setDetectedPeople([]);
-    setSuggestedProjects([]);
     setSummary(null);
     setRecentDetectionName(null);
     setTotals(emptyTotals);
     totalsRef.current = emptyTotals;
     setElapsedSeconds(0);
     setSystemAudioNote(null);
+    // Clear any detections carried over from a PREVIOUS recording of this
+    // meeting, both locally and on the server, so a fresh recording starts
+    // clean. (If this is the meeting's first recording, this is a no-op —
+    // the field is already empty.)
+    mutateDetections(() => emptyDetections);
 
     // Build the startup context: participants (name/company/role) + the open
     // project list (name/company/partner/goal).
@@ -411,42 +463,48 @@ const useSonicTranscription = () => {
           const preselected =
             best && best.score <= KNOWN_MATCH_THRESHOLD ? best.personId : null;
 
-          setDetectedPeople((prev) => {
+          mutateDetections((current) => {
             // Dedupe by heard name (case-insensitive); don't clobber a person
             // the user already confirmed or already picked a match for.
             const key = heardName.toLowerCase();
-            const existing = prev.find(
+            const existing = current.people.find(
               (p) => p.heardName.toLowerCase() === key
             );
             if (existing) {
               // Already confirmed → nothing to draw attention to.
-              if (existing.confirmed) return prev;
+              if (existing.confirmed) return current;
               // Refreshed an unconfirmed detection: flash discreetly again.
               flashDetection(heardName);
-              return prev.map((p) =>
-                p === existing
-                  ? {
-                      ...p,
-                      matches,
-                      // Keep a user's manual pick; otherwise refresh preselect.
-                      selectedPersonId: p.selectedPersonId ?? preselected,
-                    }
-                  : p
-              );
+              return {
+                ...current,
+                people: current.people.map((p) =>
+                  p === existing
+                    ? {
+                        ...p,
+                        matches,
+                        // Keep a user's manual pick; otherwise refresh preselect.
+                        selectedPersonId: p.selectedPersonId ?? preselected,
+                      }
+                    : p
+                ),
+              };
             }
             // Brand-new detection → flash the discreet hint.
             flashDetection(heardName);
-            return [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                heardName,
-                matches,
-                selectedPersonId: preselected,
-                confirmed: false,
-                at: Date.now(),
-              },
-            ];
+            return {
+              ...current,
+              people: [
+                ...current.people,
+                {
+                  id: crypto.randomUUID(),
+                  heardName,
+                  matches,
+                  selectedPersonId: preselected,
+                  confirmed: false,
+                  at: Date.now(),
+                },
+              ],
+            };
           });
         },
         onUsage: (t) => {
@@ -469,21 +527,24 @@ const useSonicTranscription = () => {
         startupContext,
         onProjectSuggested: (s: ProjectSuggestion) => {
           flashDetection(s.name ?? "Projekt");
-          setSuggestedProjects((prev) =>
-            prev.some((x) => x.projectId === s.projectId)
-              ? prev
-              : [
-                  ...prev,
-                  {
-                    projectId: s.projectId,
-                    name: s.name,
-                    company: s.company,
-                    reason: s.reason,
-                    score: s.score,
-                    confirmed: false,
-                    at: Date.now(),
-                  },
-                ]
+          mutateDetections((current) =>
+            current.projects.some((x) => x.projectId === s.projectId)
+              ? current
+              : {
+                  ...current,
+                  projects: [
+                    ...current.projects,
+                    {
+                      projectId: s.projectId,
+                      name: s.name,
+                      company: s.company,
+                      reason: s.reason,
+                      score: s.score,
+                      confirmed: false,
+                      at: Date.now(),
+                    },
+                  ],
+                }
           );
         },
       });
@@ -536,6 +597,7 @@ const useSonicTranscription = () => {
     flashDetection,
     persistTranscript,
     isCurrentParticipantName,
+    mutateDetections,
   ]);
 
   /** Notify Sonic (cross-modal) that a participant was added mid-recording. */
@@ -558,11 +620,15 @@ const useSonicTranscription = () => {
   }, []);
 
   /** Remove a project suggestion (after the user accepts or dismisses it). */
-  const dismissSuggestedProject = useCallback((projectId: string) => {
-    setSuggestedProjects((prev) =>
-      prev.filter((p) => p.projectId !== projectId)
-    );
-  }, []);
+  const dismissSuggestedProject = useCallback(
+    (projectId: string) => {
+      mutateDetections((current) => ({
+        ...current,
+        projects: current.projects.filter((p) => p.projectId !== projectId),
+      }));
+    },
+    [mutateDetections]
+  );
 
   /** Load available microphones (for the settings popover). */
   const loadMics = useCallback(async () => {
@@ -574,33 +640,47 @@ const useSonicTranscription = () => {
   }, []);
 
   /** Toggle the lock-in for a detected person. */
-  const toggleConfirm = useCallback((detectedId: string) => {
-    setDetectedPeople((prev) =>
-      prev.map((p) =>
-        p.id === detectedId ? { ...p, confirmed: !p.confirmed } : p
-      )
-    );
-  }, []);
+  const toggleConfirm = useCallback(
+    (detectedId: string) => {
+      mutateDetections((current) => ({
+        ...current,
+        people: current.people.map((p) =>
+          p.id === detectedId ? { ...p, confirmed: !p.confirmed } : p
+        ),
+      }));
+    },
+    [mutateDetections]
+  );
 
   /**
    * Pick a candidate for a detected person. Selecting a match ALSO confirms the
    * mention (the user's explicit choice is the acknowledgement — no extra
    * click needed).
    */
-  const selectMatch = useCallback((detectedId: string, personId: string) => {
-    setDetectedPeople((prev) =>
-      prev.map((p) =>
-        p.id === detectedId
-          ? { ...p, selectedPersonId: personId, confirmed: true }
-          : p
-      )
-    );
-  }, []);
+  const selectMatch = useCallback(
+    (detectedId: string, personId: string) => {
+      mutateDetections((current) => ({
+        ...current,
+        people: current.people.map((p) =>
+          p.id === detectedId
+            ? { ...p, selectedPersonId: personId, confirmed: true }
+            : p
+        ),
+      }));
+    },
+    [mutateDetections]
+  );
 
   /** Reject/remove a detected person (from the confirmation gate). */
-  const rejectDetectedPerson = useCallback((detectedId: string) => {
-    setDetectedPeople((prev) => prev.filter((p) => p.id !== detectedId));
-  }, []);
+  const rejectDetectedPerson = useCallback(
+    (detectedId: string) => {
+      mutateDetections((current) => ({
+        ...current,
+        people: current.people.filter((p) => p.id !== detectedId),
+      }));
+    },
+    [mutateDetections]
+  );
 
   /**
    * Assign a freshly created person to a detection and confirm it. Used by the
@@ -618,8 +698,9 @@ const useSonicTranscription = () => {
         role: string | null;
       }
     ) => {
-      setDetectedPeople((prev) =>
-        prev.map((p) =>
+      mutateDetections((current) => ({
+        ...current,
+        people: current.people.map((p) =>
           p.id === detectedId
             ? {
                 ...p,
@@ -638,20 +719,24 @@ const useSonicTranscription = () => {
                 confirmed: true,
               }
             : p
-        )
-      );
+        ),
+      }));
     },
-    []
+    [mutateDetections]
   );
 
   /** Toggle acceptance of a suggested project (from the gate / pills). */
-  const toggleConfirmProject = useCallback((projectId: string) => {
-    setSuggestedProjects((prev) =>
-      prev.map((p) =>
-        p.projectId === projectId ? { ...p, confirmed: !p.confirmed } : p
-      )
-    );
-  }, []);
+  const toggleConfirmProject = useCallback(
+    (projectId: string) => {
+      mutateDetections((current) => ({
+        ...current,
+        projects: current.projects.map((p) =>
+          p.projectId === projectId ? { ...p, confirmed: !p.confirmed } : p
+        ),
+      }));
+    },
+    [mutateDetections]
+  );
 
   /**
    * Attach a meeting to the (single, global) engine. Called by the meeting
@@ -668,6 +753,7 @@ const useSonicTranscription = () => {
       persisted?: {
         transcript?: TranscriptLine[];
         summary?: MeetingSummary;
+        detections?: PersistedDetections;
       }
     ) => {
       boundMeetingIdRef.current = meetingId;
@@ -681,8 +767,8 @@ const useSonicTranscription = () => {
         setActiveMeetingTopic(options.meetingTopic);
         setTranscript(persisted?.transcript ?? []);
         setSummary(persisted?.summary ?? null);
-        setDetectedPeople([]);
-        setSuggestedProjects([]);
+        setDetectedPeople(persisted?.detections?.people ?? []);
+        setSuggestedProjects(persisted?.detections?.projects ?? []);
         setRecentDetectionName(null);
       }
     },

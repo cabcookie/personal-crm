@@ -158,6 +158,17 @@ const schema = a
         // resolved server-side directly; these aren't reconstructable from
         // any other table). JSON array of person ids.
         sonicMentionedPersonIds: a.json(),
+        // Live detection state (detected people + suggested projects from the
+        // Sonic tool calls, see helpers/sonic/client.ts). Previously held only
+        // in browser memory — lost on reload/tab-close mid-meeting. Shape:
+        // { people: DetectedPerson[], projects: SuggestedProject[] } (see
+        // api/useSonicTranscription.ts for the field shapes). Every write
+        // (both from a tool-call result and from a user action like
+        // confirm/reject/assign) goes through a single client-side write
+        // sequencer (helpers/sonic/detections-store.ts) that read-modifies-writes
+        // this field, so concurrent tool calls can't clobber each other.
+        sonicDetections: a.json(),
+        sonicDetectionsUpdatedAt: a.datetime(),
         participants: a.hasMany("MeetingParticipant", "meetingId"),
         activities: a.hasMany("Activity", "meetingActivitiesId"),
       })

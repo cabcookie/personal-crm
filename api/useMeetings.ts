@@ -14,6 +14,10 @@ import useSWR from "swr";
 import { handleApiErrors } from "./globals";
 import { Activity, mapActivity } from "./useActivity";
 import { client } from "@/lib/amplify";
+import {
+  parseDetections,
+  type PersistedDetections,
+} from "@/helpers/sonic/detections-store";
 
 export type TranscriptLine = { id: string; text: string; at: number };
 
@@ -35,6 +39,9 @@ export type Meeting = {
   sonicSummaryStatus?: "PENDING" | "DONE" | "ERROR";
   sonicSummaryError?: string;
   sonicTranscriptUpdatedAt?: string;
+  // Live Sonic detection state (detected people + suggested projects) — see
+  // helpers/sonic/detections-store.ts.
+  sonicDetections?: PersistedDetections;
 };
 
 export const meetingSelectionSet = [
@@ -48,6 +55,7 @@ export const meetingSelectionSet = [
   "sonicSummaryStatus",
   "sonicSummaryError",
   "sonicTranscriptUpdatedAt",
+  "sonicDetections",
   "createdAt",
   "participants.id",
   "participants.personId",
@@ -105,6 +113,7 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   sonicSummaryStatus,
   sonicSummaryError,
   sonicTranscriptUpdatedAt,
+  sonicDetections,
 }) => ({
   id,
   topic,
@@ -118,6 +127,7 @@ export const mapMeeting: (data: MeetingData) => Meeting = ({
   sonicSummaryStatus: sonicSummaryStatus || undefined,
   sonicSummaryError: sonicSummaryError || undefined,
   sonicTranscriptUpdatedAt: sonicTranscriptUpdatedAt || undefined,
+  sonicDetections: parseDetections(sonicDetections),
   activities: flow(
     map(mapActivity),
     sortBy((a) => a.finishedOn.getTime())

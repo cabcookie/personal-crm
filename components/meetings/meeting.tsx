@@ -115,6 +115,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     bindMeeting(meeting.id, sonicOptions, {
       transcript: meeting.sonicTranscript,
       summary: meeting.sonicSummary,
+      detections: meeting.sonicDetections,
     });
   }, [meeting, sonicOptions, bindMeeting]);
 
