@@ -4,7 +4,15 @@ import useMeetingTodos from "@/api/useMeetingTodos";
 import { Context } from "@/contexts/ContextContext";
 import { debouncedUpdateMeeting } from "@/helpers/meetings";
 import { format } from "date-fns";
-import { CheckCircle2, Circle, Info, Loader2, Mic, Square } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  Info,
+  Loader2,
+  Mic,
+  Sparkles,
+  Square,
+} from "lucide-react";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useRecording } from "@/contexts/RecordingContext";
 import useCurrentUser from "@/api/useUser";
@@ -14,7 +22,7 @@ import { cn } from "@/lib/utils";
 import AudioPulse from "./audio-pulse";
 import MeetingMicSettings from "./meeting-mic-settings";
 import MeetingDetectionPills from "./meeting-detection-pills";
-import MeetingConfirmationGate from "./meeting-confirmation-gate";
+import MeetingSummaryConfirmDialog from "./meeting-summary-confirm-dialog";
 import MeetingPromptDialog from "./meeting-prompt-dialog";
 import { contexts } from "../navigation-menu/ContextSwitcher";
 import DefaultAccordionItem from "../ui-elements/accordion/DefaultAccordionItem";
@@ -61,6 +69,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     updateImmediateTasksDoneStatus,
   } = useMeeting(meeting?.id);
   const [savingStatus, setSavingStatus] = useState(false);
+  const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
   const [meetingDate, setMeetingDate] = useState(
     meeting?.meetingOn || new Date()
   );
@@ -294,6 +303,32 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             meetingOn={meeting.meetingOn}
           />
         )}
+        {meeting?.id && (
+          <Button
+            onClick={() => setSummaryDialogOpen(true)}
+            variant="outline"
+            size="sm"
+            className="gap-1"
+            disabled={
+              meeting.activities.length === 0 ||
+              meeting.sonicSummaryStatus === "PENDING"
+            }
+            title={
+              meeting.activities.length === 0
+                ? "Füge zuerst mindestens ein Thema (Projekt) zum Meeting hinzu."
+                : undefined
+            }
+          >
+            {meeting.sonicSummaryStatus === "PENDING" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
+            {meeting.sonicSummaryStatus === "PENDING"
+              ? "Zusammenfassung wird erstellt…"
+              : "Zusammenfassung erstellen"}
+          </Button>
+        )}
         {meeting?.id && <MeetingPromptDialog context={meeting.context} />}
       </div>
 
@@ -339,19 +374,21 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           </div>
         )}
 
-      {/* After stop: confirmation gate before the summary is written. */}
-      {isActiveMeeting && sonic.pendingConfirmation && (
-        <MeetingConfirmationGate
+      {/* Summary confirmation dialog: opened by the "Zusammenfassung
+          erstellen" button above, not automatically after stop(). */}
+      {meeting?.id && (
+        <MeetingSummaryConfirmDialog
+          open={summaryDialogOpen}
+          onOpenChange={setSummaryDialogOpen}
           people={sonic.detectedPeople}
           suggestedProjects={sonic.suggestedProjects}
-          summarizing={sonic.summarizing}
           onSelectMatch={sonic.selectMatch}
           onToggleConfirm={sonic.toggleConfirm}
           onRejectPerson={sonic.rejectDetectedPerson}
           onAssignCreatedPerson={handleAssignCreatedPerson}
           onToggleConfirmProject={handleToggleConfirmProject}
           onDismissProject={sonic.dismissSuggestedProject}
-          onConfirm={sonic.confirmDetectionsAndSummarize}
+          onConfirm={() => sonic.requestSummary(meeting.id)}
         />
       )}
 
@@ -450,7 +487,12 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           elapsedSeconds={isActiveMeeting ? sonic.elapsedSeconds : 0}
           systemAudioNote={isActiveMeeting ? sonic.systemAudioNote : null}
           summary={isActiveMeeting ? sonic.summary : meeting.sonicSummary}
-          summarizing={isActiveMeeting ? sonic.summarizing : false}
+          summarizing={meeting.sonicSummaryStatus === "PENDING"}
+          summaryError={
+            meeting.sonicSummaryStatus === "ERROR"
+              ? meeting.sonicSummaryError
+              : null
+          }
         />
       )}
     </div>

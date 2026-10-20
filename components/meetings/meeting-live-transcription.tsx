@@ -21,6 +21,7 @@ type Props = {
   systemAudioNote: string | null;
   summary?: unknown;
   summarizing?: boolean;
+  summaryError?: string | null;
 };
 
 const MeetingLiveTranscription: FC<Props> = ({
@@ -31,6 +32,7 @@ const MeetingLiveTranscription: FC<Props> = ({
   systemAudioNote,
   summary,
   summarizing,
+  summaryError,
 }) => {
   return (
     <div className="space-y-3 px-2 md:px-4 pt-2">
@@ -74,6 +76,13 @@ const MeetingLiveTranscription: FC<Props> = ({
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="w-4 h-4 animate-spin" />
           Zusammenfassung wird erstellt…
+        </div>
+      )}
+
+      {summaryError && (
+        <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/5 rounded-md p-2">
+          <Info className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>Zusammenfassung fehlgeschlagen: {summaryError}</span>
         </div>
       )}
 

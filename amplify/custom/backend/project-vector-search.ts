@@ -14,6 +14,7 @@ import { PROJECT_VECTOR_INDEX_NAME } from "./project-summary";
  */
 export function setupProjectVectorSearch(backend: BackendType) {
   const projectsTable = backend.data.resources.tables["Projects"];
+  const accountTable = backend.data.resources.tables["Account"];
   const projectVectorSearch = backend.projectVectorSearch;
   const fn = projectVectorSearch.resources.lambda;
   const stack = Stack.of(fn);
@@ -23,8 +24,22 @@ export function setupProjectVectorSearch(backend: BackendType) {
     projectsTable.tableName
   );
   projectVectorSearch.addEnvironment(
+    "DDB_TABLE_ACCOUNT",
+    accountTable.tableName
+  );
+  projectVectorSearch.addEnvironment(
     "PROJECT_VECTOR_INDEX_NAME",
     PROJECT_VECTOR_INDEX_NAME
+  );
+
+  // BatchGetItem on Projects (to post-filter `done` + resolve `partnerId`,
+  // neither of which the vector index projects) and Account (to resolve the
+  // partner/customer name for display).
+  fn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:BatchGetItem"],
+      resources: [projectsTable.tableArn, accountTable.tableArn],
+    })
   );
 
   // Titan embeddings for the query text.

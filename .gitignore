@@ -27,6 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.envrc
 
 # vercel
 .vercel
@@ -46,6 +47,7 @@ scripts/env.json
 api/temp/
 .playwright-session/
 .claude/*.lock
+.kiro/
 
 # Exports
 scripts/export*/

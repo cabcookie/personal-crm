@@ -10,7 +10,7 @@ import { Card } from "../ui/card";
 
 type Person = { name?: string; id?: string };
 type Item = { text?: string; people?: Person[] };
-type ProjectSummary = {
+type TopicSummary = {
   projectId?: string;
   projectName?: string;
   accomplishments?: Item[];
@@ -18,8 +18,7 @@ type ProjectSummary = {
   blockers?: Item[];
 };
 type Summary = {
-  projects?: ProjectSummary[];
-  generalNotes?: Item[];
+  topics?: TopicSummary[];
   raw?: string;
 };
 
@@ -54,9 +53,7 @@ const MeetingSummaryView: FC<{ summary: unknown }> = ({ summary }) => {
   const s = summary as Summary | null;
   if (!s) return null;
 
-  const hasStructured =
-    (s.projects && s.projects.length > 0) ||
-    (s.generalNotes && s.generalNotes.length > 0);
+  const hasStructured = !!s.topics && s.topics.length > 0;
 
   return (
     <Card className="p-3 space-y-3">
@@ -67,19 +64,14 @@ const MeetingSummaryView: FC<{ summary: unknown }> = ({ summary }) => {
           {s.raw ?? JSON.stringify(summary, null, 2)}
         </pre>
       ) : (
-        <>
-          {s.projects?.map((p, i) => (
-            <div key={p.projectId ?? i} className="space-y-1">
-              <p className="font-medium text-sm">{p.projectName}</p>
-              <ItemList title="Erreicht" items={p.accomplishments} />
-              <ItemList title="Neue Aufgaben" items={p.newTasks} />
-              <ItemList title="Blocker" items={p.blockers} />
-            </div>
-          ))}
-          {s.generalNotes && s.generalNotes.length > 0 && (
-            <ItemList title="Allgemeine Notizen" items={s.generalNotes} />
-          )}
-        </>
+        s.topics?.map((t, i) => (
+          <div key={t.projectId ?? i} className="space-y-1">
+            <p className="font-medium text-sm">{t.projectName}</p>
+            <ItemList title="Erreicht" items={t.accomplishments} />
+            <ItemList title="Neue Aufgaben" items={t.newTasks} />
+            <ItemList title="Blocker" items={t.blockers} />
+          </div>
+        ))
       )}
     </Card>
   );

@@ -1,6 +1,6 @@
 import { getItemRaw } from "../process-export-tasks/helpers/dynamodb";
 import { assembleProjectFromCache } from "../process-export-tasks/helpers/cached-assembly";
-import { ClaudeSonnet45Us } from "../../data/models";
+import { ClaudeSonnetUs } from "../../data/models";
 import { projectSummaryPrompt } from "../../data/prompts/project-summary";
 import { converseText } from "./lib/bedrock";
 import { updateItemAttributes } from "./lib/ddb-write";
@@ -44,7 +44,7 @@ export const handler = async (event: Event): Promise<void> => {
   }
 
   const summary = await converseText({
-    modelId: ClaudeSonnet45Us.resourcePath,
+    modelId: ClaudeSonnetUs.resourcePath,
     systemPrompt: projectSummaryPrompt,
     content: [{ text: notes }],
     maxTokens: 1024,

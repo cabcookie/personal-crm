@@ -1,7 +1,7 @@
 import { SONIC_SAMPLE_RATE } from "./constants";
 
 /**
- * Builders for Nova 2 Sonic bidirectional input events. Each returns a plain
+ * Builders for Nova 2.5 Sonic bidirectional input events. Each returns a plain
  * object that the client serializes to JSON and wraps in a stream chunk.
  *
  * We deliberately keep audio OUTPUT configured (Sonic requires it) but never

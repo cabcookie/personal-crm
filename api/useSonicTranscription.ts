@@ -65,17 +65,10 @@ const emptyTotals: SonicTokenTotals = {
   outputTextTokens: 0,
 };
 
-const safeParse = (s: string): unknown => {
-  try {
-    return JSON.parse(s);
-  } catch {
-    return { raw: s };
-  }
-};
-
 export type SuggestedProject = {
   projectId: string;
   name?: string;
+  company?: string | null;
   reason?: string;
   score?: number;
   /** Whether the user has confirmed this project suggestion (gate). */
@@ -118,10 +111,6 @@ const useSonicTranscription = () => {
     SuggestedProject[]
   >([]);
   const [summary, setSummary] = useState<MeetingSummary | null>(null);
-  const [summarizing, setSummarizing] = useState(false);
-  // Confirmation gate: after stop, before the summary is written, the user
-  // reviews (confirms/rejects) detected people + suggested projects.
-  const [pendingConfirmation, setPendingConfirmation] = useState(false);
   // The name of the most recently detected person, shown briefly as a discreet
   // transient hint at the marker; self-clears a few seconds after detection.
   const [recentDetectionName, setRecentDetectionName] = useState<string | null>(
@@ -211,6 +200,7 @@ const useSonicTranscription = () => {
                 projectId: m.projectId,
                 name: m.name,
                 summarySnippet: m.summarySnippet ?? null,
+                company: m.company ?? null,
                 score: m.score ?? 0,
               },
             ]
@@ -270,90 +260,6 @@ const useSonicTranscription = () => {
     if (errors) console.error("persistTranscript", errors);
   }, []);
 
-  /** Provisionally persist the generated summary onto the Meeting. */
-  const persistSummary = useCallback(async (parsed: MeetingSummary) => {
-    const meetingId = recordingMeetingIdRef.current;
-    if (!meetingId || parsed == null) return;
-    const { errors } = await client.models.Meeting.update({
-      id: meetingId,
-      sonicSummary: parsed,
-    });
-    if (errors) console.error("persistSummary", errors);
-  }, []);
-
-  /**
-   * Build the summary payload from the current transcript + confirmed people +
-   * the open-project context, then ask the server-side summarizer (Sonnet).
-   */
-  const runSummary = useCallback(async () => {
-    const lines = transcriptRef.current;
-    if (!lines.length) return;
-    const transcriptText = lines.map((l) => l.text).join("\n");
-    const opts = optionsRef.current;
-    const projects = opts.getOpenProjects?.() ?? [];
-
-    // Confirmed detected people → mentioned people {id, name, company, role}.
-    const mentioned = detectedRef.current
-      .filter((p) => p.confirmed && p.selectedPersonId)
-      .map((p) => {
-        const m = p.matches.find((mm) => mm.personId === p.selectedPersonId);
-        return m
-          ? {
-              id: m.personId,
-              name: m.name,
-              company: m.company,
-              role: m.role,
-            }
-          : null;
-      })
-      .filter((x): x is NonNullable<typeof x> => !!x);
-
-    // Participants → {id, name, company, role} via the resolver.
-    const participants = (opts.participantIds ?? [])
-      .map((id) => opts.resolveParticipant?.(id))
-      .filter((x): x is SonicParticipant => !!x)
-      .map((p) => ({
-        id: p.id,
-        name: p.name,
-        company: p.company,
-        role: p.role,
-      }));
-
-    const payload = {
-      projects: projects.map((p) => ({
-        id: p.id,
-        name: p.name,
-        company: p.company,
-        partner: p.partner,
-        summary: p.summary,
-      })),
-      participants,
-      mentionedPeople: mentioned,
-      transcript: transcriptText,
-    };
-
-    setSummarizing(true);
-    try {
-      const { data, errors } = await client.queries.summarizeMeeting({
-        payload: JSON.stringify(payload),
-      });
-      if (errors) {
-        console.error("summarizeMeeting", errors);
-        return;
-      }
-      // data is AWSJSON — may arrive as string or parsed object.
-      const parsed =
-        typeof data === "string" ? safeParse(data) : (data ?? null);
-      setSummary(parsed);
-      // Provisionally persist so it survives navigation/reload.
-      void persistSummary(parsed);
-    } catch (err) {
-      console.error("summarizeMeeting failed", err);
-    } finally {
-      setSummarizing(false);
-    }
-  }, [persistSummary]);
-
   const stop = useCallback(async () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -366,30 +272,36 @@ const useSonicTranscription = () => {
     setRecording(false);
     setAudioLevel(0);
     await persistUsage();
-    // Provisionally persist the transcript now (independent of the gate).
+    // Provisionally persist the transcript now. The summary is NOT triggered
+    // here — it's a separate, explicit action (see requestSummary) so the
+    // user can first assign/confirm detected people and add project topics
+    // at their own pace.
     await persistTranscript();
-    // Gate: before writing the summary, the user confirms/rejects the detected
-    // people and suggested projects. If there is anything to review, open the
-    // gate and defer the summary until confirmDetectionsAndSummarize(). If
-    // there is nothing to review, summarize immediately.
-    const hasReviewables =
-      detectedRef.current.length > 0 || suggestedProjectsRef.current.length > 0;
-    if (hasReviewables) {
-      setPendingConfirmation(true);
-    } else {
-      void runSummary();
-    }
-  }, [persistUsage, persistTranscript, runSummary]);
+  }, [persistUsage, persistTranscript]);
 
   /**
-   * Called from the confirmation gate: run the summary from the confirmed
-   * detections, then close the gate. Only confirmed people / accepted projects
-   * feed the summary (runSummary already filters confirmed people).
+   * Explicitly request a summary run for the given meeting: sets
+   * `sonicSummaryStatus` to "PENDING" (plus the confirmed detected people not
+   * already formal participants, as `sonicMentionedPersonIds`), which a
+   * DynamoDB stream on the Meeting table picks up to invoke the server-side
+   * `summarize-meeting` Lambda. The Lambda resolves topics/participants
+   * itself (direct DynamoDB reads) and writes the result back — this hook
+   * never sees the summary payload or result directly; the caller is
+   * notified via the Meeting subscription (see
+   * contexts/MeetingSummaryContext.tsx).
    */
-  const confirmDetectionsAndSummarize = useCallback(async () => {
-    setPendingConfirmation(false);
-    await runSummary();
-  }, [runSummary]);
+  const requestSummary = useCallback(async (meetingId: string) => {
+    const mentionedPersonIds = detectedRef.current
+      .filter((p) => p.confirmed && p.selectedPersonId)
+      .map((p) => p.selectedPersonId as string);
+    const { errors } = await client.models.Meeting.update({
+      id: meetingId,
+      sonicSummaryStatus: "PENDING",
+      sonicSummaryError: undefined,
+      sonicMentionedPersonIds: mentionedPersonIds,
+    });
+    if (errors) console.error("requestSummary", errors);
+  }, []);
 
   /**
    * True when the heard name matches a CURRENT meeting participant — those
@@ -434,7 +346,6 @@ const useSonicTranscription = () => {
     setDetectedPeople([]);
     setSuggestedProjects([]);
     setSummary(null);
-    setPendingConfirmation(false);
     setRecentDetectionName(null);
     setTotals(emptyTotals);
     totalsRef.current = emptyTotals;
@@ -548,6 +459,7 @@ const useSonicTranscription = () => {
                   {
                     projectId: s.projectId,
                     name: s.name,
+                    company: s.company,
                     reason: s.reason,
                     score: s.score,
                     confirmed: false,
@@ -753,7 +665,6 @@ const useSonicTranscription = () => {
         setSummary(persisted?.summary ?? null);
         setDetectedPeople([]);
         setSuggestedProjects([]);
-        setPendingConfirmation(false);
         setRecentDetectionName(null);
       }
     },
@@ -786,8 +697,6 @@ const useSonicTranscription = () => {
     recentDetectionName,
     suggestedProjects,
     summary,
-    summarizing,
-    pendingConfirmation,
     totals,
     estimatedCostUsd: estimateSonicCostUsd(totals),
     elapsedSeconds,
@@ -802,13 +711,13 @@ const useSonicTranscription = () => {
     rejectDetectedPerson,
     assignCreatedPerson,
     toggleConfirmProject,
-    confirmDetectionsAndSummarize,
     notifyParticipantAdded,
     notifyProjectAdded,
     dismissSuggestedProject,
     bindMeeting,
     start,
     stop,
+    requestSummary,
   };
 };
 
