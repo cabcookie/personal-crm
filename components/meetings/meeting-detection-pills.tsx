@@ -16,8 +16,10 @@ const roleLine = (company: string | null, role: string | null): string =>
 /**
  * One person pill. Shows the selected/assigned person or the heard name. The
  * chevron opens the candidate list (choosing one confirms the mention). If no
- * candidate fits, "Neu anlegen" opens the create dialog. A confirmed pill is
- * green; an unassigned one is amber. The X rejects/removes the detection.
+ * candidate fits (or the right one just isn't among the auto-detected
+ * matches), "Suchen" opens a dialog to search for — or, failing that,
+ * create — the right person. A confirmed pill is green; an unassigned one is
+ * amber. The X rejects/removes the detection.
  */
 const PersonPill: FC<{
   person: DetectedPerson;
@@ -113,7 +115,7 @@ const PersonPill: FC<{
             className="w-full flex items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-accent border-t mt-1 pt-2"
           >
             <UserPlus className="w-4 h-4 shrink-0 text-blue-600" />
-            <span className="text-sm">Neue Person anlegen…</span>
+            <span className="text-sm">Suchen…</span>
           </button>
         </PopoverContent>
       </Popover>

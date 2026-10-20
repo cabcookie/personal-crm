@@ -6,15 +6,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
 import usePeople from "@/api/usePeople";
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { client } from "@/lib/amplify";
-import { newDateString } from "@/helpers/functional";
-import { toast } from "../ui/use-toast";
+import PeopleSelector from "../ui-elements/selectors/people-selector";
+import AccountSelector from "../ui-elements/selectors/account-selector";
 
 export type CreatedPerson = {
   personId: string;
@@ -26,18 +25,20 @@ export type CreatedPerson = {
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Pre-fill the name field (e.g. the heard name). */
+  /** Pre-fill the search field (e.g. the heard name). */
   initialName?: string;
-  /** Called after the person (+ optional employment) was created. */
+  /** Called after a person was found or created and (optionally) linked to a company. */
   onCreated: (person: CreatedPerson) => void;
 };
 
 /**
- * Small dialog to create a NEW person from a detected mention that had no
- * match. Lets the user edit the name and set current company + role. Creates
- * the Person, resolves/creates the company Account, and links them via a
- * PersonAccount (current employment). The created person is handed back so the
- * caller can assign + confirm the detection in one step.
+ * Resolves a detected mention that had no confident match: search for the
+ * right person (reusing the same people-search used elsewhere in the app)
+ * and, if nothing fits, create a new one. The company field is a search
+ * against existing accounts too — never free text — so this never creates a
+ * duplicate "ALDI" vs. "Aldi" account. No start date is set on the resulting
+ * PersonAccount link: we don't actually know when the person joined that
+ * company, so the field is left empty rather than defaulting to today.
  */
 const CreateDetectedPersonDialog: FC<Props> = ({
   open,
@@ -45,67 +46,46 @@ const CreateDetectedPersonDialog: FC<Props> = ({
   initialName,
   onCreated,
 }) => {
-  const { createPerson } = usePeople();
-  const { accounts, createAccount } = useAccountsContext();
-  const [name, setName] = useState(initialName ?? "");
-  const [company, setCompany] = useState("");
-  const [role, setRole] = useState("");
+  const { people } = usePeople();
+  const { accounts } = useAccountsContext();
+  const [personId, setPersonId] = useState("");
+  const [accountId, setAccountId] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Keep the name field in sync when the dialog is (re)opened for a new name.
-  const [lastInitial, setLastInitial] = useState(initialName);
-  if (initialName !== lastInitial) {
-    setLastInitial(initialName);
-    setName(initialName ?? "");
-    setCompany("");
-    setRole("");
+  // Reset the fields when the dialog is (re)opened for a new detection.
+  const [lastOpen, setLastOpen] = useState(open);
+  if (open !== lastOpen) {
+    setLastOpen(open);
+    if (open) {
+      setPersonId("");
+      setAccountId("");
+    }
   }
 
-  const resolveAccountId = async (
-    companyName: string
-  ): Promise<string | null> => {
-    const trimmed = companyName.trim();
-    if (!trimmed) return null;
-    const existing = accounts?.find(
-      (a) => a.name.toLowerCase() === trimmed.toLowerCase()
-    );
-    if (existing) return existing.id;
-    const created = await createAccount(trimmed);
-    return created?.id ?? null;
-  };
-
-  const handleCreate = async () => {
-    const trimmedName = name.trim();
-    if (!trimmedName) return;
+  const handleConfirm = async () => {
+    if (!personId) return;
     setSaving(true);
     try {
-      const personId = await createPerson(trimmedName);
-      if (!personId) {
-        toast({ title: "Person konnte nicht angelegt werden" });
-        return;
-      }
+      const person = people?.find((p) => p.id === personId);
+      const account = accounts?.find((a) => a.id === accountId);
+      const personName = person?.name ?? initialName ?? "";
 
-      const companyName = company.trim();
-      const roleName = role.trim();
-      if (companyName) {
-        const accountId = await resolveAccountId(companyName);
-        if (accountId) {
-          const { errors } = await client.models.PersonAccount.create({
-            personId,
-            accountId,
-            position: roleName || undefined,
-            startDate: newDateString(),
-          });
-          if (errors)
-            console.error("create PersonAccount (detected person)", errors);
-        }
+      if (accountId) {
+        const { errors } = await client.models.PersonAccount.create({
+          personId,
+          accountId,
+          // No startDate: we don't know when this employment actually began,
+          // so the field is left unset rather than defaulting to today.
+        });
+        if (errors)
+          console.error("create PersonAccount (detected person)", errors);
       }
 
       onCreated({
         personId,
-        name: trimmedName,
-        company: companyName || null,
-        role: roleName || null,
+        name: personName,
+        company: account?.name ?? null,
+        role: null,
       });
       onOpenChange(false);
     } finally {
@@ -117,35 +97,29 @@ const CreateDetectedPersonDialog: FC<Props> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Neue Person anlegen</DialogTitle>
+          <DialogTitle>Person zuordnen</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1">
-            <Label htmlFor="detected-person-name">Name</Label>
-            <Input
-              id="detected-person-name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Vor- und Nachname"
-              autoFocus
+            <Label htmlFor="detected-person-search">Person</Label>
+            <PeopleSelector
+              value={personId}
+              onChange={(id) => setPersonId(id ?? "")}
+              allowNewPerson
+              placeholder={
+                initialName ? `Suchen: „${initialName}“…` : "Person suchen…"
+              }
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="detected-person-company">Unternehmen</Label>
-            <Input
-              id="detected-person-company"
-              value={company}
-              onChange={(e) => setCompany(e.target.value)}
-              placeholder="z. B. ALDI (optional)"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="detected-person-role">Position</Label>
-            <Input
-              id="detected-person-role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              placeholder="z. B. Managing Director (optional)"
+            <Label htmlFor="detected-person-account">
+              Unternehmen (optional)
+            </Label>
+            <AccountSelector
+              value={accountId}
+              onChange={(id) => setAccountId(id ?? "")}
+              allowCreateAccounts
+              placeholder="Unternehmen suchen…"
             />
           </div>
         </div>
@@ -157,9 +131,9 @@ const CreateDetectedPersonDialog: FC<Props> = ({
           >
             Abbrechen
           </Button>
-          <Button onClick={handleCreate} disabled={saving || !name.trim()}>
+          <Button onClick={handleConfirm} disabled={saving || !personId}>
             {saving && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-            Anlegen &amp; zuordnen
+            Zuordnen
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -191,8 +191,12 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   };
 
   /**
-   * A detection was resolved by creating a new person. Add them as a meeting
-   * participant, notify a live Sonic session, and assign+confirm the detection.
+   * A detection was resolved via the search/create dialog. The person is
+   * assigned + confirmed as a MENTIONED person (sonic.assignCreatedPerson),
+   * never as a meeting participant — the user explicitly distinguishes who
+   * actually attended (added via the participant selector) from who was
+   * merely talked about. Still notify a live Sonic session so it has the
+   * person's context going forward.
    */
   const handleAssignCreatedPerson = (
     detectedId: string,
@@ -203,7 +207,6 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
       role: string | null;
     }
   ) => {
-    createMeetingParticipant(person.personId);
     if (isRecordingThis) sonic.notifyParticipantAdded(person.personId);
     sonic.assignCreatedPerson(detectedId, person);
   };
@@ -355,9 +358,10 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
         </div>
       )}
 
-      {/* While recording: persistent detection pills (people + projects) that
-          stay visible for the whole session. */}
-      {isRecordingThis &&
+      {/* Detection pills (people + projects): visible both while recording
+          and after stop, until the summary is actually requested — the user
+          can keep assigning/confirming detections right up to that point. */}
+      {isActiveMeeting &&
         (sonic.detectedPeople.length > 0 ||
           sonic.suggestedProjects.length > 0) && (
           <div className="transition-opacity duration-500 opacity-100 animate-in fade-in">

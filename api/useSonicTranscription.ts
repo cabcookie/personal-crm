@@ -13,6 +13,7 @@ import {
   type ToolUseInfo,
   type ProjectSuggestion,
 } from "@/helpers/sonic/client";
+import { sanitizeSonicText } from "@/helpers/sonic/sanitize-text";
 import {
   estimateSonicCostUsd,
   type SonicTokenTotals,
@@ -251,7 +252,14 @@ const useSonicTranscription = () => {
   const persistTranscript = useCallback(async () => {
     const meetingId = recordingMeetingIdRef.current;
     if (!meetingId) return;
-    const lines = transcriptRef.current;
+    // Defence in depth: sanitize again right before sending, in case a lone
+    // surrogate slipped in some other way (see sanitizeSonicText for why this
+    // matters — an ill-formed string here makes AppSync reject the whole
+    // mutation as "Variable 'sonicTranscript' has an invalid value").
+    const lines = transcriptRef.current.map((l) => ({
+      ...l,
+      text: sanitizeSonicText(l.text),
+    }));
     const { errors } = await client.models.Meeting.update({
       id: meetingId,
       sonicTranscript: lines,
@@ -298,7 +306,13 @@ const useSonicTranscription = () => {
       id: meetingId,
       sonicSummaryStatus: "PENDING",
       sonicSummaryError: undefined,
-      sonicMentionedPersonIds: mentionedPersonIds,
+      // An empty array sent as an AWSJSON value has been observed to make
+      // AppSync reject the whole mutation ("Variable
+      // 'sonicMentionedPersonIds' has an invalid value") — omit the field
+      // entirely when there's nothing to send instead of sending `[]`.
+      ...(mentionedPersonIds.length
+        ? { sonicMentionedPersonIds: mentionedPersonIds }
+        : {}),
     });
     if (errors) console.error("requestSummary", errors);
   }, []);
@@ -373,7 +387,11 @@ const useSonicTranscription = () => {
         onTranscript: (text) =>
           setTranscript((prev) => [
             ...prev,
-            { id: crypto.randomUUID(), text, at: Date.now() },
+            {
+              id: crypto.randomUUID(),
+              text: sanitizeSonicText(text),
+              at: Date.now(),
+            },
           ]),
         onToolUse: (info: ToolUseInfo) => {
           // onToolUse fires for BOTH tools; project suggestions are handled by
