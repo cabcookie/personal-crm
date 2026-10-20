@@ -15,6 +15,7 @@ import {
   applySummaryToActivities,
   type MeetingSummary,
 } from "./lib/apply-summary";
+import { upsertTranscriptDeleteSchedule } from "./lib/schedule-transcript-delete";
 
 /** Strip accidental ```json fences if the model adds them. */
 const stripFences = (s: string): string =>
@@ -159,6 +160,18 @@ const runSummary = async (meetingId: string, owner: string): Promise<void> => {
   await updateItemAttributes("Meeting", meetingId, {
     sonicSummaryStatus: "APPLIED",
   });
+
+  // Arm a one-time schedule to delete the (now-summarized) transcript in 24h.
+  // Best-effort: a scheduling failure must not fail the (already successful)
+  // summary+transfer — the transcript simply lingers.
+  try {
+    await upsertTranscriptDeleteSchedule(meetingId, owner);
+  } catch (err) {
+    console.error(
+      `[summarize-meeting] failed to arm transcript-delete schedule for ${meetingId}`,
+      err
+    );
+  }
 };
 
 export const handler = async (event: DynamoDBStreamEvent): Promise<void> => {

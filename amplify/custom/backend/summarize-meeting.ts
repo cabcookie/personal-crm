@@ -3,6 +3,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import { Stack } from "aws-cdk-lib";
 import { DynamoEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
 import { StartingPosition } from "aws-cdk-lib/aws-lambda";
+import { CfnScheduleGroup } from "aws-cdk-lib/aws-scheduler";
 
 /**
  * Wires the `summarize-meeting` Lambda: a DynamoDB stream on the Meeting
@@ -142,5 +143,82 @@ export function setupSummarizeMeeting(backend: BackendType) {
         `arn:aws:bedrock:us-west-2::foundation-model/${SONNET}`,
       ],
     })
+  );
+
+  /* ---------------------------------------------------------------- *
+   * Transcript auto-delete: a one-time EventBridge Scheduler schedule armed
+   * after a summary is produced fires 24h later into the
+   * delete-meeting-transcript Lambda, which removes sonicTranscript from the
+   * Meeting record. Same one-time-schedule pattern as project-summary.ts.
+   * ---------------------------------------------------------------- */
+  const deleteFn = backend.deleteMeetingTranscript.resources.lambda;
+
+  // delete-meeting-transcript needs to UpdateItem (REMOVE) on the Meeting table.
+  backend.deleteMeetingTranscript.addEnvironment(
+    "DDB_TABLE_MEETING",
+    meetingTable.tableName
+  );
+  deleteFn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:UpdateItem"],
+      resources: [meetingTable.tableArn],
+    })
+  );
+
+  const scheduleGroup = new CfnScheduleGroup(
+    stack,
+    "TranscriptDeleteScheduleGroup",
+    {}
+  );
+  const scheduleGroupName = scheduleGroup.ref;
+  const deleteTargetArn = deleteFn.functionArn;
+
+  const schedulerRole = new iam.Role(stack, "TranscriptDeleteSchedulerRole", {
+    assumedBy: new iam.ServicePrincipal("scheduler.amazonaws.com"),
+    description:
+      "Role EventBridge Scheduler assumes to invoke the delete-meeting-transcript Lambda",
+  });
+  schedulerRole.addToPolicy(
+    new iam.PolicyStatement({
+      actions: ["lambda:InvokeFunction"],
+      resources: [deleteTargetArn],
+    })
+  );
+
+  // summarize-meeting arms/updates the schedules and passes the scheduler role.
+  fn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: [
+        "scheduler:CreateSchedule",
+        "scheduler:UpdateSchedule",
+        "scheduler:DeleteSchedule",
+        "scheduler:GetSchedule",
+      ],
+      resources: [
+        `arn:aws:scheduler:${stack.region}:${stack.account}:schedule/${scheduleGroupName}/*`,
+      ],
+    })
+  );
+  fn.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["iam:PassRole"],
+      resources: [schedulerRole.roleArn],
+      conditions: {
+        StringEquals: { "iam:PassedToService": "scheduler.amazonaws.com" },
+      },
+    })
+  );
+
+  backend.summarizeMeeting.addEnvironment(
+    "TRANSCRIPT_DELETE_SCHEDULE_GROUP_NAME",
+    scheduleGroupName
+  );
+  backend.summarizeMeeting.addEnvironment(
+    "TRANSCRIPT_DELETE_SCHEDULER_ROLE_ARN",
+    schedulerRole.roleArn
+  );
+  backend.summarizeMeeting.addEnvironment(
+    "TRANSCRIPT_DELETE_TARGET_ARN",
+    deleteTargetArn
   );
 }

@@ -95,6 +95,16 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   // The engine is busy with a different meeting → block starting a second one.
   const busyElsewhere = (sonic.recording || sonic.starting) && !isActiveMeeting;
 
+  // Only reveal the transcript panel once recording has started (or is
+  // starting) for this meeting, or once there's already transcript content /
+  // a summary run to show. Before the first recording, the panel stays hidden.
+  const showTranscriptPanel =
+    isRecordingThis ||
+    (isActiveMeeting && sonic.starting) ||
+    (meeting?.sonicTranscript?.length ?? 0) > 0 ||
+    meeting?.sonicSummaryStatus === "PENDING" ||
+    meeting?.sonicSummaryStatus === "ERROR";
+
   const sonicOptions = useMemo(
     () => ({
       contextPrompt: sonicContextPrompt,
@@ -488,11 +498,24 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
             <MeetingNextActions todos={meetingTodos} mutate={mutate} />
 
             <MeetingActivityList meeting={meeting} />
+
+            {/* Once summarized, the transcript is reference-only — collapse it
+                into the accordion alongside the other sections. */}
+            {isSummarized && (
+              <MeetingLiveTranscription
+                recording={false}
+                transcript={meeting.sonicTranscript ?? []}
+                estimatedCostUsd={0}
+                elapsedSeconds={0}
+                systemAudioNote={null}
+                asAccordionItem
+              />
+            )}
           </>
         )}
       </Accordion>
 
-      {meeting && (
+      {meeting && !isSummarized && showTranscriptPanel && (
         <MeetingLiveTranscription
           recording={isRecordingThis}
           transcript={
@@ -501,12 +524,6 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           estimatedCostUsd={isActiveMeeting ? sonic.estimatedCostUsd : 0}
           elapsedSeconds={isActiveMeeting ? sonic.elapsedSeconds : 0}
           systemAudioNote={isActiveMeeting ? sonic.systemAudioNote : null}
-          // The summary result lives only on the Meeting record (the async
-          // Lambda writes it straight to DynamoDB; the Sonic hook never sees
-          // it). Always read it from `meeting`, which the useMeeting
-          // subscription keeps live — NOT from sonic.summary, which stays null
-          // through an async run even while this meeting is the active session.
-          summary={meeting.sonicSummary}
           summarizing={meeting.sonicSummaryStatus === "PENDING"}
           summaryError={
             meeting.sonicSummaryStatus === "ERROR"
