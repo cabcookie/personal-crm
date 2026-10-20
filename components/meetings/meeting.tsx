@@ -67,6 +67,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     updateMeeting,
     createMeetingParticipant,
     updateImmediateTasksDoneStatus,
+    markSummaryPending,
   } = useMeeting(meeting?.id);
   const [savingStatus, setSavingStatus] = useState(false);
   const [summaryDialogOpen, setSummaryDialogOpen] = useState(false);
@@ -393,7 +394,10 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           onAssignCreatedPerson={handleAssignCreatedPerson}
           onToggleConfirmProject={handleToggleConfirmProject}
           onDismissProject={sonic.dismissSuggestedProject}
-          onConfirm={() => sonic.requestSummary(meeting.id)}
+          onConfirm={() => {
+            markSummaryPending();
+            sonic.requestSummary(meeting.id);
+          }}
         />
       )}
 

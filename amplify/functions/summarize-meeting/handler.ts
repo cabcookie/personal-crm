@@ -117,7 +117,6 @@ const runSummary = async (meetingId: string, owner: string): Promise<void> => {
     systemPrompt: meetingSummaryPrompt,
     content: [{ text: JSON.stringify(payload) }],
     maxTokens: 4096,
-    temperature: 0.2,
   });
 
   const cleaned = stripFences(raw);
