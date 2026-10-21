@@ -50,14 +50,40 @@ export type TranscriptLine = { id: string; text: string; at: number };
 export const KNOWN_MATCH_THRESHOLD = 0.35;
 
 /**
- * A person detected during the session. One entry per heard name (deduped).
- * `matches` are the ranked candidates; `selectedPersonId` is the currently
- * chosen one (defaults to the best match); `confirmed` locks it in so the
- * later AI summary may use it.
+ * How many candidates the per-name voice search returns. Higher than the ~3
+ * we display, so that for an ambiguous heard name ("Mark") the actually-meant
+ * person is still somewhere in the candidate field and can be corroborated by
+ * a second mention ("the online boss at ALDI") — see the merge logic in
+ * onToolUse. The server over-fetches anyway, so a larger topK is cheap.
+ */
+export const PERSON_SEARCH_TOP_K = 8;
+
+/**
+ * Looser COSINE threshold (vs KNOWN_MATCH_THRESHOLD) for MERGING two detected
+ * names into one person: if a candidate person appears in BOTH detections'
+ * candidate lists at/below this score, the two heard names are very likely the
+ * same person, so we merge rather than list twice — and the corroboration
+ * boosts that person's rank. Kept above the preselect threshold because a
+ * single detection at 0.4-0.5 isn't confident on its own, but agreement across
+ * two independent mentions is.
+ */
+export const MERGE_SCORE_THRESHOLD = 0.5;
+
+/**
+ * A person detected during the session. Normally one entry per heard name,
+ * but when two different heard names corroborate the SAME candidate person
+ * (see MERGE_SCORE_THRESHOLD) they're merged into one entry: `heardName` keeps
+ * the first, `alsoHeardAs` collects the others. `matches` are the ranked
+ * candidates (merged + re-ranked across mentions); `selectedPersonId` is the
+ * currently chosen one (defaults to the best match); `confirmed` locks it in
+ * so the later AI summary may use it.
  */
 export type DetectedPerson = {
   id: string;
   heardName: string;
+  /** Other heard names merged into this entry because they matched the same
+   * person (optional; absent/empty when the entry wasn't merged). */
+  alsoHeardAs?: string[];
   matches: PersonMatch[];
   selectedPersonId: string | null;
   confirmed: boolean;
@@ -83,6 +109,61 @@ export type SuggestedProject = {
 };
 
 export type MeetingSummary = unknown; // free-form JSON from Sonnet
+
+/**
+ * Merge a newly-arrived candidate list into an existing person entry's
+ * candidates, combining by personId: keep the best (lowest) COSINE score seen
+ * for each person, and apply a small corroboration bonus to any person that
+ * appears in BOTH lists (an agreement across two mentions is stronger evidence
+ * than either single score). Returns the candidates re-ranked by effective
+ * score (best first).
+ */
+const CORROBORATION_BONUS = 0.1;
+
+const mergeMatchLists = (
+  existing: PersonMatch[],
+  incoming: PersonMatch[]
+): PersonMatch[] => {
+  const byId = new Map<string, PersonMatch>();
+  for (const m of existing) byId.set(m.personId, { ...m });
+  for (const m of incoming) {
+    const prev = byId.get(m.personId);
+    if (!prev) {
+      byId.set(m.personId, { ...m });
+    } else {
+      // Seen in both → keep the better score AND subtract a corroboration
+      // bonus (clamped at 0) so a person both mentions point at ranks first.
+      const better = Math.min(prev.score, m.score);
+      byId.set(m.personId, {
+        ...prev,
+        score: Math.max(0, better - CORROBORATION_BONUS),
+        // Prefer whichever record carries company/role info.
+        company: prev.company ?? m.company,
+        role: prev.role ?? m.role,
+      });
+    }
+  }
+  return [...byId.values()].sort((a, b) => a.score - b.score);
+};
+
+/**
+ * The best (lowest) candidate score for a detected person, used to sort the
+ * list so the most confident detections surface first. Entries with no
+ * candidates sort last.
+ */
+const bestScore = (p: DetectedPerson): number =>
+  p.matches.length ? Math.min(...p.matches.map((m) => m.score)) : Infinity;
+
+/**
+ * Sort detected people by confidence: most confident (lowest best candidate
+ * score) first, unmatched entries last. Confirmed entries are kept pinned to
+ * the top so a resolved person doesn't jump around as new detections arrive.
+ */
+const sortPeople = (people: DetectedPerson[]): DetectedPerson[] =>
+  [...people].sort((a, b) => {
+    if (a.confirmed !== b.confirmed) return a.confirmed ? -1 : 1;
+    return bestScore(a) - bestScore(b);
+  });
 
 export type SonicOptions = {
   contextPrompt?: string;
@@ -209,7 +290,7 @@ const useSonicTranscription = () => {
     async (query: string): Promise<PersonMatch[]> => {
       const { data, errors } = await client.queries.searchPeopleByVoice({
         query,
-        topK: 3,
+        topK: PERSON_SEARCH_TOP_K,
       });
       if (errors) {
         console.error("searchPeopleByVoice", errors);
@@ -468,36 +549,86 @@ const useSonicTranscription = () => {
             best && best.score <= KNOWN_MATCH_THRESHOLD ? best.personId : null;
 
           mutateDetections((current) => {
-            // Dedupe by heard name (case-insensitive); don't clobber a person
-            // the user already confirmed or already picked a match for.
             const key = heardName.toLowerCase();
-            const existing = current.people.find(
+
+            // 1) Same heard name again → refresh that entry (don't clobber a
+            //    confirmed one or the user's manual pick).
+            const sameName = current.people.find(
               (p) => p.heardName.toLowerCase() === key
             );
-            if (existing) {
-              // Already confirmed → nothing to draw attention to.
-              if (existing.confirmed) return current;
-              // Refreshed an unconfirmed detection: flash discreetly again.
+            if (sameName) {
+              if (sameName.confirmed) return current;
               flashDetection(heardName);
               return {
                 ...current,
-                people: current.people.map((p) =>
-                  p === existing
-                    ? {
-                        ...p,
-                        matches,
-                        // Keep a user's manual pick; otherwise refresh preselect.
-                        selectedPersonId: p.selectedPersonId ?? preselected,
-                      }
-                    : p
+                people: sortPeople(
+                  current.people.map((p) =>
+                    p === sameName
+                      ? {
+                          ...p,
+                          matches: mergeMatchLists(p.matches, matches),
+                          selectedPersonId: p.selectedPersonId ?? preselected,
+                        }
+                      : p
+                  )
                 ),
               };
             }
-            // Brand-new detection → flash the discreet hint.
+
+            // 2) Different heard name, but it corroborates the SAME person as
+            //    an existing (unconfirmed) detection: a candidate shared by
+            //    both lists at/below MERGE_SCORE_THRESHOLD. Merge rather than
+            //    list twice — "Mark" + "the online boss at ALDI" become one
+            //    entry whose shared candidate is boosted up the ranking.
+            const incomingClose = new Set(
+              matches
+                .filter((m) => m.score <= MERGE_SCORE_THRESHOLD)
+                .map((m) => m.personId)
+            );
+            const mergeTarget = current.people.find(
+              (p) =>
+                !p.confirmed &&
+                p.matches.some(
+                  (m) =>
+                    m.score <= MERGE_SCORE_THRESHOLD &&
+                    incomingClose.has(m.personId)
+                )
+            );
+            if (mergeTarget) {
+              flashDetection(heardName);
+              const mergedMatches = mergeMatchLists(
+                mergeTarget.matches,
+                matches
+              );
+              return {
+                ...current,
+                people: sortPeople(
+                  current.people.map((p) =>
+                    p === mergeTarget
+                      ? {
+                          ...p,
+                          alsoHeardAs: [...(p.alsoHeardAs ?? []), heardName],
+                          matches: mergedMatches,
+                          // If the user hadn't picked yet, preselect the new
+                          // top (corroborated) candidate when it's confident.
+                          selectedPersonId:
+                            p.selectedPersonId ??
+                            (mergedMatches[0] &&
+                            mergedMatches[0].score <= KNOWN_MATCH_THRESHOLD
+                              ? mergedMatches[0].personId
+                              : null),
+                        }
+                      : p
+                  )
+                ),
+              };
+            }
+
+            // 3) Brand-new detection.
             flashDetection(heardName);
             return {
               ...current,
-              people: [
+              people: sortPeople([
                 ...current.people,
                 {
                   id: crypto.randomUUID(),
@@ -507,7 +638,7 @@ const useSonicTranscription = () => {
                   confirmed: false,
                   at: Date.now(),
                 },
-              ],
+              ]),
             };
           });
         },
