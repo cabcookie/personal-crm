@@ -53,6 +53,14 @@ const PersonPill: FC<{
             <span className="flex flex-col items-start">
               <span className="font-medium">
                 {selected ? selected.name : `„${person.heardName}“`}
+                {person.alsoHeardAs?.length ? (
+                  <span
+                    className="ml-1 rounded-full bg-muted px-1.5 text-[10px] font-normal text-muted-foreground align-middle"
+                    title={`Also heard as: ${person.alsoHeardAs.join(", ")}`}
+                  >
+                    {person.alsoHeardAs.length + 1}×
+                  </span>
+                ) : null}
               </span>
               {selected && sub && (
                 <span className="text-[11px] text-muted-foreground">{sub}</span>
@@ -69,6 +77,9 @@ const PersonPill: FC<{
         <PopoverContent align="start" className="w-64 p-1">
           <p className="px-2 py-1 text-xs text-muted-foreground">
             Gehört: „{person.heardName}“
+            {person.alsoHeardAs?.length
+              ? `, „${person.alsoHeardAs.join("“, „")}“`
+              : ""}
           </p>
           {person.matches.map((m) => {
             const isSel = m.personId === person.selectedPersonId;
@@ -202,6 +213,9 @@ type Props = {
   onAssignCreatedPerson: (detectedId: string, person: CreatedPerson) => void;
   onToggleConfirmProject: (projectId: string) => void;
   onDismissProject: (projectId: string) => void;
+  /** Hide the suggested-projects section (e.g. the summary dialog only
+   * reviews people — projects are added as topics separately). */
+  hideProjects?: boolean;
 };
 
 /**
@@ -219,13 +233,15 @@ const MeetingDetectionPills: FC<Props> = ({
   onAssignCreatedPerson,
   onToggleConfirmProject,
   onDismissProject,
+  hideProjects,
 }) => {
   const [createFor, setCreateFor] = useState<{
     detectedId: string;
     heardName: string;
   } | null>(null);
 
-  if (!people.length && !suggestedProjects.length) return null;
+  const showProjects = !hideProjects && suggestedProjects.length > 0;
+  if (!people.length && !showProjects) return null;
 
   return (
     <div className="rounded-md border border-dashed p-2 mx-2 md:mx-4 space-y-2">
@@ -251,7 +267,7 @@ const MeetingDetectionPills: FC<Props> = ({
         </div>
       )}
 
-      {suggestedProjects.length > 0 && (
+      {showProjects && (
         <div className="space-y-1">
           <span className="text-xs font-medium text-muted-foreground">
             Vorgeschlagene Projekte

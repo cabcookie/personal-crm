@@ -53,33 +53,35 @@ const MeetingSummaryConfirmDialog: FC<Props> = ({
   onDismissProject,
   onConfirm,
 }) => {
-  const hasReviewables = people.length > 0 || suggestedProjects.length > 0;
+  const hasReviewables = people.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="flex max-h-[85vh] flex-col">
         <DialogHeader>
           <DialogTitle>Create summary?</DialogTitle>
           <DialogDescription>
             The summary attributes every point only to the topics (projects)
             already added to this meeting, and can only consider people
             confirmed as participants or assigned as mentioned. Quick check: are
-            all discussed projects added as topics? Are all participating and
-            mentioned people assigned?
+            all mentioned people below assigned correctly?
           </DialogDescription>
         </DialogHeader>
 
         {hasReviewables && (
-          <MeetingDetectionPills
-            people={people}
-            suggestedProjects={suggestedProjects}
-            onSelectMatch={onSelectMatch}
-            onToggleConfirm={onToggleConfirm}
-            onRejectPerson={onRejectPerson}
-            onAssignCreatedPerson={onAssignCreatedPerson}
-            onToggleConfirmProject={onToggleConfirmProject}
-            onDismissProject={onDismissProject}
-          />
+          <div className="-mx-2 flex-1 overflow-y-auto px-2">
+            <MeetingDetectionPills
+              people={people}
+              suggestedProjects={suggestedProjects}
+              onSelectMatch={onSelectMatch}
+              onToggleConfirm={onToggleConfirm}
+              onRejectPerson={onRejectPerson}
+              onAssignCreatedPerson={onAssignCreatedPerson}
+              onToggleConfirmProject={onToggleConfirmProject}
+              onDismissProject={onDismissProject}
+              hideProjects
+            />
+          </div>
         )}
 
         <DialogFooter>
