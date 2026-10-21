@@ -69,6 +69,17 @@ jobs:
               "aws_region": "us-east-1",
               "default_authorization_type": "AMAZON_COGNITO_USER_POOLS",
               "authorization_types": ["AWS_IAM"]
+            },
+            "storage": {
+              "aws_region": "us-east-1",
+              "bucket_name": "placeholder-bucket",
+              "buckets": [
+                {
+                  "name": "recurringExports",
+                  "bucket_name": "placeholder-bucket",
+                  "aws_region": "us-east-1"
+                }
+              ]
             }
           }
           JSON
