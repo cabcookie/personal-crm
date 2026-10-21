@@ -1,10 +1,15 @@
 import { type Schema } from "@/amplify/data/resource";
 import { JSONContent } from "@tiptap/core";
 import { SelectionSet } from "aws-amplify/data";
-import { first, flow, get, identity } from "lodash/fp";
+import { flow } from "lodash/fp";
 import useSWR from "swr";
 import { handleApiErrors } from "./globals";
-import { BibleBook, BibleBookData, mapBible } from "./useBible";
+import {
+  BibleBook,
+  BibleBookChapter,
+  BibleBookData,
+  mapBible,
+} from "./useBible";
 import { client } from "@/lib/amplify";
 
 const selectionSet = [
@@ -60,7 +65,7 @@ const useBibleBookChapter = (chapterId: string | undefined) => {
 
   const updateNotes = async (notes: JSONContent) => {
     if (!book) return;
-    const theChapter = flow(identity<BibleBook>, get("chapters"), first)(book);
+    const theChapter: BibleBookChapter | undefined = book.chapters[0];
     if (!theChapter) return;
     const updated: BibleBook = {
       ...book,

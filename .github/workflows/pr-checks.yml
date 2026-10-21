@@ -6,13 +6,15 @@ name: PR Checks
 # lockfile omits a Linux-only optional dependency (e.g. @parcel/watcher). This
 # job reproduces that on clean Linux + Node 22 so it surfaces in the PR.
 #
-# Scope is deliberately narrow: `npm ci` (lockfile/platform) + lint. It does NOT
-# run `next build` or the Amplify `tsc` type-checks, because those import
-# artifacts that only exist after an Amplify backend deploy — amplify_outputs.json
-# and the .amplify/generated/env/* modules — which are git-ignored and absent in
-# a bare CI checkout. Faking them with placeholders here would add maintenance
-# and could mask real type errors; the full type-check/build against the real
-# generated schema already runs in the Amplify deploy (and locally).
+# It ALSO runs the frontend TypeScript type-check (`tsc --noEmit`) — the Amplify
+# prod build runs this and has broken on it before (tightened a.json() / lodash
+# types producing errors that lint alone doesn't catch). `tsc` needs
+# `amplify_outputs.json` to resolve the `@/amplify_outputs.json` import in
+# lib/amplify.ts; that file is git-ignored and only produced by a backend
+# deploy, so CI writes a minimal placeholder (its contents don't matter to the
+# type-check — the frontend only passes it to Amplify.configure). The backend
+# schema type (`@/amplify/data/resource`) comes from the checked-in source, and
+# tsconfig excludes `amplify/`, so no backend deploy / codegen is needed.
 
 on:
   pull_request:
@@ -26,7 +28,7 @@ concurrency:
 
 jobs:
   build:
-    name: Lockfile + lint
+    name: Lockfile + lint + type check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,3 +47,35 @@ jobs:
 
       - name: Lint
         run: npm run lint
+
+      # Write a minimal placeholder amplify_outputs.json so the
+      # `@/amplify_outputs.json` import in lib/amplify.ts resolves. Its contents
+      # are irrelevant to the type-check (the frontend only hands it to
+      # Amplify.configure); only generate it when a real one isn't present.
+      - name: Create placeholder amplify_outputs.json
+        run: |
+          if [ ! -f amplify_outputs.json ]; then
+            cat > amplify_outputs.json <<'JSON'
+          {
+            "version": "1.5",
+            "auth": {
+              "user_pool_id": "us-east-1_placeholder",
+              "aws_region": "us-east-1",
+              "user_pool_client_id": "placeholder",
+              "identity_pool_id": "us-east-1:00000000-0000-0000-0000-000000000000"
+            },
+            "data": {
+              "url": "https://placeholder.appsync-api.us-east-1.amazonaws.com/graphql",
+              "aws_region": "us-east-1",
+              "default_authorization_type": "AMAZON_COGNITO_USER_POOLS",
+              "authorization_types": ["AWS_IAM"]
+            }
+          }
+          JSON
+          fi
+
+      # The Amplify prod build runs this; keep it in the PR gate so type errors
+      # surface here, not in production. tsconfig excludes amplify/, so this is
+      # the frontend type-check and needs no backend codegen.
+      - name: Type check (tsc --noEmit)
+        run: npx tsc --noEmit -p .

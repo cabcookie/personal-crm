@@ -8,18 +8,7 @@ import {
 import { Editor, JSONContent } from "@tiptap/core";
 import { differenceInCalendarMonths } from "date-fns";
 import { debounce } from "lodash";
-import {
-  filter,
-  find,
-  flow,
-  get,
-  identity,
-  last,
-  map,
-  reverse,
-  sortBy,
-  sum,
-} from "lodash/fp";
+import { find, flow, get, identity, reverse, sum } from "lodash/fp";
 
 const calcVal = (vals: number[]) =>
   vals.map((val, idx) => Math.pow(10, idx) * val);
@@ -65,22 +54,19 @@ export const getSortVal = ({
     evaluateLastTimeRead(chapters, section),
   ]);
 
-const getLastReadChapter: (
-  section: BibleSection
-) => (chapters: BibleBookData["chapters"]) => BibleBookChapter | undefined = (
-  section
-) =>
-  flow(
-    identity<BibleBookData["chapters"]>,
-    map(mapBibleChapter),
-    filter(
-      ({ createdAt }) =>
-        differenceInCalendarMonths(new Date(), createdAt) <
-        (isNt(section) ? 12 : 24)
-    ),
-    sortBy(({ createdAt }) => createdAt.getTime()),
-    last
-  );
+const getLastReadChapter =
+  (section: BibleSection) =>
+  (chapters: BibleBookData["chapters"]): BibleBookChapter | undefined => {
+    const monthsCutoff = isNt(section) ? 12 : 24;
+    return chapters
+      .map(mapBibleChapter)
+      .filter(
+        ({ createdAt }) =>
+          differenceInCalendarMonths(new Date(), createdAt) < monthsCutoff
+      )
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .at(-1);
+  };
 
 export const getLastReadChapterNo: (
   chapters: BibleBookData["chapters"],

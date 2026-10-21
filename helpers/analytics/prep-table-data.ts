@@ -22,7 +22,6 @@ import {
   identity,
   last,
   map,
-  reduce,
   some,
   sortBy,
   sum,
@@ -77,8 +76,8 @@ export const getLastMonthMrrByAccountAndPayer =
   ({ accountOrPayer }: AccountMrr) =>
     getLastMonthMrr(mrr, account, accountOrPayer);
 
-export const getUniqMonths = (mrr: Mrr[] | undefined) =>
-  flow(identity<Mrr[] | undefined>, map("month"), uniq)(mrr);
+export const getUniqMonths = (mrr: Mrr[] | undefined): string[] =>
+  flow(identity<Mrr[] | undefined>, map("month"), uniq)(mrr) as string[];
 
 export const getAccountId = (mrr: Mrr[], account: string): string =>
   flow(
@@ -95,10 +94,10 @@ export const getMrrMonths = (
   payer: string | undefined,
   noOfMonths: number
 ): MonthData =>
-  flow(
-    takeNoOfMonths(noOfMonths),
-    reduce(getMrrMonthValue(mrr, account, payer, noOfMonths), {} as MonthData)
-  )(mrr);
+  takeNoOfMonths(noOfMonths)(mrr).reduce<MonthData>(
+    getMrrMonthValue(mrr, account, payer, noOfMonths),
+    {} as MonthData
+  );
 
 export const getLastMonthMrr = (
   mrr: Mrr[],
@@ -111,13 +110,15 @@ export const getLastMonthMrrByAccount =
   ({ accountOrPayer }: AccountMrr) =>
     getLastMonthMrr(mrr, accountOrPayer, undefined);
 
-export const takeNoOfMonths = (noOfMonths: number) =>
-  flow(
-    identity<Mrr[]>,
-    getUniqMonths,
-    sortBy(parseMonthToInt),
-    takeRight(noOfMonths)
-  );
+export const takeNoOfMonths =
+  (noOfMonths: number) =>
+  (mrr: Mrr[]): string[] =>
+    flow(
+      identity<Mrr[]>,
+      getUniqMonths,
+      sortBy(parseMonthToInt),
+      takeRight(noOfMonths)
+    )(mrr) as string[];
 
 const mapCompanyMrrData =
   (mrr: Mrr[], noOfMonths: number) =>
@@ -218,6 +219,6 @@ const getMonthIdentifier = (mrr: Mrr[], month: string, noOfMonths: number) =>
 const diffInCalMonths = (month: string) =>
   differenceInCalendarMonths(new Date(), `${month}-01`);
 
-const getLastMonth = (mrr: Mrr[]) =>
-  flow(identity<Mrr[]>, getUniqMonths, sortBy(parseMonthToInt), last)(mrr) ??
-  "";
+const getLastMonth = (mrr: Mrr[]): string =>
+  (flow(identity<Mrr[]>, getUniqMonths, sortBy(parseMonthToInt), last)(mrr) as
+    string | undefined) ?? "";
