@@ -106,23 +106,19 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   // Stop offering the recording control more than 4h after the meeting
   // started — by then the meeting is over and a fresh recording makes no
   // sense. A recording already in progress for this meeting is never hidden.
-  // Computed via state + a timer rather than Date.now() in render (which is
-  // impure and wouldn't re-evaluate as time passes).
+  // We keep a ticking `now` in state (updated by a timer, not read via an
+  // impure Date.now() in render) and DERIVE the flag from it + meetingOnMs, so
+  // it's correct as soon as the meeting data loads (not only after the first
+  // timer tick) and still elapses while the page stays open.
   const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
   const meetingOnMs = meeting?.meetingOn?.getTime();
-  const [recordingWindowPassed, setRecordingWindowPassed] = useState(
-    () => meetingOnMs !== undefined && Date.now() - meetingOnMs > FOUR_HOURS_MS
-  );
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    if (meetingOnMs === undefined) return;
-    // Re-evaluate as time passes (the window may elapse while the page is
-    // open). The setState in the interval callback is a reaction to the timer,
-    // not a synchronous effect-body call.
-    const timer = setInterval(() => {
-      setRecordingWindowPassed(Date.now() - meetingOnMs > FOUR_HOURS_MS);
-    }, 60_000);
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(timer);
-  }, [meetingOnMs, FOUR_HOURS_MS]);
+  }, []);
+  const recordingWindowPassed =
+    meetingOnMs !== undefined && now - meetingOnMs > FOUR_HOURS_MS;
 
   // Offer the summary action only once recording has stopped AND there's a
   // transcript to summarize.
