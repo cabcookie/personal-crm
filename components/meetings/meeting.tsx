@@ -88,8 +88,16 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
   const isActiveMeeting = !!meeting?.id && sonic.activeMeetingId === meeting.id;
   // Terminal state: the summary has been produced AND transferred into the
   // topic notes (see summarize-meeting Lambda). Once summarized, the meeting is
-  // "done" — retire the recording/summary controls and the detection pills.
+  // "done" — retire the summary control, the detection pills, and fold the
+  // transcript into the accordion.
   const isSummarized = meeting?.sonicSummaryStatus === "APPLIED";
+  // A summary has already been requested or produced for this meeting
+  // (PENDING/DONE/APPLIED — NOT ERROR, which should still allow a retry).
+  // Once that's happened, there's no reason to offer a fresh recording.
+  const summaryStarted =
+    meeting?.sonicSummaryStatus === "PENDING" ||
+    meeting?.sonicSummaryStatus === "DONE" ||
+    isSummarized;
   // Recording that belongs to THIS meeting (not some other meeting's session).
   const isRecordingThis = isActiveMeeting && sonic.recording;
   // The engine is busy with a different meeting → block starting a second one.
@@ -275,7 +283,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
         {meeting?.id &&
-          !isSummarized &&
+          !summaryStarted &&
           (isRecordingThis || !recordingWindowPassed) &&
           (!isRecordingThis ? (
             <div className="flex items-center gap-1">
