@@ -22,6 +22,7 @@ import {
   CommandList,
 } from "../ui/command";
 import { cn } from "@/lib/utils";
+import usePeople from "@/api/usePeople";
 import CreateDetectedPersonDialog, {
   type CreatedPerson,
 } from "./create-detected-person-dialog";
@@ -265,7 +266,7 @@ const PersonPill: FC<{
             }}
             onCreate={(typed) => {
               setOpen(false);
-              onCreateNew(person.id, typed || person.heardName);
+              onCreateNew(person.id, typed);
             }}
           />
         </PopoverContent>
@@ -420,11 +421,28 @@ const MeetingDetectionPills: FC<Props> = ({
   onAddPerson,
   hideProjects,
 }) => {
-  // detectedId null = creating a person for the "+ Add person" pill.
+  // detectedId null = creating a person for the "+ Add person" pill. The
+  // person is created (with the typed name) BEFORE the dialog opens; personId
+  // is null only if there was no name yet.
   const [createFor, setCreateFor] = useState<{
     detectedId: string | null;
+    personId: string | null;
     name: string;
   } | null>(null);
+  const { createPerson } = usePeople();
+
+  const startCreate = async (
+    detectedId: string | null,
+    typed: string,
+    fallbackName = ""
+  ) => {
+    // Only a name the user TYPED creates the person right away; otherwise the
+    // heard wording ("CEO eCommerce") is merely pre-filled and the person is
+    // created once a proper name is confirmed in the dialog.
+    const name = typed.trim();
+    const personId = name ? ((await createPerson(name)) ?? null) : null;
+    setCreateFor({ detectedId, personId, name: name || fallbackName });
+  };
 
   const showPeople = people.length > 0 || !!onAddPerson;
   const showProjects = !hideProjects && suggestedProjects.length > 0;
@@ -446,15 +464,15 @@ const MeetingDetectionPills: FC<Props> = ({
                 onAssign={onAssignCreatedPerson}
                 onToggleConfirm={onToggleConfirm}
                 onReject={onRejectPerson}
-                onCreateNew={(detectedId, name) =>
-                  setCreateFor({ detectedId, name })
+                onCreateNew={(detectedId, typed) =>
+                  void startCreate(detectedId, typed, p.heardName)
                 }
               />
             ))}
             {onAddPerson && (
               <AddPersonPill
                 onAdd={onAddPerson}
-                onCreateNew={(name) => setCreateFor({ detectedId: null, name })}
+                onCreateNew={(name) => void startCreate(null, name)}
               />
             )}
           </div>
@@ -482,6 +500,7 @@ const MeetingDetectionPills: FC<Props> = ({
       <CreateDetectedPersonDialog
         open={!!createFor}
         onOpenChange={(o) => !o && setCreateFor(null)}
+        personId={createFor?.personId ?? null}
         initialName={createFor?.name}
         onCreated={(person) => {
           if (createFor?.detectedId) {

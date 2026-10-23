@@ -7,12 +7,12 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
 import usePeople from "@/api/usePeople";
 import { useAccountsContext } from "@/api/ContextAccounts";
 import { client } from "@/lib/amplify";
-import PeopleSelector from "../ui-elements/selectors/people-selector";
 import AccountSelector from "../ui-elements/selectors/account-selector";
 
 export type CreatedPerson = {
@@ -25,77 +25,84 @@ export type CreatedPerson = {
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Pre-fill the search field (e.g. the heard name). */
+  /**
+   * The person already created with `initialName` when "Create …" was chosen
+   * in the search. Null if there was no name to create them with yet (then
+   * they're created on confirm).
+   */
+  personId: string | null;
+  /** The name typed into the search (editable here). */
   initialName?: string;
-  /** Called after a person was found or created and (optionally) linked to a company. */
+  /** Called once the person is named and (optionally) linked to a company. */
   onCreated: (person: CreatedPerson) => void;
 };
 
 /**
- * Resolves a detected mention that had no confident match: search for the
- * right person (reusing the same people-search used elsewhere in the app)
- * and, if nothing fits, create a new one. If the chosen person already has a
- * company, it's just shown; only a person without one (typically one just
- * created here) gets the company picker. The company field is a search
- * against existing accounts too — never free text — so this never creates a
- * duplicate "ALDI" vs. "Aldi" account. No start date is set on the resulting
- * PersonAccount link: we don't actually know when the person joined that
- * company, so the field is left empty rather than defaulting to today.
+ * Completes a person that was just created from the mention search: the name
+ * (pre-filled with what was typed, editable to fix capitalisation; a change
+ * renames the already-created person), plus an optional company and position,
+ * stored as one PersonAccount link. The company is a search against existing
+ * accounts — never free text — so this never creates a duplicate "ALDI" vs.
+ * "Aldi" account. No start date is set on the link: we don't know when the
+ * person joined, so it's left empty rather than defaulting to today.
  */
 const CreateDetectedPersonDialog: FC<Props> = ({
   open,
   onOpenChange,
-  initialName,
+  personId,
+  initialName = "",
   onCreated,
 }) => {
-  const { getPersonById } = usePeople();
+  const { createPerson, renamePerson } = usePeople();
   const { accounts } = useAccountsContext();
-  const [personId, setPersonId] = useState("");
+  const [name, setName] = useState(initialName);
   const [accountId, setAccountId] = useState("");
+  const [position, setPosition] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Reset the fields when the dialog is (re)opened for a new detection.
+  // Reset the fields when the dialog is (re)opened for a new person.
   const [lastOpen, setLastOpen] = useState(open);
   if (open !== lastOpen) {
     setLastOpen(open);
     if (open) {
-      setPersonId("");
+      setName(initialName);
       setAccountId("");
+      setPosition("");
     }
   }
 
-  // Resolve from the people cache (covers recent people, search hits and
-  // freshly created people — not just the recent set).
-  const person = personId ? getPersonById(personId) : undefined;
-  // An existing person usually already belongs to a company; only offer the
-  // company picker when the chosen person has none (typically a person just
-  // created here), so it can be linked right away.
-  const existingCompany = person?.accountNames || null;
-  const needsCompany = !!personId && !existingCompany;
+  const trimmedName = name.trim();
 
   const handleConfirm = async () => {
-    if (!personId) return;
+    if (!trimmedName) return;
     setSaving(true);
     try {
-      const account = accounts?.find((a) => a.id === accountId);
-      const personName = person?.name ?? initialName ?? "";
+      let id = personId;
+      if (!id) {
+        id = (await createPerson(trimmedName)) ?? null;
+      } else if (trimmedName !== initialName.trim()) {
+        await renamePerson(id, trimmedName);
+      }
+      if (!id) return;
 
-      if (needsCompany && accountId) {
+      const account = accounts?.find((a) => a.id === accountId);
+      const role = position.trim() || null;
+      if (accountId) {
         const { errors } = await client.models.PersonAccount.create({
-          personId,
+          personId: id,
           accountId,
-          // No startDate: we don't know when this employment actually began,
-          // so the field is left unset rather than defaulting to today.
+          position: role,
+          // No startDate: we don't know when this employment actually began.
         });
         if (errors)
           console.error("create PersonAccount (detected person)", errors);
       }
 
       onCreated({
-        personId,
-        name: personName,
-        company: existingCompany ?? account?.name ?? null,
-        role: null,
+        personId: id,
+        name: trimmedName,
+        company: account?.name ?? null,
+        role,
       });
       onOpenChange(false);
     } finally {
@@ -107,42 +114,47 @@ const CreateDetectedPersonDialog: FC<Props> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Assign person</DialogTitle>
+          <DialogTitle>New person</DialogTitle>
         </DialogHeader>
-        <div className="min-w-0 space-y-3">
-          <div className="min-w-0 space-y-1">
-            <Label htmlFor="detected-person-search">Person</Label>
-            <PeopleSelector
-              value={personId}
-              onChange={(id) => {
-                setPersonId(id ?? "");
-                setAccountId("");
-              }}
-              allowNewPerson
-              placeholder={
-                initialName ? `Search: “${initialName}”…` : "Search person…"
-              }
+        <form
+          className="min-w-0 space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleConfirm();
+          }}
+        >
+          <div className="space-y-1">
+            <Label htmlFor="new-person-name">Name</Label>
+            <Input
+              id="new-person-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
             />
           </div>
-          {existingCompany && (
-            <p className="text-sm text-muted-foreground">
-              Company: {existingCompany}
-            </p>
-          )}
-          {needsCompany && (
-            <div className="min-w-0 space-y-1">
-              <Label htmlFor="detected-person-account">
-                Company (optional)
-              </Label>
-              <AccountSelector
-                value={accountId}
-                onChange={(id) => setAccountId(id ?? "")}
-                allowCreateAccounts
-                placeholder="Search company…"
+          <div className="min-w-0 space-y-1">
+            <Label>Company (optional)</Label>
+            <AccountSelector
+              value={accountId}
+              onChange={(id) => setAccountId(id ?? "")}
+              allowCreateAccounts
+              placeholder="Search company…"
+            />
+          </div>
+          {accountId && (
+            <div className="space-y-1">
+              <Label htmlFor="new-person-position">Position (optional)</Label>
+              <Input
+                id="new-person-position"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                placeholder="e.g. CEO eCommerce"
               />
             </div>
           )}
-        </div>
+          {/* Hidden submit so Enter in a text field confirms. */}
+          <button type="submit" hidden />
+        </form>
         <DialogFooter>
           <Button
             variant="outline"
@@ -151,7 +163,7 @@ const CreateDetectedPersonDialog: FC<Props> = ({
           >
             Cancel
           </Button>
-          <Button onClick={handleConfirm} disabled={saving || !personId}>
+          <Button onClick={handleConfirm} disabled={saving || !trimmedName}>
             {saving && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
             Assign
           </Button>

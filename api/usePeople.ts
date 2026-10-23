@@ -243,6 +243,19 @@ const usePeople = () => {
     return data?.id;
   };
 
+  /** Rename a person (e.g. fixing capitalisation right after creating them). */
+  const renamePerson = async (personId: string, name: string) => {
+    const cached = peopleCache.get(personId);
+    if (cached) mergeIntoCache([{ ...cached, name }]);
+    mutatePeople(cacheValues(), false);
+    const { errors } = await client.models.Person.update({
+      id: personId,
+      name,
+    });
+    if (errors) handleApiErrors(errors, "Error renaming person");
+    mutatePeople(cacheValues());
+  };
+
   const personName = (person?: LeanPerson) =>
     !person
       ? ""
@@ -288,6 +301,7 @@ const usePeople = () => {
     errorPeople,
     loadingPeople,
     createPerson,
+    renamePerson,
     getNamesByIds,
     getPeopleByIds,
     getPersonById,
