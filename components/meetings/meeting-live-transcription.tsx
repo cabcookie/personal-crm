@@ -21,6 +21,8 @@ type Props = {
   systemAudioNote: string | null;
   summarizing?: boolean;
   summaryError?: string | null;
+  /** The live stream dropped and is reconnecting (recording continues). */
+  reconnecting?: boolean;
   /**
    * When true, render ONLY the transcript, collapsed inside an accordion item
    * (used once the meeting is summarized — the transcript is kept for
@@ -61,6 +63,7 @@ const MeetingLiveTranscription: FC<Props> = ({
   systemAudioNote,
   summarizing,
   summaryError,
+  reconnecting,
   asAccordionItem,
 }) => {
   // Summarized meetings: the transcript is reference-only now (the summary has
@@ -94,6 +97,21 @@ const MeetingLiveTranscription: FC<Props> = ({
         <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md p-2">
           <Info className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{systemAudioNote}</span>
+        </div>
+      )}
+
+      {/* Quiet, non-blocking hint while a dropped connection is restored.
+          Transcript and suggestions continue once it's back. */}
+      {reconnecting && (
+        <div
+          role="status"
+          className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 rounded-md p-2"
+        >
+          <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+          <span>
+            Connection interrupted, reconnecting… The transcript will continue
+            once it&apos;s back.
+          </span>
         </div>
       )}
 

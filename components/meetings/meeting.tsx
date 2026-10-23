@@ -559,6 +559,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           estimatedCostUsd={isActiveMeeting ? sonic.estimatedCostUsd : 0}
           elapsedSeconds={isActiveMeeting ? sonic.elapsedSeconds : 0}
           systemAudioNote={isActiveMeeting ? sonic.systemAudioNote : null}
+          reconnecting={isRecordingThis && sonic.reconnecting}
           summarizing={meeting.sonicSummaryStatus === "PENDING"}
           summaryError={
             meeting.sonicSummaryStatus === "ERROR"

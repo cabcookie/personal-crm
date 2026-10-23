@@ -132,8 +132,19 @@ export type SonicCallbacks = {
   onTranscript: (text: string) => void;
   onToolUse: (info: ToolUseInfo) => void;
   onUsage: (totals: SonicTokenTotals) => void;
+  /**
+   * The recording could not be continued: the connection was lost and every
+   * reconnect attempt failed (or the client couldn't start). Terminal.
+   */
   onError: (err: unknown) => void;
-  onClose: () => void;
+  /**
+   * The connection dropped (network blip, stream ended/errored) and the client
+   * is trying to reconnect. Transcript and detections continue on the new
+   * stream; audio spoken while disconnected is lost.
+   */
+  onReconnecting?: (attempt: number) => void;
+  /** A reconnect succeeded; transcription continues. */
+  onReconnected?: () => void;
   /** Executes the person search server-side; returns matches. */
   searchPeople: (query: string) => Promise<PersonMatch[]>;
   /** Executes the project search server-side; returns matches. */
@@ -212,6 +223,15 @@ class EventQueue {
  */
 const SESSION_RENEW_MS = 7 * 60 * 1000;
 
+/**
+ * Backoff between reconnect attempts after the stream drops (e.g. a short
+ * internet outage). ~2 minutes in total before giving up for good; each
+ * successful reconnect resets the counter.
+ */
+const RECONNECT_DELAYS_MS = [
+  1000, 2000, 4000, 8000, 15000, 15000, 30000, 30000,
+];
+
 /** One bidirectional stream to Sonic. A SonicClient owns a chain of these. */
 type Session = {
   id: number;
@@ -253,6 +273,9 @@ export class SonicClient {
   private running = false;
   private sessionSeq = 0;
   private renewTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  // Consecutive failed reconnect attempts (reset once a stream is established).
+  private reconnectAttempts = 0;
   // Summed usage from sessions that have been superseded (renewal). The live
   // total reported to onUsage is this baseline + the current session's usage,
   // because each stream reports usage that resets from zero.
@@ -274,6 +297,66 @@ export class SonicClient {
     if (!credentials) throw new Error("Keine Cognito-Credentials verfügbar.");
     this.credentials = credentials;
     this.running = true;
+    this.current = this.openSession();
+    this.scheduleRenewal();
+  }
+
+  /**
+   * Re-read the Cognito credentials before opening a new stream (renewal or
+   * reconnect). fetchAuthSession refreshes expired ones, so recordings longer
+   * than the credential lifetime (~1h) keep working. Keeps the old
+   * credentials if the refresh itself fails.
+   */
+  private async refreshCredentials(): Promise<void> {
+    const { credentials } = await fetchAuthSession();
+    if (credentials) this.credentials = credentials;
+  }
+
+  /**
+   * A stream died while we're still recording (errored, or ended on its own —
+   * e.g. a network drop). Retire it and reconnect instead of ending the whole
+   * recording. Ignored for streams we tore down ourselves (renewal/stop).
+   */
+  private onSessionLost(session: Session, err?: unknown): void {
+    if (session.superseded || !this.running) return;
+    session.superseded = true;
+    // Keep its usage in the running total.
+    this.finalizedUsage = addTotals(this.finalizedUsage, session.lastUsage);
+    if (this.current === session) this.current = null; // audio dropped meanwhile
+    if (this.renewTimer) {
+      clearTimeout(this.renewTimer);
+      this.renewTimer = null;
+    }
+    console.warn("[sonic] stream lost, reconnecting", err);
+    this.scheduleReconnect(err);
+  }
+
+  private scheduleReconnect(err?: unknown): void {
+    if (!this.running || this.reconnectTimer) return;
+    if (this.reconnectAttempts >= RECONNECT_DELAYS_MS.length) {
+      // Out of attempts: give up for good.
+      this.running = false;
+      this.cbs.onError(err ?? new Error("Connection lost"));
+      return;
+    }
+    const delay = RECONNECT_DELAYS_MS[this.reconnectAttempts];
+    this.reconnectAttempts += 1;
+    this.cbs.onReconnecting?.(this.reconnectAttempts);
+    this.reconnectTimer = setTimeout(() => void this.reconnect(), delay);
+  }
+
+  private async reconnect(): Promise<void> {
+    this.reconnectTimer = null;
+    if (!this.running) return;
+    try {
+      await this.refreshCredentials();
+    } catch (err) {
+      // Likely still offline — wait and try again.
+      this.scheduleReconnect(err);
+      return;
+    }
+    // openSession reports success (onReconnected) once the stream is up, and
+    // failure back into onSessionLost → next attempt.
     this.current = this.openSession();
     this.scheduleRenewal();
   }
@@ -328,21 +411,25 @@ export class SonicClient {
     void session.client
       .send(command)
       .then(async (response) => {
+        // Stream established. If we were reconnecting, we're back.
+        if (this.reconnectAttempts > 0 && session === this.current) {
+          this.reconnectAttempts = 0;
+          this.cbs.onReconnected?.();
+        }
         for await (const item of response.body ?? []) {
           if (!this.running) break;
           if (item.chunk?.bytes) {
             this.handleOutput(session, decoder.decode(item.chunk.bytes));
           }
         }
-        // Only the still-current, non-superseded session ending means the
-        // whole recording ended. A superseded session (renewal) is expected.
-        if (!session.superseded && this.running) this.cbs.onClose();
+        // The current stream ending on its own while we're still recording is
+        // NOT the end of the recording (that only happens via stop()) — it's a
+        // dropped connection: reconnect. Superseded streams are ignored.
+        this.onSessionLost(session);
       })
       .catch((err) => {
-        // A superseded session erroring out mid-teardown is not user-facing.
-        if (session.superseded) return;
-        this.running = false;
-        this.cbs.onError(err);
+        // Errors on a stream we already retired (renewal/stop) are expected.
+        this.onSessionLost(session, err);
       });
 
     return session;
@@ -360,6 +447,14 @@ export class SonicClient {
    * state lives on the client, so nothing is re-emitted after the swap.
    */
   private async renew(): Promise<void> {
+    if (!this.running) return;
+    try {
+      await this.refreshCredentials();
+    } catch (err) {
+      // Keep the existing credentials; if they're unusable the new stream
+      // fails and the reconnect logic takes over.
+      console.warn("[sonic] credential refresh before renewal failed", err);
+    }
     if (!this.running) return;
     const old = this.current;
     const next = this.openSession();
@@ -420,6 +515,10 @@ export class SonicClient {
     if (this.renewTimer) {
       clearTimeout(this.renewTimer);
       this.renewTimer = null;
+    }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
     }
     if (this.current) {
       this.endSession(this.current);
