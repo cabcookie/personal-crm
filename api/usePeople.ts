@@ -233,6 +233,12 @@ const usePeople = () => {
 
     const { data, errors } = await client.models.Person.create({ name });
     if (errors) handleApiErrors(errors, "Error creating person");
+    // Swap the optimistic entry (temp id) for the real one. Otherwise the
+    // cache only ever holds the temp id, so anything that resolves the new
+    // person by its REAL id (e.g. a selector showing the chosen value) can't
+    // find it and falls back to its placeholder.
+    peopleCache.delete(newPerson.id);
+    if (data?.id) mergeIntoCache([{ ...newPerson, id: data.id }]);
     mutatePeople(cacheValues());
     return data?.id;
   };

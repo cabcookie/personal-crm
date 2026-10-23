@@ -34,7 +34,9 @@ type Props = {
 /**
  * Resolves a detected mention that had no confident match: search for the
  * right person (reusing the same people-search used elsewhere in the app)
- * and, if nothing fits, create a new one. The company field is a search
+ * and, if nothing fits, create a new one. If the chosen person already has a
+ * company, it's just shown; only a person without one (typically one just
+ * created here) gets the company picker. The company field is a search
  * against existing accounts too — never free text — so this never creates a
  * duplicate "ALDI" vs. "Aldi" account. No start date is set on the resulting
  * PersonAccount link: we don't actually know when the person joined that
@@ -46,7 +48,7 @@ const CreateDetectedPersonDialog: FC<Props> = ({
   initialName,
   onCreated,
 }) => {
-  const { people } = usePeople();
+  const { getPersonById } = usePeople();
   const { accounts } = useAccountsContext();
   const [personId, setPersonId] = useState("");
   const [accountId, setAccountId] = useState("");
@@ -62,15 +64,23 @@ const CreateDetectedPersonDialog: FC<Props> = ({
     }
   }
 
+  // Resolve from the people cache (covers recent people, search hits and
+  // freshly created people — not just the recent set).
+  const person = personId ? getPersonById(personId) : undefined;
+  // An existing person usually already belongs to a company; only offer the
+  // company picker when the chosen person has none (typically a person just
+  // created here), so it can be linked right away.
+  const existingCompany = person?.accountNames || null;
+  const needsCompany = !!personId && !existingCompany;
+
   const handleConfirm = async () => {
     if (!personId) return;
     setSaving(true);
     try {
-      const person = people?.find((p) => p.id === personId);
       const account = accounts?.find((a) => a.id === accountId);
       const personName = person?.name ?? initialName ?? "";
 
-      if (accountId) {
+      if (needsCompany && accountId) {
         const { errors } = await client.models.PersonAccount.create({
           personId,
           accountId,
@@ -84,7 +94,7 @@ const CreateDetectedPersonDialog: FC<Props> = ({
       onCreated({
         personId,
         name: personName,
-        company: account?.name ?? null,
+        company: existingCompany ?? account?.name ?? null,
         role: null,
       });
       onOpenChange(false);
@@ -97,31 +107,41 @@ const CreateDetectedPersonDialog: FC<Props> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Person zuordnen</DialogTitle>
+          <DialogTitle>Assign person</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
+        <div className="min-w-0 space-y-3">
+          <div className="min-w-0 space-y-1">
             <Label htmlFor="detected-person-search">Person</Label>
             <PeopleSelector
               value={personId}
-              onChange={(id) => setPersonId(id ?? "")}
+              onChange={(id) => {
+                setPersonId(id ?? "");
+                setAccountId("");
+              }}
               allowNewPerson
               placeholder={
                 initialName ? `Search: “${initialName}”…` : "Search person…"
               }
             />
           </div>
-          <div className="space-y-1">
-            <Label htmlFor="detected-person-account">
-              Unternehmen (optional)
-            </Label>
-            <AccountSelector
-              value={accountId}
-              onChange={(id) => setAccountId(id ?? "")}
-              allowCreateAccounts
-              placeholder="Search company…"
-            />
-          </div>
+          {existingCompany && (
+            <p className="text-sm text-muted-foreground">
+              Company: {existingCompany}
+            </p>
+          )}
+          {needsCompany && (
+            <div className="min-w-0 space-y-1">
+              <Label htmlFor="detected-person-account">
+                Company (optional)
+              </Label>
+              <AccountSelector
+                value={accountId}
+                onChange={(id) => setAccountId(id ?? "")}
+                allowCreateAccounts
+                placeholder="Search company…"
+              />
+            </div>
+          )}
         </div>
         <DialogFooter>
           <Button
@@ -129,11 +149,11 @@ const CreateDetectedPersonDialog: FC<Props> = ({
             onClick={() => onOpenChange(false)}
             disabled={saving}
           >
-            Abbrechen
+            Cancel
           </Button>
           <Button onClick={handleConfirm} disabled={saving || !personId}>
             {saving && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
-            Zuordnen
+            Assign
           </Button>
         </DialogFooter>
       </DialogContent>
