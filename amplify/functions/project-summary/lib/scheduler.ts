@@ -32,6 +32,7 @@ import {
  *  - SNAPSHOT_TARGET_ARN         generate-activity-snapshot Lambda ARN
  *  - SUMMARY_TARGET_ARN          generate-project-summary Lambda ARN
  *  - MEETING_HEADER_TARGET_ARN   generate-meeting-header Lambda ARN
+ *  - PERSON_SUMMARY_TARGET_ARN   generate-person-summary Lambda ARN
  */
 
 export const SNAPSHOT_DELAY_MINUTES = 5;
@@ -39,6 +40,7 @@ export const SUMMARY_DELAY_MINUTES = 7;
 export const MEETING_HEADER_DELAY_MINUTES = 5;
 export const PERSON_EMBEDDING_DELAY_MINUTES = 2;
 export const PROJECT_EMBEDDING_DELAY_MINUTES = 2;
+export const PERSON_SUMMARY_DELAY_MINUTES = 10;
 
 const client = new SchedulerClient({});
 
@@ -47,7 +49,8 @@ type Kind =
   | "summary"
   | "meeting-header"
   | "person-embedding"
-  | "project-embedding";
+  | "project-embedding"
+  | "person-summary";
 
 const env = (key: string): string => {
   const value = process.env[key];
@@ -67,6 +70,8 @@ const targetArnFor = (kind: Kind): string => {
       return env("PERSON_EMBEDDING_TARGET_ARN");
     case "project-embedding":
       return env("PROJECT_EMBEDDING_TARGET_ARN");
+    case "person-summary":
+      return env("PERSON_SUMMARY_TARGET_ARN");
   }
 };
 
@@ -104,6 +109,8 @@ const inputFor = (kind: Kind, id: string): Record<string, string> => {
       return { personId: id };
     case "project-embedding":
       return { projectId: id };
+    case "person-summary":
+      return { personId: id };
   }
 };
 

@@ -31,6 +31,8 @@ const selectionSet = [
   "birthday",
   "dateOfDeath",
   "updatedAt",
+  "personSummary",
+  "personSummaryUpdatedAt",
   "accounts.id",
   "accounts.startDate",
   "accounts.endDate",
@@ -101,6 +103,9 @@ export type Person = {
   dateOfDeath?: Date;
   dateOfBirth?: Date;
   updatedAt: Date;
+  /** AI summary (written server-side by the person-summary Lambda). */
+  personSummary?: string;
+  personSummaryUpdatedAt?: Date;
 };
 
 const mapPerson = ({
@@ -114,6 +119,8 @@ const mapPerson = ({
   updatedAt,
   relationshipsFrom,
   relationshipsTo,
+  personSummary,
+  personSummaryUpdatedAt,
 }: PersonData): Person => ({
   id,
   name,
@@ -124,6 +131,8 @@ const mapPerson = ({
   details,
   updatedAt: new Date(updatedAt),
   accounts: getAccounts(accounts),
+  personSummary: personSummary || undefined,
+  personSummaryUpdatedAt: getDateOrUndefined(personSummaryUpdatedAt),
 });
 
 const fetchPerson = (personId?: string) => async () => {

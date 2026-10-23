@@ -25,6 +25,9 @@ import {
   backfillPersonEmbeddingWorker,
   backfillProjectEmbeddingEnqueue,
   backfillProjectEmbeddingWorker,
+  generatePersonSummary,
+  backfillPersonSummaryEnqueue,
+  backfillPersonSummaryWorker,
 } from "./functions/project-summary/resource";
 import { setupDataSeeding } from "./custom/backend/seeding";
 import { setupInferenceProfiles } from "./custom/backend/inference-schema";
@@ -70,6 +73,9 @@ const backend = defineBackend({
   backfillPersonEmbeddingWorker,
   backfillProjectEmbeddingEnqueue,
   backfillProjectEmbeddingWorker,
+  generatePersonSummary,
+  backfillPersonSummaryEnqueue,
+  backfillPersonSummaryWorker,
   personVectorSearch,
   ensurePersonVectorIndex,
   summarizeMeeting,

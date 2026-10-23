@@ -1,6 +1,7 @@
 import usePerson from "@/api/usePerson";
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
+import ProjectSummary from "../projects/ProjectSummary";
 import DeleteWarning from "../ui-elements/project-notes-form/DeleteWarning";
 import { Accordion } from "../ui/accordion";
 import { Button } from "../ui/button";
@@ -72,6 +73,12 @@ const PersonDetails: FC<PersonDetailsProps> = ({
           </Button>
         </div>
       )}
+
+      <ProjectSummary
+        className="mt-4"
+        summary={person?.personSummary}
+        updatedAt={person?.personSummaryUpdatedAt}
+      />
 
       <DeleteWarning
         open={deleteWarningOpen}

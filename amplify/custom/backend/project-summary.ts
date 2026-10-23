@@ -253,12 +253,20 @@ const titanEmbedInvokeStatement = (stack: Stack): iam.PolicyStatement =>
     ],
   });
 
+// Extra tables the person-summary Lambdas read on top of READ_TABLES.
+const PERSON_SUMMARY_READ_TABLES = [
+  "PersonLearning",
+  "PersonRelationship",
+  "NoteBlockPerson",
+];
+
 const injectReadTables = (
   fn: { addEnvironment: (k: string, v: string) => void; resources: any },
-  backend: BackendType
+  backend: BackendType,
+  extraTables: string[] = []
 ): void => {
   const readResources: string[] = [];
-  for (const name of READ_TABLES) {
+  for (const name of [...READ_TABLES, ...extraTables]) {
     const table = backend.data.resources.tables[name];
     if (!table) {
       throw new Error(
@@ -302,6 +310,9 @@ export function setupProjectSummary(backend: BackendType) {
     backfillPersonEmbeddingWorker,
     backfillProjectEmbeddingEnqueue,
     backfillProjectEmbeddingWorker,
+    generatePersonSummary,
+    backfillPersonSummaryEnqueue,
+    backfillPersonSummaryWorker,
   } = backend;
 
   const stack = Stack.of(scheduleDebounce.resources.lambda);
@@ -342,9 +353,15 @@ export function setupProjectSummary(backend: BackendType) {
   const meetingParticipantTable =
     backend.data.resources.tables["MeetingParticipant"];
 
+  // NoteBlockPerson + MeetingParticipant: a note edit re-arms the person
+  // summaries of the people mentioned in the block and of the participants of
+  // the block's meeting.
+  const noteBlockPersonTable = backend.data.resources.tables["NoteBlockPerson"];
   for (const [model, table] of [
     ["PROJECTACTIVITY", projectActivityTable],
     ["ACTIVITY", activityTable],
+    ["NOTEBLOCKPERSON", noteBlockPersonTable],
+    ["MEETINGPARTICIPANT", meetingParticipantTable],
   ] as const) {
     scheduleDebounce.addEnvironment(`DDB_TABLE_${model}`, table.tableName);
   }
@@ -355,6 +372,8 @@ export function setupProjectSummary(backend: BackendType) {
         projectActivityTable.tableArn,
         `${projectActivityTable.tableArn}/index/*`,
         activityTable.tableArn,
+        `${noteBlockPersonTable.tableArn}/index/*`,
+        `${meetingParticipantTable.tableArn}/index/*`,
       ],
     })
   );
@@ -373,6 +392,10 @@ export function setupProjectSummary(backend: BackendType) {
     personAccountTable,
     // Projects name/summary changes re-arm the project-embedding schedule.
     projectsTable,
+    // Person-summary inputs (learnings, relationships, mentions).
+    backend.data.resources.tables["PersonLearning"],
+    backend.data.resources.tables["PersonRelationship"],
+    noteBlockPersonTable,
   ]) {
     table.grantStreamRead(scheduleDebounce.resources.lambda);
     scheduleDebounce.resources.lambda.addEventSource(
@@ -408,6 +431,7 @@ export function setupProjectSummary(backend: BackendType) {
     generatePersonEmbedding.resources.lambda.functionArn;
   const projectEmbeddingArn =
     generateProjectEmbedding.resources.lambda.functionArn;
+  const personSummaryArn = generatePersonSummary.resources.lambda.functionArn;
 
   const schedulerRole = new iam.Role(stack, "ProjectSummarySchedulerRole", {
     assumedBy: new iam.ServicePrincipal("scheduler.amazonaws.com"),
@@ -423,6 +447,7 @@ export function setupProjectSummary(backend: BackendType) {
         meetingHeaderArn,
         personEmbeddingArn,
         projectEmbeddingArn,
+        personSummaryArn,
       ],
     })
   );
@@ -467,6 +492,10 @@ export function setupProjectSummary(backend: BackendType) {
   scheduleDebounce.addEnvironment(
     "PROJECT_EMBEDDING_TARGET_ARN",
     projectEmbeddingArn
+  );
+  scheduleDebounce.addEnvironment(
+    "PERSON_SUMMARY_TARGET_ARN",
+    personSummaryArn
   );
 
   /* ------------------------------------------------------------------ *
@@ -973,6 +1002,101 @@ export function setupProjectSummary(backend: BackendType) {
   // Cap concurrency for Titan rate limits on the first run.
   (
     backfillProjectEmbeddingWorker.resources.lambda.node
+      .defaultChild as CfnFunction
+  ).reservedConcurrentExecutions = 2;
+
+  /* ------------------------------------------------------------------ *
+   * 11. Person-summary Lambda: read tables (+ learnings, relationships,
+   *     mentions), invoke Bedrock, write Person.personSummary.
+   * ------------------------------------------------------------------ */
+  injectReadTables(generatePersonSummary, backend, PERSON_SUMMARY_READ_TABLES);
+  generatePersonSummary.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:UpdateItem"],
+      resources: [personTable.tableArn],
+    })
+  );
+  generatePersonSummary.resources.lambda.addToRolePolicy(
+    bedrockInvokeStatement(stack)
+  );
+
+  /* ------------------------------------------------------------------ *
+   * 12. One-off person-summary backfill: SQS queue + DLQ, enqueue &
+   *     worker Lambdas. Mirrors the person-embedding backfill. Manually
+   *     triggered after scripts/mark-people-summary-pending.js.
+   * ------------------------------------------------------------------ */
+  const personSummaryBackfillDlq = new Queue(
+    stack,
+    "PersonSummaryBackfillDlq",
+    { retentionPeriod: Duration.days(14) }
+  );
+  const personSummaryBackfillQueue = new Queue(
+    stack,
+    "PersonSummaryBackfillQueue",
+    {
+      // >= worker timeout (5 min) with headroom.
+      visibilityTimeout: Duration.minutes(6),
+      deadLetterQueue: { maxReceiveCount: 3, queue: personSummaryBackfillDlq },
+    }
+  );
+
+  backfillPersonSummaryEnqueue.addEnvironment(
+    "DDB_TABLE_PERSON",
+    personTable.tableName
+  );
+  backfillPersonSummaryEnqueue.addEnvironment(
+    "BACKFILL_PERSON_SUMMARY_QUEUE_URL",
+    personSummaryBackfillQueue.queueUrl
+  );
+  backfillPersonSummaryEnqueue.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:Query", "dynamodb:GetItem"],
+      resources: [personTable.tableArn, `${personTable.tableArn}/index/*`],
+    })
+  );
+  personSummaryBackfillQueue.grantSendMessages(
+    backfillPersonSummaryEnqueue.resources.lambda
+  );
+  // Self-invoke for pagination: stack-wildcard ARN (grantInvoke(self) would
+  // create a CloudFormation circular dependency).
+  backfillPersonSummaryEnqueue.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["lambda:InvokeFunction"],
+      resources: [
+        Stack.of(backfillPersonSummaryEnqueue.resources.lambda).formatArn({
+          service: "lambda",
+          resource: "function",
+          resourceName: "*",
+          arnFormat: ArnFormat.COLON_RESOURCE_NAME,
+        }),
+      ],
+    })
+  );
+
+  injectReadTables(
+    backfillPersonSummaryWorker,
+    backend,
+    PERSON_SUMMARY_READ_TABLES
+  );
+  backfillPersonSummaryWorker.resources.lambda.addToRolePolicy(
+    new iam.PolicyStatement({
+      actions: ["dynamodb:UpdateItem"],
+      resources: [personTable.tableArn],
+    })
+  );
+  backfillPersonSummaryWorker.resources.lambda.addToRolePolicy(
+    bedrockInvokeStatement(stack)
+  );
+  backfillPersonSummaryWorker.resources.lambda.addEventSource(
+    new SqsEventSource(personSummaryBackfillQueue, {
+      // One person per invocation: each run is a multi-second Bedrock call.
+      batchSize: 1,
+      reportBatchItemFailures: true,
+    })
+  );
+  // Cap concurrency for Bedrock (Sonnet) rate limits.
+  (
+    backfillPersonSummaryWorker.resources.lambda.node
       .defaultChild as CfnFunction
   ).reservedConcurrentExecutions = 2;
 }

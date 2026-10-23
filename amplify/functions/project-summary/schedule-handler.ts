@@ -12,6 +12,7 @@ import {
   MEETING_HEADER_DELAY_MINUTES,
   PERSON_EMBEDDING_DELAY_MINUTES,
   PROJECT_EMBEDDING_DELAY_MINUTES,
+  PERSON_SUMMARY_DELAY_MINUTES,
 } from "./lib/scheduler";
 
 /**
@@ -30,6 +31,12 @@ import {
  *   ProjectActivity (link added/removed)
  *     -> activity snapshot (+5)            (activityHeader = "Topic: <projects>")
  *     -> project summary   (+7)
+ *
+ * Person summary (+10, keyed by personId) is re-armed from:
+ *   PersonLearning / PersonAccount / PersonRelationship / NoteBlockPerson /
+ *   MeetingParticipant changes (the affected person ids), Person changes to
+ *   name/howToSay/birthday, and NoteBlock content changes (people mentioned
+ *   in the block + participants of the block's meeting).
  *
  * Each edit overwrites the same-named schedule, so timers slide forward
  * together — snapshot (+5) always lands before the summary (+7) it feeds.
@@ -158,6 +165,50 @@ const armActivity = async (
   );
 };
 
+const armPersonSummaries = async (
+  personIds: (string | null | undefined)[]
+): Promise<void> => {
+  const ids = [...new Set(personIds.filter((id): id is string => !!id))];
+  await Promise.all(
+    ids.map((id) =>
+      upsertOneTimeSchedule({
+        kind: "person-summary",
+        id,
+        delayMinutes: PERSON_SUMMARY_DELAY_MINUTES,
+      })
+    )
+  );
+  if (ids.length) console.log(`[schedule] person-summary ${ids.join(", ")}`);
+};
+
+const mentionedPersonIds = async (
+  noteBlockId: string,
+  owner: string
+): Promise<string[]> =>
+  (
+    await queryByIndex(
+      "NoteBlockPerson",
+      "gsi-NoteBlock.people",
+      "noteBlockId",
+      noteBlockId,
+      { owner }
+    )
+  ).map((j) => (j as { personId?: string }).personId ?? "");
+
+const meetingParticipantIds = async (
+  meetingId: string,
+  owner: string
+): Promise<string[]> =>
+  (
+    await queryByIndex(
+      "MeetingParticipant",
+      "gsi-Meeting.participants",
+      "meetingId",
+      meetingId,
+      { owner }
+    )
+  ).map((j) => (j as { personId?: string }).personId ?? "");
+
 const armMeetingHeader = async (meetingId: string): Promise<void> => {
   await upsertOneTimeSchedule({
     kind: "meeting-header",
@@ -178,7 +229,17 @@ const handleNoteBlock = async (record: DynamoDBRecord): Promise<void> => {
     "Activity",
     activityId
   );
-  await armActivity(activityId, owner, activity?.meetingActivitiesId ?? null);
+  const meetingId = activity?.meetingActivitiesId ?? null;
+  await armActivity(activityId, owner, meetingId);
+
+  // Person summaries: people mentioned in this block and the participants of
+  // the block's meeting (their meeting notes changed).
+  const blockId = image?.id as string | undefined;
+  const [mentioned, participants] = await Promise.all([
+    blockId ? mentionedPersonIds(blockId, owner) : Promise.resolve([]),
+    meetingId ? meetingParticipantIds(meetingId, owner) : Promise.resolve([]),
+  ]);
+  await armPersonSummaries([...mentioned, ...participants]);
 };
 
 const handleMeeting = async (record: DynamoDBRecord): Promise<void> => {
@@ -203,6 +264,7 @@ const handleMeetingParticipant = async (
 ): Promise<void> => {
   const image = newOrOld(record);
   const meetingId = image?.meetingId as string | undefined;
+  await armPersonSummaries([image?.personId as string | undefined]);
   if (!meetingId) return;
   await armMeetingHeader(meetingId);
 };
@@ -231,30 +293,74 @@ const armPersonEmbedding = async (personId: string): Promise<void> => {
   console.log(`[schedule] person-embedding ${personId}`);
 };
 
+// Person fields the summary pipeline (and touch-person-last-seen) write back
+// onto Person. Changes to only these must never re-arm anything.
+const PERSON_MACHINE_FIELDS = [
+  "nameEmbedding",
+  "nameEmbeddingSource",
+  "nameEmbeddingUpdatedAt",
+  "personSummary",
+  "personSummarySource",
+  "personSummaryUpdatedAt",
+  "personSummaryPending",
+  "lastSeen",
+];
+
+// Person fields that feed the person summary directly.
+const PERSON_SUMMARY_FIELDS = ["name", "howToSay", "birthday"];
+
+const personSummaryFieldsChanged = (record: DynamoDBRecord): boolean => {
+  if (record.eventName !== "MODIFY") return false;
+  const n = asRecord(
+    record.dynamodb?.NewImage as Record<string, AttributeValue>
+  );
+  const o = asRecord(
+    record.dynamodb?.OldImage as Record<string, AttributeValue>
+  );
+  if (!n || !o) return false;
+  return PERSON_SUMMARY_FIELDS.some(
+    (k) => JSON.stringify(n[k] ?? null) !== JSON.stringify(o[k] ?? null)
+  );
+};
+
 const handlePerson = async (record: DynamoDBRecord): Promise<void> => {
-  // Break the loop: our own embedding write streams back here. Skip when only
-  // the embedding cache fields changed (nothing the embedding depends on did).
-  if (
-    onlyIgnoredFieldsChanged(record, [
-      "nameEmbedding",
-      "nameEmbeddingSource",
-      "nameEmbeddingUpdatedAt",
-    ])
-  ) {
-    return;
-  }
+  // Break the loop: our own embedding/summary writes (and lastSeen touches)
+  // stream back here. Skip when only those machine fields changed.
+  if (onlyIgnoredFieldsChanged(record, PERSON_MACHINE_FIELDS)) return;
   const image = newOrOld(record);
   const personId = image?.id as string | undefined;
   if (!personId) return;
   await armPersonEmbedding(personId);
+  // A brand-new person has nothing to summarise yet; only re-arm on edits of
+  // the facts the summary uses.
+  if (personSummaryFieldsChanged(record)) await armPersonSummaries([personId]);
 };
 
 const handlePersonAccount = async (record: DynamoDBRecord): Promise<void> => {
-  // Employment (company/role) drives the embedded string too.
+  // Employment (company/role) drives the embedded string and the summary.
   const image = newOrOld(record);
   const personId = image?.personId as string | undefined;
   if (!personId) return;
   await armPersonEmbedding(personId);
+  await armPersonSummaries([personId]);
+};
+
+const handlePersonLearning = async (record: DynamoDBRecord): Promise<void> => {
+  await armPersonSummaries([newOrOld(record)?.personId as string | undefined]);
+};
+
+const handlePersonRelationship = async (
+  record: DynamoDBRecord
+): Promise<void> => {
+  const image = newOrOld(record);
+  await armPersonSummaries([
+    image?.personId as string | undefined,
+    image?.relatedPersonId as string | undefined,
+  ]);
+};
+
+const handleNoteBlockPerson = async (record: DynamoDBRecord): Promise<void> => {
+  await armPersonSummaries([newOrOld(record)?.personId as string | undefined]);
 };
 
 const armProjectEmbedding = async (projectId: string): Promise<void> => {
@@ -297,7 +403,9 @@ export const handler: DynamoDBStreamHandler = async (event) => {
   for (const record of event.Records) {
     try {
       const table = tableOf(record);
-      if (matches(table, "NoteBlock")) {
+      if (matches(table, "NoteBlockPerson")) {
+        await handleNoteBlockPerson(record);
+      } else if (matches(table, "NoteBlock")) {
         await handleNoteBlock(record);
       } else if (matches(table, "MeetingParticipant")) {
         await handleMeetingParticipant(record);
@@ -307,6 +415,10 @@ export const handler: DynamoDBStreamHandler = async (event) => {
         await handleProjectActivity(record);
       } else if (matches(table, "Projects")) {
         await handleProjects(record);
+      } else if (matches(table, "PersonLearning")) {
+        await handlePersonLearning(record);
+      } else if (matches(table, "PersonRelationship")) {
+        await handlePersonRelationship(record);
       } else if (matches(table, "PersonAccount")) {
         await handlePersonAccount(record);
       } else if (matches(table, "Person")) {

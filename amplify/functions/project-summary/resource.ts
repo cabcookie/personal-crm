@@ -212,3 +212,46 @@ export const backfillProjectEmbeddingWorker = defineFunction({
   timeoutSeconds: 2 * 60,
   logging: { retention: "1 week" },
 });
+
+/**
+ * Person summary: five-paragraph prose summary per person (Who / Relationship
+ * with me / Recent topics / Open items / Personal notes), written onto
+ * Person.personSummary. Fired by a per-person one-time schedule (+10 min
+ * trailing debounce) armed by scheduleDebounce. Loads up to 15 meetings and
+ * 30 mention blocks, then one Bedrock call.
+ */
+export const generatePersonSummary = defineFunction({
+  name: "generate-person-summary",
+  entry: "./person-summary-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 300,
+  logging: { retention: "1 week" },
+});
+
+/**
+ * One-off person-summary backfill (manually triggered). The enqueue Lambda
+ * pages the sparse `personSummaryPending` GSI on Person and fans person ids
+ * out to SQS; the worker consumes them with capped concurrency and runs the
+ * same core as generatePersonSummary, clearing the marker.
+ */
+export const backfillPersonSummaryEnqueue = defineFunction({
+  name: "backfill-person-summary-enqueue",
+  entry: "./backfill-person-summary-enqueue-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 60,
+  logging: { retention: "1 week" },
+});
+
+export const backfillPersonSummaryWorker = defineFunction({
+  name: "backfill-person-summary-worker",
+  entry: "./backfill-person-summary-worker-handler.ts",
+  resourceGroupName: "data",
+  runtime: 22,
+  architecture: "arm64",
+  timeoutSeconds: 300,
+  logging: { retention: "1 week" },
+});

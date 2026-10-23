@@ -189,6 +189,21 @@ const personSchmema = {
       // GSI below and pulls anything else on demand by id / via search. Left
       // unset until a person is first seen, so the GSI is SPARSE.
       lastSeen: a.datetime(),
+      // --- AI person summary ---------------------------------------------
+      // Five bold-lead prose paragraphs (Who / Relationship with me / Recent
+      // topics / Open items / Personal notes) produced by the debounced
+      // person-summary Lambda (see amplify/data/prompts/person-summary.ts)
+      // from employments, relationships, learnings, meetings and mentions.
+      // Written ONLY by the Lambda via raw DynamoDB (owner-preserving); never
+      // write these from the client. Feeds the meeting briefing.
+      personSummary: a.string(),
+      personSummaryUpdatedAt: a.datetime(),
+      // Hash of the rendered input context the summary was last generated
+      // from. Lets the pipeline skip the Bedrock call when nothing changed.
+      personSummarySource: a.string(),
+      // Backfill marker ("1"), set by scripts/mark-people-summary-pending.js
+      // and cleared by the backfill worker. SPARSE GSI below = work queue.
+      personSummaryPending: a.string(),
       // relations
       meetings: a.hasMany("MeetingParticipant", "personId"),
       accounts: a.hasMany("PersonAccount", "personId"),
@@ -204,6 +219,8 @@ const personSchmema = {
     .secondaryIndexes((index) => [
       // Sparse work-queue index for the person-embedding backfill.
       index("nameEmbeddingPending").queryField("listNameEmbeddingPending"),
+      // Sparse work-queue index for the person-summary backfill.
+      index("personSummaryPending").queryField("listPersonSummaryPending"),
       // Sparse recency index (owner PK, lastSeen SK): "most recently seen
       // people" for the initial in-memory set. Query descending + limit 50.
       // Only people that have ever been seen have `lastSeen`, so this index is
