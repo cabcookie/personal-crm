@@ -27,12 +27,17 @@ const ComboBox: FC<ComboBoxProps> = ({
           variant="outline"
           role="combobox"
           className={cn(
-            "px-2 md:px-4 w-full justify-between",
+            "px-2 md:px-4 w-full min-w-0 justify-between",
             !currentValue && "text-muted-foreground"
           )}
           disabled={disabled}
         >
-          {options?.find((o) => o.value === currentValue)?.label || placeholder}
+          {/* Truncate long labels instead of letting the trigger grow past its
+              container (e.g. out of a dialog). */}
+          <span className="truncate">
+            {options?.find((o) => o.value === currentValue)?.label ||
+              placeholder}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

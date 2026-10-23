@@ -24,7 +24,7 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
   disabled,
   placeholder = "Search person…",
 }) => {
-  const { people, createPerson, searchPeople } = usePeople();
+  const { people, createPerson, searchPeople, getPersonById } = usePeople();
   // While the user types, semantic-search matches; empty query → recent set.
   // `null` means "no active query" so we render the recent `people` set.
   const [matches, setMatches] = useState<LeanPerson[] | null>(null);
@@ -32,7 +32,11 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
 
   const onCreate = async (newPersonName: string) => {
     const person = await createPerson(newPersonName);
-    if (person) onChange(person);
+    if (person) {
+      // Drop the stale search results so the list shows the cache again.
+      setMatches(null);
+      onChange(person);
+    }
   };
 
   const handleSearch = (query: string) => {
@@ -48,8 +52,15 @@ const PeopleSelector: FC<PeopleSelectorProps> = ({
   };
 
   // Derived during render (no effect): search matches when querying, else the
-  // recent set.
-  const displayed = matches ?? people ?? [];
+  // recent set. The currently selected person is always included so the
+  // trigger can show its name even when it isn't among the current matches /
+  // recent set (e.g. just created, or picked from an earlier search).
+  const base = matches ?? people ?? [];
+  const selected = value ? getPersonById(value) : undefined;
+  const displayed =
+    selected && !base.some((p) => p.id === selected.id)
+      ? [selected, ...base]
+      : base;
 
   return (
     <ComboBox
