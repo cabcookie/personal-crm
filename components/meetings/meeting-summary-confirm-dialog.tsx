@@ -27,6 +27,8 @@ type Props = {
   onAssignCreatedPerson: (detectedId: string, person: CreatedPerson) => void;
   onToggleConfirmProject: (projectId: string) => void;
   onDismissProject: (projectId: string) => void;
+  /** Add a mentioned person by hand before summarizing. */
+  onAddPerson?: (person: CreatedPerson) => void;
   onConfirm: () => void;
 };
 
@@ -51,9 +53,11 @@ const MeetingSummaryConfirmDialog: FC<Props> = ({
   onAssignCreatedPerson,
   onToggleConfirmProject,
   onDismissProject,
+  onAddPerson,
   onConfirm,
 }) => {
-  const hasReviewables = people.length > 0;
+  // With the "+ Add person" pill the list is useful even with no detections.
+  const hasReviewables = people.length > 0 || !!onAddPerson;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,6 +83,7 @@ const MeetingSummaryConfirmDialog: FC<Props> = ({
               onAssignCreatedPerson={onAssignCreatedPerson}
               onToggleConfirmProject={onToggleConfirmProject}
               onDismissProject={onDismissProject}
+              onAddPerson={onAddPerson}
               hideProjects
             />
           </div>

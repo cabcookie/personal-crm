@@ -706,14 +706,60 @@ const useSonicTranscription = () => {
               };
             }
 
-            // 2) Different heard name that points at the SAME person as an
+            // 2) The best candidate of this mention is already the SELECTED
+            //    person of an existing entry (typically one the user
+            //    confirmed): it's the same person in different words. Don't
+            //    suggest them again — just remember the wording.
+            const incomingTop = topMatch(matches);
+            const alreadySelected =
+              incomingTop && incomingTop.score <= MERGE_SCORE_THRESHOLD
+                ? current.people.find(
+                    (p) => p.selectedPersonId === incomingTop.personId
+                  )
+                : undefined;
+            if (alreadySelected) {
+              const known = [
+                alreadySelected.heardName,
+                ...(alreadySelected.alsoHeardAs ?? []),
+              ].map((n) => n.toLowerCase());
+              const alsoHeardAs = known.includes(key)
+                ? alreadySelected.alsoHeardAs
+                : [...(alreadySelected.alsoHeardAs ?? []), heardName];
+              // A confirmed person stays exactly as the user left it.
+              if (alreadySelected.confirmed) {
+                return alsoHeardAs === alreadySelected.alsoHeardAs
+                  ? current
+                  : {
+                      ...current,
+                      people: current.people.map((p) =>
+                        p === alreadySelected ? { ...p, alsoHeardAs } : p
+                      ),
+                    };
+              }
+              flashDetection(heardName);
+              return {
+                ...current,
+                people: sortPeople(
+                  current.people.map((p) =>
+                    p === alreadySelected
+                      ? {
+                          ...p,
+                          alsoHeardAs,
+                          matches: mergeMatchLists(p.matches, matches, true),
+                        }
+                      : p
+                  )
+                ),
+              };
+            }
+
+            // 3) Different heard name that points at the SAME person as an
             //    existing (unconfirmed) detection: both have that person as
             //    their BEST candidate, each at/below MERGE_SCORE_THRESHOLD.
             //    Merge rather than list twice ("Mark" + "the online boss at
             //    ALDI"). A shared candidate further down the lists is NOT
             //    enough: unrelated people routinely score 0.35-0.55 against
             //    any name (noise floor), which caused false merges.
-            const incomingTop = topMatch(matches);
             const mergeTarget =
               incomingTop && incomingTop.score <= MERGE_SCORE_THRESHOLD
                 ? current.people.find((p) => {
@@ -757,7 +803,7 @@ const useSonicTranscription = () => {
               };
             }
 
-            // 3) Brand-new detection.
+            // 4) Brand-new detection.
             flashDetection(heardName);
             return {
               ...current,
@@ -957,10 +1003,10 @@ const useSonicTranscription = () => {
   );
 
   /**
-   * Assign a freshly created person to a detection and confirm it. Used by the
-   * "create new person" flow: the caller creates the Person (+ PersonAccount)
-   * and passes the new id + display fields; we inject it as a match, select it,
-   * and mark the detection confirmed.
+   * Assign a person to a detection and confirm it. Used by the in-pill search
+   * (pick a search result) and the "create new person" flow: we put the
+   * person at the top of the candidates (replacing an existing entry for the
+   * same person), select it, and mark the detection confirmed.
    */
   const assignCreatedPerson = useCallback(
     (
@@ -987,7 +1033,7 @@ const useSonicTranscription = () => {
                     role: person.role,
                     score: 0,
                   },
-                  ...p.matches,
+                  ...p.matches.filter((m) => m.personId !== person.personId),
                 ],
                 selectedPersonId: person.personId,
                 confirmed: true,
@@ -995,6 +1041,58 @@ const useSonicTranscription = () => {
             : p
         ),
       }));
+    },
+    [mutateDetections]
+  );
+
+  /**
+   * Manually add a person who was mentioned but not detected ("+ Add person").
+   * Added as a confirmed mention; if they're already an entry, that entry is
+   * confirmed instead of adding a duplicate.
+   */
+  const addMentionedPerson = useCallback(
+    (person: {
+      personId: string;
+      name: string;
+      company: string | null;
+      role: string | null;
+    }) => {
+      mutateDetections((current) => {
+        const existing = current.people.find(
+          (p) => p.selectedPersonId === person.personId
+        );
+        if (existing) {
+          return {
+            ...current,
+            people: current.people.map((p) =>
+              p === existing ? { ...p, confirmed: true } : p
+            ),
+          };
+        }
+        return {
+          ...current,
+          people: sortPeople([
+            ...current.people,
+            {
+              id: crypto.randomUUID(),
+              heardName: person.name,
+              matches: [
+                {
+                  personId: person.personId,
+                  name: person.name,
+                  source: null,
+                  company: person.company,
+                  role: person.role,
+                  score: 0,
+                },
+              ],
+              selectedPersonId: person.personId,
+              confirmed: true,
+              at: Date.now(),
+            },
+          ]),
+        };
+      });
     },
     [mutateDetections]
   );
@@ -1089,6 +1187,7 @@ const useSonicTranscription = () => {
     selectMatch,
     rejectDetectedPerson,
     assignCreatedPerson,
+    addMentionedPerson,
     toggleConfirmProject,
     notifyParticipantAdded,
     notifyProjectAdded,
