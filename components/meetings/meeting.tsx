@@ -416,7 +416,11 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
       {isActiveMeeting &&
         !isSummarized &&
         (sonic.detectedPeople.length > 0 ||
-          sonic.suggestedProjects.length > 0) && (
+          sonic.suggestedProjects.length > 0 ||
+          // Also while recording / once there's a transcript, so a mentioned
+          // person can be added by hand even if none was detected.
+          isRecordingThis ||
+          sonic.transcript.length > 0) && (
           <div className="transition-opacity duration-500 opacity-100 animate-in fade-in">
             <MeetingDetectionPills
               people={sonic.detectedPeople}
@@ -427,6 +431,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
               onAssignCreatedPerson={handleAssignCreatedPerson}
               onToggleConfirmProject={handleToggleConfirmProject}
               onDismissProject={sonic.dismissSuggestedProject}
+              onAddPerson={sonic.addMentionedPerson}
             />
           </div>
         )}
@@ -445,6 +450,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           onAssignCreatedPerson={handleAssignCreatedPerson}
           onToggleConfirmProject={handleToggleConfirmProject}
           onDismissProject={sonic.dismissSuggestedProject}
+          onAddPerson={sonic.addMentionedPerson}
           onConfirm={() => {
             markSummaryPending();
             sonic.requestSummary(meeting.id);
@@ -559,6 +565,7 @@ const MeetingRecord: FC<MeetingRecordProps> = ({
           estimatedCostUsd={isActiveMeeting ? sonic.estimatedCostUsd : 0}
           elapsedSeconds={isActiveMeeting ? sonic.elapsedSeconds : 0}
           systemAudioNote={isActiveMeeting ? sonic.systemAudioNote : null}
+          reconnecting={isRecordingThis && sonic.reconnecting}
           summarizing={meeting.sonicSummaryStatus === "PENDING"}
           summaryError={
             meeting.sonicSummaryStatus === "ERROR"

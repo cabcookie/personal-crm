@@ -16,7 +16,6 @@ import {
 import { sanitizeSonicText } from "@/helpers/sonic/sanitize-text";
 import {
   mutateSonicDetections,
-  emptyDetections,
   type PersistedDetections,
 } from "@/helpers/sonic/detections-store";
 import {
@@ -59,13 +58,12 @@ export const KNOWN_MATCH_THRESHOLD = 0.35;
 export const PERSON_SEARCH_TOP_K = 8;
 
 /**
- * Looser COSINE threshold (vs KNOWN_MATCH_THRESHOLD) for MERGING two detected
- * names into one person: if a candidate person appears in BOTH detections'
- * candidate lists at/below this score, the two heard names are very likely the
- * same person, so we merge rather than list twice — and the corroboration
- * boosts that person's rank. Kept above the preselect threshold because a
- * single detection at 0.4-0.5 isn't confident on its own, but agreement across
- * two independent mentions is.
+ * COSINE threshold for MERGING two detected names into one person: only when
+ * both detections have the SAME best candidate, and that candidate scores
+ * at/below this in each. A single detection at 0.4-0.5 isn't confident on its
+ * own, but two independent mentions agreeing on the same top person is. (A
+ * shared candidate further down the lists is not used: unrelated people
+ * routinely score 0.35-0.55 against any name, which caused false merges.)
  */
 export const MERGE_SCORE_THRESHOLD = 0.5;
 
@@ -122,7 +120,11 @@ const CORROBORATION_BONUS = 0.1;
 
 const mergeMatchLists = (
   existing: PersonMatch[],
-  incoming: PersonMatch[]
+  incoming: PersonMatch[],
+  /** Apply the corroboration bonus to people in both lists. Only for two
+   * DIFFERENT heard names agreeing — the same name re-reported is not
+   * independent evidence (and repeating it used to push scores to 0). */
+  corroborate: boolean
 ): PersonMatch[] => {
   const byId = new Map<string, PersonMatch>();
   for (const m of existing) byId.set(m.personId, { ...m });
@@ -131,12 +133,12 @@ const mergeMatchLists = (
     if (!prev) {
       byId.set(m.personId, { ...m });
     } else {
-      // Seen in both → keep the better score AND subtract a corroboration
+      // Seen in both → keep the better score; when corroborating, subtract a
       // bonus (clamped at 0) so a person both mentions point at ranks first.
       const better = Math.min(prev.score, m.score);
       byId.set(m.personId, {
         ...prev,
-        score: Math.max(0, better - CORROBORATION_BONUS),
+        score: corroborate ? Math.max(0, better - CORROBORATION_BONUS) : better,
         // Prefer whichever record carries company/role info.
         company: prev.company ?? m.company,
         role: prev.role ?? m.role,
@@ -144,6 +146,92 @@ const mergeMatchLists = (
     }
   }
   return [...byId.values()].sort((a, b) => a.score - b.score);
+};
+
+/** The best (lowest-score) candidate of a list, if any. */
+const topMatch = (matches: PersonMatch[]): PersonMatch | undefined =>
+  matches.reduce<PersonMatch | undefined>(
+    (best, m) => (!best || m.score < best.score ? m : best),
+    undefined
+  );
+
+/** Usage persisted on the meeting by earlier recording sessions. */
+type UsageBaseline = {
+  sessionCount: number;
+  durationSeconds: number;
+  totals: SonicTokenTotals;
+  costUsd: number;
+};
+
+const emptyUsageBaseline: UsageBaseline = {
+  sessionCount: 0,
+  durationSeconds: 0,
+  totals: {
+    inputSpeechTokens: 0,
+    inputTextTokens: 0,
+    outputSpeechTokens: 0,
+    outputTextTokens: 0,
+  },
+  costUsd: 0,
+};
+
+/** sonicTranscript is a.json(): may arrive parsed or as a JSON string. */
+const parseTranscriptLines = (value: unknown): TranscriptLine[] => {
+  let v = value;
+  if (typeof v === "string") {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      return [];
+    }
+  }
+  return Array.isArray(v) ? (v as TranscriptLine[]) : [];
+};
+
+/**
+ * What a meeting already holds from earlier recording sessions: its saved
+ * transcript (so a restarted recording continues it instead of overwriting
+ * it) and its saved usage (so usage accumulates). Throws if it can't be read
+ * — starting on top of an unknown state could overwrite saved data.
+ */
+const loadRecordingState = async (
+  meetingId: string
+): Promise<{ transcript: TranscriptLine[]; usage: UsageBaseline }> => {
+  const { data, errors } = await client.models.Meeting.get(
+    { id: meetingId },
+    {
+      selectionSet: [
+        "id",
+        "sonicTranscript",
+        "sonicSessionCount",
+        "sonicDurationSeconds",
+        "sonicInputSpeechTokens",
+        "sonicInputTextTokens",
+        "sonicOutputSpeechTokens",
+        "sonicOutputTextTokens",
+        "sonicEstimatedCostUsd",
+      ],
+    }
+  );
+  if (errors || !data) {
+    throw new Error(
+      "Could not load the meeting's saved recording state. Please try again."
+    );
+  }
+  return {
+    transcript: parseTranscriptLines(data.sonicTranscript),
+    usage: {
+      sessionCount: data.sonicSessionCount ?? 0,
+      durationSeconds: data.sonicDurationSeconds ?? 0,
+      totals: {
+        inputSpeechTokens: data.sonicInputSpeechTokens ?? 0,
+        inputTextTokens: data.sonicInputTextTokens ?? 0,
+        outputSpeechTokens: data.sonicOutputSpeechTokens ?? 0,
+        outputTextTokens: data.sonicOutputTextTokens ?? 0,
+      },
+      costUsd: data.sonicEstimatedCostUsd ?? 0,
+    },
+  };
 };
 
 /**
@@ -206,6 +294,9 @@ const useSonicTranscription = () => {
   const [totals, setTotals] = useState<SonicTokenTotals>(emptyTotals);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [systemAudioNote, setSystemAudioNote] = useState<string | null>(null);
+  // True while the stream is down and the client is reconnecting (see
+  // SonicClient.onReconnecting). Recording stays "on" meanwhile.
+  const [reconnecting, setReconnecting] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
   const [mics, setMics] = useState<MicDevice[]>([]);
   const [selectedMicId, setSelectedMicId] = useState<string | undefined>(
@@ -221,6 +312,10 @@ const useSonicTranscription = () => {
     null
   );
   const totalsRef = useRef<SonicTokenTotals>(emptyTotals);
+  // Usage already persisted on the meeting from EARLIER recording sessions,
+  // loaded at start. persistUsage adds the current session on top so a
+  // restarted recording accumulates instead of overwriting.
+  const usageBaselineRef = useRef<UsageBaseline>(emptyUsageBaseline);
   // The meeting the CURRENT session is bound to. Set by `start`; used by all
   // persistence so a page navigation (which rebinds options) can't misroute a
   // running session's writes.
@@ -360,15 +455,20 @@ const useSonicTranscription = () => {
     const durationSeconds = Math.round(
       (Date.now() - startedAtRef.current) / 1000
     );
+    // Add this session on top of what earlier sessions of the meeting already
+    // persisted (loaded at start), instead of overwriting it.
+    const base = usageBaselineRef.current;
     const { errors } = await client.models.Meeting.update({
       id: meetingId,
-      sonicSessionCount: 1,
-      sonicDurationSeconds: durationSeconds,
-      sonicInputSpeechTokens: t.inputSpeechTokens,
-      sonicInputTextTokens: t.inputTextTokens,
-      sonicOutputSpeechTokens: t.outputSpeechTokens,
-      sonicOutputTextTokens: t.outputTextTokens,
-      sonicEstimatedCostUsd: estimateSonicCostUsd(t),
+      sonicSessionCount: base.sessionCount + 1,
+      sonicDurationSeconds: base.durationSeconds + durationSeconds,
+      sonicInputSpeechTokens:
+        base.totals.inputSpeechTokens + t.inputSpeechTokens,
+      sonicInputTextTokens: base.totals.inputTextTokens + t.inputTextTokens,
+      sonicOutputSpeechTokens:
+        base.totals.outputSpeechTokens + t.outputSpeechTokens,
+      sonicOutputTextTokens: base.totals.outputTextTokens + t.outputTextTokens,
+      sonicEstimatedCostUsd: base.costUsd + estimateSonicCostUsd(t),
       sonicUsageUpdatedAt: new Date().toISOString(),
     });
     if (errors) console.error("persistUsage", errors);
@@ -410,6 +510,7 @@ const useSonicTranscription = () => {
     captureRef.current = null;
     clientRef.current = null;
     setRecording(false);
+    setReconnecting(false);
     setAudioLevel(0);
     await persistUsage();
     // Provisionally persist the transcript now. The summary is NOT triggered
@@ -485,23 +586,52 @@ const useSonicTranscription = () => {
       return;
     }
     setStarting(true);
+    // Load what this meeting already holds from earlier recording sessions
+    // (e.g. after a dropped connection the user restarts the recording). The
+    // new session CONTINUES that transcript and those detections instead of
+    // overwriting them, and usage accumulates. If it can't be read, refuse to
+    // start rather than risk overwriting saved data.
+    let saved: Awaited<ReturnType<typeof loadRecordingState>>;
+    try {
+      saved = await loadRecordingState(meetingId);
+    } catch (err) {
+      toast({
+        title: "Recording could not start",
+        description: err instanceof Error ? err.message : String(err),
+      });
+      setStarting(false);
+      return;
+    }
+    usageBaselineRef.current = saved.usage;
+    // In-memory state is only trustworthy if it belongs to this meeting; it's
+    // also newer than the server copy (periodic saves lag a few seconds).
+    const continuing = activeMeetingId === meetingId;
+    const baseTranscript =
+      continuing && transcriptRef.current.length >= saved.transcript.length
+        ? transcriptRef.current
+        : saved.transcript;
     // Bind this session to the currently-bound meeting so all persistence
     // routes correctly even if the user navigates and rebinds another meeting.
     recordingMeetingIdRef.current = meetingId;
     setActiveMeetingId(meetingId);
     setActiveMeetingTopic(optionsRef.current.meetingTopic);
-    setTranscript([]);
+    transcriptRef.current = baseTranscript;
+    setTranscript(baseTranscript);
     setSummary(null);
     setRecentDetectionName(null);
+    setReconnecting(false);
     setTotals(emptyTotals);
     totalsRef.current = emptyTotals;
     setElapsedSeconds(0);
     setSystemAudioNote(null);
-    // Clear any detections carried over from a PREVIOUS recording of this
-    // meeting, both locally and on the server, so a fresh recording starts
-    // clean. (If this is the meeting's first recording, this is a no-op —
-    // the field is already empty.)
-    mutateDetections(() => emptyDetections);
+    // Detections are NOT cleared: every detection write is a read-modify-write
+    // against the meeting's saved detections (see detections-store), so a
+    // restarted recording simply keeps adding to them. Drop in-memory ones
+    // only if they belong to a different meeting.
+    if (!continuing) {
+      setDetectedPeople([]);
+      setSuggestedProjects([]);
+    }
 
     // Build the startup context: participants (name/company/role) + the open
     // project list (name/company/partner/goal).
@@ -566,7 +696,8 @@ const useSonicTranscription = () => {
                     p === sameName
                       ? {
                           ...p,
-                          matches: mergeMatchLists(p.matches, matches),
+                          // Same name again: refresh candidates, no bonus.
+                          matches: mergeMatchLists(p.matches, matches, false),
                           selectedPersonId: p.selectedPersonId ?? preselected,
                         }
                       : p
@@ -575,30 +706,78 @@ const useSonicTranscription = () => {
               };
             }
 
-            // 2) Different heard name, but it corroborates the SAME person as
-            //    an existing (unconfirmed) detection: a candidate shared by
-            //    both lists at/below MERGE_SCORE_THRESHOLD. Merge rather than
-            //    list twice — "Mark" + "the online boss at ALDI" become one
-            //    entry whose shared candidate is boosted up the ranking.
-            const incomingClose = new Set(
-              matches
-                .filter((m) => m.score <= MERGE_SCORE_THRESHOLD)
-                .map((m) => m.personId)
-            );
-            const mergeTarget = current.people.find(
-              (p) =>
-                !p.confirmed &&
-                p.matches.some(
-                  (m) =>
-                    m.score <= MERGE_SCORE_THRESHOLD &&
-                    incomingClose.has(m.personId)
-                )
-            );
+            // 2) The best candidate of this mention is already the SELECTED
+            //    person of an existing entry (typically one the user
+            //    confirmed): it's the same person in different words. Don't
+            //    suggest them again — just remember the wording.
+            const incomingTop = topMatch(matches);
+            const alreadySelected =
+              incomingTop && incomingTop.score <= MERGE_SCORE_THRESHOLD
+                ? current.people.find(
+                    (p) => p.selectedPersonId === incomingTop.personId
+                  )
+                : undefined;
+            if (alreadySelected) {
+              const known = [
+                alreadySelected.heardName,
+                ...(alreadySelected.alsoHeardAs ?? []),
+              ].map((n) => n.toLowerCase());
+              const alsoHeardAs = known.includes(key)
+                ? alreadySelected.alsoHeardAs
+                : [...(alreadySelected.alsoHeardAs ?? []), heardName];
+              // A confirmed person stays exactly as the user left it.
+              if (alreadySelected.confirmed) {
+                return alsoHeardAs === alreadySelected.alsoHeardAs
+                  ? current
+                  : {
+                      ...current,
+                      people: current.people.map((p) =>
+                        p === alreadySelected ? { ...p, alsoHeardAs } : p
+                      ),
+                    };
+              }
+              flashDetection(heardName);
+              return {
+                ...current,
+                people: sortPeople(
+                  current.people.map((p) =>
+                    p === alreadySelected
+                      ? {
+                          ...p,
+                          alsoHeardAs,
+                          matches: mergeMatchLists(p.matches, matches, true),
+                        }
+                      : p
+                  )
+                ),
+              };
+            }
+
+            // 3) Different heard name that points at the SAME person as an
+            //    existing (unconfirmed) detection: both have that person as
+            //    their BEST candidate, each at/below MERGE_SCORE_THRESHOLD.
+            //    Merge rather than list twice ("Mark" + "the online boss at
+            //    ALDI"). A shared candidate further down the lists is NOT
+            //    enough: unrelated people routinely score 0.35-0.55 against
+            //    any name (noise floor), which caused false merges.
+            const mergeTarget =
+              incomingTop && incomingTop.score <= MERGE_SCORE_THRESHOLD
+                ? current.people.find((p) => {
+                    if (p.confirmed) return false;
+                    const top = topMatch(p.matches);
+                    return (
+                      !!top &&
+                      top.personId === incomingTop.personId &&
+                      top.score <= MERGE_SCORE_THRESHOLD
+                    );
+                  })
+                : undefined;
             if (mergeTarget) {
               flashDetection(heardName);
               const mergedMatches = mergeMatchLists(
                 mergeTarget.matches,
-                matches
+                matches,
+                true
               );
               return {
                 ...current,
@@ -624,7 +803,7 @@ const useSonicTranscription = () => {
               };
             }
 
-            // 3) Brand-new detection.
+            // 4) Brand-new detection.
             flashDetection(heardName);
             return {
               ...current,
@@ -647,15 +826,20 @@ const useSonicTranscription = () => {
           setTotals(t);
         },
         onError: (err) => {
+          // Terminal: the connection couldn't be restored (all reconnect
+          // attempts failed). Everything so far is saved by stop(); starting
+          // again continues this meeting's transcript and detections.
           console.error("Sonic stream error", err);
+          setReconnecting(false);
           toast({
-            title: "Transkription unterbrochen",
+            title: "Recording stopped",
             description:
-              err instanceof Error ? err.message : "Unbekannter Fehler.",
+              "The connection couldn't be restored. Everything transcribed so far has been saved; start the recording again to continue.",
           });
           void stop();
         },
-        onClose: () => setRecording(false),
+        onReconnecting: () => setReconnecting(true),
+        onReconnected: () => setReconnecting(false),
         searchPeople,
         searchProjects,
         contextPrompt: optionsRef.current.contextPrompt,
@@ -709,11 +893,11 @@ const useSonicTranscription = () => {
     } catch (err) {
       console.error("Failed to start Sonic transcription", err);
       toast({
-        title: "Start fehlgeschlagen",
+        title: "Recording could not start",
         description:
           err instanceof Error
             ? err.message
-            : "Mikrofon-/Audiozugriff nicht möglich.",
+            : "Microphone / audio access not possible.",
       });
       await captureRef.current?.stop().catch(() => undefined);
       await clientRef.current?.stop().catch(() => undefined);
@@ -725,6 +909,7 @@ const useSonicTranscription = () => {
   }, [
     recording,
     starting,
+    activeMeetingId,
     searchPeople,
     searchProjects,
     stop,
@@ -818,10 +1003,10 @@ const useSonicTranscription = () => {
   );
 
   /**
-   * Assign a freshly created person to a detection and confirm it. Used by the
-   * "create new person" flow: the caller creates the Person (+ PersonAccount)
-   * and passes the new id + display fields; we inject it as a match, select it,
-   * and mark the detection confirmed.
+   * Assign a person to a detection and confirm it. Used by the in-pill search
+   * (pick a search result) and the "create new person" flow: we put the
+   * person at the top of the candidates (replacing an existing entry for the
+   * same person), select it, and mark the detection confirmed.
    */
   const assignCreatedPerson = useCallback(
     (
@@ -848,7 +1033,7 @@ const useSonicTranscription = () => {
                     role: person.role,
                     score: 0,
                   },
-                  ...p.matches,
+                  ...p.matches.filter((m) => m.personId !== person.personId),
                 ],
                 selectedPersonId: person.personId,
                 confirmed: true,
@@ -856,6 +1041,58 @@ const useSonicTranscription = () => {
             : p
         ),
       }));
+    },
+    [mutateDetections]
+  );
+
+  /**
+   * Manually add a person who was mentioned but not detected ("+ Add person").
+   * Added as a confirmed mention; if they're already an entry, that entry is
+   * confirmed instead of adding a duplicate.
+   */
+  const addMentionedPerson = useCallback(
+    (person: {
+      personId: string;
+      name: string;
+      company: string | null;
+      role: string | null;
+    }) => {
+      mutateDetections((current) => {
+        const existing = current.people.find(
+          (p) => p.selectedPersonId === person.personId
+        );
+        if (existing) {
+          return {
+            ...current,
+            people: current.people.map((p) =>
+              p === existing ? { ...p, confirmed: true } : p
+            ),
+          };
+        }
+        return {
+          ...current,
+          people: sortPeople([
+            ...current.people,
+            {
+              id: crypto.randomUUID(),
+              heardName: person.name,
+              matches: [
+                {
+                  personId: person.personId,
+                  name: person.name,
+                  source: null,
+                  company: person.company,
+                  role: person.role,
+                  score: 0,
+                },
+              ],
+              selectedPersonId: person.personId,
+              confirmed: true,
+              at: Date.now(),
+            },
+          ]),
+        };
+      });
     },
     [mutateDetections]
   );
@@ -940,6 +1177,7 @@ const useSonicTranscription = () => {
     estimatedCostUsd: estimateSonicCostUsd(totals),
     elapsedSeconds,
     systemAudioNote,
+    reconnecting,
     audioLevel,
     mics,
     selectedMicId,
@@ -949,6 +1187,7 @@ const useSonicTranscription = () => {
     selectMatch,
     rejectDetectedPerson,
     assignCreatedPerson,
+    addMentionedPerson,
     toggleConfirmProject,
     notifyParticipantAdded,
     notifyProjectAdded,

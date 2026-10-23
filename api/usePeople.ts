@@ -233,8 +233,27 @@ const usePeople = () => {
 
     const { data, errors } = await client.models.Person.create({ name });
     if (errors) handleApiErrors(errors, "Error creating person");
+    // Swap the optimistic entry (temp id) for the real one. Otherwise the
+    // cache only ever holds the temp id, so anything that resolves the new
+    // person by its REAL id (e.g. a selector showing the chosen value) can't
+    // find it and falls back to its placeholder.
+    peopleCache.delete(newPerson.id);
+    if (data?.id) mergeIntoCache([{ ...newPerson, id: data.id }]);
     mutatePeople(cacheValues());
     return data?.id;
+  };
+
+  /** Rename a person (e.g. fixing capitalisation right after creating them). */
+  const renamePerson = async (personId: string, name: string) => {
+    const cached = peopleCache.get(personId);
+    if (cached) mergeIntoCache([{ ...cached, name }]);
+    mutatePeople(cacheValues(), false);
+    const { errors } = await client.models.Person.update({
+      id: personId,
+      name,
+    });
+    if (errors) handleApiErrors(errors, "Error renaming person");
+    mutatePeople(cacheValues());
   };
 
   const personName = (person?: LeanPerson) =>
@@ -282,6 +301,7 @@ const usePeople = () => {
     errorPeople,
     loadingPeople,
     createPerson,
+    renamePerson,
     getNamesByIds,
     getPeopleByIds,
     getPersonById,
