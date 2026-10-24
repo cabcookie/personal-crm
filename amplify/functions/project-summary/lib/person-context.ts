@@ -237,10 +237,26 @@ const queryRecent = async <T extends DdbRecord>(
   return items;
 };
 
-const textOf = (json: unknown): string => {
+/**
+ * Learnings are TipTap JSON (object or JSON string) for newer rows, but older
+ * rows store PLAIN TEXT in the a.json() field (e.g. "Krank (Erkältung)").
+ * Parse JSON when possible and fall back to the raw string otherwise.
+ */
+export const textOf = (json: unknown): string => {
   if (!json) return "";
+  let content: unknown = json;
+  if (typeof json === "string") {
+    try {
+      content = JSON.parse(json);
+    } catch {
+      return json.trim();
+    }
+    // A JSON-encoded plain string ('"text"') parses to a string.
+    if (typeof content === "string") return content.trim();
+  }
+  if (typeof content !== "object") return String(content).trim();
   try {
-    return getMarkdown(json as JSONContent | string).trim();
+    return getMarkdown(content as JSONContent).trim();
   } catch (error) {
     console.warn("[person-context] could not render learning", { error });
     return "";
