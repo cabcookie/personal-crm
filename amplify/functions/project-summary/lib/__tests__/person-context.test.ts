@@ -4,6 +4,7 @@ import {
   hashContext,
   relationFor,
   renderPersonContext,
+  textOf,
   type PersonContext,
 } from "../person-context";
 
@@ -120,5 +121,31 @@ describe("renderPersonContext", () => {
     expect(a).toBe(b);
     expect(a).not.toBe(c);
     expect(a).toMatch(/^[0-9a-f]{64}$/);
+  });
+});
+
+describe("textOf (learning content)", () => {
+  it("keeps legacy plain-text learnings", () => {
+    expect(textOf("Krank (Erkältung)")).toBe("Krank (Erkältung)");
+    expect(textOf('"quoted text"')).toBe("quoted text");
+  });
+
+  it("renders TipTap JSON given as object or string", () => {
+    const doc = {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "Loves cycling" }],
+        },
+      ],
+    };
+    expect(textOf(doc)).toBe("Loves cycling");
+    expect(textOf(JSON.stringify(doc))).toBe("Loves cycling");
+  });
+
+  it("returns empty for empty input", () => {
+    expect(textOf(null)).toBe("");
+    expect(textOf("")).toBe("");
   });
 });

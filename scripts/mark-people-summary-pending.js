@@ -15,9 +15,12 @@
  *   node scripts/mark-people-summary-pending.js -env dev
  *   node scripts/mark-people-summary-pending.js -env dev --commit
  *   node scripts/mark-people-summary-pending.js -env dev --commit --limit 20
+ *   node scripts/mark-people-summary-pending.js -env dev --commit --force
  *
  * Without --commit it runs a dry run and only reports how many people WOULD be
  * marked. --limit N marks at most N people (for a first small test run).
+ * --force also re-marks people that already have a summary (e.g. after a
+ * renderer fix); the worker still skips those whose context hash is unchanged.
  */
 const {
   DynamoDBClient,
@@ -32,6 +35,7 @@ const env = getEnvironment();
 // of models): <Model>-<api id>-NONE.
 const getTable = (model) => `${model}-${env.tables}-NONE`;
 const commit = process.argv.includes("--commit");
+const force = process.argv.includes("--force");
 const limitIdx = process.argv.indexOf("--limit");
 const limit =
   limitIdx >= 0 ? parseInt(process.argv[limitIdx + 1], 10) : Infinity;
@@ -73,9 +77,11 @@ const markPerson = async (id) => {
       TableName: personTable,
       Key: { id: { S: id } },
       UpdateExpression: "SET personSummaryPending = :one",
-      // Person must exist, not be marked already, and have no summary yet.
-      ConditionExpression:
-        "attribute_exists(id) AND attribute_not_exists(personSummaryPending) AND attribute_not_exists(personSummary)",
+      // Person must exist and not be marked already; without --force it must
+      // also have no summary yet.
+      ConditionExpression: force
+        ? "attribute_exists(id) AND attribute_not_exists(personSummaryPending)"
+        : "attribute_exists(id) AND attribute_not_exists(personSummaryPending) AND attribute_not_exists(personSummary)",
       ExpressionAttributeValues: { ":one": { S: "1" } },
     })
   );
